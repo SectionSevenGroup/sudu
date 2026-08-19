@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./js/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html { background: #F6F4E7; }
+  body { margin: 0; background: #F6F4E7; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  * { box-sizing: border-box; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #E17B3E; }
+  ::selection { background: #E17B3E; color: #F6F4E7; }
+  :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  input::placeholder, textarea::placeholder { color: #A6A399; opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</helmet>
+
+<div style="background:#F6F4E7; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
+
+  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(246,244,231,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
+    <a href="index.html" style="display:flex; align-items:flex-end; gap:12px;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+    </a>
+    <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
+      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a>
+    </nav>
+  </header>
+
+  <section data-screen-label="Contact" style="flex:1; padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
+    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">Start a project</div>
+    <h1 style="margin:0; max-width:24ch; font-size:clamp(28px,3.8vw,46px); font-weight:700; letter-spacing:-0.035em; line-height:1.0; text-wrap:pretty;">Every project begins with a conversation.</h1>
+
+    <div style="display:flex; flex-wrap:wrap; gap:40px 72px; margin-top:clamp(32px,4vw,48px);">
+
+      <div style="flex:1 1 420px; max-width:600px;">
+        <form action="mailto:office@sudu.studio" method="get" style="display:flex; flex-direction:column; gap:22px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:22px;">
+            <label style="display:flex; flex-direction:column; gap:8px;">
+              <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Name</span>
+              <input type="text" name="name" placeholder="Your name" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
+            </label>
+            <label style="display:flex; flex-direction:column; gap:8px;">
+              <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Email</span>
+              <input type="email" name="email" placeholder="you@email.com" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
+            </label>
+          </div>
+          <label style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Project type</span>
+            <input type="text" name="subject" placeholder="Residential, hospitality, commercial, community..." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
+          </label>
+          <label style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
+            <textarea name="body" rows="4" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
+          </label>
+          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F6F4E7;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
+          <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:office@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">office@sudu.studio</a></p>
+        </form>
+      </div>
+
+      <div style="flex:0 1 280px; display:flex; flex-direction:column; gap:22px;">
+        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
+          <div style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Email</div>
+          <a href="mailto:office@sudu.studio" style="font-size:15px; font-weight:600; letter-spacing:-0.01em; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">office@sudu.studio</a>
+        </div>
+        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
+          <div style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Studio</div>
+          <div style="font-size:14px; font-weight:500;">Open by appointment</div>
+          <div style="font-size:14px; font-weight:500;">Alberta | British Columbia</div>
+        </div>
+        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
+          <div style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Reach</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.6;">Working with private clients, developers, institutions, and communities across North and Central America.</div>
+        </div>
+        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px; display:flex; gap:14px; font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D;">
+          <a href="https://www.instagram.com/productof.ca" target="_blank" rel="noopener">Instagram</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
+      <span>&copy; 2026 SuDu Studio Architecture</span>
+    </div>
+    <span>Alberta | British Columbia</span>
+  </footer>
+
+</div>
+
+</x-dc>
+</body>
+</html>
