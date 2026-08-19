@@ -11,22 +11,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="./js/image-slot.js"></script>
+<script src="./image-slot.js"></script>
 <style>
-  html { background: #F6F4E7; }
-  body { margin: 0; background: #F6F4E7; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  html { background: #F3F1EA; }
+  body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
   a:hover { color: #E17B3E; }
-  ::selection { background: #E17B3E; color: #F6F4E7; }
+  ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </helmet>
 
-<div style="background:#F6F4E7; color:#171613; font-family:'Urbanist', sans-serif;">
+<div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(246,244,231,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
+  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="index.html" style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
@@ -171,13 +171,13 @@ class Component extends DCLogic {
       scope: 'Architecture, Interiors', status: 'Completed', counter: '01 / 14',
       lede: 'A private residence and gallery organized around the display of a personal art collection.',
       body: 'Sited at the rear of a south-facing property, the study explored three architectural directions for a private office, gallery, and rare car collection. The selected concept, H.21.01 / White Box, uses a minimal white volume, an open lower level, and a restrained material language to balance privacy, landscape, light, and display.',
-      heroSrc: 'images/img-hero-westvan.jpg', next: 'wilfreds',
+      heroSrc: 'img-hero-westvan.jpg', next: 'wilfreds',
       groups: [
-        { head: 'H.21.01 / White Box', sub: 'Selected concept', images: ['images/wv-elevation.jpg', 'images/wv-interior.jpg', 'images/wv-plans.jpg'] },
-        { head: 'H.21.02 / Glass Gallery', sub: 'Alternative study', images: ['images/wv-glass-1.jpg', 'images/wv-glass-2.jpg', 'images/wv-glass-3.jpg', 'images/wv-glass-top.png'] },
-        { head: 'H.21.03 / The Cantilever', sub: 'Alternative study', images: ['images/wv-cant-1.jpg', 'images/wv-cant-2.jpg', 'images/wv-cant-3.jpg', 'images/wv-cant-plans.jpg'] }
+        { head: 'H.21.01 / White Box', sub: 'Selected concept', images: ['wv-elevation.jpg', 'wv-interior.jpg', 'wv-plans.jpg'] },
+        { head: 'H.21.02 / Glass Gallery', sub: 'Alternative study', images: ['wv-glass-1.jpg', 'wv-glass-2.jpg', 'wv-glass-3.jpg', 'wv-glass-top.png'] },
+        { head: 'H.21.03 / The Cantilever', sub: 'Alternative study', images: ['wv-cant-1.jpg', 'wv-cant-2.jpg', 'wv-cant-3.jpg', 'wv-cant-plans.jpg'] }
       ],
-      gA: 'images/wv-elevation.jpg', gB: 'images/wv-interior.jpg', gC: 'images/wv-plans.jpg',
+      gA: 'wv-elevation.jpg', gB: 'wv-interior.jpg', gC: 'wv-plans.jpg',
       related: [
         { name: 'West Shore Residence', meta: 'Private Residential', key: 'westshore' },
         { name: 'Residence Studies 1\u201312', meta: 'Visual Research \u00b7 Alberta / Norfolk' }
@@ -188,9 +188,9 @@ class Component extends DCLogic {
       scope: 'Interiors, Material Direction', status: 'Completed', counter: '02 / 14',
       lede: 'A standalone brick heritage building, rebuilt from the inside out as a single hospitality idea.',
       body: 'Custom millwork, soft colour, natural materials, and playful mural work give the room a warm, residential scale. Space and millwork by the studio, mural by Vanguard Works, brand development with Shaun Brandt: a demonstration of how closely identity and physical place can be built together.',
-      heroSrc: 'images/img-wilfreds.jpg', next: 'westshore',
-      gallery: ['images/wf-2.jpg', 'images/wf-3.jpg', 'images/wf-4.jpg', 'images/wf-5.jpg', 'images/wf-6.jpg'],
-      gA: 'images/wf-3.jpg', gB: 'images/wf-4.jpg', gC: 'images/wf-6.jpg',
+      heroSrc: 'img-wilfreds.jpg', next: 'westshore',
+      gallery: ['wf-2.jpg', 'wf-3.jpg', 'wf-4.jpg', 'wf-5.jpg', 'wf-6.jpg'],
+      gA: 'wf-3.jpg', gB: 'wf-4.jpg', gC: 'wf-6.jpg',
       related: [
         { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
         { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
@@ -204,7 +204,7 @@ class Component extends DCLogic {
       scope: 'Architecture, Concept Design', status: 'In development', counter: '03 / 14',
       lede: 'A custom residence developed from massing studies through exterior material resolution.',
       body: 'The design began as a study of the site\u2019s long views and grade, testing massing options before committing to a form. Exterior materials were resolved early so the concept and its construction logic developed together.',
-      heroSrc: 'images/img-westshore-1500.jpg', next: 'atb',
+      heroSrc: 'img-westshore-1500.jpg', next: 'atb',
       related: [
         { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' },
         { name: 'Condominium Work', meta: 'Residential \u00b7 Current' }
@@ -215,7 +215,7 @@ class Component extends DCLogic {
       scope: 'Repositioning, Public Realm, with DIALOG', status: 'Completed', counter: '04 / 14',
       lede: 'Renewal of the concourse, podium, and exterior plazas at a major downtown intersection.',
       body: 'For client HOOP, the study turns an internalized office podium into an active public throughway: food and retail addressing the street, plazas reworked as everyday civic space, and a stronger connection between the towers, tenants, and downtown residents. Design team: Joe Johnson (Makespace Group) with DIALOG.',
-      heroSrc: 'images/img-atb.jpg', next: 'corso32',
+      heroSrc: 'img-atb.jpg', next: 'corso32',
       related: [
         { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking Environments', key: 'atb-banking' },
         { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' },
@@ -228,8 +228,8 @@ class Component extends DCLogic {
       scope: 'Interiors, Brand, Millwork', status: 'Completed, 2010', counter: '05 / 14',
       lede: 'An intimate Italian restaurant on Jasper Avenue, built around a narrow room and a long bar.',
       body: 'A tight plan resolved through custom millwork, warm material choices, and careful lighting: a restaurant for an award-winning chef where the room supports the food rather than competing with it.',
-      heroSrc: 'images/img-corso32.jpg', next: 'bar-bricco',
-      gallery: ['images/corso-1.jpg', 'images/corso-2.jpg', 'images/corso-4.jpg', 'images/corso-5.jpg'],
+      heroSrc: 'img-corso32.jpg', next: 'bar-bricco',
+      gallery: ['corso-1.jpg', 'corso-2.jpg', 'corso-4.jpg', 'corso-5.jpg'],
       related: [
         { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
         { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
@@ -241,7 +241,7 @@ class Component extends DCLogic {
       scope: 'Interiors, Millwork', status: 'Completed', counter: '06 / 14',
       lede: 'A standing-room spuntini bar, compact and precise, next door to Corso 32.',
       body: 'A small footprint treated as a virtue: a single counter-focused room where millwork, lighting, and material restraint do the spatial work. Designed as a companion piece to Corso 32.',
-      heroSrc: 'images/img-barbricco.jpg', next: 'uccellino',
+      heroSrc: 'img-barbricco.jpg', next: 'uccellino',
       related: [
         { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
         { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
@@ -253,7 +253,7 @@ class Component extends DCLogic {
       scope: 'Interiors, Material Direction', status: 'Completed', counter: '07 / 14',
       lede: 'A bright, pared-back Italian room completing the Jasper Avenue trio.',
       body: 'Where Corso 32 is dark and Bar Bricco is compact, Uccellino is open and light: pale surfaces, simple lines, and a calm dining room that lets daylight and the table carry the experience.',
-      heroSrc: 'images/img-uccellino.jpg', next: 'the-helm',
+      heroSrc: 'img-uccellino.jpg', next: 'the-helm',
       related: [
         { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
         { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
@@ -265,10 +265,10 @@ class Component extends DCLogic {
       scope: 'Interiors, Brand Integration', status: 'Completed', counter: '08 / 14',
       lede: 'A menswear environment where retail display and clubroom character share one room.',
       body: 'Fixture design, millwork, and material direction built around the ritual of menswear: a shop that reads as a room you want to stay in, with the brand carried through every surface.',
-      heroSrc: 'images/img-thehelm.jpg', next: 'hells-kitchen',
+      heroSrc: 'img-thehelm.jpg', next: 'hells-kitchen',
       groups: [
-        { head: 'Completed Space', sub: '', images: ['images/helm-1.jpg', 'images/helm-2.jpg', 'images/helm-3.jpg', 'images/helm-4.jpg', 'images/helm-5.jpg', 'images/helm-6.jpg', 'images/helm-8.jpg', 'images/helm-9.jpg', 'images/helm-10.jpg'] },
-        { head: 'Process / Construction', sub: '', images: ['images/helm-c1.jpg', 'images/helm-c2.jpg', 'images/helm-c3.jpg'] }
+        { head: 'Completed Space', sub: '', images: ['helm-1.jpg', 'helm-2.jpg', 'helm-3.jpg', 'helm-4.jpg', 'helm-5.jpg', 'helm-6.jpg', 'helm-8.jpg', 'helm-9.jpg', 'helm-10.jpg'] },
+        { head: 'Process / Construction', sub: '', images: ['helm-c1.jpg', 'helm-c2.jpg', 'helm-c3.jpg'] }
       ],
       related: [
         { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' },
@@ -280,8 +280,8 @@ class Component extends DCLogic {
       scope: 'Architecture, Patio Addition, with MES Architecture', status: 'Under construction', counter: '09 / 14',
       lede: 'A 3,000 sq ft modern patio addition for Hell\u2019s Kitchen at Enoch Casino.',
       body: 'A compact architectural extension of glass, concrete, black metal, and warm soffit material, giving the restaurant a stronger exterior presence, an improved arrival sequence, and a refined indoor-outdoor relationship with the larger casino building.',
-      heroSrc: 'images/img-hellskitchen.jpg', next: 'atb-banking',
-      gallery: ['images/hk-day.png', 'images/hk-elev.png', 'images/hk-int.jpg'],
+      heroSrc: 'img-hellskitchen.jpg', next: 'atb-banking',
+      gallery: ['hk-day.png', 'hk-elev.png', 'hk-int.jpg'],
       related: [
         { name: 'Enoch Elders Lodge', meta: 'Community \u00b7 Enoch Cree Nation', key: 'enoch' },
         { name: 'The Helm', meta: 'Hospitality \u00b7 Retail', key: 'the-helm' }
@@ -292,11 +292,11 @@ class Component extends DCLogic {
       scope: 'Strategy, Concept, Design Direction', status: 'Completed', counter: '10 / 14',
       lede: 'A multi-year initiative reimagining ATB Financial\u2019s flagship and neighbourhood branches.',
       body: 'Strategic planning, concept development, and design direction for \u201cBranches of the Future\u201d: banking environments rebuilt around customer experience, with a design system flexible enough to scale across Alberta.',
-      heroSrc: 'images/img-atb-banking.jpg', next: 'factory-yyc',
+      heroSrc: 'img-atb-banking.jpg', next: 'factory-yyc',
       groups: [
-        { head: 'Eighth Avenue Place / Calgary', sub: 'Architect: Stantec', images: ['images/atbb-eap1.jpg', 'images/atbb-eap2.jpg', 'images/atbb-eap3.jpg', 'images/atbb-eap4.jpg', 'images/atbb-eap5.jpg', 'images/atbb-eap6.jpg'] },
-        { head: 'City Centre / Edmonton', sub: 'Architect: Lemay', images: ['images/atbb-cc1.jpg', 'images/atbb-cc2.jpg', 'images/atbb-cc3.jpg'] },
-        { head: 'Hudson Block / Calgary', sub: 'Architect: Lemay', images: ['images/atbb-hb1.jpg', 'images/atbb-hb2.jpg', 'images/atbb-hb3.jpg', 'images/atbb-hb4.jpg', 'images/atbb-hb5.jpg'] }
+        { head: 'Eighth Avenue Place / Calgary', sub: 'Architect: Stantec', images: ['atbb-eap1.jpg', 'atbb-eap2.jpg', 'atbb-eap3.jpg', 'atbb-eap4.jpg', 'atbb-eap5.jpg', 'atbb-eap6.jpg'] },
+        { head: 'City Centre / Edmonton', sub: 'Architect: Lemay', images: ['atbb-cc1.jpg', 'atbb-cc2.jpg', 'atbb-cc3.jpg'] },
+        { head: 'Hudson Block / Calgary', sub: 'Architect: Lemay', images: ['atbb-hb1.jpg', 'atbb-hb2.jpg', 'atbb-hb3.jpg', 'atbb-hb4.jpg', 'atbb-hb5.jpg'] }
       ],
       related: [
         { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' },
@@ -308,7 +308,7 @@ class Component extends DCLogic {
       scope: 'Concept Design', status: 'Concept', counter: '11 / 14',
       lede: 'A hospitality concept study for an industrial Calgary shell.',
       body: 'A concept exercise in keeping the found character of an industrial volume while layering in the warmth, acoustics, and service logic a working room needs.',
-      heroSrc: 'images/img-factoryyyc.jpg', next: 'selkirk',
+      heroSrc: 'img-factoryyyc.jpg', next: 'selkirk',
       related: [
         { name: 'Hell\u2019s Kitchen', meta: 'Hospitality \u00b7 Entertainment', key: 'hells-kitchen' },
         { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }
@@ -319,8 +319,8 @@ class Component extends DCLogic {
       scope: 'Concept Design, with Melcor', status: 'Concept', counter: '12 / 14',
       lede: 'A commercial repositioning concept for the former RBC building on Jasper Avenue.',
       body: 'For Melcor, the study renews the tower\u2019s lower levels: new architectural interventions, exterior plaza work, lighting, landscape, and interior public space shift the building from a closed corporate address into an open, active urban destination. With DIALOG.',
-      heroSrc: 'images/img-selkirk.jpg', next: 'enoch',
-      gallery: ['images/sel-ext1.png', 'images/sel-int2.png', 'images/sel-aerial.jpg'],
+      heroSrc: 'img-selkirk.jpg', next: 'enoch',
+      gallery: ['sel-ext1.png', 'sel-int2.png', 'sel-aerial.jpg'],
       related: [
         { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' },
         { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }
@@ -331,8 +331,8 @@ class Component extends DCLogic {
       scope: 'Concept Design', status: 'Concept', counter: '13 / 14',
       lede: 'A concept for elders housing with Enoch Cree Nation.',
       body: 'A housing concept shaped around community, culture, and care: shared gathering space at the heart, dwellings arranged for connection, dignity, and everyday visits.',
-      heroSrc: 'images/img-enoch.jpg', next: 'youth-recovery',
-      gallery: ['images/enoch-1.png', 'images/enoch-2.png', 'images/enoch-3.png', 'images/enoch-4.png', 'images/enoch-mural.jpg'],
+      heroSrc: 'img-enoch.jpg', next: 'youth-recovery',
+      gallery: ['enoch-1.png', 'enoch-2.png', 'enoch-3.png', 'enoch-4.png', 'enoch-mural.jpg'],
       related: [
         { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' },
         { name: 'Hell\u2019s Kitchen', meta: 'Enoch Casino', key: 'hells-kitchen' }
@@ -343,8 +343,8 @@ class Component extends DCLogic {
       scope: 'Architecture, with MES Architecture', status: 'In progress', counter: '14 / 14',
       lede: 'A youth recovery and wellness environment built around calm, residential-scale space.',
       body: 'Clear planning, efficient SIP panelized construction, warm materials, natural light, and protected outdoor connections create an environment focused on privacy, safety, dignity, and recovery. With MES Architecture.',
-      heroSrc: 'images/img-youthrecovery.jpg', next: 'west-vancouver',
-      gallery: ['images/yr-ext.png', 'images/yr-int1.png', 'images/yr-int3.jpg', 'images/yr-bear.png'],
+      heroSrc: 'img-youthrecovery.jpg', next: 'west-vancouver',
+      gallery: ['yr-ext.png', 'yr-int1.png', 'yr-int3.jpg', 'yr-bear.png'],
       related: [
         { name: 'Enoch Elders Lodge', meta: 'Community Housing', key: 'enoch' },
         { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' }

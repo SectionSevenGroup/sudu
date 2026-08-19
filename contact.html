@@ -12,21 +12,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  html { background: #F6F4E7; }
-  body { margin: 0; background: #F6F4E7; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  html { background: #F3F1EA; }
+  body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
   a:hover { color: #E17B3E; }
-  ::selection { background: #E17B3E; color: #F6F4E7; }
+  ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
   input::placeholder, textarea::placeholder { color: #A6A399; opacity: 1; }
+  @keyframes webPulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.06); } }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </helmet>
 
-<div style="background:#F6F4E7; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
+<div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(246,244,231,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
+  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="index.html" style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
@@ -41,10 +42,23 @@
     <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">Start a project</div>
     <h1 style="margin:0; max-width:24ch; font-size:clamp(28px,3.8vw,46px); font-weight:700; letter-spacing:-0.035em; line-height:1.0; text-wrap:pretty;">Every project begins with a conversation.</h1>
 
-    <div style="display:flex; flex-wrap:wrap; gap:40px 72px; margin-top:clamp(32px,4vw,48px);">
+    <div style="display:flex; flex-wrap:wrap; gap:40px 64px; margin-top:clamp(32px,4vw,48px);">
 
-      <div style="flex:1 1 420px; max-width:600px;">
-        <form action="mailto:office@sudu.studio" method="get" style="display:flex; flex-direction:column; gap:22px;">
+      <div style="flex:1 1 400px; max-width:560px;">
+        <form onSubmit="{{ submit }}" style="display:flex; flex-direction:column; gap:24px;">
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">I'm interested in</span>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="6">
+                <button type="button" onClick="{{ chip.toggle }}" aria-pressed="{{ chip.pressed }}" style="border:1px solid rgba(23,22,19,0.32); background:{{ chip.bg }}; color:{{ chip.fg }}; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" style-hover="border-color:#171613;">{{ chip.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ hasSubs }}" hint-placeholder-val="">
+              <div style="font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D; line-height:1.6;">{{ subSummary }}</div>
+            </sc-if>
+          </div>
+
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:22px;">
             <label style="display:flex; flex-direction:column; gap:8px;">
               <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Name</span>
@@ -56,37 +70,46 @@
             </label>
           </div>
           <label style="display:flex; flex-direction:column; gap:8px;">
-            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Project type</span>
-            <input type="text" name="subject" placeholder="Residential, hospitality, commercial, community..." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
-          </label>
-          <label style="display:flex; flex-direction:column; gap:8px;">
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
             <textarea name="body" rows="4" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
-          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F6F4E7;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
+          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
           <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:office@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">office@sudu.studio</a></p>
         </form>
       </div>
 
-      <div style="flex:0 1 280px; display:flex; flex-direction:column; gap:22px;">
-        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-          <div style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Email</div>
-          <a href="mailto:office@sudu.studio" style="font-size:15px; font-weight:600; letter-spacing:-0.01em; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">office@sudu.studio</a>
+      <div style="flex:1 1 380px; max-width:520px; align-self:center; display:flex; flex-direction:column; gap:12px;">
+        <div style="position:relative; width:100%; max-width:460px; margin:0 auto; aspect-ratio:1; min-height:340px;">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
+            <sc-for list="{{ links }}" as="ln" hint-placeholder-count="6">
+              <line x1="{{ ln.x1 }}" y1="{{ ln.y1 }}" x2="{{ ln.x2 }}" y2="{{ ln.y2 }}" stroke="{{ ln.stroke }}" stroke-width="{{ ln.w }}" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            </sc-for>
+          </svg>
+          <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:68px; height:68px; border-radius:50%; border:1px solid rgba(23,22,19,0.35); display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.01em; background:#F3F1EA; z-index:2; animation:webPulse 5s ease-in-out infinite;">Project</div>
+          <sc-for list="{{ nodes }}" as="nd" hint-placeholder-count="6">
+            <button type="button" onClick="{{ nd.click }}" style="position:absolute; left:{{ nd.x }}; top:{{ nd.y }}; transform:{{ nd.tr }}; opacity:{{ nd.op }}; pointer-events:{{ nd.pe }}; z-index:{{ nd.z }}; border:1px solid {{ nd.border }}; border-radius:999px; background:{{ nd.bg }}; color:{{ nd.fg }}; padding:{{ nd.pad }}; font-family:'Urbanist', sans-serif; font-size:{{ nd.fs }}; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:{{ nd.delay }};" style-hover="transform:translate(-50%,-50%) scale(1.06); transition-delay:0ms;">{{ nd.label }}</button>
+          </sc-for>
         </div>
-        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-          <div style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Studio</div>
-          <div style="font-size:14px; font-weight:500;">Open by appointment</div>
-          <div style="font-size:14px; font-weight:500;">Alberta | British Columbia</div>
-        </div>
-        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-          <div style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Reach</div>
-          <div style="font-size:14px; font-weight:500; line-height:1.6;">Working with private clients, developers, institutions, and communities across North and Central America.</div>
-        </div>
-        <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px; display:flex; gap:14px; font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D;">
-          <a href="https://www.instagram.com/productof.ca" target="_blank" rel="noopener">Instagram</a>
-        </div>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; text-align:center;">Select an interest to explore what it can include, then tap the branches that fit.</div>
       </div>
 
+    </div>
+  </section>
+
+  <section data-screen-label="FAQ" style="padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px) clamp(56px,7vw,88px); border-top:1px solid rgba(23,22,19,0.13);">
+    <div style="display:flex; flex-direction:column; gap:24px;">
+      <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">Common questions</span>
+      <div style="max-width:760px;">
+        <sc-for list="{{ faqs }}" as="faq" hint-placeholder-count="6">
+          <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
+            <button type="button" onClick="{{ faq.toggle }}" aria-expanded="{{ faq.pressed }}" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              {{ faq.q }}
+              <span style="flex:none; font-weight:600; color:#E17B3E; transition:transform .3s ease; transform:{{ faq.rot }};">&#8250;</span>
+            </button>
+            <div style="display:{{ faq.disp }}; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">{{ faq.a }}</div>
+          </div>
+        </sc-for>
+      </div>
     </div>
   </section>
 
@@ -102,5 +125,109 @@
 </div>
 
 </x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sel: [], sub: [], open: -1 };
+  renderVals() {
+    const TREE = [
+      { label: 'Architecture', subs: ['New Build', 'Renovation', 'Addition', 'Feasibility'] },
+      { label: 'Interiors', subs: ['Full Interiors', 'Millwork', 'Material Direction'] },
+      { label: 'Identity & Brand', subs: ['Brand Identity', 'Naming', 'Signage & Wayfinding'] },
+      { label: 'Concept Study', subs: ['Massing Study', 'Site Study', 'Visualization'] },
+      { label: 'Hospitality & Retail', subs: ['Restaurant / Bar', 'Retail Space', 'Guest Experience'] },
+      { label: 'Advisory', subs: ['Design Direction', 'Developer Advisory', 'Peer Review'] }
+    ];
+    const FAQS = [
+      { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.' },
+      { q: 'Where do you work?', a: 'The studio is based in Alberta and British Columbia, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' },
+      { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' },
+      { q: 'Do you handle both architecture and interiors?', a: 'Yes, and identity too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' },
+      { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' },
+      { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
+    ];
+    const { sel, sub, open } = this.state;
+    const n = TREE.length;
+    const pos = (angleDeg, r) => {
+      const a = (angleDeg - 90) * Math.PI / 180;
+      return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a) };
+    };
+    const toggleCat = (label) => this.setState(s => {
+      const on = s.sel.includes(label);
+      const cat = TREE.find(t => t.label === label);
+      return {
+        sel: on ? s.sel.filter(x => x !== label) : [...s.sel, label],
+        sub: on ? s.sub.filter(x => !cat.subs.includes(x)) : s.sub
+      };
+    });
+    const nodes = [];
+    const links = [];
+    TREE.forEach((cat, i) => {
+      const ang = i * (360 / n);
+      const p = pos(ang, 30);
+      const active = sel.includes(cat.label);
+      links.push({ x1: 50, y1: 50, x2: p.x.toFixed(2), y2: p.y.toFixed(2), stroke: active ? 'rgba(23,22,19,0.55)' : 'rgba(23,22,19,0.16)', w: active ? '0.22' : '0.16' });
+      nodes.push({
+        label: cat.label,
+        x: p.x.toFixed(2) + '%', y: p.y.toFixed(2) + '%',
+        op: '1', pe: 'auto', z: '3', tr: 'translate(-50%,-50%) scale(1)', delay: '0ms',
+        border: active ? '#171613' : 'rgba(23,22,19,0.32)',
+        bg: active ? '#171613' : '#F3F1EA',
+        fg: active ? '#F3F1EA' : '#171613',
+        pad: '8px 14px', fs: '11px',
+        click: () => toggleCat(cat.label)
+      });
+      cat.subs.forEach((s, j) => {
+        const step = 20;
+        const spread = (cat.subs.length - 1) * step;
+        const sAng = ang - spread / 2 + j * step;
+        const r = j % 2 === 0 ? 43 : 51;
+        const a2 = (sAng - 90) * Math.PI / 180;
+        const sp = { x: 50 + r * Math.cos(a2), y: 50 + r * 0.84 * Math.sin(a2) };
+        const on = sub.includes(s);
+        if (active) links.push({ x1: p.x.toFixed(2), y1: p.y.toFixed(2), x2: sp.x.toFixed(2), y2: sp.y.toFixed(2), stroke: on ? 'rgba(225,123,62,0.75)' : 'rgba(23,22,19,0.16)', w: on ? '0.22' : '0.16' });
+        nodes.push({
+          label: s,
+          x: (active ? sp.x : p.x).toFixed(2) + '%', y: (active ? sp.y : p.y).toFixed(2) + '%',
+          op: active ? '1' : '0', pe: active ? 'auto' : 'none', z: '2',
+          tr: 'translate(-50%,-50%) scale(' + (active ? 1 : 0.4) + ')',
+          delay: (active ? j * 70 : 0) + 'ms',
+          border: on ? '#E17B3E' : 'rgba(23,22,19,0.25)',
+          bg: on ? '#E17B3E' : '#F3F1EA',
+          fg: on ? '#F3F1EA' : '#67655D',
+          pad: '5px 11px', fs: '10px',
+          click: () => this.setState(st => ({ sub: st.sub.includes(s) ? st.sub.filter(x => x !== s) : [...st.sub, s] }))
+        });
+      });
+    });
+    return {
+      nodes, links,
+      chips: TREE.map(t => {
+        const on = sel.includes(t.label);
+        return { label: t.label, pressed: on ? 'true' : 'false', bg: on ? '#171613' : 'transparent', fg: on ? '#F3F1EA' : '#171613', toggle: () => toggleCat(t.label) };
+      }),
+      hasSubs: sub.length > 0,
+      subSummary: sub.length ? 'Including: ' + sub.join(', ') : '',
+      faqs: FAQS.map((f, i) => ({
+        ...f, pressed: open === i ? 'true' : 'false', disp: open === i ? 'block' : 'none', rot: open === i ? 'rotate(90deg)' : 'rotate(0deg)',
+        toggle: () => this.setState(s => ({ open: s.open === i ? -1 : i }))
+      })),
+      submit: (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const name = (form.name && form.name.value) || '';
+        const interests = this.state.sel.join(', ');
+        const details = this.state.sub.join(', ');
+        const subject = 'Project inquiry' + (interests ? ' \u2014 ' + interests : '') + (name ? ' (' + name + ')' : '');
+        const lines = [];
+        if (interests) lines.push('Interested in: ' + interests);
+        if (details) lines.push('Specifically: ' + details);
+        if (form.body && form.body.value) lines.push('', form.body.value);
+        if (name) lines.push('', name + (form.email && form.email.value ? ' \u2014 ' + form.email.value : ''));
+        window.location.href = 'mailto:office@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+      }
+    };
+  }
+}
+</script>
 </body>
 </html>
