@@ -84,20 +84,20 @@ class Component extends DCLogic {
   renderVals() {
     const order = ['west-vancouver','wilfreds','westshore','atb','corso32','bar-bricco','uccellino','the-helm','hells-kitchen','atb-banking','factory-yyc','selkirk','enoch','youth-recovery'];
     const names = {
-      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', thumb: 'img-hero-westvan.jpg' },
-      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: 'img-wilfreds.jpg' },
-      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta', thumb: 'img-westshore-1500.jpg' },
-      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: 'img-atb.jpg' },
-      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: 'img-corso32.jpg' },
-      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: 'img-barbricco.jpg' },
-      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: 'img-uccellino.jpg' },
-      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: 'img-thehelm.jpg' },
-      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: 'img-hellskitchen.jpg' },
-      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: 'img-atb-banking.jpg' },
-      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', thumb: 'img-factoryyyc.jpg' },
-      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', thumb: 'img-selkirk.jpg' },
-      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', thumb: 'img-enoch.jpg' },
-      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: 'img-youthrecovery.jpg' }
+      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', thumb: 'images/img-hero-westvan.jpg' },
+      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: 'images/img-wilfreds.jpg' },
+      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta', thumb: 'images/img-westshore-1500.jpg' },
+      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: 'images/img-atb.jpg' },
+      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: 'images/img-corso32.jpg' },
+      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: 'images/img-barbricco.jpg' },
+      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: 'images/img-uccellino.jpg' },
+      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: 'images/img-thehelm.jpg' },
+      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: 'images/img-hellskitchen.jpg' },
+      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: 'images/img-atb-banking.jpg' },
+      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', thumb: 'images/img-factoryyyc.jpg' },
+      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', thumb: 'images/img-selkirk.jpg' },
+      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', thumb: 'images/img-enoch.jpg' },
+      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: 'images/img-youthrecovery.jpg' }
     };
     return {
       items: order.map((k, i) => ({ ...names[k], href: 'project.html?p=' + k, num: String(i + 1).padStart(2, '0') }))
