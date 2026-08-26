@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://sudu.studio/work">
 <meta property="og:image" content="https://sudu.studio/images/og-default.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<script src="./js/support.js"></script>
+<script src="/js/support.js"></script>
 </head>
 <body>
 <x-dc>
@@ -41,7 +41,7 @@
 
   <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="/" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" decoding="async" style="height:38px; width:auto; display:block;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" decoding="async" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Work</a>
@@ -96,7 +96,7 @@
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" loading="lazy" decoding="async" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" loading="lazy" decoding="async" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio</span>
     </div>
@@ -110,37 +110,37 @@
 class Component extends DCLogic {
   renderVals() {
     const DIMS = {
-      'images/img-atb-banking.jpg': [1500, 1000],
-      'images/img-atb.jpg': [1500, 816],
-      'images/img-barbricco.jpg': [1500, 997],
-      'images/img-corso32.jpg': [1500, 998],
-      'images/img-enoch.jpg': [1500, 844],
-      'images/img-factoryyyc.jpg': [1500, 682],
-      'images/img-hellskitchen.jpg': [1500, 1000],
-      'images/img-hero-westvan.jpg': [1500, 844],
-      'images/img-selkirk.jpg': [1365, 768],
-      'images/img-thehelm.jpg': [1333, 2000],
-      'images/img-uccellino.jpg': [1500, 991],
-      'images/img-westshore-1500.jpg': [1500, 1125],
-      'images/img-wilfreds.jpg': [1400, 1867],
-      'images/img-youthrecovery.jpg': [1500, 836],
+      '/images/img-atb-banking.jpg': [1500, 1000],
+      '/images/img-atb.jpg': [1500, 816],
+      '/images/img-barbricco.jpg': [1500, 997],
+      '/images/img-corso32.jpg': [1500, 998],
+      '/images/img-enoch.jpg': [1500, 844],
+      '/images/img-factoryyyc.jpg': [1500, 682],
+      '/images/img-hellskitchen.jpg': [1500, 1000],
+      '/images/img-hero-westvan.jpg': [1500, 844],
+      '/images/img-selkirk.jpg': [1365, 768],
+      '/images/img-thehelm.jpg': [1333, 2000],
+      '/images/img-uccellino.jpg': [1500, 991],
+      '/images/img-westshore-1500.jpg': [1500, 1125],
+      '/images/img-wilfreds.jpg': [1400, 1867],
+      '/images/img-youthrecovery.jpg': [1500, 836],
     };
     const order = ['west-vancouver','wilfreds','westshore','atb','corso32','bar-bricco','uccellino','the-helm','hells-kitchen','atb-banking','factory-yyc','selkirk','enoch','youth-recovery'];
     const names = {
-      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', scope: 'Architecture, Interiors', status: 'Completed', thumb: 'images/img-hero-westvan.jpg' },
-      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfred\u2019s', location: 'Edmonton, AB', scope: 'Interiors, Material Direction', status: 'Completed', thumb: 'images/img-wilfreds.jpg' },
-      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta', scope: 'Architecture, Concept Design', status: 'In development', thumb: 'images/img-westshore-1500.jpg' },
-      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', scope: 'Public Realm, Retail Planning, with DIALOG', status: 'Completed', thumb: 'images/img-atb.jpg' },
-      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', scope: 'Interiors, Brand, Millwork', status: 'Completed', thumb: 'images/img-corso32.jpg' },
-      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', scope: 'Interiors, Millwork', status: 'Completed', thumb: 'images/img-barbricco.jpg' },
-      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', scope: 'Interiors, Material Direction', status: 'Completed', thumb: 'images/img-uccellino.jpg' },
-      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', scope: 'Interiors, Brand Integration', status: 'Completed', thumb: 'images/img-thehelm.jpg' },
-      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', scope: 'Architecture, Patio Addition, with MES Architecture', status: 'Under construction', thumb: 'images/img-hellskitchen.jpg' },
-      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', scope: 'Strategy, Concept, Design Direction', status: 'Completed', thumb: 'images/img-atb-banking.jpg' },
-      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', scope: 'Concept Design', status: 'Concept', thumb: 'images/img-factoryyyc.jpg' },
-      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', scope: 'Concept Design, with Melcor', status: 'Concept', thumb: 'images/img-selkirk.jpg' },
-      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', scope: 'Concept Design', status: 'Concept', thumb: 'images/img-enoch.jpg' },
-      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', scope: 'Architecture, with MES Architecture', status: 'In progress', thumb: 'images/img-youthrecovery.jpg' }
+      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', scope: 'Architecture, Interiors', status: 'Completed', thumb: '/images/img-hero-westvan.jpg' },
+      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfred\u2019s', location: 'Edmonton, AB', scope: 'Interiors, Material Direction', status: 'Completed', thumb: '/images/img-wilfreds.jpg' },
+      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta', scope: 'Architecture, Concept Design', status: 'In development', thumb: '/images/img-westshore-1500.jpg' },
+      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', scope: 'Public Realm, Retail Planning, with DIALOG', status: 'Completed', thumb: '/images/img-atb.jpg' },
+      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', scope: 'Interiors, Brand, Millwork', status: 'Completed', thumb: '/images/img-corso32.jpg' },
+      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', scope: 'Interiors, Millwork', status: 'Completed', thumb: '/images/img-barbricco.jpg' },
+      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', scope: 'Interiors, Material Direction', status: 'Completed', thumb: '/images/img-uccellino.jpg' },
+      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', scope: 'Interiors, Brand Integration', status: 'Completed', thumb: '/images/img-thehelm.jpg' },
+      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', scope: 'Architecture, Patio Addition, with MES Architecture', status: 'Under construction', thumb: '/images/img-hellskitchen.jpg' },
+      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', scope: 'Strategy, Concept, Design Direction', status: 'Completed', thumb: '/images/img-atb-banking.jpg' },
+      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', scope: 'Concept Design', status: 'Concept', thumb: '/images/img-factoryyyc.jpg' },
+      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', scope: 'Concept Design, with Melcor', status: 'Concept', thumb: '/images/img-selkirk.jpg' },
+      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', scope: 'Concept Design', status: 'Concept', thumb: '/images/img-enoch.jpg' },
+      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', scope: 'Architecture, with MES Architecture', status: 'In progress', thumb: '/images/img-youthrecovery.jpg' }
     };
     return {
       items: order.map((k, i) => ({ ...names[k], href: '/work/' + k + '/', num: String(i + 1).padStart(2, '0'), w: (DIMS[names[k].thumb] || [''])[0], h: (DIMS[names[k].thumb] || ['',''])[1] }))

@@ -3,6 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+// GitHub Pages has no server redirects: normalize /page.html to the clean URL client-side.
+(function(){if(location.protocol.indexOf('http')!==0)return;var p=location.pathname;if(/\.html$/.test(p)){var t=/(^|\/)index\.html$/.test(p)?p.replace(/index\.html$/,''):p.replace(/\.html$/,'');location.replace(t+location.search+location.hash);}})();
+</script>
+<title>SuDu Studio · Architecture, Interiors & Design Strategy</title>
+<meta name="description" content="Interdisciplinary design practice working across residential, hospitality, commercial and community projects. Based in Alberta.">
+<link rel="canonical" href="https://sudu.studio/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SuDu Studio">
+<meta property="og:title" content="SuDu Studio · Architecture, Interiors & Design Strategy">
+<meta property="og:description" content="Interdisciplinary design practice working across residential, hospitality, commercial and community projects. Based in Alberta.">
+<meta property="og:url" content="https://sudu.studio/">
+<meta property="og:image" content="https://sudu.studio/images/og-default.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "SuDu Studio",
+  "url": "https://sudu.studio",
+  "logo": "https://sudu.studio/images/sudu-mark.png",
+  "description": "Interdisciplinary design practice working across architecture, interiors, and advisory.",
+  "address": { "@type": "PostalAddress", "addressRegion": "AB", "addressCountry": "CA" },
+  "sameAs": [
+    "https://www.instagram.com/sudu.studio",
+    "https://www.linkedin.com/company/sudu-studio"
+  ]
+}
+</script>
 <script src="./js/support.js"></script>
 </head>
 <body>
@@ -27,33 +56,34 @@
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
-  <a href="#work" style="position:absolute; left:-9999px; top:0; z-index:200; background:#171613; color:#F3F1EA; padding:10px 16px; font-size:13px;" style-focus="left:8px; top:8px;">Skip to work</a>
+  <a href="#main" style="position:absolute; left:-9999px; top:0; z-index:200; background:#171613; color:#F3F1EA; padding:10px 16px; font-size:13px;" style-focus="left:8px; top:8px;">Skip to content</a>
 
   <header id="suduNav" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="#hero" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" decoding="async" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px); font-size:13px; line-height:1;">
-      <a href="work.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Work</a>
-      <a href="studio.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Studio</a>
-      <a href="contact.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Contact</a>
+      <a href="/work" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Work</a>
+      <a href="/studio" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Studio</a>
+      <a href="/contact" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Contact</a>
     </nav>
   </header>
 
+  <main id="main" style="display:block; scroll-margin-top:110px;">
+
   <section id="hero" data-screen-label="Hero" style="position:relative; height:100svh; min-height:540px; overflow:hidden; background:#F3F1EA;">
-    <img id="heroImg" decoding="async" fetchpriority="high" src="images/hero-drawing-3.png" alt="West Coast Marine Drive concept, single-line drawing" style="position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); width:min(97vw,1650px); height:auto; display:block;">
+    <img id="heroImg" width="3008" height="1408" decoding="async" fetchpriority="high" src="images/hero-drawing-3.png" alt="West Coast Marine Drive concept, single-line drawing" style="position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); width:min(97vw,1650px); height:auto; display:block;">
     <h1 id="heroStatement" style="position:absolute; top:clamp(110px,16vh,170px); right:clamp(20px,4.5vw,64px); margin:0; text-align:right; color:#171613; font-size:clamp(21px,3.4vw,44px); font-weight:700; letter-spacing:-0.03em; line-height:0.92; text-wrap:balance; max-width:12ch;">Architecture, interiors &amp; design strategy.</h1>
     <div id="heroFoot" style="position:absolute; left:0; right:0; bottom:0; display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:0 clamp(20px,4.5vw,64px) 44px; color:#171613;">
       <div>
-        <div style="display:flex; align-items:center; gap:10px; font-size:12px; line-height:1.4;">
+        <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; font-size:12px; line-height:1.4;">
           <span style="font-weight:600; letter-spacing:0.02em;">Residential Schematic Concept</span>
-          <span style="width:1px; height:12px; background:rgba(23,22,19,0.32);"></span>
-          <span style="color:#67655D;">Marine Drive West Vancouver</span>
+          <span style="color:#67655D;">Marine Drive &middot; West Vancouver</span>
         </div>
       </div>
       <sc-if value="{{ showScrollCue }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
-          <span style="width:32px; height:1px; background:#67655D; transform-origin:left; animation:suduDraw 2.6s ease-in-out infinite;"></span>
+          <span aria-hidden="true" style="width:32px; height:1px; background:#67655D; transform-origin:left; animation:suduDraw 2.6s ease-in-out infinite;"></span>
           Scroll
         </div>
       </sc-if>
@@ -68,7 +98,7 @@
   <section id="offerings" data-screen-label="Offerings">
     <div data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(36px,6vw,64px) clamp(20px,4.5vw,64px) 24px;">
       <h3 style="margin:0; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Offerings</h3>
-      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
+      <a href="/work" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); border-top:1px solid rgba(23,22,19,0.13); padding:0 calc(clamp(20px,4.5vw,64px) - clamp(20px,2vw,28px));">
       <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:#E8E5DC;">
@@ -97,26 +127,30 @@
   <section id="work" data-screen-label="Selected Work">
     <div data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(40px,7vw,80px) clamp(20px,4.5vw,64px) 24px; border-top:1px solid rgba(23,22,19,0.13);">
       <h3 style="margin:0; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Selected Work</h3>
-      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
+      <a href="/work" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
     </div>
 
     <article style="display:flex; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=west-vancouver" style="display:block; width:100%; height:100%;"><img src="images/img-hero-westvan.jpg" alt="West Vancouver private residence and gallery" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="/work/west-vancouver/" style="display:block; width:100%; height:100%;"><img src="images/img-hero-westvan.jpg" width="1500" height="844" alt="West Vancouver private residence and gallery" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Private Residential</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="project.html?p=west-vancouver" style="transition:color .3s ease;">West Vancouver</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="/work/west-vancouver/" style="transition:color .3s ease;">West Vancouver</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">A private residence and gallery organized around the display of a personal art collection.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
           <div>
             <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Location</dt>
-            <dd style="margin:0; font-size:13.5px; font-weight:500;">West Vancouver</dd>
+            <dd style="margin:0; font-size:13.5px; font-weight:500;">West Vancouver, BC</dd>
           </div>
           <div>
             <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Scope</dt>
             <dd style="margin:0; font-size:13.5px; font-weight:500;">Architecture, Interiors</dd>
+          </div>
+          <div>
+            <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Status</dt>
+            <dd style="margin:0; font-size:13.5px; font-weight:500;">Completed</dd>
           </div>
         </dl>
       </div>
@@ -124,12 +158,12 @@
 
     <article style="display:flex; flex-direction:row-reverse; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=wilfreds" style="display:block; width:100%; height:100%;"><img src="images/img-wilfreds.jpg" alt="Wilfreds hospitality interior with coral tile and brass" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="/work/wilfreds/" style="display:block; width:100%; height:100%;"><img src="images/img-wilfreds.jpg" width="1400" height="1867" alt="Wilfred&rsquo;s hospitality interior with coral tile and brass" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Hospitality</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="project.html?p=wilfreds" style="transition:color .3s ease;">Wilfreds</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="/work/wilfreds/" style="transition:color .3s ease;">Wilfred&rsquo;s</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">A standalone brick heritage building; coral tile and brass metalwork demonstrating how closely brand identity and physical space can be built together.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
           <div>
@@ -140,20 +174,29 @@
             <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Scope</dt>
             <dd style="margin:0; font-size:13.5px; font-weight:500;">Interiors, Material Direction</dd>
           </div>
+          <div>
+            <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Status</dt>
+            <dd style="margin:0; font-size:13.5px; font-weight:500;">Completed</dd>
+          </div>
         </dl>
       </div>
     </article>
 
     <article style="display:flex; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=youth-recovery" style="display:block; width:100%; height:100%;"><img src="images/img-youthrecovery.jpg" alt="Youth Recovery Centre exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="/work/youth-recovery/" style="display:block; width:100%; height:100%;"><img src="images/img-youthrecovery.jpg" width="1500" height="836" alt="Youth Recovery Centre exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Community &middot; Wellness</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="project.html?p=youth-recovery" style="transition:color .3s ease;">Youth Recovery Centre</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="/work/youth-recovery/" style="transition:color .3s ease;">Youth Recovery Centre</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">A youth recovery and wellness environment built around calm, residential-scale space.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
+          <!-- TODO(owner): showing province only — confirm whether the Youth Recovery Centre city should be named -->
+          <div>
+            <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Location</dt>
+            <dd style="margin:0; font-size:13.5px; font-weight:500;">Alberta</dd>
+          </div>
           <div>
             <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Scope</dt>
             <dd style="margin:0; font-size:13.5px; font-weight:500;">Architecture, with MES Architecture</dd>
@@ -168,12 +211,12 @@
 
     <article style="display:flex; flex-direction:row-reverse; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=atb" style="display:block; width:100%; height:100%;"><img src="images/img-atb.jpg" alt="ATB Place Reimagined concourse" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="/work/atb/" style="display:block; width:100%; height:100%;"><img src="images/img-atb.jpg" width="1500" height="816" alt="ATB Place Reimagined concourse" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">04</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Commercial</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="project.html?p=atb" style="transition:color .3s ease;">ATB Place Reimagined</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:600; letter-spacing:-0.02em; line-height:1.05;"><a href="/work/atb/" style="transition:color .3s ease;">ATB Place Reimagined</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Renewal of the concourse, podium, and exterior plazas at a major downtown intersection, creating an active public throughway with food and retail.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
           <div>
@@ -181,8 +224,12 @@
             <dd style="margin:0; font-size:13.5px; font-weight:500;">Edmonton, AB</dd>
           </div>
           <div>
-            <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Collaboration</dt>
-            <dd style="margin:0; font-size:13.5px; font-weight:500;">with DIALOG</dd>
+            <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Scope</dt>
+            <dd style="margin:0; font-size:13.5px; font-weight:500;">Public Realm, Retail Planning, with DIALOG</dd>
+          </div>
+          <div>
+            <dt style="margin-bottom:5px; font-family:'Urbanist', sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Status</dt>
+            <dd style="margin:0; font-size:13.5px; font-weight:500;">Completed</dd>
           </div>
         </dl>
       </div>
@@ -200,7 +247,7 @@
         <h4 style="margin:0 0 12px; font-size:16px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Residential &amp; Private</h4>
         <p style="margin:0 0 20px; font-size:13px; line-height:1.6; color:#67655D;">Custom homes, major renovations, additions, interiors, and private galleries.</p>
         <ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba(23,22,19,0.13);">
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-hero-westvan.jpg">West Vancouver Gallery</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-hero-westvan.jpg"><a href="/work/west-vancouver/" style="display:block;">West Vancouver Gallery</a></li>
           <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-westshore-1500.jpg">West Shore Residence</li>
         </ul>
       </div>
@@ -211,7 +258,7 @@
           <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-corso32.jpg">Corso 32</li>
           <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-barbricco.jpg">Bar Bricco</li>
           <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-uccellino.jpg">Uccellino</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-wilfreds.jpg">Wilfred's</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-wilfreds.jpg"><a href="/work/wilfreds/" style="display:block;">Wilfred’s</a></li>
           <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-thehelm.jpg">The Helm</li>
         </ul>
       </div>
@@ -219,10 +266,10 @@
         <h4 style="margin:0 0 12px; font-size:16px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Commercial &amp; Community</h4>
         <p style="margin:0 0 20px; font-size:13px; line-height:1.6; color:#67655D;">Repositioning, public realm, workplace, community housing, and feasibility studies.</p>
         <ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba(23,22,19,0.13);">
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-atb.jpg">ATB Place Reimagined</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-atb.jpg"><a href="/work/atb/" style="display:block;">ATB Place Reimagined</a></li>
           <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-selkirk.jpg">The Selkirk</li>
           <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-enoch.jpg">Enoch Elders Lodge</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-youthrecovery.jpg">Youth Recovery Centre</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/img-youthrecovery.jpg"><a href="/work/youth-recovery/" style="display:block;">Youth Recovery Centre</a></li>
         </ul>
       </div>
     </div>
@@ -234,12 +281,12 @@
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">The Studio</span>
     </div>
     <div data-reveal style="flex:1 1 400px;">
-      <p style="margin:0; font-size:clamp(16px,2vw,23px); font-weight:600; line-height:1.3; letter-spacing:-0.02em; text-wrap:pretty;">SuDu Studio is an interdisciplinary design practice working across architecture, interiors, and identity.</p>
+      <p style="margin:0; font-size:clamp(16px,2vw,23px); font-weight:600; line-height:1.3; letter-spacing:-0.02em; text-wrap:pretty;">SuDu Studio is an interdisciplinary design practice working across architecture, interiors, and advisory.</p>
       <p style="margin:16px 0 0; max-width:46ch; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">The work spans residential, hospitality, retail, commercial, and community projects: new builds, renovations, concept studies, and collaborations with allied practices. Every project runs through the same process, regardless of scale.</p>
     </div>
     <dl data-reveal style="flex:1 1 240px; margin:0; display:flex; flex-direction:column; gap:20px;">
       <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Founded</dt>
+        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Based</dt>
         <dd style="margin:0; font-size:14px; font-weight:500;">Alberta</dd>
       </div>
       <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
@@ -256,21 +303,24 @@
   <section id="contact" data-screen-label="Contact" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) 44px; border-top:1px solid rgba(23,22,19,0.13);">
     <div data-reveal style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Start a project</span>
-      <a href="contact.html" style="display:inline-flex; align-items:center; gap:0.22em; font-size:clamp(21px,3vw,42px); font-weight:700; letter-spacing:-0.03em; line-height:1; transition:color .35s ease; max-width:100%;" style-hover="color:{{ accent }};">Say hello <span style="color:#E17B3E; font-weight:700; font-size:0.78em; line-height:1; letter-spacing:-0.12em; margin-right:0.12em;">&#8250;&#8250;</span></a>
+      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.22em; font-size:clamp(21px,3vw,42px); font-weight:700; letter-spacing:-0.03em; line-height:1; transition:color .35s ease; max-width:100%;" style-hover="color:{{ accent }};">Say hello <span style="color:#E17B3E; font-weight:700; font-size:0.78em; line-height:1; letter-spacing:-0.12em; margin-right:0.12em;">&#8250;&#8250;</span></a>
     </div>
     <div data-reveal style="margin-top:44px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px 32px; font-family:'Urbanist', sans-serif; font-size:12px; line-height:1.9; color:#67655D;">
       <div style="display:flex; gap:14px; margin-top:2px;">
-        <a href="contact.html">Instagram</a>
-        <a href="contact.html">LinkedIn</a>
+        <!-- TODO(owner): confirm both profile URLs are live — could not be verified from this environment (network egress blocked) -->
+        <a href="https://www.instagram.com/sudu.studio" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.linkedin.com/company/sudu-studio" target="_blank" rel="noopener">LinkedIn</a>
       </div>
     </div>
   </section>
 
+  </main>
+
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" loading="lazy" decoding="async" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:20px; background:rgba(23,22,19,0.32);"></span>
-      <span>© 2026 SuDu Studio Architecture</span>
+      <span>© 2026 SuDu Studio</span>
     </div>
     <span>Alberta</span>
   </footer>
@@ -376,6 +426,8 @@ class Component extends DCLogic {
       const pv = document.createElement('div');
       pv.style.cssText = 'position:fixed;z-index:90;width:230px;aspect-ratio:4/3;overflow:hidden;pointer-events:none;opacity:0;transform:scale(.95);transition:opacity .35s ' + ease + ',transform .5s ' + ease + ';box-shadow:0 18px 44px rgba(23,22,19,.2);background:#E8E5DC;';
       const pi = document.createElement('img');
+      pi.alt = '';
+      pv.setAttribute('aria-hidden', 'true');
       pi.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
       pv.appendChild(pi);
       document.body.appendChild(pv);
