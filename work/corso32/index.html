@@ -38,7 +38,7 @@
 
   <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="/" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" decoding="async" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
@@ -61,7 +61,7 @@
   </section>
 
   <div data-reveal data-reveal-clip style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <img src="/images/img-corso32.jpg" alt="Corso 32" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
+    <img src="/images/img-corso32.jpg" alt="Corso 32" width="1500" height="998" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
@@ -98,7 +98,7 @@
           <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(560px,100%), 1fr)); gap:clamp(16px,2vw,28px);">
             <sc-for list="{{ grp.images }}" as="g" hint-placeholder-count="2">
               <div data-reveal style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-                <img src="{{ g.src }}" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
+                <img src="{{ g.src }}" alt="{{ g.alt }}" width="{{ g.w }}" height="{{ g.h }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
               </div>
             </sc-for>
           </div>
@@ -132,7 +132,7 @@
         <a href="{{ r.href }}" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             <sc-if value="{{ r.hasThumb }}" hint-placeholder-val="{{ false }}">
-              <img src="{{ r.thumb }}" alt="{{ r.name }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+              <img src="{{ r.thumb }}" alt="{{ r.name }}" width="{{ r.w }}" height="{{ r.h }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
             </sc-if>
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ r.eyebrow }}</div>
@@ -163,7 +163,7 @@
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" loading="lazy" decoding="async" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio</span>
     </div>
@@ -175,6 +175,83 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
+  static DIMS = {
+    '/images/atbb-cc1.jpg': [1400, 1082],
+    '/images/atbb-cc2.jpg': [1400, 1750],
+    '/images/atbb-cc3.jpg': [1500, 1159],
+    '/images/atbb-eap1.jpg': [1500, 998],
+    '/images/atbb-eap2.jpg': [1500, 998],
+    '/images/atbb-eap3.jpg': [1500, 998],
+    '/images/atbb-eap4.jpg': [1500, 998],
+    '/images/atbb-eap5.jpg': [1500, 998],
+    '/images/atbb-eap6.jpg': [1500, 998],
+    '/images/atbb-hb1.jpg': [1500, 858],
+    '/images/atbb-hb2.jpg': [960, 720],
+    '/images/atbb-hb3.jpg': [1500, 1125],
+    '/images/atbb-hb4.jpg': [1500, 1000],
+    '/images/atbb-hb5.jpg': [1500, 1125],
+    '/images/corso-1.jpg': [1500, 998],
+    '/images/corso-2.jpg': [1500, 2258],
+    '/images/corso-4.jpg': [994, 670],
+    '/images/corso-5.jpg': [1500, 996],
+    '/images/enoch-1.png': [1500, 844],
+    '/images/enoch-2.png': [1500, 1125],
+    '/images/enoch-3.png': [1500, 2000],
+    '/images/enoch-4.png': [1500, 844],
+    '/images/enoch-mural.jpg': [1500, 844],
+    '/images/helm-1.jpg': [1500, 1000],
+    '/images/helm-10.jpg': [1333, 2000],
+    '/images/helm-2.jpg': [1333, 2000],
+    '/images/helm-3.jpg': [1500, 1000],
+    '/images/helm-4.jpg': [1500, 1000],
+    '/images/helm-5.jpg': [1333, 2000],
+    '/images/helm-6.jpg': [1500, 1000],
+    '/images/helm-8.jpg': [1500, 1000],
+    '/images/helm-9.jpg': [1334, 2000],
+    '/images/helm-c1.jpg': [1500, 2000],
+    '/images/helm-c2.jpg': [1500, 2000],
+    '/images/helm-c3.jpg': [1500, 1125],
+    '/images/hk-day.png': [1500, 855],
+    '/images/hk-elev.png': [1500, 837],
+    '/images/hk-int.jpg': [1500, 845],
+    '/images/img-atb-banking.jpg': [1500, 1000],
+    '/images/img-atb.jpg': [1500, 816],
+    '/images/img-barbricco.jpg': [1500, 997],
+    '/images/img-corso32.jpg': [1500, 998],
+    '/images/img-enoch.jpg': [1500, 844],
+    '/images/img-factoryyyc.jpg': [1500, 682],
+    '/images/img-hellskitchen.jpg': [1500, 1000],
+    '/images/img-hero-westvan.jpg': [1500, 844],
+    '/images/img-selkirk.jpg': [1365, 768],
+    '/images/img-thehelm.jpg': [1333, 2000],
+    '/images/img-uccellino.jpg': [1500, 991],
+    '/images/img-westshore-1500.jpg': [1500, 1125],
+    '/images/img-wilfreds.jpg': [1400, 1867],
+    '/images/img-youthrecovery.jpg': [1500, 836],
+    '/images/sel-aerial.jpg': [1500, 844],
+    '/images/sel-ext1.png': [1365, 768],
+    '/images/sel-int2.png': [1417, 736],
+    '/images/wf-2.jpg': [1500, 1000],
+    '/images/wf-3.jpg': [1400, 919],
+    '/images/wf-4.jpg': [1400, 933],
+    '/images/wf-5.jpg': [1400, 2100],
+    '/images/wf-6.jpg': [1400, 2100],
+    '/images/wv-cant-1.jpg': [1500, 844],
+    '/images/wv-cant-2.jpg': [1500, 844],
+    '/images/wv-cant-3.jpg': [1500, 844],
+    '/images/wv-cant-plans.jpg': [1500, 844],
+    '/images/wv-elevation.jpg': [1500, 844],
+    '/images/wv-glass-1.jpg': [1500, 844],
+    '/images/wv-glass-2.jpg': [1500, 844],
+    '/images/wv-glass-3.jpg': [1500, 844],
+    '/images/wv-glass-top.png': [1500, 844],
+    '/images/wv-interior.jpg': [1500, 844],
+    '/images/wv-plans.jpg': [1500, 967],
+    '/images/yr-bear.png': [1500, 818],
+    '/images/yr-ext.png': [1500, 836],
+    '/images/yr-int1.png': [1500, 1876],
+    '/images/yr-int3.jpg': [1500, 837],
+  };
   static DATA = {
     'west-vancouver': {
       eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC',
@@ -371,16 +448,18 @@ class Component extends DCLogic {
       slotA: key + '-a', slotB: key + '-b', slotC: key + '-c',
       gA: d.gA || '', gB: d.gB || '', gC: d.gC || '',
       galleryGroups: (d.groups
-        ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', images: grp.images.map((src) => ({ src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
-        : [{ hasHead: false, head: '', sub: '', images: (d.gallery || []).map((src) => ({ src, alt: d.title })) }]),
+        ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', images: grp.images.map((src) => { const dm = Component.DIMS[src] || ['','']; return { src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : ''), w: dm[0], h: dm[1] }; }) }))
+        : [{ hasHead: false, head: '', sub: '', images: (d.gallery || []).map((src) => { const dm = Component.DIMS[src] || ['','']; return { src, alt: d.title, w: dm[0], h: dm[1] }; }) }]),
       hasGallery: !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
       showSlots: !((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
       nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
-      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
+      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, width: (Component.DIMS[d.heroSrc] || [])[0], height: (Component.DIMS[d.heroSrc] || [])[1], decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
         href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',
         hasThumb: !!projects[r.key].heroSrc,
+        w: (Component.DIMS[projects[r.key].heroSrc] || [''])[0],
+        h: (Component.DIMS[projects[r.key].heroSrc] || ['',''])[1],
         name: r.name,
         eyebrow: projects[r.key].eyebrow,
         location: projects[r.key].location

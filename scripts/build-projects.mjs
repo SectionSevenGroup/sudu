@@ -23,6 +23,11 @@ if (dataStart === -1 || dataEnd === -1) throw new Error('could not locate static
 const DATA = eval('(' + projectSrc.slice(dataStart + 'static DATA ='.length, dataEnd + 4).trim().replace(/;$/, '') + ')');
 const slugs = Object.keys(DATA);
 
+const dimsStart = projectSrc.indexOf('static DIMS = {');
+const dimsEnd = projectSrc.indexOf('\n  };', dimsStart);
+const DIMS = dimsStart === -1 ? {} :
+  eval('(' + projectSrc.slice(dimsStart + 'static DIMS ='.length, dimsEnd + 4).trim().replace(/;$/, '') + ')');
+
 // ---- per-page head metadata -------------------------------------------------
 // The four flagship pages use the copy from the site fix brief; the rest derive
 // their description from the project lede.
@@ -74,7 +79,7 @@ function generateProjectPage(slug) {
     lede: esc(d.lede), body: esc(d.body),
     nextTitle: esc(DATA[d.next].title), nextHref: `/work/${d.next}/`,
     heroImg: d.heroSrc
-      ? `<img src="/${d.heroSrc}" alt="${esc(d.title)}" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">`
+      ? `<img src="/${d.heroSrc}" alt="${esc(d.title)}"${DIMS[d.heroSrc] ? ` width="${DIMS[d.heroSrc][0]}" height="${DIMS[d.heroSrc][1]}"` : ''} decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">`
       : '',
   };
   for (const [k, v] of Object.entries(scalars)) {
