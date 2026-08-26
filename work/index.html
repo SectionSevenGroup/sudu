@@ -7,7 +7,7 @@
 // GitHub Pages has no server redirects: normalize /page.html to the clean URL client-side.
 (function(){if(location.protocol.indexOf('http')!==0)return;var p=location.pathname;if(/\.html$/.test(p)){var t=/(^|\/)index\.html$/.test(p)?p.replace(/index\.html$/,''):p.replace(/\.html$/,'');location.replace(t+location.search+location.hash);}})();
 </script>
-<script src="./js/support.js"></script>
+<script src="/js/support.js"></script>
 </head>
 <body>
 <x-dc>
@@ -31,7 +31,7 @@
 
   <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="/" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Work</a>
@@ -73,7 +73,7 @@
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
@@ -88,20 +88,20 @@ class Component extends DCLogic {
   renderVals() {
     const order = ['west-vancouver','wilfreds','westshore','atb','corso32','bar-bricco','uccellino','the-helm','hells-kitchen','atb-banking','factory-yyc','selkirk','enoch','youth-recovery'];
     const names = {
-      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver', thumb: 'images/img-hero-westvan.jpg' },
-      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: 'images/img-wilfreds.jpg' },
-      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta', thumb: 'images/img-westshore-1500.jpg' },
-      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: 'images/img-atb.jpg' },
-      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: 'images/img-corso32.jpg' },
-      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: 'images/img-barbricco.jpg' },
-      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: 'images/img-uccellino.jpg' },
-      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: 'images/img-thehelm.jpg' },
-      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: 'images/img-hellskitchen.jpg' },
-      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: 'images/img-atb-banking.jpg' },
-      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', thumb: 'images/img-factoryyyc.jpg' },
-      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', thumb: 'images/img-selkirk.jpg' },
-      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', thumb: 'images/img-enoch.jpg' },
-      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: 'images/img-youthrecovery.jpg' }
+      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver', thumb: '/images/img-hero-westvan.jpg' },
+      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: '/images/img-wilfreds.jpg' },
+      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta', thumb: '/images/img-westshore-1500.jpg' },
+      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: '/images/img-atb.jpg' },
+      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: '/images/img-corso32.jpg' },
+      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: '/images/img-barbricco.jpg' },
+      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: '/images/img-uccellino.jpg' },
+      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: '/images/img-thehelm.jpg' },
+      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: '/images/img-hellskitchen.jpg' },
+      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: '/images/img-atb-banking.jpg' },
+      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', thumb: '/images/img-factoryyyc.jpg' },
+      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', thumb: '/images/img-selkirk.jpg' },
+      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', thumb: '/images/img-enoch.jpg' },
+      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: '/images/img-youthrecovery.jpg' }
     };
     return {
       items: order.map((k, i) => ({ ...names[k], href: '/work/' + k + '/', num: String(i + 1).padStart(2, '0') }))
