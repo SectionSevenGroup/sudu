@@ -24,7 +24,7 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -39,7 +39,7 @@
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
+  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="index.html" style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
@@ -52,9 +52,10 @@
 
   <section data-screen-label="Work Index" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
     <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding-bottom:clamp(24px,3vw,36px);">
-      <h1 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:700; letter-spacing:-0.035em; line-height:1.0;">Work</h1>
+      <h1 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:900; letter-spacing:-0.02em; line-height:0.95; text-transform:uppercase;">Work</h1>
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">14 projects</span>
     </div>
+    <p style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;">Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.</p>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:40px 28px; border-top:1px solid rgba(23,22,19,0.13); padding-top:clamp(28px,3.5vw,44px);">
       <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
@@ -76,7 +77,7 @@
   <a href="contact.html" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
     <div>
       <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Start a project</div>
-      <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Say hello</div>
+      <div style="font-size:clamp(24px,3vw,38px); font-weight:900; letter-spacing:-0.02em; line-height:0.9; text-transform:uppercase;">Say hello</div>
     </div>
     <span style="font-size:clamp(19px,2.3vw,30px); font-weight:700; color:#E17B3E; line-height:1; letter-spacing:-0.12em;">&#8250;&#8250;</span>
   </a>
