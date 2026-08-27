@@ -9,6 +9,12 @@
 // Forward old project.html?p= links to the clean per-project URL.
 (function(){if(location.protocol.indexOf('http')!==0)return;var slugs=['west-vancouver','wilfreds','westshore','atb','corso32','bar-bricco','uccellino','the-helm','hells-kitchen','atb-banking','factory-yyc','selkirk','enoch','youth-recovery'];var m=/[?&]p=([^&]+)/.exec(location.search);var s=m?decodeURIComponent(m[1]):'west-vancouver';if(slugs.indexOf(s)===-1)s='west-vancouver';location.replace('/work/'+s+'/');})();
 </script>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#F3F1EA">
 <script src="./js/support.js"></script>
 </head>
 <body>
