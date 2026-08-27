@@ -102,10 +102,6 @@
 
   <a href="#work" style="position:absolute; left:-9999px; top:0; z-index:200; background:#171613; color:#F3F1EA; padding:10px 16px; font-size:13px;" style-focus="left:8px; top:8px;">Skip to work</a>
 
-  <div style="position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:200; display:flex; gap:2px; background:rgba(243,241,234,0.85); backdrop-filter:blur(8px); border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px; font-size:11px; font-weight:600; letter-spacing:0.06em; font-family:'Urbanist', sans-serif;">
-    <span style="padding:5px 14px; border-radius:100px; background:#171613; color:#F3F1EA;">V1 — Active Site</span>
-    <a id="verSwitch" href="SuDu V2 Homepage.dc.html" style="padding:5px 14px; border-radius:100px; color:rgba(23,22,19,0.65);">V2 — New</a>
-  </div>
   <header id="suduNav" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="#hero" style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
@@ -358,11 +354,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#E17B3E&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#E17B3E&quot;,&quot;#171613&quot;,&quot;#67655D&quot;],&quot;section&quot;:&quot;Interaction&quot;},&quot;showScrollCue&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showExperienceIndex&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;}}">
 class Component extends DCLogic {
-  componentDidMount() {
-    this.install();
-    const vs = document.getElementById('verSwitch');
-    if (vs) vs.href = encodeURIComponent('SuDu V2 Homepage.dc.html').replace(/%2E/g,'.') + location.search;
-  }
+  componentDidMount() { this.install(); }
   componentDidUpdate() { if (window.__sudu) { window.__sudu.refresh(); window.__sudu.run(); } }
 
   install() {
