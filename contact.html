@@ -3,20 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>
-// GitHub Pages has no server redirects: normalize /page.html to the clean URL client-side.
-(function(){if(location.protocol.indexOf('http')!==0)return;var p=location.pathname;if(/\.html$/.test(p)){var t=/(^|\/)index\.html$/.test(p)?p.replace(/index\.html$/,''):p.replace(/\.html$/,'');location.replace(t+location.search+location.hash);}})();
-</script>
-<title>Contact · SuDu Studio</title>
-<meta name="description" content="Start a project with SuDu Studio.">
-<link rel="canonical" href="https://sudu.studio/contact">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="SuDu Studio">
-<meta property="og:title" content="Contact · SuDu Studio">
-<meta property="og:description" content="Start a project with SuDu Studio.">
-<meta property="og:url" content="https://sudu.studio/contact">
-<meta property="og:image" content="https://sudu.studio/images/og-default.jpg">
-<meta name="twitter:card" content="summary_large_image">
 <script src="./js/support.js"></script>
 </head>
 <body>
@@ -42,13 +28,13 @@
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
 
   <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
-    <a href="/" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" decoding="async" style="height:38px; width:auto; display:block;">
+    <a href="index.html" style="display:flex; align-items:flex-end; gap:12px;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="/studio" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a>
+      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a>
     </nav>
   </header>
 
@@ -129,9 +115,9 @@
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" loading="lazy" decoding="async" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
-      <span>&copy; 2026 SuDu Studio</span>
+      <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
     <span>Alberta</span>
   </footer>
@@ -231,12 +217,12 @@ class Component extends DCLogic {
         const name = (form.name && form.name.value) || '';
         const interests = this.state.sel.join(', ');
         const details = this.state.sub.join(', ');
-        const subject = 'Project inquiry' + (interests ? ' — ' + interests : '') + (name ? ' (' + name + ')' : '');
+        const subject = 'Project inquiry' + (interests ? ' \u2014 ' + interests : '') + (name ? ' (' + name + ')' : '');
         const lines = [];
         if (interests) lines.push('Interested in: ' + interests);
         if (details) lines.push('Specifically: ' + details);
         if (form.body && form.body.value) lines.push('', form.body.value);
-        if (name) lines.push('', name + (form.email && form.email.value ? ' — ' + form.email.value : ''));
+        if (name) lines.push('', name + (form.email && form.email.value ? ' \u2014 ' + form.email.value : ''));
         window.location.href = 'mailto:office@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       }
     };
