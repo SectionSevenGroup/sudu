@@ -114,8 +114,8 @@
     </nav>
   </header>
 
-  <section id="hero" data-screen-label="Hero" style="position:relative; height:100svh; min-height:540px; overflow:hidden; background:#F3F1EA;">
-    <img id="heroImg" decoding="async" fetchpriority="high" src="images/hero-drawing-m.png" alt="West Coast Marine Drive concept, single-line drawing" style="position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); width:min(97vw,170vh); max-height:76vh; object-fit:contain; height:auto; display:block;">
+  <section id="hero" data-screen-label="Hero" style="position:relative; height:100svh; height:100dvh; min-height:540px; overflow:hidden; background:#F3F1EA;">
+    <img id="heroImg" width="1800" height="843" decoding="async" fetchpriority="high" src="images/hero-drawing-m.png" alt="West Coast Marine Drive concept, single-line drawing" style="position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); width:min(97vw,170vh); max-height:76vh; object-fit:contain; height:auto; display:block;">
     <h1 id="heroStatement" style="position:absolute; left:clamp(20px,4.5vw,64px); bottom:clamp(96px,14vh,150px); margin:0; text-align:left; color:#171613; font-size:clamp(30px,5.2vw,81px); font-weight:900; letter-spacing:-0.035em; line-height:0.85; text-transform:uppercase; max-width:11ch;">Architecture<br>Interiors<br>Design</h1>
     <div id="heroFoot" style="position:absolute; left:0; right:0; bottom:0; display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:0 clamp(20px,4.5vw,64px) 44px; color:#171613;">
       <div>
@@ -503,34 +503,38 @@ class Component extends DCLogic {
     if (hi && !hi._intro) {
       hi._intro = true;
       engine.intro = true;
-      // failsafe: intro can never wedge parallax off
-      setTimeout(() => { engine.intro = false; engine.jsPar = true; }, 4000);
       hi.style.opacity = '0';
       hi.style.transform = 'translate(-50%,-50%) scale(1.03)';
       hf && (hf.style.opacity = '0', hf.style.transform = 'translateY(26px)');
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        hi.style.transition = 'opacity 1.8s ' + ease + ', transform 2.6s ' + ease;
-        hi.style.opacity = '1';
-        hi.style.transform = 'translate(-50%,-50%) scale(1)';
-        if (hf) {
-          hf.style.transition = 'opacity 1.4s ' + ease + ', transform 1.6s ' + ease;
-          hf.style.transitionDelay = '0.7s';
-          hf.style.opacity = '1';
-          hf.style.transform = 'translateY(0)';
-        }
-      }));
-      setTimeout(() => {
+      const settle = () => {
         hi.style.transition = 'none';
-        // re-query: DC re-renders may have replaced the caption node mid-intro
         const hf2 = document.getElementById('heroFoot');
         if (hf2) { hf2.style.transition = 'none'; hf2.style.transitionDelay = '0ms'; hf2.style.opacity = '1'; hf2.style.transform = 'translateY(0)'; }
         engine.intro = false;
-        // parallax: JS-driven everywhere (re-query — node may have been replaced)
         engine.jsPar = true;
         const hi2 = document.getElementById('heroImg');
         if (hi2) { hi2.style.transition = 'none'; hi2.style.opacity = '1'; hi2.style.transform = 'translate(-50%,-50%) scale(1)'; hi2.style.willChange = 'transform'; }
         engine.run();
-      }, 2700);
+      };
+      let started = false;
+      const start = () => {
+        if (started) return; started = true;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          hi.style.transition = 'opacity 1.8s ' + ease + ', transform 2.6s ' + ease;
+          hi.style.opacity = '1';
+          hi.style.transform = 'translate(-50%,-50%) scale(1)';
+          if (hf) {
+            hf.style.transition = 'opacity 1.4s ' + ease + ', transform 1.6s ' + ease;
+            hf.style.transitionDelay = '0.7s';
+            hf.style.opacity = '1';
+            hf.style.transform = 'translateY(0)';
+          }
+        }));
+        setTimeout(settle, 2700);
+      };
+      // fade begins only once the drawing is decoded, so slow mobile loads fade instead of popping
+      if (hi.complete && hi.naturalWidth) start();
+      else { hi.addEventListener('load', start, { once: true }); setTimeout(start, 8000); }
     }
     window.addEventListener('scroll', engine.run, { passive: true });
     window.addEventListener('resize', engine.run, { passive: true });
