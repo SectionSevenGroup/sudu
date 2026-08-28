@@ -52,7 +52,7 @@
 
   <section data-screen-label="Work Index" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
     <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding-bottom:clamp(24px,3vw,36px);">
-      <h1 style="margin:0; font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05;">Work</h1>
+      <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; ">Work</h1>
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">14 projects</span>
     </div>
     <p style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;">Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.</p>
@@ -98,15 +98,18 @@
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
   renderVals() {
-    const order = ['west-vancouver','wilfreds','westshore','atb','corso32','bar-bricco','uccellino','the-helm','hells-kitchen','atb-banking','factory-yyc','selkirk','enoch','youth-recovery'];
+    const order = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','factory-yyc','selkirk','enoch','youth-recovery'];
     const names = {
       'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', thumb: 'images/west-vancouver-private-residence.jpg' },
       'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: 'images/wilfreds-hospitality-edmonton.jpg' },
       'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Okanagan, BC', thumb: 'images/westshore-estates-house-exterior.jpg' },
+      'casita': { eyebrow: 'Private Residential', title: 'Casita', location: 'Costa Rica', thumb: 'images/casita-costa-rica-hillside.jpg' },
+      'mackenzie-ravine': { eyebrow: 'Private Residential', title: 'Mackenzie Ravine', location: 'Edmonton, AB', thumb: 'images/mackenzie-ravine-rear-terrace-dusk.jpg' },
       'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: 'images/atb-place-reimagined-edmonton.jpg' },
       'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: 'images/corso-32-restaurant-edmonton.jpg' },
       'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: 'images/bar-bricco-edmonton.jpg' },
       'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: 'images/uccellino-restaurant-edmonton.jpg' },
+      'alder-room-alta': { eyebrow: 'Hospitality', title: 'Alder Room \u0026 Alta', location: 'Edmonton, AB', thumb: 'images/alder-room-alta-logo.jpg' },
       'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: 'images/the-helm-edmonton.jpg' },
       'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: 'images/hells-kitchen-enoch.jpg' },
       'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: 'images/atb-reimagining-banking.jpg' },
