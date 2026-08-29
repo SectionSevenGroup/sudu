@@ -58,6 +58,7 @@
   html.dm .sudu-pv { filter: invert(1) hue-rotate(180deg); }
   html.dm.dmred section *, html.dm.dmred footer *, html.dm.dmred .sudu-pv * { color: rgb(16,14,7) !important; }
   html.dm.dmred header * { color:#F3F1EA !important; }
+  html.dm.dmred footer [data-track][data-active="true"] { color: rgb(243,241,234) !important; }
   html.dm.dmred input::placeholder, html.dm.dmred textarea::placeholder { color: rgb(16,14,7) !important; }
   html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
   html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
@@ -78,7 +79,7 @@ build();setInterval(build,1500);})();
 function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{rules=document.styleSheets[i].cssRules;}catch(e){continue;}for(var j=0;j<rules.length;j++){var r=rules[j];if(r.style&&r.selectorText&&r.selectorText.indexOf(':hover')>-1&&/232, 229, 220/.test(r.style.background||'')&&(r.style.background||'').indexOf('var(')===-1){r.style.setProperty('background','var(--sudu-hover-tint, rgb(232, 229, 220))','important');}}}}
 patch();setInterval(patch,1500);})();</script>
 <script src="i18n.js" defer></script>
-<script src="js/audio-player.js?v=3" defer></script>
+<script src="js/audio-player.js?v=4" defer></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
@@ -216,7 +217,7 @@ patch();setInterval(patch,1500);})();</script>
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
-    <button id="trackSwitch" type="button" title="Next track" aria-label="Switch background music track" style="border:0; background:transparent; padding:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:color .25s ease;"><span data-track-title>MF Rothschild &middot; 432</span><span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
+    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">Isis</button></span></div>
     <span>Alberta</span>
   </footer>
 

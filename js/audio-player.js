@@ -15,8 +15,8 @@
   var KEY = 'sudu-audio';
   var POS = 'sudu-audio-pos';
   var TRACKS = [
-    { src: 'audio/mf-rothschild-432.mp3', title: 'MF Rothschild · 432' },
-    { src: 'audio/mf-rothschild-isis.mp3', title: 'MF Rothschild · Isis' }
+    { src: 'audio/mf-rothschild-432.mp3', artist: 'MF Rothschild', short: '432', title: 'MF Rothschild · 432' },
+    { src: 'audio/mf-rothschild-isis.mp3', artist: 'MF Rothschild', short: 'Isis', title: 'MF Rothschild · Isis' }
   ];
   var VOLUME = 0.6;
   var player = null;
@@ -30,7 +30,10 @@
     '#audioToggle[data-playing="true"]:not([data-viz="true"]) svg rect:nth-child(3){animation-duration:1.3s;animation-delay:-0.6s;}' +
     '@keyframes suduEq{0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);}}' +
     '#audioToggle{position:relative;}#audioToggle::after{content:"";position:absolute;inset:-12px;}' +
-    '#trackSwitch:hover{color:#171613;}';
+    '#trackSwitch:hover{color:#171613;}' +
+    '.track-pill button:hover{color:#171613 !important;}' +
+    '.track-pill button.on{background:#171613 !important;color:#F3F1EA !important;}' +
+    '.track-pill button.on:hover{color:#F3F1EA !important;}';
   document.head.appendChild(css);
 
   function prefOn() { try { return localStorage.getItem(KEY) === 'on'; } catch (e) { return false; } }
@@ -142,6 +145,19 @@
     document.querySelectorAll('[data-track-title]').forEach(function (el) {
       el.textContent = TRACKS[idx].title;
     });
+    document.querySelectorAll('[data-track-artist]').forEach(function (el) {
+      el.textContent = TRACKS[idx].artist;
+    });
+    document.querySelectorAll('[data-track]').forEach(function (el) {
+      var i = parseInt(el.getAttribute('data-track'), 10);
+      var t = TRACKS[i];
+      if (!t) { el.hidden = true; return; }
+      var on = i === idx;
+      el.textContent = t.short;
+      el.setAttribute('data-active', on ? 'true' : 'false');
+      el.setAttribute('aria-pressed', on ? 'true' : 'false');
+      el.classList.toggle('on', on);
+    });
   }
 
   function ensure() {
@@ -192,6 +208,18 @@
   // playing -> stop. The footer title advances to the next track.
   document.addEventListener('click', function (e) {
     var t = e.target;
+    var seg = t && t.closest && t.closest('[data-track]');
+    if (seg) {
+      var i = parseInt(seg.getAttribute('data-track'), 10);
+      if (i === idx) {
+        if (isPlaying()) { setPref(false); stop(); }
+        else { setPref(true); start().catch(function () {}); }
+        paint();
+      } else if (i >= 0 && i < TRACKS.length) {
+        switchTo(i);
+      }
+      return;
+    }
     if (t && t.closest && t.closest('#trackSwitch')) {
       switchTo(idx + 1);
       return;
