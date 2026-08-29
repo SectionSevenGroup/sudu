@@ -148,7 +148,9 @@
     if (player) return player;
     var s = savedPos();
     if (s && s.i >= 0 && s.i < TRACKS.length) idx = s.i;
-    player = new Audio(TRACKS[idx].src);
+    player = new Audio();
+    player.preload = 'none';
+    player.src = TRACKS[idx].src;
     player.volume = VOLUME;
     player.addEventListener('play', function () { paint(); vizStart(); });
     player.addEventListener('pause', function () { paint(); vizStop(); });
@@ -222,8 +224,13 @@
     }
   }
 
-  window.addEventListener('DOMContentLoaded', onPageReady);
+  function paintOnly() { paint(); [400, 1200, 3000].forEach(function (t) { setTimeout(paint, t); }); }
+  function afterLoad(fn) {
+    if (document.readyState === 'complete') setTimeout(fn, 500);
+    else window.addEventListener('load', function () { setTimeout(fn, 500); });
+  }
+  window.addEventListener('DOMContentLoaded', function () { paintOnly(); afterLoad(onPageReady); });
   // Turbo page swaps: the player object survives and keeps playing;
   // just repaint the fresh buttons (and resume if something stopped it).
-  document.addEventListener('turbo:load', onPageReady);
+  document.addEventListener('turbo:load', function () { paintOnly(); afterLoad(onPageReady); });
 })();

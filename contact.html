@@ -135,7 +135,7 @@ build();setInterval(build,1500);})();
 function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{rules=document.styleSheets[i].cssRules;}catch(e){continue;}for(var j=0;j<rules.length;j++){var r=rules[j];if(r.style&&r.selectorText&&r.selectorText.indexOf(':hover')>-1&&/232, 229, 220/.test(r.style.background||'')&&(r.style.background||'').indexOf('var(')===-1){r.style.setProperty('background','var(--sudu-hover-tint, rgb(232, 229, 220))','important');}}}}
 patch();setInterval(patch,1500);})();</script>
 <script src="i18n.js" defer></script>
-<script src="js/audio-player.js?v=2" defer></script>
+<script src="js/audio-player.js?v=3" defer></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
