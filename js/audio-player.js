@@ -19,12 +19,77 @@
 
   var css = document.createElement('style');
   css.textContent = '#audioToggle svg rect{transform-box:fill-box;transform-origin:center;transform:scaleY(0.35);transition:transform .35s ease;}' +
-    '#audioToggle[data-playing="true"] svg rect{animation:suduEq 1.15s ease-in-out infinite;}' +
-    '#audioToggle[data-playing="true"] svg rect:nth-child(2){animation-duration:0.9s;animation-delay:-0.3s;}' +
-    '#audioToggle[data-playing="true"] svg rect:nth-child(3){animation-duration:1.3s;animation-delay:-0.6s;}' +
+    // fallback motion when the live analyser is unavailable
+    '#audioToggle[data-playing="true"]:not([data-viz="true"]) svg rect{animation:suduEq 1.15s ease-in-out infinite;}' +
+    '#audioToggle[data-playing="true"]:not([data-viz="true"]) svg rect:nth-child(2){animation-duration:0.9s;animation-delay:-0.3s;}' +
+    '#audioToggle[data-playing="true"]:not([data-viz="true"]) svg rect:nth-child(3){animation-duration:1.3s;animation-delay:-0.6s;}' +
     '@keyframes suduEq{0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);}}' +
     '#audioToggle{position:relative;}#audioToggle::after{content:"";position:absolute;inset:-12px;}';
   document.head.appendChild(css);
+
+  // ---- live visualizer: the bars follow the actual audio ----
+  var actx = null, analyser = null, srcNode = null, vizRAF = 0;
+  var vizData = null, levels = [0.35, 0.35, 0.35];
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function setupViz() {
+    if (analyser || reduceMotion) return;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try {
+      actx = new AC();
+      srcNode = actx.createMediaElementSource(player);
+      var an = actx.createAnalyser();
+      an.fftSize = 128;
+      an.smoothingTimeConstant = 0.7;
+      srcNode.connect(an);
+      an.connect(actx.destination);
+      analyser = an;
+      vizData = new Uint8Array(an.frequencyBinCount);
+    } catch (e) {
+      // never leave the element routed into a dead graph (that would mute it)
+      if (srcNode && actx) { try { srcNode.connect(actx.destination); } catch (e2) {} }
+      analyser = null;
+    }
+  }
+
+  function band(from, to) {
+    var sum = 0;
+    for (var i = from; i < to; i++) sum += vizData[i];
+    return sum / ((to - from) * 255);
+  }
+
+  function vizFrame() {
+    vizRAF = requestAnimationFrame(vizFrame);
+    analyser.getByteFrequencyData(vizData);
+    // low / mid / high bands, eased toward their targets for smooth motion
+    var bands = [band(1, 8), band(8, 24), band(24, 60)];
+    var rects = document.querySelectorAll('#audioToggle svg rect');
+    for (var i = 0; i < rects.length; i++) {
+      var target = Math.min(1, 0.22 + Math.pow(bands[i % 3], 1.35) * 1.15);
+      levels[i % 3] += (target - levels[i % 3]) * 0.3;
+      rects[i].style.transition = 'none';
+      rects[i].style.transform = 'scaleY(' + levels[i % 3].toFixed(3) + ')';
+    }
+  }
+
+  function vizStart() {
+    setupViz();
+    if (!analyser) return;
+    if (actx.state === 'suspended') actx.resume().catch(function () {});
+    document.querySelectorAll('#audioToggle').forEach(function (b) { b.setAttribute('data-viz', 'true'); });
+    cancelAnimationFrame(vizRAF);
+    vizRAF = requestAnimationFrame(vizFrame);
+  }
+
+  function vizStop() {
+    cancelAnimationFrame(vizRAF);
+    vizRAF = 0;
+    document.querySelectorAll('#audioToggle svg rect').forEach(function (r) {
+      r.style.transition = '';
+      r.style.transform = '';
+    });
+  }
 
   function prefOn() { try { return localStorage.getItem(KEY) === 'on'; } catch (e) { return false; } }
   function setPref(on) { try { localStorage.setItem(KEY, on ? 'on' : 'off'); } catch (e) {} }
@@ -46,8 +111,8 @@
     if (s && s.i >= 0 && s.i < TRACKS.length) idx = s.i;
     player = new Audio(TRACKS[idx]);
     player.volume = VOLUME;
-    player.addEventListener('play', paint);
-    player.addEventListener('pause', paint);
+    player.addEventListener('play', function () { paint(); vizStart(); });
+    player.addEventListener('pause', function () { paint(); vizStop(); });
     player.addEventListener('ended', function () {
       idx = (idx + 1) % TRACKS.length;
       player.src = TRACKS[idx];
@@ -96,15 +161,20 @@
     if (prefOn() && !isPlaying()) start().catch(function () {});
   }
 
-  window.addEventListener('DOMContentLoaded', function () {
+  function onPageReady() {
     paint();
     [400, 1200, 3000].forEach(function (t) { setTimeout(paint, t); });
-    if (prefOn()) {
+    if (prefOn() && !isPlaying()) {
       start().catch(function () {
         paint();
         document.addEventListener('pointerdown', resumeOnce);
         document.addEventListener('keydown', resumeOnce);
       });
     }
-  });
+  }
+
+  window.addEventListener('DOMContentLoaded', onPageReady);
+  // Turbo page swaps: the player object survives and keeps playing;
+  // just repaint the fresh button (and resume if something stopped it).
+  document.addEventListener('turbo:load', onPageReady);
 })();
