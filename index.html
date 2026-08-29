@@ -111,6 +111,8 @@
   html.dm header, html.dm section, html.dm footer { filter: invert(1) hue-rotate(180deg); }
   html.dm header, html.dm header.dm-flat { filter: none !important; background: var(--dm-bg,#121110) !important; background: color-mix(in srgb, var(--dm-bg,#121110) 94%, transparent) !important; -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px); color:#F3F1EA; border-bottom:0 !important; }
   html.dm header nav a[style*="#171613"] { border-bottom-color:#F3F1EA !important; }
+  html.dm { --sudu-hover-tint: rgba(16,14,7,0.08); }
+  html.dm [style-hover*="E8E5DC"]:hover { background: rgba(16,14,7,0.08) !important; }
   html.dm #dmSwatches button { filter: invert(1) hue-rotate(180deg); }
   html.dm .sudu-pv { filter: invert(1) hue-rotate(180deg); }
   html.dm.dmred section *, html.dm.dmred footer *, html.dm.dmred .sudu-pv * { color: rgb(16,14,7) !important; }
@@ -130,7 +132,10 @@ if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('clic
 function apply(v){if(v!=='#D0271F')v='#121110';var d=document.documentElement;d.style.setProperty('--dm-bg',v);d.classList.toggle('dmred',v==='#D0271F');try{localStorage.setItem(P,v);}catch(e){}}
 try{apply(localStorage.getItem(P));}catch(e){}
 function build(){var f=document.querySelector('footer');if(!f||document.getElementById('dmSwatches'))return;var d=document.createElement('span');d.id='dmSwatches';d.style.cssText='display:none;gap:8px;align-items:center;';opts.forEach(function(o){var b=document.createElement('button');b.type='button';b.title=o[0];b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,.6);cursor:pointer;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});f.insertBefore(d,f.children[1]||null);}
-build();setInterval(build,1500);})();</script>
+build();setInterval(build,1500);})();
+(function(){if(window.__suduHoverVar)return;window.__suduHoverVar=true;
+function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{rules=document.styleSheets[i].cssRules;}catch(e){continue;}for(var j=0;j<rules.length;j++){var r=rules[j];if(r.style&&r.selectorText&&r.selectorText.indexOf(':hover')>-1&&/232, 229, 220/.test(r.style.background||'')&&(r.style.background||'').indexOf('var(')===-1){r.style.setProperty('background','var(--sudu-hover-tint, rgb(232, 229, 220))','important');}}}}
+patch();setInterval(patch,1500);})();</script>
 <script src="i18n.js" defer></script>
 <script src="js/audio-player.js?v=2" defer></script>
 </helmet>
