@@ -92,7 +92,26 @@
   input::placeholder, textarea::placeholder { color: #A6A399; opacity: 1; }
   @keyframes webPulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.06); } }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  html.dm, html.dm body { background:#161412; }
+  html.dm .dm-wrap { background:#161412 !important; }
+  html.dm .dm-flat { background:transparent !important; }
+  #dmToggle { position:relative; }
+  #dmToggle::after { content:""; position:absolute; inset:-15px; }
+  #langSwitch button { position:relative; }
+  #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
+  html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
+  html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
+  html.dm #suduNav { background:transparent !important; }
+  html.dm header, html.dm section, html.dm footer { filter: invert(1) hue-rotate(180deg); }
+  html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
+  html.dm img#heroImg, html.dm img[src*="sudu-mark"], html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
+  
 </style>
+<script>(function(){var K='sudu-theme';var mark=function(){document.querySelectorAll('[style]').forEach(function(el){var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};try{if(localStorage.getItem(K)==='dark')document.documentElement.classList.add('dm');}catch(e){}
+[0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
+if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#dmToggle');if(!b)return;mark();var on=document.documentElement.classList.toggle('dm');try{localStorage.setItem(K,on?'dark':'light');}catch(e){}});})();</script>
+<script src="i18n.js" defer></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
@@ -105,6 +124,7 @@
       <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
       <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
       <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a>
+          <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
     </nav>
   </header>
 
@@ -144,7 +164,7 @@
             <textarea name="body" rows="4" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
           <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
-          <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
+          <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:office@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">office@sudu.studio</a></p>
         </form>
       </div>
 
@@ -294,7 +314,7 @@ class Component extends DCLogic {
         if (details) lines.push('Specifically: ' + details);
         if (form.body && form.body.value) lines.push('', form.body.value);
         if (name) lines.push('', name + (form.email && form.email.value ? ' \u2014 ' + form.email.value : ''));
-        window.location.href = 'mailto:joe@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+        window.location.href = 'mailto:office@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       }
     };
   }
