@@ -55,6 +55,7 @@
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#dmToggle');if(!b)return;mark();var on=document.documentElement.classList.toggle('dm');try{localStorage.setItem(K,on?'dark':'light');}catch(e){}});})();</script>
 <script src="i18n.js" defer></script>
+<script src="js/audio-player.js" defer></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
@@ -68,6 +69,7 @@ if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('clic
       <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
       <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
           <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
+          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" title="Background music" style="border:0; background:transparent; padding:0; font-size:15px; line-height:1; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity .25s ease;">&#9834;</button>
     </nav>
   </header>
 
