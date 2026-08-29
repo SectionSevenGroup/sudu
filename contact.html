@@ -106,7 +106,7 @@
   html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
   html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
   html.dm header, html.dm section, html.dm footer { filter: invert(1) hue-rotate(180deg); }
-  html.dm header, html.dm header.dm-flat { filter: none !important; background: var(--dm-bg,#121110) !important; color:#F3F1EA; border-bottom-color: rgba(243,241,234,0.13) !important; }
+  html.dm header, html.dm header.dm-flat { filter: none !important; background: var(--dm-bg,#121110) !important; background: color-mix(in srgb, var(--dm-bg,#121110) 94%, transparent) !important; -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px); color:#F3F1EA; border-bottom:0 !important; }
   html.dm header nav a[style*="#171613"] { border-bottom-color:#F3F1EA !important; }
   html.dm #dmSwatches button { filter: invert(1) hue-rotate(180deg); }
   html.dm .sudu-pv { filter: invert(1) hue-rotate(180deg); }
