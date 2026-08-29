@@ -8,6 +8,12 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/sudu-icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/sudu-icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/sudu-icon-180.png">
+<script>
+/* Safari caches favicons per page URL and ignores query strings. Re-inserting
+   the icon links after load makes it re-evaluate and refetch them. */
+(function(){function r(){var ls=document.querySelectorAll('link[rel~="icon"],link[rel="shortcut icon"]');for(var i=0;i<ls.length;i++){var l=ls[i],n=l.cloneNode(true);n.setAttribute('href',l.getAttribute('href')+'?r='+Date.now());l.parentNode.removeChild(l);document.head.appendChild(n);}}
+if(document.readyState==='complete')setTimeout(r,300);else window.addEventListener('load',function(){setTimeout(r,300);});})();
+</script>
 
 <title>SuDu Studio &middot; Work</title>
 <meta name="description" content="Architecture and interior design case studies by SuDu Studio: custom residences, restaurants, retail and community projects in Edmonton and Western Canada.">
