@@ -19,7 +19,7 @@
 
 <script src="./js/support.js"></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
-<script src="js/turbo-boot.js" defer></script>
+<script src="js/turbo-boot.js?v=2" defer></script>
 </head>
 <body>
 <x-dc>
@@ -57,7 +57,7 @@
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#dmToggle');if(!b)return;mark();var on=document.documentElement.classList.toggle('dm');try{localStorage.setItem(K,on?'dark':'light');}catch(e){}});})();</script>
 <script src="i18n.js" defer></script>
-<script src="js/audio-player.js" defer></script>
+<script src="js/audio-player.js?v=2" defer></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
