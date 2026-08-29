@@ -45,13 +45,12 @@
   #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
   html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
   html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
-  html.dm #suduNav { background:transparent !important; }
   html.dm header, html.dm section, html.dm footer { filter: invert(1) hue-rotate(180deg); }
   html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
   html.dm img#heroImg, html.dm img[src*="sudu-mark"], html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
   
 </style>
-<script>(function(){var K='sudu-theme';var mark=function(){document.querySelectorAll('[style]').forEach(function(el){var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};try{if(localStorage.getItem(K)==='dark')document.documentElement.classList.add('dm');}catch(e){}
+<script>(function(){var K='sudu-theme';var mark=function(){document.querySelectorAll('[style]').forEach(function(el){var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('header'))return;if(el.closest('section,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};try{if(localStorage.getItem(K)==='dark')document.documentElement.classList.add('dm');}catch(e){}
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#dmToggle');if(!b)return;mark();var on=document.documentElement.classList.toggle('dm');try{localStorage.setItem(K,on?'dark':'light');}catch(e){}});})();</script>
 <script src="i18n.js" defer></script>
