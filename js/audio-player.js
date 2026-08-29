@@ -33,6 +33,9 @@
     '#trackSwitch:hover{color:#171613;}' +
     '.track-pill button:hover{color:#171613 !important;}' +
     '.track-pill button.on{background:#171613 !important;color:#F3F1EA !important;}' +
+    // in dark/red mode the chip is inverted into a light surface, so it needs the
+    // ink that maps onto the page cream rather than the light-mode ink
+    'html.dm .track-pill button.on{background:rgb(16,14,7) !important;}' +
     '.track-pill button.on:hover{color:#F3F1EA !important;}';
   document.head.appendChild(css);
 

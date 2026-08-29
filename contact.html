@@ -113,6 +113,9 @@
   html.dm [style-hover*="E8E5DC"]:hover { background: rgba(16,14,7,0.08) !important; }
   html.dm #dmSwatches button { filter: invert(1) hue-rotate(180deg); }
   html.dm .sudu-pv { filter: invert(1) hue-rotate(180deg); }
+  /* Text reading as white in dark mode: rgb(16,14,7) is the pre-image of the page
+     cream rgb(243,241,234) under invert(1) hue-rotate(180deg). */
+  html.dm section, html.dm footer, html.dm .sudu-pv, html.dm .dm-wrap { color: rgb(16,14,7) !important; }
   html.dm.dmred section *, html.dm.dmred footer *, html.dm.dmred .sudu-pv * { color: rgb(16,14,7) !important; }
   html.dm.dmred header * { color:#F3F1EA !important; }
   html.dm.dmred footer [data-track][data-active="true"] { color: rgb(243,241,234) !important; }
@@ -120,6 +123,7 @@
   html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
   html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
   html.dm footer img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm footer img[src*="sudu-mark"] { opacity: 1 !important; }
   html.dm section img[src*="sudu-mark"], html.dm .dm-wrap > *:not(section):not(header):not(footer) img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
   html.dm header img[src*="sudu-mark"] { filter: invert(1) hue-rotate(180deg) !important; }
   
@@ -136,7 +140,7 @@ build();setInterval(build,1500);})();
 function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{rules=document.styleSheets[i].cssRules;}catch(e){continue;}for(var j=0;j<rules.length;j++){var r=rules[j];if(r.style&&r.selectorText&&r.selectorText.indexOf(':hover')>-1&&/232, 229, 220/.test(r.style.background||'')&&(r.style.background||'').indexOf('var(')===-1){r.style.setProperty('background','var(--sudu-hover-tint, rgb(232, 229, 220))','important');}}}}
 patch();setInterval(patch,1500);})();</script>
 <script src="i18n.js" defer></script>
-<script src="js/audio-player.js?v=4" defer></script>
+<script src="js/audio-player.js?v=5" defer></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
