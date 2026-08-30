@@ -1,3 +1,6 @@
+/* singleton */
+if(!window.__suduI18N){window.__suduI18N=1;
+(function(){
 /* SuDu Studio — lightweight i18n: EN source, FR/ES/DE dictionaries.
    Walker swaps matching text nodes + alt/placeholder/title/aria-label/data-info attrs.
    Unmatched strings (proper nouns, project names) stay as-is. */
@@ -183,28 +186,36 @@ T.forEach(function(r){DICT.fr[r[0]]=r[1];DICT.es[r[0]]=r[2];DICT.de[r[0]]=r[3];}
 var LK='sudu-lang', ATTRS=['alt','placeholder','title','aria-label','data-info'];
 var cur='en', walking=false;
 function xl(s,lang){if(lang==='en')return s;var d=DICT[lang];return d&&d[s]||null;}
+var REV=null;
+function buildRev(){REV={};Object.keys(DICT).forEach(function(l){var d=DICT[l];Object.keys(d).forEach(function(k){var v=d[k];if(v&&REV[v]===undefined)REV[v]=k;});});}
+function toEn(k){if(!REV)buildRev();return REV[k]!==undefined?REV[k]:k;}
+function skip(el){return !!(el&&el.closest&&el.closest('#langSwitch,#dmSwatches,script,style'));}
 function walk(){
   walking=true;
   var tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null);
   var n;
   while(n=tw.nextNode()){
-    var p=n.parentNode&&n.parentNode.nodeName;
-    if(p==='SCRIPT'||p==='STYLE')continue;
+    var p=n.parentNode;
+    if(!p)continue;
+    var pn=p.nodeName;
+    if(pn==='SCRIPT'||pn==='STYLE'||pn==='NOSCRIPT')continue;
+    if(skip(p))continue;
     var raw=n.textContent, key=raw.replace(/\s+/g,' ').trim();
     if(!key)continue;
-    if(n.__en===undefined&&(cur==='en'||xl(key,cur)===null)){/* record originals lazily */}
-    if(n.__en===undefined){var t0=xl(key,cur);if(cur==='en'||t0!==null)n.__en=key;else continue;}
-    var t=cur==='en'?n.__en:xl(n.__en,cur);
-    if(t!==null&&t!==undefined&&key!==t)n.textContent=raw.replace(raw.trim(),t);
+    var en=toEn(key);
+    var target=cur==='en'?en:(xl(en,cur)||en);
+    if(target!==key)n.textContent=raw.replace(raw.trim(),target);
   }
-  document.querySelectorAll('*').forEach(function(el){
+  document.querySelectorAll('['+ATTRS.join('],[')+']').forEach(function(el){
+    if(skip(el))return;
     ATTRS.forEach(function(a){
-      var v=el.getAttribute&&el.getAttribute(a);
+      var v=el.getAttribute(a);
       if(!v)return;
-      var store='__en_'+a;
-      if(el[store]===undefined){var t1=xl(v.trim(),cur);if(cur==='en'||t1!==null)el[store]=v.trim();else return;}
-      var t=cur==='en'?el[store]:xl(el[store],cur);
-      if(t&&t!==v)el.setAttribute(a,t);
+      var key=v.replace(/\s+/g,' ').trim();
+      if(!key)return;
+      var en=toEn(key);
+      var target=cur==='en'?en:(xl(en,cur)||en);
+      if(target!==key)el.setAttribute(a,target);
     });
   });
   document.documentElement.setAttribute('lang',cur);
@@ -214,35 +225,47 @@ function setLang(l){
   cur=l;
   try{localStorage.setItem(LK,l);}catch(e){}
   walk();
-  document.querySelectorAll('[data-lang-btn]').forEach(function(b){
-    var on=b.getAttribute('data-lang-btn')===l;
-    b.style.opacity=on?'1':'0.45';
-    b.style.fontWeight=on?'700':'500';
-  });
+  buildSwitcher();
+  // storage in this webview can lag a tick; re-assert so a reload restores the right language
+  try{if(localStorage.getItem(LK)!==l)localStorage.setItem(LK,l);}catch(e){}
 }
 function buildSwitcher(){
-  if(document.getElementById('langSwitch'))return;
-  if(!document.body)return;
-  var wrap=document.createElement('span');
-  wrap.id='langSwitch';
-  wrap.style.cssText='position:fixed;left:clamp(20px,4.5vw,64px);bottom:16px;z-index:9999;display:flex;gap:11px;align-items:center;padding:6px 12px;background:transparent;border:0.5px solid currentColor;border-radius:22px;font-size:10.5px;letter-spacing:0.1em;';
+  var wrap=document.getElementById('langSwitch');
+  if(!wrap){
+    if(!document.body)return;
+    wrap=document.createElement('div');
+    wrap.id='langSwitch';
+    wrap.style.cssText='position:fixed;left:clamp(20px,4.5vw,64px);bottom:16px;z-index:9999;display:flex;gap:11px;align-items:center;padding:6px 12px;background:transparent;border:0.5px solid currentColor;border-radius:22px;';
+    document.body.appendChild(wrap);
+  }
+  if(wrap.getAttribute('data-cur')===cur)return;
+  wrap.setAttribute('data-cur',cur);
+  wrap.innerHTML='';
   ['en','fr','es','de'].forEach(function(l){
     if(l===cur)return;
     var b=document.createElement('button');
     b.type='button';b.textContent=l.toUpperCase();b.setAttribute('data-lang-btn',l);
-    b.style.cssText='background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit;font-size:10.5px;letter-spacing:0.08em;opacity:0.45;';
-    b.addEventListener('click',function(){setLang(l);});
+    b.style.cssText='background:none;border:0;padding:0;cursor:none;color:inherit;font:inherit;font-size:10.5px;font-weight:500;letter-spacing:0.08em;height:13px;line-height:13px;opacity:0.75;';
+
     wrap.appendChild(b);
   });
-  document.body.appendChild(wrap);
 }
+document.addEventListener('click',function(e){
+  var t=e.target&&e.target.closest&&e.target.closest('[data-lang-btn]');
+  if(!t)return;
+  e.preventDefault();
+  setLang(t.getAttribute('data-lang-btn'));
+});
+window.__i18n={get cur(){return cur;},setLang:setLang,langs:Object.keys(DICT),probe:function(s){return {en:toEn(s),de:xl(toEn(s),'de'),es:xl(toEn(s),'es'),fr:xl(toEn(s),'fr')};}};
 var deb;
 new MutationObserver(function(){
   if(walking)return;
   clearTimeout(deb);
-  deb=setTimeout(function(){buildSwitcher();if(cur!=='en')walk();},250);
+  deb=setTimeout(function(){buildSwitcher();walk();},120);
 }).observe(document.documentElement,{childList:true,subtree:true});
+var INIT=false;
 function init(){
+  if(INIT)return;INIT=true;
   buildSwitcher();
   var saved='en';
   try{saved=localStorage.getItem(LK)||'en';}catch(e){}
@@ -251,3 +274,6 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 [600,1800,3500].forEach(function(t){setTimeout(function(){buildSwitcher();if(cur!=='en')walk();},t);});
 })();
+
+})();
+}
