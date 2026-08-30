@@ -3,34 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>
-// GitHub Pages has no server redirects: normalize /page.html to the clean URL client-side.
-(function(){if(location.protocol.indexOf('http')!==0)return;var p=location.pathname;if(/\.html$/.test(p)){var t=/(^|\/)index\.html$/.test(p)?p.replace(/index\.html$/,''):p.replace(/\.html$/,'');location.replace(t+location.search+location.hash);}})();
-</script>
-<title>Work · SuDu Studio</title>
-<meta name="description" content="Selected architecture and interiors projects from SuDu Studio, including West Vancouver, Wilfred’s, ATB Place and the Youth Recovery Centre.">
-<link rel="canonical" href="https://sudu.studio/work">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="SuDu Studio">
-<meta property="og:title" content="Work · SuDu Studio">
-<meta property="og:description" content="Selected architecture and interiors projects from SuDu Studio, including West Vancouver, Wilfred’s, ATB Place and the Youth Recovery Centre.">
-<meta property="og:url" content="https://sudu.studio/work">
-<meta property="og:image" content="https://sudu.studio/images/og-default.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/sudu-s-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/sudu-s-64.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/sudu-s-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/sudu-s-180.png">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#F3F1EA">
+
+<title>SuDu Studio &middot; Work</title>
+<meta name="description" content="Selected work by SuDu Studio: custom residential architecture, restaurant and retail interiors, and commercial design in Edmonton, Calgary and Western Canada.">
+<link rel="canonical" href="https://sudu.studio/work">
+<meta property="og:title" content="Architecture + Design Projects in Edmonton | SuDu Studio">
+<meta property="og:description" content="Selected work by SuDu Studio: custom residential architecture, restaurant and retail interiors, and commercial design in Edmonton, Calgary and Western Canada.">
+<meta property="og:url" content="https://sudu.studio/work">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
+<meta name="robots" content="index, follow">
+
 <script src="/js/support.js"></script>
+<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
+<script src="/js/turbo-boot.js?v=2" defer></script>
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -39,73 +38,127 @@
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  /* Motion tokens. Two languages: --ease-ui for micro-interactions,
+     --ease-entrance for anything arriving on screen. Choreography offsets in
+     the hero and clip-reveal (1.2s / 1.4s / 1.6s / 1.8s / 1.9s) stay literal;
+     they are sequence positions, not a shared duration. */
+  :root {
+    --ease-ui: ease;
+    --ease-entrance: cubic-bezier(.16, 1, .3, 1);
+
+    --t-hover: 250ms;
+    --t-ui: 300ms;
+    --t-media: 900ms;
+    --t-enter-fade: 1500ms;
+    --t-enter-move: 1700ms;
+    --t-hero: 2600ms;
+  }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  html.dm, html.dm body { background:var(--dm-bg,#121110); }
+  html.dm .dm-wrap { background:var(--dm-bg,#121110) !important; }
+  html.dm .dm-flat { background:transparent !important; }
+  html.dm #dmSwatches { display:inline-flex !important; }
+  #dmToggle { position:relative; }
+  #dmToggle::after { content:""; position:absolute; inset:-15px; }
+  #langSwitch button { position:relative; }
+  #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
+  html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
+  html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
+  html.dm header, html.dm section, html.dm footer { filter: invert(1) hue-rotate(180deg); }
+  html.dm header, html.dm header.dm-flat { filter: none !important; background: var(--dm-bg-soft, rgba(18,17,16,0.94)) !important; -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px); color:#F3F1EA; border-bottom:0 !important; }
+  html.dm header nav a[style*="#171613"] { border-bottom-color:#F3F1EA !important; }
+  html.dm { --sudu-hover-tint: rgba(16,14,7,0.08); }
+  html.dm [style-hover*="E8E5DC"]:hover { background: rgba(16,14,7,0.08) !important; }
+  html.dm #dmSwatches button { filter: invert(1) hue-rotate(180deg); }
+  html.dm .sudu-pv { filter: invert(1) hue-rotate(180deg); }
+  /* Text reading as white in dark mode: rgb(16,14,7) is the pre-image of the page
+     cream rgb(243,241,234) under invert(1) hue-rotate(180deg). */
+  html.dm section, html.dm footer, html.dm .sudu-pv, html.dm .dm-wrap { color: rgb(16,14,7) !important; }
+  html.dm.dmred section *, html.dm.dmred footer *, html.dm.dmred .sudu-pv * { color: rgb(16,14,7) !important; }
+  html.dm.dmred header * { color:#F3F1EA !important; }
+  html.dm.dmred footer [data-track][data-active="true"] { color: rgb(243,241,234) !important; }
+  html.dm.dmred input::placeholder, html.dm.dmred textarea::placeholder { color: rgb(16,14,7) !important; }
+  html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
+  html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm footer img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm footer img[src*="sudu-mark"] { opacity: 1 !important; }
+  html.dm section img[src*="sudu-mark"], html.dm .dm-wrap > *:not(section):not(header):not(footer) img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm header img[src*="sudu-mark"] { filter: invert(1) hue-rotate(180deg) !important; }
+  
 </style>
+<script>(function(){var K='sudu-theme';var mark=function(){document.querySelectorAll('[style]').forEach(function(el){var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('header'))return;if(el.closest('section,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};try{if(localStorage.getItem(K)==='dark')document.documentElement.classList.add('dm');}catch(e){}
+[0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
+if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#dmToggle');if(!b)return;mark();var on=document.documentElement.classList.toggle('dm');try{localStorage.setItem(K,on?'dark':'light');}catch(e){}});})();
+(function(){var P='sudu-dm-bg';var opts=[['Black','#121110'],['SuDu red','#D0271F']];
+function apply(v){if(v!=='#D0271F')v='#121110';var d=document.documentElement;d.style.setProperty('--dm-bg',v);var r=parseInt(v.slice(1,3),16),g=parseInt(v.slice(3,5),16),b=parseInt(v.slice(5,7),16);d.style.setProperty('--dm-bg-soft','rgba('+r+','+g+','+b+',0.94)');d.classList.toggle('dmred',v==='#D0271F');try{localStorage.setItem(P,v);}catch(e){}}
+try{apply(localStorage.getItem(P));}catch(e){}
+function build(){var f=document.querySelector('footer');if(!f||document.getElementById('dmSwatches'))return;var d=document.createElement('span');d.id='dmSwatches';d.style.cssText='display:none;gap:8px;align-items:center;';opts.forEach(function(o){var b=document.createElement('button');b.type='button';b.title=o[0];b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,.6);cursor:pointer;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});f.insertBefore(d,f.children[1]||null);}
+build();setInterval(build,1500);})();
+(function(){if(window.__suduHoverVar)return;window.__suduHoverVar=true;
+function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{rules=document.styleSheets[i].cssRules;}catch(e){continue;}for(var j=0;j<rules.length;j++){var r=rules[j];if(r.style&&r.selectorText&&r.selectorText.indexOf(':hover')>-1&&/232, 229, 220/.test(r.style.background||'')&&(r.style.background||'').indexOf('var(')===-1){r.style.setProperty('background','var(--sudu-hover-tint, rgb(232, 229, 220))','important');}}}}
+patch();setInterval(patch,1500);})();</script>
+<script src="/i18n.js" defer></script>
+<script src="/js/audio-player.js?v=5" defer></script>
+<script type="module" src="/js/haptics.js?v=2"></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
+  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" decoding="async" style="height:38px; width:auto; display:block;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Work</a>
-      <a href="/studio" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+      <a href="/work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Work</a>
+      <a href="/studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+          <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
+          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity var(--t-hover) var(--ease-ui);"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
     </nav>
   </header>
 
   <section data-screen-label="Work Index" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
-    <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding-bottom:clamp(24px,3vw,36px);">
-      <h1 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:700; letter-spacing:-0.035em; line-height:1.0;">Work</h1>
+    <div data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding-bottom:clamp(24px,3vw,36px);">
+      <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; ">Work</h1>
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">14 projects</span>
     </div>
+    <p data-reveal style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;">Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.</p>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:40px 28px; border-top:1px solid rgba(23,22,19,0.13); padding-top:clamp(28px,3.5vw,44px);">
       <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
-        <a href="{{ it.href }}" style="display:block;">
+        <a href="{{ it.href }}" data-reveal style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-            <img src="{{ it.thumb }}" alt="{{ it.title }}" width="{{ it.w }}" height="{{ it.h }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+            <img src="{{ it.thumb }}" alt="{{ it.title }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.05);">
           </div>
           <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ it.eyebrow }}</span>
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">{{ it.num }}</span>
           </div>
           <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">{{ it.title }}</div>
-          <dl style="margin:8px 0 0; display:flex; flex-direction:column; gap:3px;">
-            <div style="display:flex; align-items:baseline; gap:10px;">
-              <dt style="margin:0; flex:none; width:52px; font-family:'Urbanist', sans-serif; font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Location</dt>
-              <dd style="margin:0; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">{{ it.location }}</dd>
-            </div>
-            <div style="display:flex; align-items:baseline; gap:10px;">
-              <dt style="margin:0; flex:none; width:52px; font-family:'Urbanist', sans-serif; font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Scope</dt>
-              <dd style="margin:0; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">{{ it.scope }}</dd>
-            </div>
-            <div style="display:flex; align-items:baseline; gap:10px;">
-              <dt style="margin:0; flex:none; width:52px; font-family:'Urbanist', sans-serif; font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Status</dt>
-              <dd style="margin:0; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">{{ it.status }}</dd>
-            </div>
-          </dl>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">{{ it.location }}</div>
         </a>
       </sc-for>
     </div>
   </section>
 
-  <a href="/contact" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
+  <a href="/contact.html" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
     <div>
       <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Start a project</div>
-      <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Say hello</div>
+      <div style="font-size:clamp(24px,3vw,38px); font-weight:900; letter-spacing:-0.02em; line-height:0.9; text-transform:uppercase;">Say hello</div>
     </div>
     <span style="font-size:clamp(19px,2.3vw,30px); font-weight:700; color:#E17B3E; line-height:1; letter-spacing:-0.12em;">&#8250;&#8250;</span>
   </a>
 
+
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" loading="lazy" decoding="async" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
-      <span>&copy; 2026 SuDu Studio</span>
+      <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
+    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">Isis</button></span></div>
     <span>Alberta</span>
   </footer>
 
@@ -114,42 +167,77 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  renderVals() {
-    const DIMS = {
-      '/images/img-atb-banking.jpg': [1500, 1000],
-      '/images/img-atb.jpg': [1500, 816],
-      '/images/img-barbricco.jpg': [1500, 997],
-      '/images/img-corso32.jpg': [1500, 998],
-      '/images/img-enoch.jpg': [1500, 844],
-      '/images/img-factoryyyc.jpg': [1500, 682],
-      '/images/img-hellskitchen.jpg': [1500, 1000],
-      '/images/img-hero-westvan.jpg': [1500, 844],
-      '/images/img-selkirk.jpg': [1365, 768],
-      '/images/img-thehelm.jpg': [1333, 2000],
-      '/images/img-uccellino.jpg': [1500, 991],
-      '/images/img-westshore-1500.jpg': [1500, 1125],
-      '/images/img-wilfreds.jpg': [1400, 1867],
-      '/images/img-youthrecovery.jpg': [1500, 836],
+  componentDidMount() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Read from the token so there is one definition site; the literal is the
+    // fallback if the custom property is ever missing.
+    const ease = getComputedStyle(document.documentElement)
+      .getPropertyValue('--ease-entrance').trim() || 'cubic-bezier(.16,1,.3,1)';
+    if (window.__suduWorkIO) { window.__suduWorkIO.refresh(); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        const el = en.target;
+        if (!en.isIntersecting) return;
+        el.style.transitionDelay = (el._delay || 0) + 'ms';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+        io.unobserve(el);
+      });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    const refresh = () => {
+      const vh = window.innerHeight || 1;
+      const counters = new Map();
+      document.querySelectorAll('[data-reveal]').forEach((el) => {
+        if (el._prepped) {
+          counters.set(el.parentElement, (counters.get(el.parentElement) || 0) + 1);
+          if (el.style.opacity === '0' && el.getBoundingClientRect().bottom <= 0) {
+            el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+          }
+          return;
+        }
+        el._prepped = true;
+        const gi = counters.get(el.parentElement) || 0;
+        counters.set(el.parentElement, gi + 1);
+        el._delay = Math.min(gi, 4) * 140;
+        if (el.getBoundingClientRect().top < vh * 0.92) { el.style.opacity = '1'; return; }
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity var(--t-enter-fade) ' + ease + ', transform var(--t-enter-move) ' + ease;
+        io.observe(el);
+      });
     };
-    const order = ['west-vancouver','wilfreds','westshore','atb','corso32','bar-bricco','uccellino','the-helm','hells-kitchen','atb-banking','factory-yyc','selkirk','enoch','youth-recovery'];
+    window.__suduWorkIO = { refresh };
+    refresh();
+    setTimeout(refresh, 400);
+    setTimeout(refresh, 1500);
+    window.addEventListener('scroll', () => { if (!window.__swq) { window.__swq = 1; requestAnimationFrame(() => { window.__swq = 0; refresh(); }); } }, { passive: true });
+  }
+  componentDidUpdate() { if (window.__suduWorkIO) window.__suduWorkIO.refresh(); }
+  renderVals() {
+    const order = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','factory-yyc','factory-club','opt','selkirk','enoch','youth-recovery'];
     const names = {
-      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', scope: 'Architecture, Interiors', status: 'Completed', thumb: '/images/img-hero-westvan.jpg' },
-      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfred\u2019s', location: 'Edmonton, AB', scope: 'Interiors, Material Direction', status: 'Completed', thumb: '/images/img-wilfreds.jpg' },
-      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta', scope: 'Architecture, Concept Design', status: 'In development', thumb: '/images/img-westshore-1500.jpg' },
-      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', scope: 'Public Realm, Retail Planning, with DIALOG', status: 'Completed', thumb: '/images/img-atb.jpg' },
-      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', scope: 'Interiors, Brand, Millwork', status: 'Completed', thumb: '/images/img-corso32.jpg' },
-      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', scope: 'Interiors, Millwork', status: 'Completed', thumb: '/images/img-barbricco.jpg' },
-      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', scope: 'Interiors, Material Direction', status: 'Completed', thumb: '/images/img-uccellino.jpg' },
-      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', scope: 'Interiors, Brand Integration', status: 'Completed', thumb: '/images/img-thehelm.jpg' },
-      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', scope: 'Architecture, Patio Addition, with MES Architecture', status: 'Under construction', thumb: '/images/img-hellskitchen.jpg' },
-      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', scope: 'Strategy, Concept, Design Direction', status: 'Completed', thumb: '/images/img-atb-banking.jpg' },
-      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', scope: 'Concept Design', status: 'Concept', thumb: '/images/img-factoryyyc.jpg' },
-      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', scope: 'Concept Design, with Melcor', status: 'Concept', thumb: '/images/img-selkirk.jpg' },
-      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', scope: 'Concept Design', status: 'Concept', thumb: '/images/img-enoch.jpg' },
-      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', scope: 'Architecture, with MES Architecture', status: 'In progress', thumb: '/images/img-youthrecovery.jpg' }
+      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', thumb: '/images/west-vancouver-private-residence.jpg' },
+      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: '/images/wilfreds-hospitality-edmonton.jpg' },
+      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Okanagan, BC', thumb: '/images/westshore-estates-house-exterior.jpg' },
+      'casita': { eyebrow: 'Private Residential', title: 'Casita', location: 'Costa Rica', thumb: '/images/casita-costa-rica-hillside.jpg' },
+      'mackenzie-ravine': { eyebrow: 'Private Residential', title: 'Mackenzie Ravine', location: 'Edmonton, AB', thumb: '/images/mackenzie-ravine-front-drive-dusk.jpg' },
+      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: '/images/atb-place-reimagined-edmonton.jpg' },
+      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: '/images/corso-32-restaurant-edmonton.jpg' },
+      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: '/images/bar-bricco-edmonton.jpg' },
+      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: '/images/uccellino-restaurant-edmonton.jpg' },
+      'alder-room-alta': { eyebrow: 'Hospitality', title: 'Alder Room \u0026 Alta', location: 'Edmonton, AB', thumb: '/images/alder-room-alta-logo.jpg' },
+      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: '/images/the-helm-edmonton.jpg' },
+      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: '/images/hells-kitchen-enoch.jpg' },
+      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: '/images/atb-reimagining-banking.jpg' },
+      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', thumb: '/images/factory-yyc-calgary.jpg' },
+      'factory-club': { eyebrow: 'Hospitality \u00b7 Private Club', title: 'Factory Private Club', location: 'The Edison, Calgary, AB', thumb: '/images/factory-club-edison-bar-mural.jpg' },
+      'opt': { eyebrow: 'Retail \u00b7 Healthcare', title: 'OPT', location: 'Edmonton, AB', thumb: '/images/opt-optometry-eye-chart.jpg' },
+      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', thumb: '/images/the-selkirk-commercial.jpg' },
+      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', thumb: '/images/enoch-elders-lodge.jpg' },
+      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: '/images/youth-recovery-centre.jpg' }
     };
     return {
-      items: order.map((k, i) => ({ ...names[k], href: '/work/' + k + '/', num: String(i + 1).padStart(2, '0'), w: (DIMS[names[k].thumb] || [''])[0], h: (DIMS[names[k].thumb] || ['',''])[1] }))
+      items: order.map((k, i) => ({ ...names[k], href: '/work/' + k + '/', num: String(i + 1).padStart(2, '0') }))
     };
   }
 }

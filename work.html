@@ -12,10 +12,10 @@
 
 <title>SuDu Studio &middot; Work</title>
 <meta name="description" content="Selected work by SuDu Studio: custom residential architecture, restaurant and retail interiors, and commercial design in Edmonton, Calgary and Western Canada.">
-<link rel="canonical" href="https://sudu.studio/work.html">
+<link rel="canonical" href="https://sudu.studio/work">
 <meta property="og:title" content="Architecture + Design Projects in Edmonton | SuDu Studio">
 <meta property="og:description" content="Selected work by SuDu Studio: custom residential architecture, restaurant and retail interiors, and commercial design in Edmonton, Calgary and Western Canada.">
-<meta property="og:url" content="https://sudu.studio/work.html">
+<meta property="og:url" content="https://sudu.studio/work">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
@@ -237,7 +237,7 @@ class Component extends DCLogic {
       'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: 'images/youth-recovery-centre.jpg' }
     };
     return {
-      items: order.map((k, i) => ({ ...names[k], href: 'project.html?p=' + k, num: String(i + 1).padStart(2, '0') }))
+      items: order.map((k, i) => ({ ...names[k], href: '/work/' + k + '/', num: String(i + 1).padStart(2, '0') }))
     };
   }
 }
