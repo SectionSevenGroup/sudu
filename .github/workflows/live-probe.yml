@@ -8,23 +8,21 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe https://sudu.studio
+      - name: Probe the live language switcher
         run: |
           B=https://sudu.studio
-          probe() {
-            printf '\n--- %s\n' "$1"
-            curl -sS -o /tmp/body -D /tmp/hdr --max-time 30 "$B$1" || true
-            tr -d '\r' < /tmp/hdr | grep -iE '^(HTTP/|location:|server:|content-type:)' | sed 's/^/    /'
-            printf '    bytes=%s\n' "$(wc -c < /tmp/body)"
-          }
-          echo "########## core pages ##########"
-          for u in / /index.html /work.html /work /work/ /studio.html /contact.html; do probe "$u"; done
+          echo "########## live i18n.js ##########"
+          curl -sS -o /tmp/i18n.js -D /tmp/h --max-time 30 "$B/i18n.js"
+          tr -d '\r' < /tmp/h | grep -iE '^(HTTP/|cache-control:|etag:|last-modified:|content-length:)' | sed 's/^/    /'
+          echo "    bytes=$(wc -c < /tmp/i18n.js)"
           echo
-          echo "########## clean project URLs (new) ##########"
-          for u in /work/west-vancouver/ /work/casita/ "/project.html?p=west-vancouver"; do probe "$u"; done
+          echo "  positioned pill present?  $(grep -c 'position:fixed;left:clamp' /tmp/i18n.js)"
+          echo "  skips active language?    $(grep -c 'if(l===cur)return;' /tmp/i18n.js)"
+          echo "  appends to body?          $(grep -c 'document.body.appendChild(wrap)' /tmp/i18n.js)"
+          echo "  OLD footer append?        $(grep -c 'nav.appendChild(wrap)' /tmp/i18n.js)"
           echo
-          echo "########## legacy paths whose stubs were deleted ##########"
-          for u in /home /home.html /about /about.html /projects /contact-us; do probe "$u"; done
+          echo "########## how index.html loads it ##########"
+          curl -sS --max-time 30 "$B/" | grep -o '<script src="i18n.js[^>]*>' | sed 's/^/    /'
           echo
-          echo "########## is the deployed build current? ##########"
-          curl -sS --max-time 30 "$B/" | grep -o 'Burnt\|dmwarm\|sudu-s-32\|audio-player\|red-art' | sort | uniq -c | sed 's/^/    /' || echo "    (no markers found)"
+          echo "########## other cache-busted assets for comparison ##########"
+          curl -sS --max-time 30 "$B/" | grep -oE 'src="[^"]*\.js\?v=[0-9]+"|src="[^"]*\.js"' | sort -u | sed 's/^/    /'
