@@ -15,8 +15,8 @@
   var KEY = 'sudu-audio';
   var POS = 'sudu-audio-pos';
   var TRACKS = [
-    { src: 'audio/mf-rothschild-432.mp3', artist: 'MF Rothschild', short: '432', title: 'MF Rothschild · 432' },
-    { src: 'audio/mf-rothschild-isis.mp3', artist: 'MF Rothschild', short: 'Isis', title: 'MF Rothschild · Isis' }
+    { src: '/audio/mf-rothschild-432.mp3', artist: 'MF Rothschild', short: '432', title: 'MF Rothschild · 432' },
+    { src: '/audio/mf-rothschild-isis.mp3', artist: 'MF Rothschild', short: 'Isis', title: 'MF Rothschild · Isis' }
   ];
   var VOLUME = 0.6;
   var player = null;
