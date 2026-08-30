@@ -59,3 +59,13 @@ jobs:
           for u in /home.html /about.html /projects.html /contact-us.html /services.html /portfolio.html /sudu-services.html; do
             probe "$u"
           done
+
+          echo
+          echo "########## do the redirect TARGETS resolve? ##########"
+          # The canonicals changed in PR #6 point at these extensionless URLs,
+          # and every Squarespace rule above redirects into them, so they have
+          # to return 200 rather than 404.
+          for u in / /studio /contact /work /work/ /work/west-vancouver/ \
+                   /custom-home-design-edmonton /studio.html /contact.html; do
+            probe "$u"
+          done
