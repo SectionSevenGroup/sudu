@@ -99,6 +99,21 @@
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
   section[id] { scroll-margin-top: 110px; }
   @keyframes suduDraw { 0%,100% { transform: scaleX(0.3); opacity: .45; } 50% { transform: scaleX(1); opacity: 1; } }
+  /* Motion tokens. Two languages: --ease-ui for micro-interactions,
+     --ease-entrance for anything arriving on screen. Choreography offsets in
+     the hero and clip-reveal (1.2s / 1.4s / 1.6s / 1.8s / 1.9s) stay literal;
+     they are sequence positions, not a shared duration. */
+  :root {
+    --ease-ui: ease;
+    --ease-entrance: cubic-bezier(.16, 1, .3, 1);
+
+    --t-hover: 250ms;
+    --t-ui: 300ms;
+    --t-media: 900ms;
+    --t-enter-fade: 1500ms;
+    --t-enter-move: 1700ms;
+    --t-hero: 2600ms;
+  }
   /* Line-art project tiles, lifted from the design export. The export scoped
      these to its dmwarm theme, which is not being adopted; dmred is main's
      equivalent non-default theme. The images are inverted with their section
@@ -201,11 +216,11 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px); font-size:13px; line-height:1;">
-      <a href="work.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Work</a>
-      <a href="studio.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Studio</a>
-      <a href="contact.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Contact</a>
+      <a href="work.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Work</a>
+      <a href="studio.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Studio</a>
+      <a href="contact.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Contact</a>
           <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:0.5px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
-          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity .25s ease;"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
+          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity var(--t-hover) var(--ease-ui);"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
     </nav>
   </header>
 
@@ -237,25 +252,25 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   <section id="offerings" data-screen-label="Offerings">
     <div data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(36px,6vw,64px) clamp(20px,4.5vw,64px) 24px;">
       <h3 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Offerings</h3>
-      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
+      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color var(--t-ui) var(--ease-ui), border-color var(--t-ui) var(--ease-ui);" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); border-top:1px solid rgba(23,22,19,0.13); padding:0 calc(clamp(20px,4.5vw,64px) - clamp(20px,2vw,28px));">
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:#E8E5DC;">
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
         <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
         <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Architecture</h4>
         <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">New builds, renovations, and additions: concept through construction documentation.</p>
       </div>
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:#E8E5DC;">
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
         <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
         <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Interiors</h4>
         <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Spatial planning, material direction, and millwork for residential and commercial interiors.</p>
       </div>
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:#E8E5DC;">
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
         <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
         <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Commercial</h4>
         <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Hospitality, retail, and workplace environments where identity and space work as one system.</p>
       </div>
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); transition:background .3s ease;" style-hover="background:#E8E5DC;">
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
         <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">04</span>
         <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Advisory</h4>
         <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Concept studies, feasibility, and design direction for allied practices and developers.</p>
@@ -266,17 +281,17 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   <section id="work" data-screen-label="Selected Work">
     <div data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(40px,7vw,80px) clamp(20px,4.5vw,64px) 24px; border-top:1px solid rgba(23,22,19,0.13);">
       <h3 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Selected Work</h3>
-      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
+      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color var(--t-ui) var(--ease-ui), border-color var(--t-ui) var(--ease-ui);" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
     </div>
 
     <article style="display:flex; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=west-vancouver" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-west-vancouver.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/west-vancouver-private-residence.jpg" alt="West Vancouver private residence and gallery" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=west-vancouver" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-west-vancouver.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/west-vancouver-private-residence.jpg" alt="West Vancouver private residence and gallery" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Private Residential</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=west-vancouver" style="transition:color .3s ease;">West Vancouver</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=west-vancouver" style="transition:color var(--t-ui) var(--ease-ui);">West Vancouver</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">A private residence and gallery organized around the display of a personal art collection.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
           <div>
@@ -293,12 +308,12 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 
     <article style="display:flex; flex-direction:row-reverse; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=wilfreds" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-wilfreds.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/wilfreds-hospitality-edmonton.jpg" alt="Wilfreds hospitality interior with coral tile and brass" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=wilfreds" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-wilfreds.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/wilfreds-hospitality-edmonton.jpg" alt="Wilfreds hospitality interior with coral tile and brass" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Hospitality</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=wilfreds" style="transition:color .3s ease;">Wilfreds</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=wilfreds" style="transition:color var(--t-ui) var(--ease-ui);">Wilfreds</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">A standalone brick heritage building; coral tile and brass metalwork demonstrating how closely brand identity and physical space can be built together.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
           <div>
@@ -315,12 +330,12 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 
     <article style="display:flex; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=youth-recovery" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-youth-recovery.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/youth-recovery-centre.jpg" alt="Youth Recovery Centre exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=youth-recovery" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-youth-recovery.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/youth-recovery-centre.jpg" alt="Youth Recovery Centre exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Community &middot; Wellness</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=youth-recovery" style="transition:color .3s ease;">Youth Recovery Centre</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=youth-recovery" style="transition:color var(--t-ui) var(--ease-ui);">Youth Recovery Centre</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">A youth recovery and wellness environment built around calm, residential-scale space.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
           <div>
@@ -337,12 +352,12 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 
     <article style="display:flex; flex-direction:row-reverse; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=atb" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-atb-place.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/atb-place-reimagined-edmonton.jpg" alt="ATB Place Reimagined concourse" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=atb" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-atb-place.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/atb-place-reimagined-edmonton.jpg" alt="ATB Place Reimagined concourse" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">04</span>
         <div style="margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Commercial</div>
-        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=atb" style="transition:color .3s ease;">ATB Place Reimagined</a></h4>
+        <h4 style="margin:0 0 10px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;"><a href="project.html?p=atb" style="transition:color var(--t-ui) var(--ease-ui);">ATB Place Reimagined</a></h4>
         <p style="margin:0 0 20px; max-width:42ch; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Renewal of the concourse, podium, and exterior plazas at a major downtown intersection, creating an active public throughway with food and retail.</p>
         <dl style="margin:0; display:flex; flex-wrap:wrap; gap:20px 40px;">
           <div>
@@ -369,45 +384,45 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
         <h4 style="margin:0 0 12px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Residential &amp; Private</h4>
         <p style="margin:0 0 20px; font-size:13px; line-height:1.6; color:#67655D;">Custom homes, major renovations, additions, interiors, and private galleries.</p>
         <ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba(23,22,19,0.13);">
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/west-vancouver-private-residence.jpg"><a href="project.html?p=west-vancouver" style="color:inherit; text-decoration:none; display:block;">West Vancouver Gallery</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/westshore-estates-house-exterior.jpg"><a href="project.html?p=westshore" style="color:inherit; text-decoration:none; display:block;">West Shore Residence</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/casita-costa-rica-hillside.jpg"><a href="project.html?p=casita" style="color:inherit; text-decoration:none; display:block;">Casita, Costa Rica</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="6,000 sq ft private residence | Architecture &amp; Interiors">Sturgeon House</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/mackenzie-ravine-front-drive-dusk.jpg"><a href="project.html?p=mackenzie-ravine" style="color:inherit; text-decoration:none; display:block;">Mackenzie Ravine</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="Multi-unit apartment block | Architecture">Macson</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="Twenty-unit apartment block | Architecture">Saskatchewan 20</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/west-vancouver-private-residence.jpg"><a href="project.html?p=west-vancouver" style="color:inherit; text-decoration:none; display:block;">West Vancouver Gallery</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/westshore-estates-house-exterior.jpg"><a href="project.html?p=westshore" style="color:inherit; text-decoration:none; display:block;">West Shore Residence</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/casita-costa-rica-hillside.jpg"><a href="project.html?p=casita" style="color:inherit; text-decoration:none; display:block;">Casita, Costa Rica</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="6,000 sq ft private residence | Architecture &amp; Interiors">Sturgeon House</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/mackenzie-ravine-front-drive-dusk.jpg"><a href="project.html?p=mackenzie-ravine" style="color:inherit; text-decoration:none; display:block;">Mackenzie Ravine</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="Multi-unit apartment block | Architecture">Macson</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="Twenty-unit apartment block | Architecture">Saskatchewan 20</li>
         </ul>
       </div>
       <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2.4vw,32px) clamp(32px,3.6vw,48px); border-right:1px solid rgba(23,22,19,0.13);">
         <h4 style="margin:0 0 12px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Hospitality, Retail &amp; Experience</h4>
         <p style="margin:0 0 20px; font-size:13px; line-height:1.6; color:#67655D;">Restaurants, bars, cafés, retail interiors, and customer-facing environments.</p>
         <ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba(23,22,19,0.13);">
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/corso-32-restaurant-edmonton.jpg"><a href="project.html?p=corso32" style="color:inherit; text-decoration:none; display:block;">Corso 32</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/bar-bricco-edmonton.jpg"><a href="project.html?p=bar-bricco" style="color:inherit; text-decoration:none; display:block;">Bar Bricco</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/uccellino-restaurant-edmonton.jpg"><a href="project.html?p=uccellino" style="color:inherit; text-decoration:none; display:block;">Uccellino</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/wilfreds-hospitality-edmonton.jpg"><a href="project.html?p=wilfreds" style="color:inherit; text-decoration:none; display:block;">Wilfred's</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/the-helm-edmonton.jpg"><a href="project.html?p=the-helm" style="color:inherit; text-decoration:none; display:block;">The Helm</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/hells-kitchen-enoch.jpg"><a href="project.html?p=hells-kitchen" style="color:inherit; text-decoration:none; display:block;">Hell’s Kitchen at Enoch Casino</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/atb-reimagining-banking.jpg"><a href="project.html?p=atb-banking" style="color:inherit; text-decoration:none; display:block;">ATB Reimagining Banking</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/factory-yyc-calgary.jpg"><a href="project.html?p=factory-yyc" style="color:inherit; text-decoration:none; display:block;">Factory YYC</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/factory-club-edison-bar-mural.jpg"><a href="project.html?p=factory-club" style="color:inherit; text-decoration:none; display:block;">Factory Private Club</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/alder-room-dining-room-edmonton.jpg"><a href="project.html?p=alder-room-alta" style="color:inherit; text-decoration:none; display:block;">Alder Room &amp; Alta</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="Mexican restaurant for chef Scott Linquist of Coyo Taco | Lincoln Road, Miami Beach">Olla, Miami</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="Revitalization of the landmark restaurant Chez Pipo | Nice, France">Socca</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="STEM academy environment | West Vancouver, BC">Steamoji</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/opt-optometry-eye-chart.jpg"><a href="project.html?p=opt" style="color:inherit; text-decoration:none; display:block;">OPT</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/corso-32-restaurant-edmonton.jpg"><a href="project.html?p=corso32" style="color:inherit; text-decoration:none; display:block;">Corso 32</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/bar-bricco-edmonton.jpg"><a href="project.html?p=bar-bricco" style="color:inherit; text-decoration:none; display:block;">Bar Bricco</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/uccellino-restaurant-edmonton.jpg"><a href="project.html?p=uccellino" style="color:inherit; text-decoration:none; display:block;">Uccellino</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/wilfreds-hospitality-edmonton.jpg"><a href="project.html?p=wilfreds" style="color:inherit; text-decoration:none; display:block;">Wilfred's</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/the-helm-edmonton.jpg"><a href="project.html?p=the-helm" style="color:inherit; text-decoration:none; display:block;">The Helm</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/hells-kitchen-enoch.jpg"><a href="project.html?p=hells-kitchen" style="color:inherit; text-decoration:none; display:block;">Hell’s Kitchen at Enoch Casino</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/atb-reimagining-banking.jpg"><a href="project.html?p=atb-banking" style="color:inherit; text-decoration:none; display:block;">ATB Reimagining Banking</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/factory-yyc-calgary.jpg"><a href="project.html?p=factory-yyc" style="color:inherit; text-decoration:none; display:block;">Factory YYC</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/factory-club-edison-bar-mural.jpg"><a href="project.html?p=factory-club" style="color:inherit; text-decoration:none; display:block;">Factory Private Club</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/alder-room-dining-room-edmonton.jpg"><a href="project.html?p=alder-room-alta" style="color:inherit; text-decoration:none; display:block;">Alder Room &amp; Alta</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="Mexican restaurant for chef Scott Linquist of Coyo Taco | Lincoln Road, Miami Beach">Olla, Miami</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="Revitalization of the landmark restaurant Chez Pipo | Nice, France">Socca</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="STEM academy environment | West Vancouver, BC">Steamoji</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/opt-optometry-eye-chart.jpg"><a href="project.html?p=opt" style="color:inherit; text-decoration:none; display:block;">OPT</a></li>
         </ul>
       </div>
       <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2.4vw,32px) clamp(32px,3.6vw,48px);">
         <h4 style="margin:0 0 12px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Commercial &amp; Community</h4>
         <p style="margin:0 0 20px; font-size:13px; line-height:1.6; color:#67655D;">Repositioning, public realm, workplace, community housing, and feasibility studies.</p>
         <ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba(23,22,19,0.13);">
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/atb-place-reimagined-edmonton.jpg"><a href="project.html?p=atb" style="color:inherit; text-decoration:none; display:block;">ATB Place Reimagined</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/the-selkirk-commercial.jpg"><a href="project.html?p=selkirk" style="color:inherit; text-decoration:none; display:block;">The Selkirk</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/enoch-elders-lodge.jpg"><a href="project.html?p=enoch" style="color:inherit; text-decoration:none; display:block;">Enoch Elders Lodge</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-preview="images/youth-recovery-centre.jpg"><a href="project.html?p=youth-recovery" style="color:inherit; text-decoration:none; display:block;">Youth Recovery Centre</a></li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="Office environment | Workplace Interiors">Homeward Trust Office</li>
-          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;" style-hover="color:#171613; padding-left:8px;" data-info="Recovery centres for the Enoch, Tsuut&#8217;ina and Smoky Lake (M&eacute;tis) communities | Community wellness">Enoch, Tsuut&#8217;ina &amp; Smoky Lake Recovery Centres</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/atb-place-reimagined-edmonton.jpg"><a href="project.html?p=atb" style="color:inherit; text-decoration:none; display:block;">ATB Place Reimagined</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/the-selkirk-commercial.jpg"><a href="project.html?p=selkirk" style="color:inherit; text-decoration:none; display:block;">The Selkirk</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/enoch-elders-lodge.jpg"><a href="project.html?p=enoch" style="color:inherit; text-decoration:none; display:block;">Enoch Elders Lodge</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-preview="images/youth-recovery-centre.jpg"><a href="project.html?p=youth-recovery" style="color:inherit; text-decoration:none; display:block;">Youth Recovery Centre</a></li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="Office environment | Workplace Interiors">Homeward Trust Office</li>
+          <li style="padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:12px; color:#67655D; transition:color var(--t-hover) var(--ease-ui), padding-left var(--t-hover) var(--ease-ui);" style-hover="color:#171613; padding-left:8px;" data-info="Recovery centres for the Enoch, Tsuut&#8217;ina and Smoky Lake (M&eacute;tis) communities | Community wellness">Enoch, Tsuut&#8217;ina &amp; Smoky Lake Recovery Centres</li>
         </ul>
       </div>
     </div>
@@ -441,7 +456,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   <section id="contact" data-screen-label="Contact" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) 44px; border-top:1px solid rgba(23,22,19,0.13);">
     <div data-reveal style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
       <h2 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:900; line-height:0.95; letter-spacing:-0.02em; text-transform:uppercase;">Start a project</h2>
-      <a href="contact.html" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Get in touch</a>
+      <a href="contact.html" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color var(--t-ui) var(--ease-ui), border-color var(--t-ui) var(--ease-ui);" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Get in touch</a>
     </div>
     <div data-reveal style="margin-top:44px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px 32px; font-family:'Urbanist', sans-serif; font-size:12px; line-height:1.9; color:#67655D;">
       <div style="display:flex; gap:14px; margin-top:2px;">
@@ -458,7 +473,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <span style="width:1px; height:20px; background:rgba(23,22,19,0.32);"></span>
       <span>© 2026 SuDu Studio Architecture</span>
     </div>
-    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">Isis</button></span></div>
+    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">Isis</button></span></div>
     <span>Alberta</span>
   </footer>
 
@@ -476,7 +491,10 @@ class Component extends DCLogic {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (window.__sudu) { window.__sudu.refresh(); window.__sudu.run(); return; }
 
-    const ease = 'cubic-bezier(.16,1,.3,1)';
+    // Read from the token so there is one definition site; the literal is the
+    // fallback if the custom property is ever missing.
+    const ease = getComputedStyle(document.documentElement)
+      .getPropertyValue('--ease-entrance').trim() || 'cubic-bezier(.16,1,.3,1)';
     const engine = { intro: false };
 
     // reveals: IntersectionObserver, zero work per scroll frame
@@ -520,8 +538,8 @@ class Component extends DCLogic {
         const clip = el.hasAttribute('data-reveal-clip');
         const cImg = clip ? el.querySelector('img') : null;
         el.style.transition = clip
-          ? 'opacity 1.2s ' + ease + ', clip-path 1.5s ' + ease
-          : 'opacity 1.5s ' + ease + ', transform 1.7s ' + ease;
+          ? 'opacity 1.2s ' + ease + ', clip-path var(--t-enter-fade) ' + ease
+          : 'opacity var(--t-enter-fade) ' + ease + ', transform var(--t-enter-move) ' + ease;
         if (cImg) cImg.style.transition = 'transform 1.9s ' + ease;
         io.observe(el);
       });
@@ -564,7 +582,7 @@ class Component extends DCLogic {
     if (!window.__suduPv) {
       const pv = document.createElement('div');
       pv.className = 'sudu-pv';
-      pv.style.cssText = 'position:fixed;z-index:90;width:230px;overflow:hidden;pointer-events:none;opacity:0;transform:scale(.95);transition:opacity .35s ' + ease + ',transform .5s ' + ease + ';box-shadow:0 18px 44px rgba(23,22,19,.2);background:#E8E5DC;';
+      pv.style.cssText = 'position:fixed;z-index:90;width:230px;overflow:hidden;pointer-events:none;opacity:0;transform:scale(.95);transition:opacity var(--t-ui) ' + ease + ',transform .5s ' + ease + ';box-shadow:0 18px 44px rgba(23,22,19,.2);background:#E8E5DC;';
       const pi = document.createElement('img');
       pi.style.cssText = 'width:100%;aspect-ratio:4/3;object-fit:cover;display:block;';
       const pt = document.createElement('div');
@@ -617,7 +635,7 @@ class Component extends DCLogic {
       const start = () => {
         if (started) return; started = true;
         requestAnimationFrame(() => requestAnimationFrame(() => {
-          hi.style.transition = 'opacity 1.8s ' + ease + ', transform 2.6s ' + ease;
+          hi.style.transition = 'opacity 1.8s ' + ease + ', transform var(--t-hero) ' + ease;
           hi.style.opacity = '1';
           hi.style.transform = 'translate(-50%,-50%) scale(1)';
           if (hf) {

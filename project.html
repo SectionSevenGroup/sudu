@@ -38,6 +38,22 @@
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  /* Motion tokens. Two languages: --ease-ui for micro-interactions,
+     --ease-entrance for anything arriving on screen. Choreography offsets in
+     the hero and clip-reveal (1.2s / 1.4s / 1.6s / 1.8s / 1.9s) stay literal;
+     they are sequence positions, not a shared duration. */
+  :root {
+    --ease-ui: ease;
+    --ease-entrance: cubic-bezier(.16, 1, .3, 1);
+
+    --t-hover: 250ms;
+    --t-ui: 300ms;
+    --t-media: 900ms;
+    --t-enter-fade: 1500ms;
+    --t-enter-move: 1700ms;
+    --t-hero: 2600ms;
+  }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
   html.dm, html.dm body { background:var(--dm-bg,#121110); }
@@ -95,11 +111,11 @@ patch();setInterval(patch,1500);})();</script>
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
           <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
-          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity .25s ease;"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
+          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity var(--t-hover) var(--ease-ui);"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
     </nav>
   </header>
 
@@ -154,7 +170,7 @@ patch();setInterval(patch,1500);})();</script>
           <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min({{ grp.minW }}px,100%), 1fr)); gap:clamp(16px,2vw,28px);">
             <sc-for list="{{ grp.images }}" as="g" hint-placeholder-count="2">
               <div data-reveal style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">
-                <img src="{{ g.src }}" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
+                <img src="{{ g.src }}" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.04);">
               </div>
             </sc-for>
           </div>
@@ -173,7 +189,7 @@ patch();setInterval(patch,1500);})();</script>
         <a href="{{ r.href }}" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             <sc-if value="{{ r.hasThumb }}" hint-placeholder-val="{{ false }}">
-              <img src="{{ r.thumb }}" alt="{{ r.name }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+              <img src="{{ r.thumb }}" alt="{{ r.name }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.05);">
             </sc-if>
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ r.eyebrow }}</div>
@@ -194,7 +210,7 @@ patch();setInterval(patch,1500);})();</script>
     </sc-if>
   </section>
 
-  <a href="{{ nextHref }}" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
+  <a href="{{ nextHref }}" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
     <div>
       <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:8px;">Next project</div>
       <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">{{ nextTitle }}</div>
@@ -208,7 +224,7 @@ patch();setInterval(patch,1500);})();</script>
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
-    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">Isis</button></span></div>
+    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">Isis</button></span></div>
     <span>Alberta</span>
   </footer>
 
@@ -509,7 +525,10 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ease = 'cubic-bezier(.16,1,.3,1)';
+    // Read from the token so there is one definition site; the literal is the
+    // fallback if the custom property is ever missing.
+    const ease = getComputedStyle(document.documentElement)
+      .getPropertyValue('--ease-entrance').trim() || 'cubic-bezier(.16,1,.3,1)';
     if (window.__suduProjIO) { window.__suduProjIO.refresh(); return; }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
@@ -523,8 +542,10 @@ class Component extends DCLogic {
     }, { rootMargin: '0px 0px -8% 0px' });
     const refresh = () => {
       const vh = window.innerHeight || 1;
+      const counters = new Map();
       document.querySelectorAll('[data-reveal]').forEach((el) => {
         if (el._prepped) {
+          counters.set(el.parentElement, (counters.get(el.parentElement) || 0) + 1);
           // swept past (anchor jump / fast scroll): IO may never have fired — force-reveal
           if (el.style.opacity === '0' && el.getBoundingClientRect().bottom <= 0) {
             el.style.opacity = '1';
@@ -534,12 +555,15 @@ class Component extends DCLogic {
           return;
         }
         el._prepped = true;
+        const gi = counters.get(el.parentElement) || 0;
+        counters.set(el.parentElement, gi + 1);
+        el._delay = Math.min(gi, 4) * 140;
         const clip = el.hasAttribute('data-reveal-clip');
         // already in view (or above) at prep time: reveal synchronously, never hide it
         if (el.getBoundingClientRect().top < vh * 0.92) { el.style.opacity = '1'; return; }
         el.style.opacity = '0';
-        if (clip) { el.style.clipPath = 'inset(0 0 92% 0)'; el.style.transition = 'opacity 1.2s ' + ease + ', clip-path 1.5s ' + ease; }
-        else { el.style.transform = 'translateY(20px)'; el.style.transition = 'opacity 1.5s ' + ease + ', transform 1.7s ' + ease; }
+        if (clip) { el.style.clipPath = 'inset(0 0 92% 0)'; el.style.transition = 'opacity 1.2s ' + ease + ', clip-path var(--t-enter-fade) ' + ease; }
+        else { el.style.transform = 'translateY(20px)'; el.style.transition = 'opacity var(--t-enter-fade) ' + ease + ', transform var(--t-enter-move) ' + ease; }
         io.observe(el);
       });
     };
