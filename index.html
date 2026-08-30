@@ -135,8 +135,9 @@
      the centring term overtakes clamp(20px,4.5vw,64px) every value computes
      exactly as it does today, and above it ordinary content stops travelling
      toward the viewport edges. A third, narrower editorial layer existed while
-     the studio bridge did; with the bridge gone nothing on this page needs a
-     sub-grid, so the layer is not carried as dead weight. No colour is stated
+     the founder bridge did; the practice block that replaced it is ordinary
+     page content and sits on the same rail as everything else, so that layer
+     is not carried as dead weight. No colour is stated
      in any of these rules, so the dm-flat marker cannot mistake them for a
      cream panel. Purely horizontal: no rule below touches a vertical value. */
   :root {
@@ -159,6 +160,7 @@
   #offerings > div:first-child,
   #work > div,
   #work > article,
+  #studio,
   #contact,
   footer {
     padding-left:var(--sudu-inset) !important;
@@ -227,7 +229,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=cf07e084" defer></script>
+<script src="i18n.js?v=b3b7e94b" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -459,6 +461,36 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
   </sc-if>
+
+  <!-- Practice context, not an about-us module: the same compact composition the
+       page carried before Phase 2 — a small label, a short statement, one
+       supporting paragraph and a column of facts under the section's own
+       hairline language. No illustration, no link, no CTA. It sits on the
+       global rail like the rest of the page content; the narrower sub-grid the
+       founder bridge used is not coming back with it. -->
+  <section id="studio" data-screen-label="Studio" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(48px,9vw,112px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
+    <div data-reveal style="flex:0 1 150px;">
+      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">The Studio</span>
+    </div>
+    <div data-reveal style="flex:1 1 400px;">
+      <p style="margin:0; font-size:clamp(16px,2vw,23px); font-weight:600; line-height:1.3; letter-spacing:-0.02em; text-wrap:pretty;">SuDu is a design practice working across architecture, interiors and branded environments.</p>
+      <p style="margin:16px 0 0; max-width:46ch; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">Projects move from concept through delivery through a shared design process, working with clients, builders and consultants across scales and project types.</p>
+    </div>
+    <dl data-reveal style="flex:1 1 240px; margin:0; display:flex; flex-direction:column; gap:20px;">
+      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
+        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Based</dt>
+        <dd style="margin:0; font-size:14px; font-weight:500;">Alberta</dd>
+      </div>
+      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
+        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Practice</dt>
+        <dd style="margin:0; font-size:14px; font-weight:500;">Architecture, Interiors, Advisory</dd>
+      </div>
+      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
+        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Sectors</dt>
+        <dd style="margin:0; font-size:14px; font-weight:500;">Residential, Hospitality, Commercial, Community</dd>
+      </div>
+    </dl>
+  </section>
 
   <section id="contact" data-screen-label="Contact" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) 44px; border-top:1px solid rgba(23,22,19,0.13);">
     <div data-reveal style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
