@@ -16,47 +16,45 @@
   if (window.suduBar) return;
 
   var CSS = [
-    // The bar. Translucent rather than solid, with the backdrop blur the
-    // header uses, at roughly half the header's height.
+    // The bar: a blurred ground and nothing else. No rule along the top, and
+    // no outline around the groups inside it — the separators do that work.
     '#suduBar{position:fixed;left:0;right:0;bottom:0;z-index:9999;height:52px;',
     'display:flex;align-items:center;justify-content:space-between;',
     'gap:12px;padding:0 clamp(20px,4.5vw,64px);',
     'font-family:\'Urbanist\',sans-serif;',
     '-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);',
     'background:color-mix(in srgb,#F3F1EA 72%,transparent);',
-    'border-top:1px solid rgba(23,22,19,0.13);',
-    'color:#171613;transition:background .45s ease,border-color .45s ease,color .45s ease;}',
-    // Dark grounds (Charcoal and Burnt both set html.dm plus --dm-bg), so one
-    // rule covers the two of them and any future colour.
-    'html.dm #suduBar{background:color-mix(in srgb,var(--dm-bg,#C0431F) 72%,transparent);',
-    'border-top-color:rgba(255,255,255,0.22);color:#F5F3EC;}',
+    'color:#171613;transition:background .45s ease,color .45s ease;}',
+    // Charcoal and Burnt both set html.dm plus --dm-bg, so one rule covers the
+    // two of them and any ground added later.
+    'html.dm #suduBar{background:color-mix(in srgb,var(--dm-bg,#C0431F) 72%,transparent);color:#F5F3EC;}',
     // Never let the dark-mode inversion reach the bar or anything inside it.
     'html.dm #suduBar,html.dm #suduBar *{filter:none !important;}',
-    // The pills are outlines now; the blur and ground belong to the bar.
+    // The three groups are bare rows now. Each is pinned to its own side
+    // rather than relying on space-between, which would bunch the survivors
+    // together if one of the three ever failed to mount.
     '#suduBar #langSwitch,#suduBar #dmSwatches,#suduBar #musicPill{position:static !important;',
     'background:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;',
-    'border:0.5px solid currentColor !important;border-radius:22px;color:inherit !important;',
-    'display:flex;align-items:center;flex:0 0 auto;}',
-    // The three pills are appended by three independent scripts in whatever
-    // order those happen to run, so the left-to-right order is stated here
-    // rather than left to chance.
-    // Each pill is pinned to its own side rather than relying on
-    // space-between, which would bunch the survivors together if one of the
-    // three failed to mount — the failure mode that put the colour pill on
-    // top of the language pill when a stale cached i18n.js kept positioning
-    // itself in the corner instead of mounting here.
-    '#suduBar #langSwitch{order:1;gap:11px;padding:6px 12px;margin-right:auto;}',
-    '#suduBar #dmSwatches{order:3;gap:9px;padding:6px 9px;margin-left:auto;}',
-    '#suduBar #musicPill{order:2;gap:9px;padding:5px 9px 5px 11px;}',
-    // Centre the music pill on the viewport, not on whatever space the other
-    // two leave, so it does not shift when a language or swatch drops out.
-    '#suduBar #musicPill{position:absolute !important;left:50%;transform:translateX(-50%);}',
-    // Below 560px there is not room for three pills in a row; the music pill
-    // returns to the flow and the bar lets them share the width evenly.
-    '@media (max-width:559px){#suduBar{gap:8px;padding:0 16px;}',
+    'border:0 !important;border-radius:0 !important;padding:0 !important;',
+    'color:inherit !important;display:flex;align-items:center;flex:0 0 auto;gap:15px;}',
+    '#suduBar #langSwitch{order:1;margin-right:auto;}',
+    '#suduBar #musicPill{order:2;position:absolute !important;left:50%;transform:translateX(-50%);}',
+    '#suduBar #dmSwatches{order:3;margin-left:auto;}',
+    // One hairline between neighbours, drawn in the gap and out of the hit
+    // area so it never widens a target. The sibling combinator counts only
+    // visible neighbours, so the colour group — which hides whichever swatch
+    // is currently active — never leads with a stray divider.
+    '#suduBar #langSwitch button,#suduBar #dmSwatches button,#suduBar #musicPill button{position:relative;}',
+    '#suduBar #langSwitch button:not([hidden])~button:not([hidden])::before,',
+    '#suduBar #dmSwatches button:not([hidden])~button:not([hidden])::before,',
+    '#suduBar #musicPill button:not([hidden])~button:not([hidden])::before{',
+    'content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);',
+    'width:1px;height:11px;background:currentColor;opacity:0.32;pointer-events:none;}',
+    // Below 560px the music group rejoins the flow so the three share the width.
+    '@media (max-width:559px){#suduBar{gap:10px;padding:0 16px;}',
     '#suduBar #musicPill{position:static !important;transform:none;}',
-    '#suduBar #langSwitch{gap:8px;padding:6px 9px;}}',
-    '#suduBar button{font-family:inherit;color:inherit;cursor:none;}'
+    '#suduBar #langSwitch,#suduBar #dmSwatches,#suduBar #musicPill{gap:13px;}}',
+    '#suduBar button{font-family:inherit;color:inherit;cursor:none;background:none;border:0;padding:0;}'
   ].join('');
 
   function ensure() {
