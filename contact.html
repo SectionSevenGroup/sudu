@@ -141,6 +141,7 @@ function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{ru
 patch();setInterval(patch,1500);})();</script>
 <script src="i18n.js" defer></script>
 <script src="js/audio-player.js?v=5" defer></script>
+<script type="module" src="js/haptics.js?v=1"></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
@@ -345,6 +346,7 @@ class Component extends DCLogic {
         if (details) lines.push('Specifically: ' + details);
         if (form.body && form.body.value) lines.push('', form.body.value);
         if (name) lines.push('', name + (form.email && form.email.value ? ' \u2014 ' + form.email.value : ''));
+        if (window.suduHaptics) window.suduHaptics.tick(14);
         window.location.href = 'mailto:office@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       }
     };
