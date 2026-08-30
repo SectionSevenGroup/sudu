@@ -195,7 +195,7 @@ patch();setInterval(patch,1500);})();</script>
             <textarea name="body" rows="4" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
           <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
-          <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:office@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">office@sudu.studio</a></p>
+          <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
         </form>
       </div>
 
@@ -347,7 +347,7 @@ class Component extends DCLogic {
         if (form.body && form.body.value) lines.push('', form.body.value);
         if (name) lines.push('', name + (form.email && form.email.value ? ' \u2014 ' + form.email.value : ''));
         if (window.suduHaptics) window.suduHaptics.tick(14);
-        window.location.href = 'mailto:office@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+        window.location.href = 'mailto:joe@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       }
     };
   }
