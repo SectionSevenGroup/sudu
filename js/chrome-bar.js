@@ -40,8 +40,13 @@
     // The three pills are appended by three independent scripts in whatever
     // order those happen to run, so the left-to-right order is stated here
     // rather than left to chance.
-    '#suduBar #langSwitch{order:1;gap:11px;padding:6px 12px;}',
-    '#suduBar #dmSwatches{order:3;gap:9px;padding:6px 9px;}',
+    // Each pill is pinned to its own side rather than relying on
+    // space-between, which would bunch the survivors together if one of the
+    // three failed to mount — the failure mode that put the colour pill on
+    // top of the language pill when a stale cached i18n.js kept positioning
+    // itself in the corner instead of mounting here.
+    '#suduBar #langSwitch{order:1;gap:11px;padding:6px 12px;margin-right:auto;}',
+    '#suduBar #dmSwatches{order:3;gap:9px;padding:6px 9px;margin-left:auto;}',
     '#suduBar #musicPill{order:2;gap:9px;padding:5px 9px 5px 11px;}',
     // Centre the music pill on the viewport, not on whatever space the other
     // two leave, so it does not shift when a language or swatch drops out.
