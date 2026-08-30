@@ -16,9 +16,12 @@
   var firstLoad = true;
   document.addEventListener('turbo:load', function () {
     if (firstLoad) { firstLoad = false; return; }
-    // re-boot the DC runtime against the new page's template
+    // Re-boot the DC runtime against the new page's template. The path has to
+    // be root-absolute: a script src resolves against the *document* URL, which
+    // after a visit to /work/<slug>/ would make 'js/support.js' mean
+    // /work/<slug>/js/support.js and 404, leaving the swapped page blank.
     var s = document.createElement('script');
-    s.src = 'js/support.js';
+    s.src = '/js/support.js';
     document.body.appendChild(s);
   });
 })();
