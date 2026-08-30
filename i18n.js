@@ -222,20 +222,19 @@ function setLang(l){
 }
 function buildSwitcher(){
   if(document.getElementById('langSwitch'))return;
-  var nav=document.querySelector('footer');
-  if(!nav)return;
+  if(!document.body)return;
   var wrap=document.createElement('span');
   wrap.id='langSwitch';
-  wrap.style.cssText='display:inline-flex;gap:8px;align-items:center;font-size:10.5px;letter-spacing:0.1em;';
-  ['en','fr','es','de'].forEach(function(l,i){
-    if(i){var s=document.createElement('span');s.textContent='/';s.style.opacity='0.25';wrap.appendChild(s);}
+  wrap.style.cssText='position:fixed;left:clamp(20px,4.5vw,64px);bottom:16px;z-index:9999;display:flex;gap:11px;align-items:center;padding:6px 12px;background:transparent;border:0.5px solid currentColor;border-radius:22px;font-size:10.5px;letter-spacing:0.1em;';
+  ['en','fr','es','de'].forEach(function(l){
+    if(l===cur)return;
     var b=document.createElement('button');
     b.type='button';b.textContent=l.toUpperCase();b.setAttribute('data-lang-btn',l);
     b.style.cssText='background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit;font-size:10.5px;letter-spacing:0.08em;opacity:0.45;';
     b.addEventListener('click',function(){setLang(l);});
     wrap.appendChild(b);
   });
-  nav.appendChild(wrap);
+  document.body.appendChild(wrap);
 }
 var deb;
 new MutationObserver(function(){
