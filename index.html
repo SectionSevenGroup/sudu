@@ -180,7 +180,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=6d2845b1" defer></script>
+<script src="i18n.js?v=8bf652bd" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -222,38 +222,12 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
 
-  <section data-screen-label="Intro" style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px 64px; padding:clamp(48px,10vw,128px) clamp(20px,4.5vw,64px) clamp(44px,8vw,96px); border-bottom:1px solid rgba(23,22,19,0.13);">
-    <h2 data-reveal style="flex:1 1 420px; margin:0; font-size:clamp(26px,3.4vw,44px); font-weight:900; line-height:1.1; letter-spacing:-0.03em; max-width:16ch; text-wrap:pretty; padding-bottom:0.08em;">Interdisciplinary design, built from the ground up.</h2>
-    <p data-reveal style="flex:0 1 296px; margin:0; padding-top:4px; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">SuDu Studio works across residential, hospitality, retail, commercial, and community environments, building from the same disciplined process at every scale.</p>
-  </section>
-
-  <section id="offerings" data-screen-label="Offerings">
-    <div data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(36px,6vw,64px) clamp(20px,4.5vw,64px) 24px;">
-      <h3 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Offerings</h3>
-      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
-    </div>
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); border-top:1px solid rgba(23,22,19,0.13); padding:0 calc(clamp(20px,4.5vw,64px) - clamp(20px,2vw,28px));">
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
-        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
-        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Architecture</h4>
-        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">New builds, renovations, and additions: concept through construction documentation.</p>
-      </div>
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
-        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
-        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Interiors</h4>
-        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Spatial planning, material direction, and millwork for residential and commercial interiors.</p>
-      </div>
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
-        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
-        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Commercial</h4>
-        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Hospitality, retail, and workplace environments where identity and space work as one system.</p>
-      </div>
-      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
-        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">04</span>
-        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Advisory</h4>
-        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Concept studies, feasibility, and design direction for allied practices and developers.</p>
-      </div>
-    </div>
+  <!-- The border-bottom is gone: with Offerings removed, Selected Work's own
+       border-top is the boundary, and keeping both drew the hairline twice.
+       Layout, type and padding are otherwise untouched. -->
+  <section data-screen-label="Intro" style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px 64px; padding:clamp(48px,10vw,128px) clamp(20px,4.5vw,64px) clamp(44px,8vw,96px);">
+    <h2 data-reveal style="flex:1 1 420px; margin:0; font-size:clamp(26px,3.4vw,44px); font-weight:900; line-height:1.1; letter-spacing:-0.03em; max-width:16ch; text-wrap:pretty; padding-bottom:0.08em;">Architecture, interiors and identity as one system.</h2>
+    <p data-reveal style="flex:0 1 296px; margin:0; padding-top:4px; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">SuDu works across buildings, interiors and branded environments, carrying one design idea from concept through execution.</p>
   </section>
 
   <section id="work" data-screen-label="Selected Work">
@@ -407,28 +381,21 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   </section>
   </sc-if>
 
-  <section id="studio" data-screen-label="Studio" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(48px,9vw,112px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
-    <div data-reveal style="flex:0 1 150px;">
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">The Studio</span>
+  <!-- Studio bridge: an editorial pause between the work and the contact CTA.
+       Same skeleton as the Intro section — space-between, one wide column and
+       one narrow one — so the page keeps a single composition idea instead of
+       gaining a new one. The illustration is the existing studio asset; no new
+       imagery, no portraits, no names, no panel behind it. -->
+  <section id="studio" data-screen-label="Studio" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:40px 64px; padding:clamp(48px,10vw,128px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
+    <div data-reveal style="flex:1 1 420px; max-width:min(520px,100%);">
+      <img src="images/team-illustration-alpha.png" alt="Line portrait of the three SuDu Studio founders" width="2048" height="2048" loading="lazy" decoding="async" style="width:100%; height:auto; display:block;">
     </div>
-    <div data-reveal style="flex:1 1 400px;">
-      <p style="margin:0; font-size:clamp(16px,2vw,23px); font-weight:600; line-height:1.3; letter-spacing:-0.02em; text-wrap:pretty;">SuDu Studio is an interdisciplinary design practice working across architecture, interiors, and branded environments.</p>
-      <p style="margin:16px 0 0; max-width:46ch; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">The work spans residential, hospitality, retail, commercial, and community projects: new builds, renovations, concept studies, and collaborations with allied practices. Every project runs through the same process, regardless of scale.</p>
+    <div data-reveal style="flex:0 1 340px;">
+      <span style="display:block; margin-bottom:18px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">The Studio</span>
+      <p style="margin:0; font-size:clamp(22px,2.8vw,34px); font-weight:900; line-height:1.1; letter-spacing:-0.025em; text-wrap:pretty;">Three disciplines. One studio.</p>
+      <p style="margin:18px 0 0; max-width:34ch; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">Architecture, interiors and design direction led together from first idea through delivery.</p>
+      <a href="studio.html" style="display:inline-block; margin-top:26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Studio &#8594;</a>
     </div>
-    <dl data-reveal style="flex:1 1 240px; margin:0; display:flex; flex-direction:column; gap:20px;">
-      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Founded</dt>
-        <dd style="margin:0; font-size:14px; font-weight:500;">Alberta</dd>
-      </div>
-      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Practice</dt>
-        <dd style="margin:0; font-size:14px; font-weight:500;">Architecture, Interiors, Advisory</dd>
-      </div>
-      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Sectors</dt>
-        <dd style="margin:0; font-size:14px; font-weight:500;">Residential, Hospitality, Commercial, Community</dd>
-      </div>
-    </dl>
   </section>
 
   <section id="contact" data-screen-label="Contact" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) 44px; border-top:1px solid rgba(23,22,19,0.13);">
@@ -456,7 +423,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#E17B3E&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#E17B3E&quot;,&quot;#171613&quot;,&quot;#67655D&quot;],&quot;section&quot;:&quot;Interaction&quot;},&quot;showScrollCue&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showExperienceIndex&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#E17B3E&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#E17B3E&quot;,&quot;#171613&quot;,&quot;#67655D&quot;],&quot;section&quot;:&quot;Interaction&quot;},&quot;showScrollCue&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showExperienceIndex&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;}}">
 class Component extends DCLogic {
   componentDidMount() {
     this.install();
@@ -652,7 +619,13 @@ class Component extends DCLogic {
     return {
       accent: this.props.accent ?? '#E17B3E',
       showScrollCue: this.props.showScrollCue ?? true,
-      showExperienceIndex: this.props.showExperienceIndex ?? true
+      // Off for the homepage. The section's markup is deliberately left in the
+      // template rather than deleted: its entries (Sturgeon House, Macson,
+      // Olla, Socca, Steamoji, Homeward Trust and the rest) exist nowhere else
+      // in the repository, and a later phase decides whether they belong on
+      // Work, on Studio, or nowhere. sc-if renders nothing at all when false,
+      // so no wrapper, anchor or marker survives on the page.
+      showExperienceIndex: this.props.showExperienceIndex ?? false
     };
   }
 }
