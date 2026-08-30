@@ -12,3 +12,27 @@
 # /path/), which is why _redirects carries no /*.html splat rule.
 [build.processing.html]
   pretty_urls = true
+
+# --- contact form -----------------------------------------------------------
+# The enquiry form on contact.html is a Netlify form (name="contact"). It is
+# declared in the static HTML, which is what Netlify scans at deploy time, and
+# submitted over fetch so the visitor never leaves the page. It posts to "/"
+# rather than to its own URL because pretty_urls 301s /contact.html and a
+# redirected POST is downgraded to a GET; no rule in _redirects matches "/" on
+# the apex host, so the POST reaches the form handler. skip_processing above
+# must stay false or the deploy is never scanned for forms.
+#
+# TWO THINGS STILL HAVE TO BE DONE IN THE NETLIFY DASHBOARD. Neither can be
+# set from this repository, and until both are done enquiries are lost or
+# invisible:
+#   1. Form detection. Site configuration -> Forms -> enable form detection.
+#      It is off by default on sites created since ~mid-2024. It only scans
+#      HTML at deploy time, so if it is switched on after this merge, trigger
+#      a fresh deploy ("Clear cache and deploy site") to register the form.
+#      Confirm: the Forms tab lists a form named "contact".
+#   2. Notification routing. Site configuration -> Notifications -> Emails and
+#      webhooks -> add a "Form submission" notification for the "contact" form
+#      to joe@sudu.studio. Without it submissions are only stored in the
+#      dashboard and nobody is told they arrived.
+# Spam: the form carries a honeypot (netlify-honeypot="bot-field"); Netlify's
+# own filtering is on top of that. The free tier caps submissions per month.
