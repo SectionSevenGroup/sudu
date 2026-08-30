@@ -22,17 +22,30 @@
 # the apex host, so the POST reaches the form handler. skip_processing above
 # must stay false or the deploy is never scanned for forms.
 #
-# TWO THINGS STILL HAVE TO BE DONE IN THE NETLIFY DASHBOARD. Neither can be
-# set from this repository, and until both are done enquiries are lost or
-# invisible:
-#   1. Form detection. Site configuration -> Forms -> enable form detection.
-#      It is off by default on sites created since ~mid-2024. It only scans
-#      HTML at deploy time, so if it is switched on after this merge, trigger
-#      a fresh deploy ("Clear cache and deploy site") to register the form.
+# TWO DASHBOARD SETTINGS ARE NOT CONFIGURED BY THIS REPOSITORY. They are site
+# settings, so they have to be set once in Netlify. They fail differently:
+#
+#   1. FORM DETECTION - required before the form works at all.
+#      Site configuration -> Forms -> enable form detection. It is off by
+#      default on sites created since ~mid-2024. Detection only scans HTML at
+#      deploy time, so if it is switched on after this merge, trigger a fresh
+#      deploy ("Clear cache and deploy site") to register the form.
 #      Confirm: the Forms tab lists a form named "contact".
-#   2. Notification routing. Site configuration -> Notifications -> Emails and
-#      webhooks -> add a "Form submission" notification for the "contact" form
-#      to joe@sudu.studio. Without it submissions are only stored in the
-#      dashboard and nobody is told they arrived.
+#      Until this is done Netlify does not recognise the form and rejects the
+#      POST, so the enquiry is not stored. The page shows its error state and
+#      points the visitor at joe@sudu.studio, so nothing fails silently to
+#      them, but the enquiry does not reach the studio.
+#
+#   2. FORM STORAGE - automatic once detection is on.
+#      With the "contact" form registered, verified (non-spam) submissions are
+#      stored in Netlify Forms and readable in the dashboard. Nothing to set.
+#
+#   3. EMAIL NOTIFICATION - strongly wanted operationally, but not a data-loss
+#      risk. Site configuration -> Notifications -> Emails and webhooks -> add
+#      a "Form submission" notification for the "contact" form to
+#      joe@sudu.studio. Without it submissions are still stored under (2); the
+#      only thing missing is the alert, so enquiries can sit unread rather
+#      than being lost.
+#
 # Spam: the form carries a honeypot (netlify-honeypot="bot-field"); Netlify's
 # own filtering is on top of that. The free tier caps submissions per month.

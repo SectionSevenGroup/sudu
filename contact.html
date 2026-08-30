@@ -165,7 +165,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=689dfe43" defer></script>
+<script src="i18n.js?v=c3307005" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -197,12 +197,17 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
              hidden fields; form-name is written out rather than left to
              Netlify's injector, because the DC runtime re-renders this form
              from the template and only what the template declares survives.
-             data-turbo="false" keeps Turbo Drive out of the submit path. -->
+             data-turbo="false" keeps Turbo Drive out of the submit path.
+             The honeypot is visually hidden rather than display:none, so a bot
+             reading computed styles still finds a real, fillable field. It is
+             absolutely positioned, so it is not a flex item and adds no gap;
+             tabindex="-1" keeps it out of the tab order and aria-hidden keeps
+             it out of the accessibility tree. -->
         <form name="contact" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" data-turbo="false" onSubmit="{{ submit }}" style="display:flex; flex-direction:column; gap:24px;">
           <input type="hidden" name="form-name" value="contact">
           <input type="hidden" name="interests" value="{{ interests }}">
           <input type="hidden" name="sub-interests" value="{{ subInterests }}">
-          <p style="display:none;"><label>Leave this field empty <input name="bot-field" tabIndex="-1" autoComplete="off"></label></p>
+          <p aria-hidden="true" style="position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;"><label>Leave this field empty <input name="bot-field" tabIndex="-1" autoComplete="off"></label></p>
 
           <div style="display:flex; flex-direction:column; gap:10px;">
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">I'm interested in</span>

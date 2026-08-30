@@ -80,7 +80,6 @@ var T=[
 ["STEM academy environment | West Vancouver, BC", "Environnement d'académie STIM | West Vancouver, C.-B.", "Entorno de academia STEM | West Vancouver, BC", "STEM-Akademie-Umgebung | West Vancouver, BC", "STEMアカデミーの環境｜ブリティッシュコロンビア州West Vancouver"],
 ["Office environment | Workplace Interiors", "Environnement de bureau | Intérieurs de travail", "Entorno de oficina | Interiores de trabajo", "Büroumgebung | Arbeitsplatz-Interieurs", "オフィス環境｜ワークプレイスインテリア"],
 ["Recovery centres for the Enoch, Tsuut’ina and Smoky Lake (Métis) communities | Community wellness", "Centres de rétablissement pour les communautés d'Enoch, Tsuut'ina et Smoky Lake (Métis) | Bien-être communautaire", "Centros de recuperación para las comunidades de Enoch, Tsuut'ina y Smoky Lake (Métis) | Bienestar comunitario", "Genesungszentren für die Gemeinschaften Enoch, Tsuut'ina und Smoky Lake (Métis) | Gemeinschaftswohl", "Enoch、Tsuut’ina、Smoky Lake（メティ）各コミュニティのリカバリーセンター｜コミュニティ・ウェルネス"],
-["# projects", "# projets", "# proyectos", "# Projekte", "#件のプロジェクト"],
 ["Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.", "Certains projets ont été dirigés par des membres de notre équipe au sein de cabinets précédents et figurent ici comme partie de leur portfolio.", "Algunos proyectos fueron dirigidos por miembros de nuestro equipo en estudios anteriores y se muestran aquí como parte de su portafolio.", "Ausgewählte Projekte wurden von Teammitgliedern in früheren Büros geleitet und werden hier als Teil ihres Portfolios gezeigt.", "一部のプロジェクトは、当スタジオのメンバーが以前所属していた事務所で担当したものであり、個人の実績として掲載しています。"],
 ["Say hello", "Écrivez-nous", "Salúdenos", "Sagen Sie hallo", "ご挨拶を"],
 ["Hospitality · Retail", "Hôtellerie · Commerce", "Hospitalidad · Comercio", "Gastronomie · Handel", "ホスピタリティ・リテール"],
@@ -194,23 +193,6 @@ function xl(s,lang){if(lang==='en')return s;var d=DICT[lang];return d&&d[s]||nul
 var REV=null;
 function buildRev(){REV={};Object.keys(DICT).forEach(function(l){var d=DICT[l];Object.keys(d).forEach(function(k){var v=d[k];if(v&&REV[v]===undefined)REV[v]=k;});});}
 function toEn(k){if(!REV)buildRev();return REV[k]!==undefined?REV[k]:k;}
-/* Counted phrases. The Work header reads its total off the project list, so
-   "19 projects" can never be a dictionary key without going stale the next
-   time a project is added. The dictionary carries the templated form
-   ("# projects" / "# Projekte" / "#件のプロジェクト") and the walker lifts the
-   leading number out before the lookup and drops it back in afterwards.
-   Exact matches are still tried first, so entries that legitimately open with
-   a figure ("6,000 sq ft private residence …") are unaffected. */
-var NUMRE=/^\d[\d,]*/;
-function pick(k){var en=toEn(k);return cur==='en'?en:(xl(en,cur)||en);}
-function localize(key){
-  var out=pick(key);
-  if(out!==key)return out;
-  var m=NUMRE.exec(key);
-  if(!m)return key;
-  var tpl=key.replace(NUMRE,'#'), t=pick(tpl);
-  return t===tpl?key:t.replace('#',m[0]);
-}
 function skip(el){return !!(el&&el.closest&&el.closest('#langSwitch,#dmSwatches,script,style'));}
 function walk(){
   walking=true;
@@ -224,7 +206,8 @@ function walk(){
     if(skip(p))continue;
     var raw=n.textContent, key=raw.replace(/\s+/g,' ').trim();
     if(!key)continue;
-    var target=localize(key);
+    var en=toEn(key);
+    var target=cur==='en'?en:(xl(en,cur)||en);
     if(target!==key)n.textContent=raw.replace(raw.trim(),target);
   }
   document.querySelectorAll('['+ATTRS.join('],[')+']').forEach(function(el){
@@ -234,7 +217,8 @@ function walk(){
       if(!v)return;
       var key=v.replace(/\s+/g,' ').trim();
       if(!key)return;
-      var target=localize(key);
+      var en=toEn(key);
+      var target=cur==='en'?en:(xl(en,cur)||en);
       if(target!==key)el.setAttribute(a,target);
     });
   });
