@@ -114,6 +114,7 @@ var T=[
 ["Send inquiry", "Envoyer la demande", "Enviar consulta", "Anfrage senden", "送信する"],
 ["Sends straight to the studio, or write us directly at", "Envoyé directement au studio, ou écrivez-nous directement à", "Se envía directamente al estudio, o escríbanos directamente a", "Geht direkt an das Studio, oder schreiben Sie uns direkt an", "スタジオへ直接送信されます。メールでのご連絡は"],
 ["Sending…", "Envoi…", "Enviando…", "Wird gesendet…", "送信中…"],
+["Inquiry sent", "Demande envoyée", "Consulta enviada", "Anfrage gesendet", "送信しました"],
 ["Inquiry sent. We’ll reply by email.", "Demande envoyée. Nous répondrons par courriel.", "Consulta enviada. Le responderemos por correo.", "Anfrage gesendet. Wir antworten per E-Mail.", "送信しました。メールでご返信します。"],
 ["That did not send. Please try again, or email us directly.", "L’envoi a échoué. Réessayez, ou écrivez-nous directement.", "No se pudo enviar. Inténtelo de nuevo, o escríbanos directamente.", "Das Senden hat nicht geklappt. Bitte erneut versuchen, oder schreiben Sie uns direkt.", "送信できませんでした。もう一度お試しいただくか、直接メールをお送りください。"],
 ["Please fill in your name, your email, and a note about the project.", "Veuillez indiquer votre nom, votre courriel et une note sur le projet.", "Indique su nombre, su correo y una nota sobre el proyecto.", "Bitte Name, E-Mail und eine Notiz zum Projekt ausfüllen.", "お名前、メールアドレス、プロジェクトについてのご記入をお願いします。"],

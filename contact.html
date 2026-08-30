@@ -144,6 +144,46 @@
   html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
+
+  /* --- contact form: fills the Burnt inversion turned blank ----------------
+     Burnt sets `html.dm.dmwarm section *:not(img):not(video){color:#171613
+     !important}` and then inverts the whole section. Any control that also
+     paints the dark #171613 fill — a selected interest chip, the submit button
+     under the pointer — took that forced dark ink on top of a dark fill, and
+     invert() turned ground and label into the same near-white: the label
+     vanished. Measured separation was 2 of 255 on a selected chip and 6 on the
+     hovered button. Restate the light ink for exactly those two, specific
+     enough to outrank the blanket rule. (The chip had a second problem too:
+     its fill was being stripped by .dm-flat — see the fg comment in the
+     component.) Charcoal and off-white already resolve correctly and are
+     deliberately left alone. The descendant selectors are load-bearing: the
+     label is rendered into a child span, which the blanket rule targets in its
+     own right, so colouring only the button leaves the glyphs dark. */
+  html.dm.dmwarm form[name="contact"] button[aria-pressed="true"],
+  html.dm.dmwarm form[name="contact"] button[aria-pressed="true"] *,
+  html.dm.dmwarm form[name="contact"] button[type="submit"]:hover:not(:disabled),
+  html.dm.dmwarm form[name="contact"] button[type="submit"]:hover:not(:disabled) * { color:#F5F3EC !important; }
+
+  /* A disabled submit — while sending, and once sent — should not take the
+     hover fill at all. Returning it to the idle pairing keeps the completed
+     label legible on the plain ground in all three themes, including when the
+     pointer is still on the button from the click that sent the form. */
+  form[name="contact"] button[type="submit"]:disabled:hover { background:transparent !important; color:#171613 !important; }
+
+  /* Safari paints an opaque block behind an autofilled field, which on Burnt
+     reads as a black rectangle cutting across the underline fields. Clipping
+     the background to the glyphs keeps the field transparent, so it stays part
+     of the underline system, and letting the ink follow the resolved colour
+     keeps all three grounds coherent. Autofill itself is untouched, and a
+     field that is not autofilled never matches these selectors. */
+  form[name="contact"] input:-webkit-autofill,
+  form[name="contact"] input:-webkit-autofill:hover,
+  form[name="contact"] input:-webkit-autofill:focus,
+  form[name="contact"] input:-webkit-autofill:active {
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:currentColor; caret-color:currentColor;
+    transition:background-color 100000s ease-in-out 0s;
+  }
 </style>
 <script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
@@ -165,7 +205,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=c3307005" defer></script>
+<script src="i18n.js?v=6d2845b1" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -235,7 +275,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
             <textarea name="body" rows="4" required="required" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
-          <button type="submit" disabled="{{ busy }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">{{ sendLabel }} <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
+          <button type="submit" disabled="{{ busy }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">{{ sendLabel }} <span style="font-weight:700; color:#E17B3E;">{{ sendGlyph }}</span></button>
           <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:{{ statusDisp }}; margin-bottom:5px; color:#171613;">{{ statusMsg }}</span>Sends straight to the studio, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
         </form>
       </div>
@@ -364,7 +404,14 @@ class Component extends DCLogic {
       nodes, links,
       chips: TREE.map(t => {
         const on = sel.includes(t.label);
-        return { label: t.label, pressed: on ? 'true' : 'false', bg: on ? '#171613' : 'transparent', fg: on ? '#F3F1EA' : '#171613', toggle: () => toggleCat(t.label) };
+        // fg is #F5F3EC, not #F3F1EA. The inline colour is serialised into the
+        // style attribute, and the theme's marker script string-matches
+        // 243, 241, 234 anywhere in that attribute to tag cream *panels* with
+        // .dm-flat — whose rule then forces background:transparent and wiped
+        // this chip's fill. #F5F3EC is the off-white the dark themes already
+        // use for ink, two values away and invisible to the eye, but not a
+        // sentinel. Do not put #F3F1EA back here.
+        return { label: t.label, pressed: on ? 'true' : 'false', bg: on ? '#171613' : 'transparent', fg: on ? '#F5F3EC' : '#171613', toggle: () => toggleCat(t.label) };
       }),
       hasSubs: sub.length > 0,
       subSummary: sub.length ? 'Including: ' + sub.join(', ') : '',
@@ -373,7 +420,11 @@ class Component extends DCLogic {
       interests: sel.join(', '),
       subInterests: sub.join(', '),
       busy: sending || sent,
-      sendLabel: sending ? 'Sending\u2026' : 'Send inquiry',
+      // Send inquiry > / Sending... / Inquiry sent (check). The button is the
+      // thing the visitor is looking at when they press it, so completion is
+      // said there rather than only in the line underneath.
+      sendLabel: sending ? 'Sending\u2026' : (sent ? 'Inquiry sent' : 'Send inquiry'),
+      sendGlyph: sending ? '' : (sent ? '\u2713' : '\u203A'),
       statusMsg: status,
       statusDisp: status ? 'block' : 'none',
       faqs: FAQS.map((f, i) => ({
