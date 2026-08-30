@@ -18,6 +18,7 @@
 <meta name="robots" content="index, follow">
 
 <script src="./js/support.js"></script>
+<script src="js/chrome-bar.js?v=1"></script>
 </head>
 <body>
 <x-dc>
@@ -39,14 +40,12 @@
   html.dm, html.dm body { background:var(--dm-bg,#C0431F); }
   html.dm .dm-wrap { background:var(--dm-bg,#C0431F) !important; }
   html.dm .dm-flat:not(header):not(footer):not(#suduNav) { background:transparent !important; }
+  /* Ground, blur, border and ink for all three pills now come from the chrome
+     bar (js/chrome-bar.js), which states them once for every theme instead of
+     each pill restating them. What stays here is the swatch buttons. */
   #dmSwatches { display:flex !important; }
-  #dmSwatches, #langSwitch { border-color:rgba(23,22,19,.22) !important; color:#171613 !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); background:color-mix(in srgb, #F3F1EA 82%, transparent) !important; }
-  html.dm #dmSwatches, html.dm #langSwitch { background:color-mix(in srgb, var(--dm-bg,#C0431F) 82%, transparent) !important; }
-  html.dm #dmSwatches, html.dm #langSwitch { border-color:rgba(255,255,255,.3) !important; color:#F5F3EC !important; }
-  html.dm #langSwitch { filter:none !important; }
-  html.dm #dmSwatches { border-color:rgba(255,255,255,.28) !important; }
-  html.dm #dmSwatches, html.dm #dmSwatches button { filter:none !important; }
   #dmSwatches button { box-shadow:none !important; border:0 !important; }
+  html.dm #dmSwatches button { filter:none !important; }
   html.xh, html.xh * { cursor:none !important; }
   #xhair { position:fixed; left:0; top:0; width:0; height:0; pointer-events:none; z-index:99998; will-change:transform; }
   #xhair i { position:absolute; display:block; --xh:#57554E; }
@@ -64,8 +63,6 @@
   html.dm.dmlight section p, html.dm.dmlight section dt, html.dm.dmlight section dd, html.dm.dmlight section li, html.dm.dmlight section h1, html.dm.dmlight section h2, html.dm.dmlight section h3, html.dm.dmlight section h4, html.dm.dmlight section h5, html.dm.dmlight section span, html.dm.dmlight section a, html.dm.dmlight section small, html.dm.dmlight section strong, html.dm.dmlight section em, html.dm.dmlight section label, html.dm.dmlight section button, html.dm.dmlight section input, html.dm.dmlight section textarea, html.dm.dmlight section figcaption, html.dm.dmlight .dm-wrap > *:not(header):not(footer) p, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dt, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dd, html.dm.dmlight .dm-wrap > *:not(header):not(footer) li, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h1, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h2, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h3, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h4, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h5, html.dm.dmlight .dm-wrap > *:not(header):not(footer) span, html.dm.dmlight .dm-wrap > *:not(header):not(footer) a, html.dm.dmlight .dm-wrap > *:not(header):not(footer) small, html.dm.dmlight .dm-wrap > *:not(header):not(footer) strong, html.dm.dmlight .dm-wrap > *:not(header):not(footer) em, html.dm.dmlight .dm-wrap > *:not(header):not(footer) label, html.dm.dmlight .dm-wrap > *:not(header):not(footer) button, html.dm.dmlight .dm-wrap > *:not(header):not(footer) input, html.dm.dmlight .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmlight .dm-wrap > *:not(header):not(footer) figcaption { color:#F5F3EC !important; }
   html.dm.dmred [style*="A6A399"], html.dm.dmred [style*="67655D"] { color:#171613 !important; }
   html.dm.dmlight [style*="A6A399"], html.dm.dmlight [style*="67655D"] { color:#F5F3EC !important; }
-  #dmToggle { position:relative; }
-  #dmToggle::after { content:""; position:absolute; inset:-15px; }
   #langSwitch button { position:relative; }
   #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
   html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
@@ -96,13 +93,13 @@
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
 </style>
-<script>(function(){var K='sudu-theme';var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#dmSwatches'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};try{if(localStorage.getItem(K)==='dark')document.documentElement.classList.add('dm');}catch(e){}
+<script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
-if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#dmToggle');if(!b)return;mark();var on=document.documentElement.classList.toggle('dm');try{localStorage.setItem(K,on?'dark':'light');}catch(e){}});})();
+window.__suduMark=mark;})();
 (function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
-function apply(v){var h=document.documentElement;if(v==='#F3F1EA'){h.classList.remove('dm','dmwarm','dmred','dmlight');h.style.removeProperty('--dm-bg');}else{h.classList.add('dm');h.style.setProperty('--dm-bg',v);h.classList.toggle('dmwarm',v!=='#121110');h.classList.toggle('dmred',v!=='#121110');h.classList.remove('dmlight');}try{localStorage.setItem(P,v);}catch(e){}var sw=document.getElementById('dmSwatches');if(sw)[].forEach.call(sw.children,function(b){b.style.display=b.getAttribute('data-v')===v?'none':'block';});}
+function apply(v){if(window.__suduMark)window.__suduMark();var h=document.documentElement;if(v==='#F3F1EA'){h.classList.remove('dm','dmwarm','dmred','dmlight');h.style.removeProperty('--dm-bg');}else{h.classList.add('dm');h.style.setProperty('--dm-bg',v);h.classList.toggle('dmwarm',v!=='#121110');h.classList.toggle('dmred',v!=='#121110');h.classList.remove('dmlight');}try{localStorage.setItem(P,v);}catch(e){}var sw=document.getElementById('dmSwatches');if(sw)[].forEach.call(sw.children,function(b){b.style.display=b.getAttribute('data-v')===v?'none':'block';});}
 try{var s=localStorage.getItem(P);apply(s==='#D0271F'||!s?'#C0431F':s);}catch(e){apply('#C0431F');}
-function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';d.style.cssText='position:fixed;right:clamp(20px,4.5vw,64px);bottom:16px;z-index:9999;display:flex;gap:9px;align-items:center;padding:6px 9px;background:transparent;border:0.5px solid rgba(255,255,255,.28);border-radius:22px;';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});document.documentElement.appendChild(d);}
+function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});if(window.suduBar)window.suduBar().appendChild(d);else document.documentElement.appendChild(d);}
 build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#C0431F');},900);})();
 
 (function(){if(window.__xhInit||!matchMedia('(pointer:fine)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
@@ -132,9 +129,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
       <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
-          <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:0.5px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button><button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity .25s ease;"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
-    </nav>
+      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
   </header>
 
   <section data-screen-label="Project Hero" style="padding:clamp(96px,12vh,128px) clamp(20px,4.5vw,64px) 0;">
@@ -256,8 +251,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
-    </div>
-    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">Isis</button></span></div><span>Alberta</span>
+    </div><span>Alberta</span>
   </footer>
 
 </div>
