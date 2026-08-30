@@ -11,23 +11,27 @@
 <meta property="og:title" content="Uccellino · SuDu Studio">
 <meta property="og:description" content="A bright, pared-back Italian room completing the Jasper Avenue trio.">
 <meta property="og:url" content="https://sudu.studio/work/uccellino/">
-<meta property="og:image" content="https://sudu.studio/images/img-uccellino.jpg">
+<meta property="og:image" content="https://sudu.studio/images/uccellino-restaurant-edmonton.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/sudu-s-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/sudu-s-64.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/sudu-s-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/sudu-s-180.png">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#F3F1EA">
+
+<meta name="robots" content="index, follow">
+
 <script src="/js/support.js"></script>
+<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
+<script src="/js/turbo-boot.js?v=2" defer></script>
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="/js/image-slot.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -36,38 +40,102 @@
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  /* Motion tokens. Two languages: --ease-ui for micro-interactions,
+     --ease-entrance for anything arriving on screen. Choreography offsets in
+     the hero and clip-reveal (1.2s / 1.4s / 1.6s / 1.8s / 1.9s) stay literal;
+     they are sequence positions, not a shared duration. */
+  :root {
+    --ease-ui: ease;
+    --ease-entrance: cubic-bezier(.16, 1, .3, 1);
+
+    --t-hover: 250ms;
+    --t-ui: 300ms;
+    --t-media: 900ms;
+    --t-enter-fade: 1500ms;
+    --t-enter-move: 1700ms;
+    --t-hero: 2600ms;
+  }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  html.dm, html.dm body { background:var(--dm-bg,#121110); }
+  html.dm .dm-wrap { background:var(--dm-bg,#121110) !important; }
+  html.dm .dm-flat { background:transparent !important; }
+  html.dm #dmSwatches { display:inline-flex !important; }
+  #dmToggle { position:relative; }
+  #dmToggle::after { content:""; position:absolute; inset:-15px; }
+  #langSwitch button { position:relative; }
+  #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
+  html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
+  html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
+  html.dm header, html.dm section, html.dm footer { filter: invert(1) hue-rotate(180deg); }
+  html.dm header, html.dm header.dm-flat { filter: none !important; background: var(--dm-bg-soft, rgba(18,17,16,0.94)) !important; -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px); color:#F3F1EA; border-bottom:0 !important; }
+  html.dm header nav a[style*="#171613"] { border-bottom-color:#F3F1EA !important; }
+  html.dm { --sudu-hover-tint: rgba(16,14,7,0.08); }
+  html.dm [style-hover*="E8E5DC"]:hover { background: rgba(16,14,7,0.08) !important; }
+  html.dm #dmSwatches button { filter: invert(1) hue-rotate(180deg); }
+  html.dm .sudu-pv { filter: invert(1) hue-rotate(180deg); }
+  /* Text reading as white in dark mode: rgb(16,14,7) is the pre-image of the page
+     cream rgb(243,241,234) under invert(1) hue-rotate(180deg). */
+  html.dm section, html.dm footer, html.dm .sudu-pv, html.dm .dm-wrap { color: rgb(16,14,7) !important; }
+  html.dm.dmred section *, html.dm.dmred footer *, html.dm.dmred .sudu-pv * { color: rgb(16,14,7) !important; }
+  html.dm.dmred header * { color:#F3F1EA !important; }
+  html.dm.dmred footer [data-track][data-active="true"] { color: rgb(243,241,234) !important; }
+  html.dm.dmred input::placeholder, html.dm.dmred textarea::placeholder { color: rgb(16,14,7) !important; }
+  html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
+  html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm footer img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm footer img[src*="sudu-mark"] { opacity: 1 !important; }
+  html.dm section img[src*="sudu-mark"], html.dm .dm-wrap > *:not(section):not(header):not(footer) img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm header img[src*="sudu-mark"] { filter: invert(1) hue-rotate(180deg) !important; }
+  
 </style>
+<script>(function(){var K='sudu-theme';var mark=function(){document.querySelectorAll('[style]').forEach(function(el){var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('header'))return;if(el.closest('section,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};try{if(localStorage.getItem(K)==='dark')document.documentElement.classList.add('dm');}catch(e){}
+[0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
+if(window.__dmWired)return;window.__dmWired=true;document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#dmToggle');if(!b)return;mark();var on=document.documentElement.classList.toggle('dm');try{localStorage.setItem(K,on?'dark':'light');}catch(e){}});})();
+(function(){var P='sudu-dm-bg';var opts=[['Black','#121110'],['SuDu red','#D0271F']];
+function apply(v){if(v!=='#D0271F')v='#121110';var d=document.documentElement;d.style.setProperty('--dm-bg',v);var r=parseInt(v.slice(1,3),16),g=parseInt(v.slice(3,5),16),b=parseInt(v.slice(5,7),16);d.style.setProperty('--dm-bg-soft','rgba('+r+','+g+','+b+',0.94)');d.classList.toggle('dmred',v==='#D0271F');try{localStorage.setItem(P,v);}catch(e){}}
+try{apply(localStorage.getItem(P));}catch(e){}
+function build(){var f=document.querySelector('footer');if(!f||document.getElementById('dmSwatches'))return;var d=document.createElement('span');d.id='dmSwatches';d.style.cssText='display:none;gap:8px;align-items:center;';opts.forEach(function(o){var b=document.createElement('button');b.type='button';b.title=o[0];b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,.6);cursor:pointer;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});f.insertBefore(d,f.children[1]||null);}
+build();setInterval(build,1500);})();
+(function(){if(window.__suduHoverVar)return;window.__suduHoverVar=true;
+function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{rules=document.styleSheets[i].cssRules;}catch(e){continue;}for(var j=0;j<rules.length;j++){var r=rules[j];if(r.style&&r.selectorText&&r.selectorText.indexOf(':hover')>-1&&/232, 229, 220/.test(r.style.background||'')&&(r.style.background||'').indexOf('var(')===-1){r.style.setProperty('background','var(--sudu-hover-tint, rgb(232, 229, 220))','important');}}}}
+patch();setInterval(patch,1500);})();</script>
+<script src="/i18n.js" defer></script>
+<script src="/js/audio-player.js?v=5" defer></script>
+<script type="module" src="/js/haptics.js?v=2"></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
+  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" decoding="async" style="height:38px; width:auto; display:block;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="/studio" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+      <a href="/work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="/studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+          <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
+          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity var(--t-hover) var(--ease-ui);"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
     </nav>
   </header>
 
-  <section data-screen-label="Project Hero" style="padding:clamp(120px,16vh,180px) clamp(20px,4.5vw,64px) 0;">
-    <a href="/work" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
+  <section data-screen-label="Project Hero" style="padding:clamp(96px,12vh,128px) clamp(20px,4.5vw,64px) 0;">
+    <a href="/work.html" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
       <span style="display:inline-block;">&#8592;</span> All work
     </a>
-    <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 40px; margin-top:28px; padding-bottom:36px;">
+    <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 40px; margin-top:20px; padding-bottom:28px;">
       <div>
-        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Hospitality</div>
-        <h1 style="margin:0; font-size:clamp(30px,4.2vw,50px); font-weight:700; letter-spacing:-0.035em; line-height:0.98;">Uccellino</h1>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D; margin-bottom:8px;">Hospitality</div>
+        <h1 style="margin:0; font-size:clamp(24px,3vw,38px); font-weight:900; letter-spacing:-0.03em; line-height:1; text-transform:uppercase;">Uccellino</h1>
       </div>
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399; padding-bottom:8px;">07 / 14</span>
+      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399; padding-bottom:8px;">09 / 19</span>
     </div>
   </section>
 
   <div data-reveal data-reveal-clip style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <img src="/images/img-uccellino.jpg" alt="Uccellino" width="1500" height="991" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
+    <img src="/images/uccellino-restaurant-edmonton.jpg" alt="Uccellino" width="1500" height="991" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
@@ -86,7 +154,7 @@
       </div>
     </dl>
     <div data-reveal style="flex:1 1 400px; max-width:640px;">
-      <p style="margin:0; font-size:clamp(19px,2vw,23px); font-weight:600; line-height:1.3; letter-spacing:-0.02em; text-wrap:pretty;">A bright, pared-back Italian room completing the Jasper Avenue trio.</p>
+      <p style="margin:0; font-size:clamp(16.5px,1.6vw,19px); font-weight:600; line-height:1.35; letter-spacing:-0.02em; text-wrap:pretty;">A bright, pared-back Italian room completing the Jasper Avenue trio.</p>
       <p style="margin:22px 0 0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;">Where Corso 32 is dark and Bar Bricco is compact, Uccellino is open and light: pale surfaces, simple lines, and a calm dining room that lets daylight and the table carry the experience.</p>
     </div>
   </section>
@@ -97,14 +165,14 @@
         <div style="padding-top:clamp(24px,3vw,36px);">
           <sc-if value="{{ grp.hasHead }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 24px; padding:14px 0 20px; border-top:1px solid rgba(23,22,19,0.13);">
-              <h2 style="margin:0; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">{{ grp.head }}</h2>
+              <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">{{ grp.head }}</h2>
               <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ grp.sub }}</span>
             </div>
           </sc-if>
-          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(560px,100%), 1fr)); gap:clamp(16px,2vw,28px);">
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min({{ grp.minW }}px,100%), 1fr)); gap:clamp(16px,2vw,28px);">
             <sc-for list="{{ grp.images }}" as="g" hint-placeholder-count="2">
-              <div data-reveal style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-                <img src="{{ g.src }}" alt="{{ g.alt }}" width="{{ g.w }}" height="{{ g.h }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
+              <div data-reveal style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">
+                <img src="{{ g.src }}" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.04);">
               </div>
             </sc-for>
           </div>
@@ -112,25 +180,10 @@
       </sc-for>
     </section>
   </sc-if>
-  <sc-if value="{{ showSlots }}" hint-placeholder-val="{{ false }}">
-    <section data-screen-label="Project Gallery Slots" style="padding:clamp(48px,6vw,72px) clamp(20px,4.5vw,64px) 0;">
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:clamp(16px,2vw,28px);">
-        <div data-reveal style="aspect-ratio:4/3;">
-          <image-slot id="{{ slotA }}" shape="rect" src="{{ gA }}" placeholder="Drop a detail photo"></image-slot>
-        </div>
-        <div data-reveal style="aspect-ratio:4/3;">
-          <image-slot id="{{ slotB }}" shape="rect" src="{{ gB }}" placeholder="Drop an interior photo"></image-slot>
-        </div>
-      </div>
-      <div data-reveal style="margin-top:clamp(16px,2vw,28px); aspect-ratio:21/9;">
-        <image-slot id="{{ slotC }}" shape="rect" src="{{ gC }}" placeholder="Drop a wide photo"></image-slot>
-      </div>
-    </section>
-  </sc-if>
 
   <section data-screen-label="Related Work" style="padding:0 clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
     <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(32px,4vw,48px) 0 18px; border-top:1px solid rgba(23,22,19,0.13);">
-      <h2 style="margin:0; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Related Work</h2>
+      <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Related Work</h2>
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">From the archive</span>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:28px 24px;">
@@ -138,7 +191,7 @@
         <a href="{{ r.href }}" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             <sc-if value="{{ r.hasThumb }}" hint-placeholder-val="{{ false }}">
-              <img src="{{ r.thumb }}" alt="{{ r.name }}" width="{{ r.w }}" height="{{ r.h }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+              <img src="{{ r.thumb }}" alt="{{ r.name }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--t-media) var(--ease-entrance);" style-hover="transform:scale(1.05);">
             </sc-if>
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ r.eyebrow }}</div>
@@ -159,20 +212,21 @@
     </sc-if>
   </section>
 
-  <a href="/work/the-helm/" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
+  <a href="/work/alder-room-alta/" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
     <div>
-      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Next project</div>
-      <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">The Helm</div>
+      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:8px;">Next project</div>
+      <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Alder Room &amp; Alta</div>
     </div>
     <span style="font-size:clamp(19px,2.3vw,30px); font-weight:700; color:#E17B3E; line-height:1; letter-spacing:-0.12em;">&#8250;&#8250;</span>
   </a>
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" width="1856" height="660" loading="lazy" decoding="async" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
-      <span>&copy; 2026 SuDu Studio</span>
+      <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
+    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">Isis</button></span></div>
     <span>Alberta</span>
   </footer>
 
@@ -181,7 +235,285 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
+  static DATA = {
+    'west-vancouver': {
+      eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC',
+      scope: 'Architecture, Interiors', status: 'Completed', counter: '01 / 19',
+      lede: 'A private residence and gallery organized around the display of a personal art collection.',
+      body: 'Sited at the rear of a south-facing property, the study explored three architectural directions for a private office, gallery, and rare car collection. The selected concept, H.21.01 / White Box, uses a minimal white volume, an open lower level, and a restrained material language to balance privacy, landscape, light, and display.',
+      heroSrc: '/images/west-vancouver-private-residence.jpg', next: 'wilfreds',
+      groups: [
+        { head: 'H.21.01 / White Box', sub: 'Selected concept', images: ['/images/wv-elevation.jpg', '/images/wv-interior.jpg'] },
+        { head: 'Drawings', sub: 'H.21.01 / White Box floor plans', small: true, images: ['/images/wv-plans.png'] },
+        { head: 'H.21.02 / Glass Gallery', sub: 'Alternative study', images: ['/images/wv-glass-1.jpg', '/images/wv-glass-2.jpg', '/images/wv-glass-3.jpg', '/images/wv-glass-top.png'] },
+        { head: 'H.21.03 / The Cantilever', sub: 'Alternative study', images: ['/images/wv-cant-1.jpg', '/images/wv-cant-2.jpg', '/images/wv-cant-3.jpg'] },
+        { head: 'Drawings', sub: 'H.21.03 / The Cantilever floor plans', small: true, images: ['/images/wv-cant-plans.png'] }
+      ],
+      gA: '/images/wv-elevation.jpg', gB: '/images/wv-interior.jpg', gC: '/images/wv-plans.jpg',
+      related: [
+        { name: 'West Shore Residence', meta: 'Private Residential', key: 'westshore' },
+        { name: 'Residence Studies 1\u201312', meta: 'Visual Research \u00b7 Alberta / Norfolk' }
+      ]
+    },
+    'wilfreds': {
+      eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB',
+      scope: 'Interiors, Material Direction', status: 'Completed', counter: '02 / 19',
+      lede: 'A standalone brick heritage building, rebuilt from the inside out as a single hospitality idea.',
+      body: 'Custom millwork, soft colour, natural materials, and playful mural work give the room a warm, residential scale. Space and millwork by the studio, mural by Vanguard Works, brand development with Shaun Brandt: a demonstration of how closely identity and physical place can be built together.',
+      heroSrc: '/images/wilfreds-hospitality-edmonton.jpg', next: 'westshore',
+      gallery: ['/images/wf-2.jpg', '/images/wf-3.jpg', '/images/wf-4.jpg', '/images/wf-5.jpg', '/images/wf-6.jpg'],
+      gA: '/images/wf-3.jpg', gB: '/images/wf-4.jpg', gC: '/images/wf-6.jpg',
+      related: [
+        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
+        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
+        { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
+        { name: 'The Helm', meta: 'Hospitality', key: 'the-helm' },
+        { name: 'Hell\u2019s Kitchen at Enoch Casino', meta: 'Hospitality \u00b7 Entertainment', key: 'hells-kitchen' }
+      ]
+    },
+    'westshore': {
+      eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Okanagan, BC',
+      scope: 'Architecture, Concept Design', status: 'In development', counter: '03 / 19',
+      lede: 'A custom residence developed from massing studies through exterior material resolution.',
+      body: 'The design began as a study of the site\u2019s long views and grade, testing massing options before committing to a form. Exterior materials were resolved early so the concept and its construction logic developed together.',
+      heroSrc: '/images/westshore-estates-house-exterior.jpg', next: 'casita',
+      gallery: ['/images/westshore-estates-hillside-elevation.jpg', '/images/westshore-estates-entry-drive.jpg'],
+      gA: '/images/westshore-estates-hillside-elevation.jpg', gB: '/images/westshore-estates-entry-drive.jpg',
+      related: [
+        { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' },
+        { name: 'Condominium Work', meta: 'Residential \u00b7 Current' }
+      ]
+    },
+    'casita': {
+      eyebrow: 'Private Residential', title: 'Casita', location: 'Costa Rica',
+      scope: 'Architecture, Interiors', status: 'In development', counter: '04 / 19',
+      lede: 'A single family residence lifted into the palm canopy of a hillside site.',
+      body: 'A compact volume raised on concrete pilotis, opening the main living level to the treetops and long views while the ground plane stays planted and shaded beneath. Deep overhangs, screened openings, and a pared palette of white render, warm timber, and glass are shaped around the tropical climate.',
+      heroSrc: '/images/casita-costa-rica-hillside.jpg', next: 'mackenzie-ravine',
+      groups: [
+        { head: '', sub: '', images: ['/images/casita-costa-rica-entry.jpg'] },
+        { head: 'Drawings', sub: 'Casita 01 / Site plan and floor plans', small: true, images: ['/images/casita-site-plan.png', '/images/casita-main-floor-plan.png', '/images/casita-second-floor-plan.png'] }
+      ],
+      related: [
+        { name: 'Westshore Estates', meta: 'Private Residential', key: 'westshore' },
+        { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' }
+      ]
+    },
+    'mackenzie-ravine': {
+      eyebrow: 'Private Residential', title: 'Mackenzie Ravine', location: 'Edmonton, AB',
+      scope: 'Architecture, Interiors', status: 'Completed', counter: '05 / 19',
+      lede: 'A 4,000 sq ft modern residence on the edge of Mackenzie Ravine.',
+      body: 'Flat-roofed volumes of dark standing-seam cladding and warm cedar sit low among mature spruce, with full-height glazing opening the main living spaces to a concrete terrace and the ravine beyond. The design began as a set of napkin sketches and carried that directness through to the built work.',
+      heroSrc: '/images/mackenzie-ravine-front-drive-dusk.jpg', next: 'atb',
+      groups: [
+        { head: '', sub: '', images: ['/images/mackenzie-ravine-rear-terrace-dusk.jpg'] },
+        { head: 'Process', sub: 'Napkin sketches', images: ['/images/mackenzie-ravine-napkin-sketches.jpg'] },
+        { head: 'Drawings', sub: 'Floor plans', small: true, images: ['/images/mackenzie-ravine-main-floor-plan.png', '/images/mackenzie-ravine-basement-plan.png', '/images/mackenzie-ravine-upper-floor-plan.png'] }
+      ],
+      related: [
+        { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' },
+        { name: 'Casita', meta: 'Private Residential', key: 'casita' }
+      ]
+    },
+    'atb': {
+      eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB',
+      scope: 'Repositioning, Public Realm, with DIALOG', status: 'Completed', counter: '06 / 19',
+      lede: 'Renewal of the concourse, podium, and exterior plazas at a major downtown intersection.',
+      body: 'For client HOOP, the study turns an internalized office podium into an active public throughway: food and retail addressing the street, plazas reworked as everyday civic space, and a stronger connection between the towers, tenants, and downtown residents. Design team: Joe Johnson (Makespace Group) with DIALOG.',
+      heroSrc: '/images/atb-place-reimagined-edmonton.jpg', next: 'corso32',
+      gallery: ['/images/atb-place-exterior-approach.jpg', '/images/atb-place-concourse-interior.jpg'],
+      related: [
+        { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking Environments', key: 'atb-banking' },
+        { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' },
+        { name: 'Enoch Elders Lodge', meta: 'Community Housing', key: 'enoch' },
+        { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }
+      ]
+    },
+    'corso32': {
+      eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB',
+      scope: 'Interiors, Brand, Millwork', status: 'Completed, 2010', counter: '07 / 19',
+      lede: 'An intimate Italian restaurant on Jasper Avenue, built around a narrow room and a long bar.',
+      body: 'A tight plan resolved through custom millwork, warm material choices, and careful lighting: a restaurant for an award-winning chef where the room supports the food rather than competing with it.',
+      heroSrc: '/images/corso-32-restaurant-edmonton.jpg', next: 'bar-bricco',
+      gallery: ['/images/corso-1.jpg', '/images/corso-2.jpg', '/images/corso-4.jpg', '/images/corso-5.jpg'],
+      related: [
+        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
+        { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
+        { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }
+      ]
+    },
+    'bar-bricco': {
+      eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB',
+      scope: 'Interiors, Millwork', status: 'Completed', counter: '08 / 19',
+      lede: 'A standing-room spuntini bar, compact and precise, next door to Corso 32.',
+      body: 'A small footprint treated as a virtue: a single counter-focused room where millwork, lighting, and material restraint do the spatial work. Designed as a companion piece to Corso 32.',
+      heroSrc: '/images/bar-bricco-edmonton.jpg', next: 'uccellino',
+      related: [
+        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
+        { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
+        { name: 'The Helm', meta: 'Hospitality', key: 'the-helm' }
+      ]
+    },
+    'uccellino': {
+      eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB',
+      scope: 'Interiors, Material Direction', status: 'Completed', counter: '09 / 19',
+      lede: 'A bright, pared-back Italian room completing the Jasper Avenue trio.',
+      body: 'Where Corso 32 is dark and Bar Bricco is compact, Uccellino is open and light: pale surfaces, simple lines, and a calm dining room that lets daylight and the table carry the experience.',
+      heroSrc: '/images/uccellino-restaurant-edmonton.jpg', next: 'alder-room-alta',
+      related: [
+        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
+        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
+        { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }
+      ]
+    },
+    'alder-room-alta': {
+      eyebrow: 'Hospitality', title: 'Alder Room \u0026 Alta', location: 'Edmonton, AB',
+      scope: 'Interiors, Branded Environment', status: 'Completed', counter: '10 / 19',
+      lede: 'Two rooms, one kitchen: a tasting-menu dining room and its adjoining bar for chef Ben Staley.',
+      body: 'The Alder Room, an intimate multi-course tasting room, and Alta, its more casual bar and a la carte companion, share one kitchen and one pared-back material language: dark surfaces, warm wood, and precise lighting that puts the food and the craft at centre stage. Named one of Canada\u2019s Best New Restaurants by Air Canada\u2019s enRoute in 2017. Logo design by Denis Lenarduzzi.',
+      heroSrc: '/images/alder-room-alta-logo.jpg', next: 'the-helm',
+      gallery: ['/images/alta-bar-glassware-edmonton.jpg', '/images/alder-room-dining-room-edmonton.jpg', '/images/alta-cocktail-program.jpg', '/images/alder-room-tasting-menu.jpg', '/images/alder-room-truffles.jpg'],
+      related: [
+        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
+        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' }
+      ]
+    },
+    'the-helm': {
+      eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB',
+      scope: 'Interiors, Brand Integration', status: 'Completed', counter: '11 / 19',
+      lede: 'A menswear environment where retail display and clubroom character share one room.',
+      body: 'Fixture design, millwork, and material direction built around the ritual of menswear: a shop that reads as a room you want to stay in, with the brand carried through every surface.',
+      heroSrc: '/images/the-helm-edmonton.jpg', next: 'hells-kitchen',
+      groups: [
+        { head: 'Completed Space', sub: '', images: ['/images/helm-1.jpg', '/images/helm-2.jpg', '/images/helm-3.jpg', '/images/helm-4.jpg', '/images/helm-5.jpg', '/images/helm-6.jpg', '/images/helm-8.jpg', '/images/helm-9.jpg', '/images/helm-10.jpg'] },
+        { head: 'Process / Construction', sub: '', images: ['/images/helm-c1.jpg', '/images/helm-c2.jpg', '/images/helm-c3.jpg'] }
+      ],
+      related: [
+        { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' },
+        { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking', key: 'atb-banking' }
+      ]
+    },
+    'hells-kitchen': {
+      eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB',
+      scope: 'Architecture, Patio Addition, with MES Architecture', status: 'Under construction', counter: '12 / 19',
+      lede: 'A 3,000 sq ft modern patio addition for Hell\u2019s Kitchen at Enoch Casino.',
+      body: 'A compact architectural extension of glass, concrete, black metal, and warm soffit material, giving the restaurant a stronger exterior presence, an improved arrival sequence, and a refined indoor-outdoor relationship with the larger casino building.',
+      heroSrc: '/images/hells-kitchen-enoch.jpg', next: 'atb-banking',
+      gallery: ['/images/hk-day.png', '/images/hk-elev.png', '/images/hk-int.jpg'],
+      related: [
+        { name: 'Enoch Elders Lodge', meta: 'Community \u00b7 Enoch Cree Nation', key: 'enoch' },
+        { name: 'The Helm', meta: 'Hospitality \u00b7 Retail', key: 'the-helm' }
+      ]
+    },
+    'atb-banking': {
+      eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta',
+      scope: 'Strategy, Concept, Design Direction', status: 'Completed', counter: '13 / 19',
+      lede: 'A multi-year initiative reimagining ATB Financial\u2019s flagship and neighbourhood branches.',
+      body: 'Strategic planning, concept development, and design direction for \u201cBranches of the Future\u201d: banking environments rebuilt around customer experience, with a design system flexible enough to scale across Alberta.',
+      heroSrc: '/images/atb-reimagining-banking.jpg', next: 'factory-yyc',
+      groups: [
+        { head: 'Eighth Avenue Place / Calgary', sub: 'Architect: Stantec', images: ['/images/atbb-eap1.jpg', '/images/atbb-eap2.jpg', '/images/atbb-eap3.jpg', '/images/atbb-eap4.jpg', '/images/atbb-eap5.jpg', '/images/atbb-eap6.jpg'] },
+        { head: 'City Centre / Edmonton', sub: 'Architect: Lemay', images: ['/images/atbb-cc1.jpg', '/images/atbb-cc2.jpg', '/images/atbb-cc3.jpg'] },
+        { head: 'Hudson Block / Calgary', sub: 'Architect: Lemay', images: ['/images/atbb-hb1.jpg', '/images/atbb-hb2.jpg', '/images/atbb-hb3.jpg', '/images/atbb-hb4.jpg', '/images/atbb-hb5.jpg'] }
+      ],
+      related: [
+        { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' },
+        { name: 'The Helm', meta: 'Retail', key: 'the-helm' }
+      ]
+    },
+    'factory-yyc': {
+      eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB',
+      scope: 'Concept Design', status: 'Concept', counter: '14 / 19',
+      lede: 'A caf\u00e9 and marketplace concept for a downtown Calgary workplace.',
+      body: 'A full food-and-retail program developed in concept: an oak service bar with marketplace shelving at entry, a caf\u00e9 floor opening to the lobby stair, and a dining hall of booths, communal tables, and a servery beyond.',
+      heroSrc: '/images/factory-yyc-calgary.jpg', next: 'factory-club',
+      groups: [
+        { head: 'Concept Renderings', sub: 'Caf\u00e9 bar & dining hall', images: ['/images/factory-yyc-cafe-bar.jpg', '/images/factory-yyc-dining-hall.jpg'] }
+      ],
+      related: [
+        { name: 'Hell\u2019s Kitchen', meta: 'Hospitality \u00b7 Entertainment', key: 'hells-kitchen' },
+        { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }
+      ]
+    },
+    'factory-club': {
+      eyebrow: 'Hospitality \u00b7 Private Club', title: 'Factory Private Club', location: 'The Edison, Calgary, AB',
+      scope: 'Interiors, Branded Environment', status: 'Completed', counter: '15 / 19',
+      lede: 'A private members\u2019 club on the main floor of the Edison in downtown Calgary.',
+      body: 'A long bar of blackened steel and stacked concrete block under a walnut-slat ceiling, lounge seating against the Edison\u2019s angled facade, and a pixel-mosaic mural closing the room. The club\u2019s mark is built into the space itself: backlit at the walnut entry and screened across the glazing.',
+      heroSrc: '/images/factory-club-edison-bar-mural.jpg', next: 'opt',
+      groups: [
+        { head: 'The Club', sub: 'Photography', images: ['/images/factory-club-edison-entry.jpg', '/images/factory-club-edison-lounge.jpg'] }
+      ],
+      related: [
+        { name: 'Factory YYC', meta: 'Hospitality \u00b7 Concept', key: 'factory-yyc' },
+        { name: 'Alder Room & Alta', meta: 'Hospitality', key: 'alder-room-alta' }
+      ]
+    },
+    'opt': {
+      eyebrow: 'Retail \u00b7 Healthcare', title: 'OPT', location: 'Edmonton, AB',
+      scope: 'Interiors, Retail Environment', status: 'Completed', counter: '16 / 19',
+      lede: 'An optometry clinic and eyewear retail environment.',
+      body: 'Clinic and retail resolved as one room: an ash display wall doubling as the exam-room screen, a supergraphic eye chart marking the threshold between the two, and white casework with framed mirror ledges carrying the frame collection down the length of the space.',
+      heroSrc: '/images/opt-optometry-eye-chart.jpg', next: 'selkirk',
+      groups: [
+        { head: 'Clinic & Dispensary', sub: 'Photography', images: ['/images/opt-optometry-retail-floor.jpg', '/images/opt-optometry-dispensary.jpg'] }
+      ],
+      related: [
+        { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking', key: 'atb-banking' },
+        { name: 'Factory Private Club', meta: 'Hospitality · Private Club', key: 'factory-club' }
+      ]
+    },
+    'selkirk': {
+      eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta',
+      scope: 'Concept Design, with Melcor', status: 'Concept', counter: '17 / 19',
+      lede: 'A commercial repositioning concept for the former RBC building on Jasper Avenue.',
+      body: 'For Melcor, the study renews the tower\u2019s lower levels: new architectural interventions, exterior plaza work, lighting, landscape, and interior public space shift the building from a closed corporate address into an open, active urban destination. With DIALOG.',
+      heroSrc: '/images/the-selkirk-commercial.jpg', next: 'enoch',
+      gallery: ['/images/the-selkirk-exterior.jpg', '/images/the-selkirk-interior.jpg', '/images/sel-aerial.jpg'],
+      related: [
+        { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' },
+        { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }
+      ]
+    },
+    'enoch': {
+      eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB',
+      scope: 'Concept Design', status: 'Concept', counter: '18 / 19',
+      lede: 'A concept for elders housing with Enoch Cree Nation.',
+      body: 'A housing concept shaped around community, culture, and care: shared gathering space at the heart, dwellings arranged for connection, dignity, and everyday visits.',
+      heroSrc: '/images/enoch-elders-lodge.jpg', next: 'youth-recovery',
+      gallery: ['/images/enoch-1.png', '/images/enoch-2.png', '/images/enoch-3.png', '/images/enoch-4.png', '/images/enoch-mural.jpg'],
+      related: [
+        { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' },
+        { name: 'Hell\u2019s Kitchen', meta: 'Enoch Casino', key: 'hells-kitchen' }
+      ]
+    },
+    'youth-recovery': {
+      eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta',
+      scope: 'Architecture, with MES Architecture', status: 'In progress', counter: '19 / 19',
+      lede: 'A youth recovery and wellness environment built around calm, residential-scale space.',
+      body: 'Clear planning, efficient SIP panelized construction, warm materials, natural light, and protected outdoor connections create an environment focused on privacy, safety, dignity, and recovery. With MES Architecture.',
+      heroSrc: '/images/youth-recovery-centre.jpg', next: 'west-vancouver',
+      gallery: ['/images/yr-ext.png', '/images/yr-int1.png', '/images/yr-int3.jpg', '/images/yr-bear.png'],
+      related: [
+        { name: 'Enoch Elders Lodge', meta: 'Community Housing', key: 'enoch' },
+        { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' }
+      ]
+    }
+  };
+  // Intrinsic pixel dimensions, measured from the files in images/. The
+  // generator bakes these onto the hero <img> so project pages reserve
+  // layout before the image decodes.
   static DIMS = {
+    '/images/alder-room-alta-logo.jpg': [1920, 1200],
+    '/images/alder-room-dining-room-edmonton.jpg': [2000, 1333],
+    '/images/alder-room-tasting-menu.jpg': [2000, 1333],
+    '/images/alder-room-truffles.jpg': [2000, 1333],
+    '/images/alta-bar-glassware-edmonton.jpg': [2000, 1333],
+    '/images/alta-cocktail-program.jpg': [2000, 1333],
+    '/images/atb-place-concourse-interior.jpg': [2200, 1197],
+    '/images/atb-place-exterior-approach.jpg': [1500, 816],
+    '/images/atb-place-reimagined-edmonton.jpg': [2500, 1360],
+    '/images/atb-reimagining-banking.jpg': [1858, 1398],
     '/images/atbb-cc1.jpg': [1400, 1082],
     '/images/atbb-cc2.jpg': [1400, 1750],
     '/images/atbb-cc3.jpg': [1500, 1159],
@@ -196,56 +528,74 @@ class Component extends DCLogic {
     '/images/atbb-hb3.jpg': [1500, 1125],
     '/images/atbb-hb4.jpg': [1500, 1000],
     '/images/atbb-hb5.jpg': [1500, 1125],
+    '/images/bar-bricco-edmonton.jpg': [1500, 997],
+    '/images/casita-costa-rica-entry.jpg': [2200, 1228],
+    '/images/casita-costa-rica-hillside.jpg': [2200, 1228],
+    '/images/casita-main-floor-plan.png': [1500, 1125],
+    '/images/casita-second-floor-plan.png': [1500, 1125],
+    '/images/casita-site-plan.png': [1500, 1125],
     '/images/corso-1.jpg': [1500, 998],
     '/images/corso-2.jpg': [1500, 2258],
+    '/images/corso-32-restaurant-edmonton.jpg': [1500, 998],
     '/images/corso-4.jpg': [994, 670],
     '/images/corso-5.jpg': [1500, 996],
     '/images/enoch-1.png': [1500, 844],
     '/images/enoch-2.png': [1500, 1125],
     '/images/enoch-3.png': [1500, 2000],
     '/images/enoch-4.png': [1500, 844],
+    '/images/enoch-elders-lodge.jpg': [1500, 844],
     '/images/enoch-mural.jpg': [1500, 844],
+    '/images/factory-club-edison-bar-mural.jpg': [2400, 1123],
+    '/images/factory-club-edison-entry.jpg': [2400, 1123],
+    '/images/factory-club-edison-lounge.jpg': [2400, 1123],
+    '/images/factory-yyc-cafe-bar.jpg': [2400, 1091],
+    '/images/factory-yyc-calgary.jpg': [2400, 1091],
+    '/images/factory-yyc-dining-hall.jpg': [2400, 1091],
+    '/images/hells-kitchen-enoch.jpg': [1500, 1000],
     '/images/helm-1.jpg': [1500, 1000],
-    '/images/helm-10.jpg': [1333, 2000],
-    '/images/helm-2.jpg': [1333, 2000],
+    '/images/helm-10.jpg': [1500, 2250],
+    '/images/helm-2.jpg': [1500, 2250],
     '/images/helm-3.jpg': [1500, 1000],
     '/images/helm-4.jpg': [1500, 1000],
-    '/images/helm-5.jpg': [1333, 2000],
+    '/images/helm-5.jpg': [1500, 2250],
     '/images/helm-6.jpg': [1500, 1000],
     '/images/helm-8.jpg': [1500, 1000],
-    '/images/helm-9.jpg': [1334, 2000],
+    '/images/helm-9.jpg': [1500, 2249],
     '/images/helm-c1.jpg': [1500, 2000],
     '/images/helm-c2.jpg': [1500, 2000],
     '/images/helm-c3.jpg': [1500, 1125],
     '/images/hk-day.png': [1500, 855],
     '/images/hk-elev.png': [1500, 837],
     '/images/hk-int.jpg': [1500, 845],
-    '/images/img-atb-banking.jpg': [1500, 1000],
-    '/images/img-atb.jpg': [1500, 816],
-    '/images/img-barbricco.jpg': [1500, 997],
-    '/images/img-corso32.jpg': [1500, 998],
-    '/images/img-enoch.jpg': [1500, 844],
-    '/images/img-factoryyyc.jpg': [1500, 682],
-    '/images/img-hellskitchen.jpg': [1500, 1000],
-    '/images/img-hero-westvan.jpg': [1500, 844],
-    '/images/img-selkirk.jpg': [1365, 768],
-    '/images/img-thehelm.jpg': [1333, 2000],
-    '/images/img-uccellino.jpg': [1500, 991],
-    '/images/img-westshore-1500.jpg': [1500, 1125],
-    '/images/img-wilfreds.jpg': [1400, 1867],
-    '/images/img-youthrecovery.jpg': [1500, 836],
+    '/images/mackenzie-ravine-basement-plan.png': [1500, 1125],
+    '/images/mackenzie-ravine-front-drive-dusk.jpg': [2200, 1137],
+    '/images/mackenzie-ravine-main-floor-plan.png': [1500, 1125],
+    '/images/mackenzie-ravine-napkin-sketches.jpg': [2200, 1380],
+    '/images/mackenzie-ravine-rear-terrace-dusk.jpg': [2200, 1124],
+    '/images/mackenzie-ravine-upper-floor-plan.png': [1500, 1125],
+    '/images/opt-optometry-dispensary.jpg': [2400, 1227],
+    '/images/opt-optometry-eye-chart.jpg': [2400, 1227],
+    '/images/opt-optometry-retail-floor.jpg': [2400, 1227],
     '/images/sel-aerial.jpg': [1500, 844],
-    '/images/sel-ext1.png': [1365, 768],
-    '/images/sel-int2.png': [1417, 736],
+    '/images/the-helm-edmonton.jpg': [1500, 2250],
+    '/images/the-selkirk-commercial.jpg': [1365, 768],
+    '/images/the-selkirk-exterior.jpg': [1365, 768],
+    '/images/the-selkirk-interior.jpg': [1417, 736],
+    '/images/uccellino-restaurant-edmonton.jpg': [1500, 991],
+    '/images/west-vancouver-private-residence.jpg': [1500, 844],
+    '/images/westshore-estates-entry-drive.jpg': [1448, 1086],
+    '/images/westshore-estates-hillside-elevation.jpg': [1448, 1086],
+    '/images/westshore-estates-house-exterior.jpg': [1448, 1086],
     '/images/wf-2.jpg': [1500, 1000],
     '/images/wf-3.jpg': [1400, 919],
     '/images/wf-4.jpg': [1400, 933],
     '/images/wf-5.jpg': [1400, 2100],
     '/images/wf-6.jpg': [1400, 2100],
+    '/images/wilfreds-hospitality-edmonton.jpg': [1400, 1867],
     '/images/wv-cant-1.jpg': [1500, 844],
     '/images/wv-cant-2.jpg': [1500, 844],
     '/images/wv-cant-3.jpg': [1500, 844],
-    '/images/wv-cant-plans.jpg': [1500, 844],
+    '/images/wv-cant-plans.png': [1500, 844],
     '/images/wv-elevation.jpg': [1500, 844],
     '/images/wv-glass-1.jpg': [1500, 844],
     '/images/wv-glass-2.jpg': [1500, 844],
@@ -253,196 +603,11 @@ class Component extends DCLogic {
     '/images/wv-glass-top.png': [1500, 844],
     '/images/wv-interior.jpg': [1500, 844],
     '/images/wv-plans.jpg': [1500, 967],
+    '/images/wv-plans.png': [1500, 967],
+    '/images/youth-recovery-centre.jpg': [1500, 836],
     '/images/yr-bear.png': [1500, 818],
     '/images/yr-ext.png': [1500, 836],
-    '/images/yr-int1.png': [1500, 1876],
     '/images/yr-int3.jpg': [1500, 837],
-  };
-  static DATA = {
-    'west-vancouver': {
-      eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC',
-      scope: 'Architecture, Interiors', status: 'Completed', counter: '01 / 14',
-      lede: 'A private residence and gallery organized around the display of a personal art collection.',
-      body: 'Sited at the rear of a south-facing property, the study explored three architectural directions for a private office, gallery, and rare car collection. The selected concept, H.21.01 / White Box, uses a minimal white volume, an open lower level, and a restrained material language to balance privacy, landscape, light, and display.',
-      heroSrc: '/images/img-hero-westvan.jpg', next: 'wilfreds',
-      groups: [
-        { head: 'H.21.01 / White Box', sub: 'Selected concept', images: ['/images/wv-elevation.jpg', '/images/wv-interior.jpg', '/images/wv-plans.jpg'] },
-        { head: 'H.21.02 / Glass Gallery', sub: 'Alternative study', images: ['/images/wv-glass-1.jpg', '/images/wv-glass-2.jpg', '/images/wv-glass-3.jpg', '/images/wv-glass-top.png'] },
-        { head: 'H.21.03 / The Cantilever', sub: 'Alternative study', images: ['/images/wv-cant-1.jpg', '/images/wv-cant-2.jpg', '/images/wv-cant-3.jpg', '/images/wv-cant-plans.jpg'] }
-      ],
-      gA: '/images/wv-elevation.jpg', gB: '/images/wv-interior.jpg', gC: '/images/wv-plans.jpg',
-      related: [
-        { name: 'West Shore Residence', meta: 'Private Residential', key: 'westshore' },
-        { name: 'Residence Studies 1\u201312', meta: 'Visual Research \u00b7 Alberta / Norfolk' }
-      ]
-    },
-    'wilfreds': {
-      eyebrow: 'Hospitality', title: 'Wilfred\u2019s', location: 'Edmonton, AB',
-      scope: 'Interiors, Material Direction', status: 'Completed', counter: '02 / 14',
-      lede: 'A standalone brick heritage building, rebuilt from the inside out as a single hospitality idea.',
-      body: 'Custom millwork, soft colour, natural materials, and playful mural work give the room a warm, residential scale. Space and millwork by the studio, mural by Vanguard Works, brand development with Shaun Brandt: a demonstration of how closely identity and physical place can be built together.',
-      heroSrc: '/images/img-wilfreds.jpg', next: 'westshore',
-      gallery: ['/images/wf-2.jpg', '/images/wf-3.jpg', '/images/wf-4.jpg', '/images/wf-5.jpg', '/images/wf-6.jpg'],
-      gA: '/images/wf-3.jpg', gB: '/images/wf-4.jpg', gC: '/images/wf-6.jpg',
-      related: [
-        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
-        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
-        { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
-        { name: 'The Helm', meta: 'Hospitality', key: 'the-helm' },
-        { name: 'Hell\u2019s Kitchen at Enoch Casino', meta: 'Hospitality \u00b7 Entertainment', key: 'hells-kitchen' }
-      ]
-    },
-    'westshore': {
-      eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Alberta',
-      scope: 'Architecture, Concept Design', status: 'In development', counter: '03 / 14',
-      lede: 'A custom residence developed from massing studies through exterior material resolution.',
-      body: 'The design began as a study of the site\u2019s long views and grade, testing massing options before committing to a form. Exterior materials were resolved early so the concept and its construction logic developed together.',
-      heroSrc: '/images/img-westshore-1500.jpg', next: 'atb',
-      related: [
-        { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' },
-        { name: 'Condominium Work', meta: 'Residential \u00b7 Current' }
-      ]
-    },
-    'atb': {
-      eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB',
-      scope: 'Public Realm, Retail Planning, with DIALOG', status: 'Completed', counter: '04 / 14',
-      lede: 'Renewal of the concourse, podium, and exterior plazas at a major downtown intersection.',
-      body: 'For client HOOP, the study turns an internalized office podium into an active public throughway: food and retail addressing the street, plazas reworked as everyday civic space, and a stronger connection between the towers, tenants, and downtown residents. Design team: Joe Johnson (Makespace Group) with DIALOG.',
-      heroSrc: '/images/img-atb.jpg', next: 'corso32',
-      related: [
-        { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking Environments', key: 'atb-banking' },
-        { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' },
-        { name: 'Enoch Elders Lodge', meta: 'Community Housing', key: 'enoch' },
-        { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }
-      ]
-    },
-    'corso32': {
-      eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB',
-      scope: 'Interiors, Brand, Millwork', status: 'Completed, 2010', counter: '05 / 14',
-      lede: 'An intimate Italian restaurant on Jasper Avenue, built around a narrow room and a long bar.',
-      body: 'A tight plan resolved through custom millwork, warm material choices, and careful lighting: a restaurant for an award-winning chef where the room supports the food rather than competing with it.',
-      heroSrc: '/images/img-corso32.jpg', next: 'bar-bricco',
-      gallery: ['/images/corso-1.jpg', '/images/corso-2.jpg', '/images/corso-4.jpg', '/images/corso-5.jpg'],
-      related: [
-        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
-        { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
-        { name: 'Wilfred\u2019s', meta: 'Hospitality', key: 'wilfreds' }
-      ]
-    },
-    'bar-bricco': {
-      eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB',
-      scope: 'Interiors, Millwork', status: 'Completed', counter: '06 / 14',
-      lede: 'A standing-room spuntini bar, compact and precise, next door to Corso 32.',
-      body: 'A small footprint treated as a virtue: a single counter-focused room where millwork, lighting, and material restraint do the spatial work. Designed as a companion piece to Corso 32.',
-      heroSrc: '/images/img-barbricco.jpg', next: 'uccellino',
-      related: [
-        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
-        { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' },
-        { name: 'The Helm', meta: 'Hospitality', key: 'the-helm' }
-      ]
-    },
-    'uccellino': {
-      eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB',
-      scope: 'Interiors, Material Direction', status: 'Completed', counter: '07 / 14',
-      lede: 'A bright, pared-back Italian room completing the Jasper Avenue trio.',
-      body: 'Where Corso 32 is dark and Bar Bricco is compact, Uccellino is open and light: pale surfaces, simple lines, and a calm dining room that lets daylight and the table carry the experience.',
-      heroSrc: '/images/img-uccellino.jpg', next: 'the-helm',
-      related: [
-        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' },
-        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' },
-        { name: 'Wilfred\u2019s', meta: 'Hospitality', key: 'wilfreds' }
-      ]
-    },
-    'the-helm': {
-      eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB',
-      scope: 'Interiors, Brand Integration', status: 'Completed', counter: '08 / 14',
-      lede: 'A menswear environment where retail display and clubroom character share one room.',
-      body: 'Fixture design, millwork, and material direction built around the ritual of menswear: a shop that reads as a room you want to stay in, with the brand carried through every surface.',
-      heroSrc: '/images/img-thehelm.jpg', next: 'hells-kitchen',
-      groups: [
-        { head: 'Completed Space', sub: '', images: ['/images/helm-1.jpg', '/images/helm-2.jpg', '/images/helm-3.jpg', '/images/helm-4.jpg', '/images/helm-5.jpg', '/images/helm-6.jpg', '/images/helm-8.jpg', '/images/helm-9.jpg', '/images/helm-10.jpg'] },
-        { head: 'Process / Construction', sub: '', images: ['/images/helm-c1.jpg', '/images/helm-c2.jpg', '/images/helm-c3.jpg'] }
-      ],
-      related: [
-        { name: 'Wilfred\u2019s', meta: 'Hospitality', key: 'wilfreds' },
-        { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking', key: 'atb-banking' }
-      ]
-    },
-    'hells-kitchen': {
-      eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB',
-      scope: 'Architecture, Patio Addition, with MES Architecture', status: 'Under construction', counter: '09 / 14',
-      lede: 'A 3,000 sq ft modern patio addition for Hell\u2019s Kitchen at Enoch Casino.',
-      body: 'A compact architectural extension of glass, concrete, black metal, and warm soffit material, giving the restaurant a stronger exterior presence, an improved arrival sequence, and a refined indoor-outdoor relationship with the larger casino building.',
-      heroSrc: '/images/img-hellskitchen.jpg', next: 'atb-banking',
-      gallery: ['/images/hk-day.png', '/images/hk-elev.png', '/images/hk-int.jpg'],
-      related: [
-        { name: 'Enoch Elders Lodge', meta: 'Community \u00b7 Enoch Cree Nation', key: 'enoch' },
-        { name: 'The Helm', meta: 'Hospitality \u00b7 Retail', key: 'the-helm' }
-      ]
-    },
-    'atb-banking': {
-      eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta',
-      scope: 'Strategy, Concept, Design Direction', status: 'Completed', counter: '10 / 14',
-      lede: 'A multi-year initiative reimagining ATB Financial\u2019s flagship and neighbourhood branches.',
-      body: 'Strategic planning, concept development, and design direction for \u201cBranches of the Future\u201d: banking environments rebuilt around customer experience, with a design system flexible enough to scale across Alberta.',
-      heroSrc: '/images/img-atb-banking.jpg', next: 'factory-yyc',
-      groups: [
-        { head: 'Eighth Avenue Place / Calgary', sub: 'Architect: Stantec', images: ['/images/atbb-eap1.jpg', '/images/atbb-eap2.jpg', '/images/atbb-eap3.jpg', '/images/atbb-eap4.jpg', '/images/atbb-eap5.jpg', '/images/atbb-eap6.jpg'] },
-        { head: 'City Centre / Edmonton', sub: 'Architect: Lemay', images: ['/images/atbb-cc1.jpg', '/images/atbb-cc2.jpg', '/images/atbb-cc3.jpg'] },
-        { head: 'Hudson Block / Calgary', sub: 'Architect: Lemay', images: ['/images/atbb-hb1.jpg', '/images/atbb-hb2.jpg', '/images/atbb-hb3.jpg', '/images/atbb-hb4.jpg', '/images/atbb-hb5.jpg'] }
-      ],
-      related: [
-        { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' },
-        { name: 'The Helm', meta: 'Retail', key: 'the-helm' }
-      ]
-    },
-    'factory-yyc': {
-      eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB',
-      scope: 'Concept Design', status: 'Concept', counter: '11 / 14',
-      lede: 'A hospitality concept study for an industrial Calgary shell.',
-      body: 'A concept exercise in keeping the found character of an industrial volume while layering in the warmth, acoustics, and service logic a working room needs.',
-      heroSrc: '/images/img-factoryyyc.jpg', next: 'selkirk',
-      related: [
-        { name: 'Hell\u2019s Kitchen', meta: 'Hospitality \u00b7 Entertainment', key: 'hells-kitchen' },
-        { name: 'Wilfred\u2019s', meta: 'Hospitality', key: 'wilfreds' }
-      ]
-    },
-    'selkirk': {
-      eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta',
-      scope: 'Concept Design, with Melcor', status: 'Concept', counter: '12 / 14',
-      lede: 'A commercial repositioning concept for the former RBC building on Jasper Avenue.',
-      body: 'For Melcor, the study renews the tower\u2019s lower levels: new architectural interventions, exterior plaza work, lighting, landscape, and interior public space shift the building from a closed corporate address into an open, active urban destination. With DIALOG.',
-      heroSrc: '/images/img-selkirk.jpg', next: 'enoch',
-      gallery: ['/images/sel-ext1.png', '/images/sel-int2.png', '/images/sel-aerial.jpg'],
-      related: [
-        { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' },
-        { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }
-      ]
-    },
-    'enoch': {
-      eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB',
-      scope: 'Concept Design', status: 'Concept', counter: '13 / 14',
-      lede: 'A concept for elders housing with Enoch Cree Nation.',
-      body: 'A housing concept shaped around community, culture, and care: shared gathering space at the heart, dwellings arranged for connection, dignity, and everyday visits.',
-      heroSrc: '/images/img-enoch.jpg', next: 'youth-recovery',
-      gallery: ['/images/enoch-1.png', '/images/enoch-2.png', '/images/enoch-3.png', '/images/enoch-4.png', '/images/enoch-mural.jpg'],
-      related: [
-        { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' },
-        { name: 'Hell\u2019s Kitchen', meta: 'Enoch Casino', key: 'hells-kitchen' }
-      ]
-    },
-    'youth-recovery': {
-      eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', // TODO(owner): confirm whether the city should be shown
-      scope: 'Architecture, with MES Architecture', status: 'In progress', counter: '14 / 14',
-      lede: 'A youth recovery and wellness environment built around calm, residential-scale space.',
-      body: 'Clear planning, efficient SIP panelized construction, warm materials, natural light, and protected outdoor connections create an environment focused on privacy, safety, dignity, and recovery. With MES Architecture.',
-      heroSrc: '/images/img-youthrecovery.jpg', next: 'west-vancouver',
-      gallery: ['/images/yr-ext.png', '/images/yr-int1.png', '/images/yr-int3.jpg', '/images/yr-bear.png'],
-      related: [
-        { name: 'Enoch Elders Lodge', meta: 'Community Housing', key: 'enoch' },
-        { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' }
-      ]
-    }
   };
   renderVals() {
     const key = 'uccellino';
@@ -451,21 +616,16 @@ class Component extends DCLogic {
     const projects = Component.DATA;
     return {
       ...d,
-      slotA: key + '-a', slotB: key + '-b', slotC: key + '-c',
-      gA: d.gA || '', gB: d.gB || '', gC: d.gC || '',
       galleryGroups: (d.groups
-        ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', images: grp.images.map((src) => { const dm = Component.DIMS[src] || ['','']; return { src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : ''), w: dm[0], h: dm[1] }; }) }))
-        : [{ hasHead: false, head: '', sub: '', images: (d.gallery || []).map((src) => { const dm = Component.DIMS[src] || ['','']; return { src, alt: d.title, w: dm[0], h: dm[1] }; }) }]),
+        ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', minW: grp.small ? 300 : 560, bg: grp.small ? 'transparent' : '#E8E5DC', fit: grp.small ? 'contain' : 'cover', images: grp.images.map((src) => ({ src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
+        : [{ hasHead: false, head: '', sub: '', minW: 560, bg: '#E8E5DC', fit: 'cover', images: (d.gallery || []).map((src) => ({ src, alt: d.title })) }]),
       hasGallery: !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
-      showSlots: !((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
       nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
-      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, width: (Component.DIMS[d.heroSrc] || [])[0], height: (Component.DIMS[d.heroSrc] || [])[1], decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
+      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
         href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',
         hasThumb: !!projects[r.key].heroSrc,
-        w: (Component.DIMS[projects[r.key].heroSrc] || [''])[0],
-        h: (Component.DIMS[projects[r.key].heroSrc] || ['',''])[1],
         name: r.name,
         eyebrow: projects[r.key].eyebrow,
         location: projects[r.key].location
@@ -476,7 +636,10 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ease = 'cubic-bezier(.16,1,.3,1)';
+    // Read from the token so there is one definition site; the literal is the
+    // fallback if the custom property is ever missing.
+    const ease = getComputedStyle(document.documentElement)
+      .getPropertyValue('--ease-entrance').trim() || 'cubic-bezier(.16,1,.3,1)';
     if (window.__suduProjIO) { window.__suduProjIO.refresh(); return; }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
@@ -490,8 +653,10 @@ class Component extends DCLogic {
     }, { rootMargin: '0px 0px -8% 0px' });
     const refresh = () => {
       const vh = window.innerHeight || 1;
+      const counters = new Map();
       document.querySelectorAll('[data-reveal]').forEach((el) => {
         if (el._prepped) {
+          counters.set(el.parentElement, (counters.get(el.parentElement) || 0) + 1);
           // swept past (anchor jump / fast scroll): IO may never have fired — force-reveal
           if (el.style.opacity === '0' && el.getBoundingClientRect().bottom <= 0) {
             el.style.opacity = '1';
@@ -501,12 +666,15 @@ class Component extends DCLogic {
           return;
         }
         el._prepped = true;
+        const gi = counters.get(el.parentElement) || 0;
+        counters.set(el.parentElement, gi + 1);
+        el._delay = Math.min(gi, 4) * 140;
         const clip = el.hasAttribute('data-reveal-clip');
         // already in view (or above) at prep time: reveal synchronously, never hide it
         if (el.getBoundingClientRect().top < vh * 0.92) { el.style.opacity = '1'; return; }
         el.style.opacity = '0';
-        if (clip) { el.style.clipPath = 'inset(0 0 92% 0)'; el.style.transition = 'opacity 1.2s ' + ease + ', clip-path 1.5s ' + ease; }
-        else { el.style.transform = 'translateY(20px)'; el.style.transition = 'opacity 1.5s ' + ease + ', transform 1.7s ' + ease; }
+        if (clip) { el.style.clipPath = 'inset(0 0 92% 0)'; el.style.transition = 'opacity 1.2s ' + ease + ', clip-path var(--t-enter-fade) ' + ease; }
+        else { el.style.transform = 'translateY(20px)'; el.style.transition = 'opacity var(--t-enter-fade) ' + ease + ', transform var(--t-enter-move) ' + ease; }
         io.observe(el);
       });
     };

@@ -12,10 +12,10 @@
 
 <title>SuDu Studio &middot; Work</title>
 <meta name="description" content="Architecture and interior design case studies by SuDu Studio: custom residences, restaurants, retail and community projects in Edmonton and Western Canada.">
-<link rel="canonical" href="https://sudu.studio/project.html">
+<link rel="canonical" href="https://sudu.studio/work/west-vancouver/">
 <meta property="og:title" content="Project Case Studies | SuDu Studio Architecture Edmonton">
 <meta property="og:description" content="Architecture and interior design case studies by SuDu Studio: custom residences, restaurants, retail and community projects in Edmonton and Western Canada.">
-<meta property="og:url" content="https://sudu.studio/project.html">
+<meta property="og:url" content="https://sudu.studio/work/west-vancouver/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
@@ -498,6 +498,115 @@ class Component extends DCLogic {
       ]
     }
   };
+  // Intrinsic pixel dimensions, measured from the files in images/. The
+  // generator bakes these onto the hero <img> so project pages reserve
+  // layout before the image decodes.
+  static DIMS = {
+    'images/alder-room-alta-logo.jpg': [1920, 1200],
+    'images/alder-room-dining-room-edmonton.jpg': [2000, 1333],
+    'images/alder-room-tasting-menu.jpg': [2000, 1333],
+    'images/alder-room-truffles.jpg': [2000, 1333],
+    'images/alta-bar-glassware-edmonton.jpg': [2000, 1333],
+    'images/alta-cocktail-program.jpg': [2000, 1333],
+    'images/atb-place-concourse-interior.jpg': [2200, 1197],
+    'images/atb-place-exterior-approach.jpg': [1500, 816],
+    'images/atb-place-reimagined-edmonton.jpg': [2500, 1360],
+    'images/atb-reimagining-banking.jpg': [1858, 1398],
+    'images/atbb-cc1.jpg': [1400, 1082],
+    'images/atbb-cc2.jpg': [1400, 1750],
+    'images/atbb-cc3.jpg': [1500, 1159],
+    'images/atbb-eap1.jpg': [1500, 998],
+    'images/atbb-eap2.jpg': [1500, 998],
+    'images/atbb-eap3.jpg': [1500, 998],
+    'images/atbb-eap4.jpg': [1500, 998],
+    'images/atbb-eap5.jpg': [1500, 998],
+    'images/atbb-eap6.jpg': [1500, 998],
+    'images/atbb-hb1.jpg': [1500, 858],
+    'images/atbb-hb2.jpg': [960, 720],
+    'images/atbb-hb3.jpg': [1500, 1125],
+    'images/atbb-hb4.jpg': [1500, 1000],
+    'images/atbb-hb5.jpg': [1500, 1125],
+    'images/bar-bricco-edmonton.jpg': [1500, 997],
+    'images/casita-costa-rica-entry.jpg': [2200, 1228],
+    'images/casita-costa-rica-hillside.jpg': [2200, 1228],
+    'images/casita-main-floor-plan.png': [1500, 1125],
+    'images/casita-second-floor-plan.png': [1500, 1125],
+    'images/casita-site-plan.png': [1500, 1125],
+    'images/corso-1.jpg': [1500, 998],
+    'images/corso-2.jpg': [1500, 2258],
+    'images/corso-32-restaurant-edmonton.jpg': [1500, 998],
+    'images/corso-4.jpg': [994, 670],
+    'images/corso-5.jpg': [1500, 996],
+    'images/enoch-1.png': [1500, 844],
+    'images/enoch-2.png': [1500, 1125],
+    'images/enoch-3.png': [1500, 2000],
+    'images/enoch-4.png': [1500, 844],
+    'images/enoch-elders-lodge.jpg': [1500, 844],
+    'images/enoch-mural.jpg': [1500, 844],
+    'images/factory-club-edison-bar-mural.jpg': [2400, 1123],
+    'images/factory-club-edison-entry.jpg': [2400, 1123],
+    'images/factory-club-edison-lounge.jpg': [2400, 1123],
+    'images/factory-yyc-cafe-bar.jpg': [2400, 1091],
+    'images/factory-yyc-calgary.jpg': [2400, 1091],
+    'images/factory-yyc-dining-hall.jpg': [2400, 1091],
+    'images/hells-kitchen-enoch.jpg': [1500, 1000],
+    'images/helm-1.jpg': [1500, 1000],
+    'images/helm-10.jpg': [1500, 2250],
+    'images/helm-2.jpg': [1500, 2250],
+    'images/helm-3.jpg': [1500, 1000],
+    'images/helm-4.jpg': [1500, 1000],
+    'images/helm-5.jpg': [1500, 2250],
+    'images/helm-6.jpg': [1500, 1000],
+    'images/helm-8.jpg': [1500, 1000],
+    'images/helm-9.jpg': [1500, 2249],
+    'images/helm-c1.jpg': [1500, 2000],
+    'images/helm-c2.jpg': [1500, 2000],
+    'images/helm-c3.jpg': [1500, 1125],
+    'images/hk-day.png': [1500, 855],
+    'images/hk-elev.png': [1500, 837],
+    'images/hk-int.jpg': [1500, 845],
+    'images/mackenzie-ravine-basement-plan.png': [1500, 1125],
+    'images/mackenzie-ravine-front-drive-dusk.jpg': [2200, 1137],
+    'images/mackenzie-ravine-main-floor-plan.png': [1500, 1125],
+    'images/mackenzie-ravine-napkin-sketches.jpg': [2200, 1380],
+    'images/mackenzie-ravine-rear-terrace-dusk.jpg': [2200, 1124],
+    'images/mackenzie-ravine-upper-floor-plan.png': [1500, 1125],
+    'images/opt-optometry-dispensary.jpg': [2400, 1227],
+    'images/opt-optometry-eye-chart.jpg': [2400, 1227],
+    'images/opt-optometry-retail-floor.jpg': [2400, 1227],
+    'images/sel-aerial.jpg': [1500, 844],
+    'images/the-helm-edmonton.jpg': [1500, 2250],
+    'images/the-selkirk-commercial.jpg': [1365, 768],
+    'images/the-selkirk-exterior.jpg': [1365, 768],
+    'images/the-selkirk-interior.jpg': [1417, 736],
+    'images/uccellino-restaurant-edmonton.jpg': [1500, 991],
+    'images/west-vancouver-private-residence.jpg': [1500, 844],
+    'images/westshore-estates-entry-drive.jpg': [1448, 1086],
+    'images/westshore-estates-hillside-elevation.jpg': [1448, 1086],
+    'images/westshore-estates-house-exterior.jpg': [1448, 1086],
+    'images/wf-2.jpg': [1500, 1000],
+    'images/wf-3.jpg': [1400, 919],
+    'images/wf-4.jpg': [1400, 933],
+    'images/wf-5.jpg': [1400, 2100],
+    'images/wf-6.jpg': [1400, 2100],
+    'images/wilfreds-hospitality-edmonton.jpg': [1400, 1867],
+    'images/wv-cant-1.jpg': [1500, 844],
+    'images/wv-cant-2.jpg': [1500, 844],
+    'images/wv-cant-3.jpg': [1500, 844],
+    'images/wv-cant-plans.png': [1500, 844],
+    'images/wv-elevation.jpg': [1500, 844],
+    'images/wv-glass-1.jpg': [1500, 844],
+    'images/wv-glass-2.jpg': [1500, 844],
+    'images/wv-glass-3.jpg': [1500, 844],
+    'images/wv-glass-top.png': [1500, 844],
+    'images/wv-interior.jpg': [1500, 844],
+    'images/wv-plans.jpg': [1500, 967],
+    'images/wv-plans.png': [1500, 967],
+    'images/youth-recovery-centre.jpg': [1500, 836],
+    'images/yr-bear.png': [1500, 818],
+    'images/yr-ext.png': [1500, 836],
+    'images/yr-int3.jpg': [1500, 837],
+  };
   renderVals() {
     const key = new URLSearchParams(location.search).get('p') || 'west-vancouver';
     const d = Component.DATA[key] || Component.DATA['west-vancouver'];
@@ -509,10 +618,10 @@ class Component extends DCLogic {
         ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', minW: grp.small ? 300 : 560, bg: grp.small ? 'transparent' : '#E8E5DC', fit: grp.small ? 'contain' : 'cover', images: grp.images.map((src) => ({ src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
         : [{ hasHead: false, head: '', sub: '', minW: 560, bg: '#E8E5DC', fit: 'cover', images: (d.gallery || []).map((src) => ({ src, alt: d.title })) }]),
       hasGallery: !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
-      nextTitle: nd.title, nextHref: 'project.html?p=' + d.next,
+      nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
       heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
-        href: 'project.html?p=' + r.key,
+        href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',
         hasThumb: !!projects[r.key].heroSrc,
         name: r.name,

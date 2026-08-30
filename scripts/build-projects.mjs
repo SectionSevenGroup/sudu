@@ -23,10 +23,13 @@ if (dataStart === -1 || dataEnd === -1) throw new Error('could not locate static
 const DATA = eval('(' + projectSrc.slice(dataStart + 'static DATA ='.length, dataEnd + 4).trim().replace(/;$/, '') + ')');
 const slugs = Object.keys(DATA);
 
+// A missing DIMS map used to degrade silently to {}, which stripped the hero
+// width/height from every generated page and reintroduced layout shift. It is
+// required input, so fail loudly instead.
 const dimsStart = projectSrc.indexOf('static DIMS = {');
 const dimsEnd = projectSrc.indexOf('\n  };', dimsStart);
-const DIMS = dimsStart === -1 ? {} :
-  eval('(' + projectSrc.slice(dimsStart + 'static DIMS ='.length, dimsEnd + 4).trim().replace(/;$/, '') + ')');
+if (dimsStart === -1 || dimsEnd === -1) throw new Error('could not locate static DIMS in project.html');
+const DIMS = eval('(' + projectSrc.slice(dimsStart + 'static DIMS ='.length, dimsEnd + 4).trim().replace(/;$/, '') + ')');
 
 // ---- per-page head metadata -------------------------------------------------
 // The four flagship pages use the copy from the site fix brief; the rest derive
@@ -60,10 +63,15 @@ function headBlock(slug) {
 }
 
 // ---- transforms shared by every generated file ------------------------------
+// Generated pages live at /work/<slug>/, two levels below the template, so
+// every document-relative path has to become root-absolute. The old rules only
+// covered ./js/ and images/, which left i18n.js, turbo-boot.js and
+// audio-player.js resolving under /work/<slug>/ and 404ing.
 function absolutePaths(html) {
   return html
-    .replace(/src="\.\/js\//g, 'src="/js/')
-    .replace(/src="images\//g, 'src="/images/')
+    .replace(/(src|href)="\.\//g, '$1="/')
+    // anything not already absolute, a fragment, a scheme, or a placeholder
+    .replace(/(src|href)="(?!https?:|\/\/|\/|#|mailto:|tel:|data:|\{\{)/g, '$1="/')
     .replace(/data-preview="images\//g, 'data-preview="/images/')
     .replace(/'images\//g, "'/images/");
 }
@@ -94,6 +102,19 @@ function generateProjectPage(slug) {
     `const key = '${slug}';`
   );
   html = absolutePaths(html);
+  // Drop the template's own head metadata. headBlock() emits a per-project
+  // replacement for each of these, and leaving both in place gave every
+  // generated page two <title>s and two rel=canonical tags.
+  for (const re of [
+    /<title>[\s\S]*?<\/title>\n/,
+    /<meta name="description" content="[^"]*">\n/,
+    /<link rel="canonical" href="[^"]*">\n/,
+    /<meta property="og:title" content="[^"]*">\n/,
+    /<meta property="og:description" content="[^"]*">\n/,
+    /<meta property="og:url" content="[^"]*">\n/,
+    /<meta property="og:type" content="[^"]*">\n/,
+    /<meta property="og:image" content="[^"]*">\n/,
+  ]) html = html.replace(re, '');
   html = html.replace(
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n',
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' + headBlock(slug)
@@ -105,6 +126,12 @@ function generateWorkMirror() {
   // /work/ resolves to this directory on GitHub Pages once it exists, so it
   // must serve the same page as /work (work.html) with root-absolute paths.
   return absolutePaths(read('work.html'));
+}
+
+const undimensioned = slugs.filter((s) => DATA[s].heroSrc && !DIMS[DATA[s].heroSrc]);
+if (undimensioned.length) {
+  throw new Error('hero images missing from DIMS: ' +
+    undimensioned.map((s) => `${s} (${DATA[s].heroSrc})`).join(', '));
 }
 
 for (const slug of slugs) {

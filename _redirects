@@ -1,0 +1,34 @@
+# Netlify redirect rules for sudu.studio.
+# First match wins, so specific rules come before wildcards.
+# Bare .html -> extensionless redirects are handled by pretty_urls in
+# netlify.toml, not here: a forced /*.html splat would also rewrite the four
+# SEO landing pages away from their own canonical URLs.
+
+# --- canonical host ---------------------------------------------------------
+https://www.sudu.studio/*    https://sudu.studio/:splat    301!
+
+# --- project pages: retire the query-param route ----------------------------
+# Forced, because project.html exists as a real file and would otherwise be
+# served in preference to the redirect. With no p= parameter neither rule
+# matches, so project.html still resolves as the generator source.
+/project.html    p=:slug    /work/:slug/    301!
+/project         p=:slug    /work/:slug/    301!
+
+# --- legacy Squarespace paths -----------------------------------------------
+# These replace the meta-refresh stub pages from PR #3, which are deleted in
+# the same commit. Both the extensionless Squarespace path and the .html stub
+# URL are covered, since the stubs were themselves indexed.
+/home                 /           301
+/home.html            /           301
+/about                /studio     301
+/about.html           /studio     301
+/services             /studio     301
+/services.html        /studio     301
+/sudu-services        /studio     301
+/sudu-services.html   /studio     301
+/projects             /work       301
+/projects.html        /work       301
+/portfolio            /work       301
+/portfolio.html       /work       301
+/contact-us           /contact    301
+/contact-us.html      /contact    301
