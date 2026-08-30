@@ -1,0 +1,30 @@
+# DIAGNOSTIC ONLY - delete after use.
+name: Probe the live site
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/live-probe-uhnpgt]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe https://sudu.studio
+        run: |
+          B=https://sudu.studio
+          probe() {
+            printf '\n--- %s\n' "$1"
+            curl -sS -o /tmp/body -D /tmp/hdr --max-time 30 "$B$1" || true
+            tr -d '\r' < /tmp/hdr | grep -iE '^(HTTP/|location:|server:|content-type:)' | sed 's/^/    /'
+            printf '    bytes=%s\n' "$(wc -c < /tmp/body)"
+          }
+          echo "########## core pages ##########"
+          for u in / /index.html /work.html /work /work/ /studio.html /contact.html; do probe "$u"; done
+          echo
+          echo "########## clean project URLs (new) ##########"
+          for u in /work/west-vancouver/ /work/casita/ "/project.html?p=west-vancouver"; do probe "$u"; done
+          echo
+          echo "########## legacy paths whose stubs were deleted ##########"
+          for u in /home /home.html /about /about.html /projects /contact-us; do probe "$u"; done
+          echo
+          echo "########## is the deployed build current? ##########"
+          curl -sS --max-time 30 "$B/" | grep -o 'Burnt\|dmwarm\|sudu-s-32\|audio-player\|red-art' | sort | uniq -c | sed 's/^/    /' || echo "    (no markers found)"
