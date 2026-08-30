@@ -1,0 +1,14 @@
+# Netlify configuration for the sudustudioarchitecture site.
+# The site is static with no build step, so the repository root is published
+# as-is and _redirects sits alongside this file at the publish root.
+
+[build]
+  publish = "."
+
+[build.processing]
+  skip_processing = false
+
+# pretty_urls issues the .html -> extensionless 301 (and /path/index.html ->
+# /path/), which is why _redirects carries no /*.html splat rule.
+[build.processing.html]
+  pretty_urls = true
