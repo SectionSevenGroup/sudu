@@ -30,15 +30,11 @@
     '#audioToggle[data-playing="true"]:not([data-viz="true"]) svg rect:nth-child(3){animation-duration:1.3s;animation-delay:-0.6s;}' +
     '@keyframes suduEq{0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);}}' +
     '#audioToggle{position:relative;}#audioToggle::after{content:"";position:absolute;inset:-11px;}' +
-    // The pill lives in the chrome bar, which is exempt from the dark-mode
-    // inversion, so the active chip is coloured directly for each ground
-    // rather than through the pre-image the inverted footer used to need.
-    '#musicPill .track-pill{display:inline-flex;align-items:center;gap:2px;border:0.5px solid currentColor;border-radius:100px;padding:2px;}' +
-    '#musicPill .track-pill button{border:0;border-radius:100px;padding:3px 9px;font-size:9.5px;font-weight:600;letter-spacing:0.06em;' +
-      'background:transparent;color:inherit;opacity:0.6;transition:background .25s ease,color .25s ease,opacity .25s ease;}' +
-    '#musicPill .track-pill button:hover{opacity:1;}' +
-    '#musicPill .track-pill button.on{opacity:1;background:#171613;color:#F3F1EA;}' +
-    'html.dm #musicPill .track-pill button.on{background:#F5F3EC;color:#171613;}';
+    // The chevron is the whole track control now: no labels, it just steps to
+    // the next track. It dims like the bars do when nothing is playing.
+    '#musicPill #trackNext svg{display:block;transition:opacity .25s ease;}' +
+    '#musicPill #trackNext{opacity:0.35;transition:opacity .25s ease;}' +
+    '#musicPill[data-playing="true"] #trackNext,#musicPill #trackNext:hover{opacity:1;}';
   document.head.appendChild(css);
 
   function prefOn() { try { return localStorage.getItem(KEY) === 'on'; } catch (e) { return false; } }
@@ -141,6 +137,8 @@
   function paint() {
     var playing = isPlaying();
     var live = playing && vizLive() && !!vizRAF;
+    var pill = document.getElementById('musicPill');
+    if (pill) pill.setAttribute('data-playing', playing ? 'true' : 'false');
     document.querySelectorAll('#audioToggle').forEach(function (b) {
       b.setAttribute('aria-pressed', playing ? 'true' : 'false');
       b.setAttribute('data-playing', playing ? 'true' : 'false');
@@ -210,7 +208,7 @@
   }, 1000);
 
   // The toggle acts on the real state: silent (for any reason) -> start,
-  // playing -> stop. The footer title advances to the next track.
+  // playing -> stop. The chevron beside it steps to the next track.
   document.addEventListener('click', function (e) {
     var t = e.target;
     var seg = t && t.closest && t.closest('[data-track]');
@@ -223,6 +221,10 @@
       } else if (i >= 0 && i < TRACKS.length) {
         switchTo(i);
       }
+      return;
+    }
+    if (t && t.closest && t.closest('#trackNext')) {
+      switchTo(idx + 1);
       return;
     }
     if (t && t.closest && t.closest('#trackSwitch')) {
@@ -283,17 +285,16 @@
       '<rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg>';
     pill.appendChild(toggle);
 
-    var seg = document.createElement('span');
-    seg.className = 'track-pill';
-    TRACKS.forEach(function (t, i) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.setAttribute('data-track', String(i));
-      b.setAttribute('aria-label', 'Play ' + t.title);
-      b.textContent = t.short;
-      seg.appendChild(b);
-    });
-    pill.appendChild(seg);
+    var next = document.createElement('button');
+    next.type = 'button';
+    next.id = 'trackNext';
+    next.setAttribute('aria-label', 'Next track');
+    next.title = 'Next track';
+    next.style.cssText = 'width:13px;height:13px;display:inline-flex;align-items:center;justify-content:center;';
+    next.innerHTML = '<svg width="9" height="12" viewBox="0 0 9 12" aria-hidden="true" fill="none">' +
+      '<path d="M2 1.5 L7 6 L2 10.5" stroke="currentColor" stroke-width="1.4" ' +
+      'stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+    pill.appendChild(next);
 
     window.suduBar().appendChild(pill);
     paint();
