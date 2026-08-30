@@ -33,7 +33,7 @@ window.suduHaptics = { tick: tick };
 // DC runtime rebuilds on every Turbo visit stay covered without rebinding.
 // Most specific match wins and returns, so a single tap never ticks twice.
 var TARGETS = [
-  ['.track-pill button[data-track]', 8],   // track selection
+  ['#trackNext', 8],                       // next track
   ['#dmSwatches button', 8],               // theme picker
   ['#audioToggle', 10],                    // music on / off
 ];
