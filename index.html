@@ -147,21 +147,36 @@
     --sudu-rail:1760px;
     --sudu-studio-rail:1460px;
     --sudu-studio-illo:clamp(520px,26vw,560px);
+    /* the rail's own side inset, named once. The 100% resolves against
+       whichever full-width element it is substituted into, which is every
+       element listed below. */
+    --sudu-inset:max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2));
+    /* the offerings cards carry their own horizontal padding, so their grid
+       pulls back by exactly that much: the card *content* lands on the rail
+       while each card's hover ground and divider still reach past it. This is
+       the original page's calc with the rail inset in place of the bare
+       gutter, so below the rail's engagement width it computes identically. */
+    --sudu-card-pad:clamp(20px,2vw,28px);
   }
   #suduNav,
   #heroFoot,
   section[data-screen-label="Intro"],
+  #offerings > div:first-child,
   #work > div,
   #work > article,
   #contact,
   footer {
-    padding-left:max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2)) !important;
-    padding-right:max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2)) !important;
+    padding-left:var(--sudu-inset) !important;
+    padding-right:var(--sudu-inset) !important;
+  }
+  #offerings > div:last-child {
+    padding-left:calc(var(--sudu-inset) - var(--sudu-card-pad)) !important;
+    padding-right:calc(var(--sudu-inset) - var(--sudu-card-pad)) !important;
   }
   /* the hero statement is absolutely positioned, so it takes the same datum as
      an offset. The hero drawing is deliberately not listed anywhere here: it
      is a visual field and keeps breaking the grid exactly as it does now. */
-  #heroStatement { left:max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2)) !important; }
+  #heroStatement { left:var(--sudu-inset) !important; }
   #studio {
     padding-left:max(var(--sudu-gutter), calc((100% - var(--sudu-studio-rail)) / 2)) !important;
     padding-right:max(var(--sudu-gutter), calc((100% - var(--sudu-studio-rail)) / 2)) !important;
@@ -221,7 +236,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=8bf652bd" defer></script>
+<script src="i18n.js?v=2c2b4951" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -263,12 +278,44 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
 
-  <!-- The border-bottom is gone: with Offerings removed, Selected Work's own
-       border-top is the boundary, and keeping both drew the hairline twice.
-       Layout, type and padding are otherwise untouched. -->
-  <section data-screen-label="Intro" style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px 64px; padding:clamp(48px,10vw,128px) clamp(20px,4.5vw,64px) clamp(44px,8vw,96px);">
-    <h2 data-reveal style="flex:1 1 420px; margin:0; font-size:clamp(26px,3.4vw,44px); font-weight:900; line-height:1.1; letter-spacing:-0.03em; max-width:16ch; text-wrap:pretty; padding-bottom:0.08em;">Architecture, interiors and identity as one system.</h2>
-    <p data-reveal style="flex:0 1 296px; margin:0; padding-top:4px; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">SuDu works across buildings, interiors and branded environments, carrying one design idea from concept through execution.</p>
+  <!-- The border-bottom is back now that Offerings follows: it is the single
+       hairline between the statement and the services, exactly as the original
+       page drew it. The heading tops out at 38px rather than 44 so the intro
+       reads as a transition rather than a second hero; everything else about
+       the section — structure, columns, padding, body copy size — is as it
+       was. -->
+  <section data-screen-label="Intro" style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px 64px; padding:clamp(48px,10vw,128px) clamp(20px,4.5vw,64px) clamp(44px,8vw,96px); border-bottom:1px solid rgba(23,22,19,0.13);">
+    <h2 data-reveal style="flex:1 1 420px; margin:0; font-size:clamp(26px,3.4vw,38px); font-weight:900; line-height:1.1; letter-spacing:-0.03em; max-width:16ch; text-wrap:pretty; padding-bottom:0.08em;">One design idea, carried through.</h2>
+    <p data-reveal style="flex:0 1 296px; margin:0; padding-top:4px; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">Architecture, interiors and branded environments developed together from concept through delivery.</p>
+  </section>
+
+  <section id="offerings" data-screen-label="Offerings">
+    <div data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(36px,6vw,64px) clamp(20px,4.5vw,64px) 24px;">
+      <h3 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Offerings</h3>
+      <a href="work.html" style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">All work &#8594;</a>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); border-top:1px solid rgba(23,22,19,0.13); padding:0 calc(clamp(20px,4.5vw,64px) - clamp(20px,2vw,28px));">
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
+        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
+        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Architecture</h4>
+        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">New builds, renovations, and additions: concept through construction documentation.</p>
+      </div>
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
+        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
+        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Interiors</h4>
+        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Spatial planning, material direction, and millwork for residential and commercial interiors.</p>
+      </div>
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); border-right:1px solid rgba(23,22,19,0.13); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
+        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
+        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Commercial</h4>
+        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Hospitality, retail, and workplace environments where identity and space work as one system.</p>
+      </div>
+      <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2vw,28px) clamp(30px,3.2vw,44px); transition:background .3s ease;" style-hover="background:rgba(23,22,19,0.05);">
+        <span style="display:block; margin-bottom:clamp(24px,3vw,40px); font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">04</span>
+        <h4 style="margin:0 0 10px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Advisory</h4>
+        <p style="margin:0; font-size:13.5px; line-height:1.7; color:#67655D;">Concept studies, feasibility, and design direction for allied practices and developers.</p>
+      </div>
+    </div>
   </section>
 
   <section id="work" data-screen-label="Selected Work">
