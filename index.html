@@ -126,6 +126,47 @@
   html.dm.dmwarm [data-reveal-clip] { display:flex; align-items:center; justify-content:center; aspect-ratio:auto !important; height:auto !important; min-height:0 !important; }
   html.dm.dmwarm [data-reveal-clip] a > img:not(.red-art) { display:none !important; }
   html.dm.dmwarm [data-reveal-clip] { background:transparent !important; }
+  /* --- spatial system: canvas, rail, editorial sub-grid ---------------------
+     Three layers. The viewport stays the canvas: every ground, every section
+     rule and the hero drawing still run edge to edge, and nothing here gains a
+     box, a border, a panel or a background. The rail is expressed as
+     horizontal *padding* rather than as a container element, so it can only
+     ever widen the fluid gutter the page already uses: below the width where
+     the centring term overtakes clamp(20px,4.5vw,64px) every value computes
+     exactly as it does today, and above it ordinary content stops travelling
+     toward the viewport edges. The studio bridge takes a narrower editorial
+     grid inside the rail so its pair stops drifting apart once that grid is
+     full. 1460 is chosen so that at full illustration width the void between
+     the drawing and the copy measures exactly one illustration (560 + 560 +
+     340): the negative space is a counted interval in the composition rather
+     than whatever the viewport happens to leave over. No colour is stated in any of these rules, so the dm-flat marker
+     cannot mistake them for a cream panel. Purely horizontal: no rule below
+     touches a vertical value. */
+  :root {
+    --sudu-gutter:clamp(20px,4.5vw,64px);
+    --sudu-rail:1760px;
+    --sudu-studio-rail:1460px;
+    --sudu-studio-illo:clamp(520px,26vw,560px);
+  }
+  #suduNav,
+  #heroFoot,
+  section[data-screen-label="Intro"],
+  #work > div,
+  #work > article,
+  #contact,
+  footer {
+    padding-left:max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2)) !important;
+    padding-right:max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2)) !important;
+  }
+  /* the hero statement is absolutely positioned, so it takes the same datum as
+     an offset. The hero drawing is deliberately not listed anywhere here: it
+     is a visual field and keeps breaking the grid exactly as it does now. */
+  #heroStatement { left:max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2)) !important; }
+  #studio {
+    padding-left:max(var(--sudu-gutter), calc((100% - var(--sudu-studio-rail)) / 2)) !important;
+    padding-right:max(var(--sudu-gutter), calc((100% - var(--sudu-studio-rail)) / 2)) !important;
+  }
+
   .rowrev-txt, .rowrev-txt * { text-align:right !important; }
   .rowrev-txt > *, .rowrev-txt p { margin-left:auto !important; margin-right:0 !important; }
   .rowrev-txt dl { justify-content:flex-end !important; }
@@ -387,7 +428,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
        gaining a new one. The illustration is the existing studio asset; no new
        imagery, no portraits, no names, no panel behind it. -->
   <section id="studio" data-screen-label="Studio" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:40px 64px; padding:clamp(48px,10vw,128px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
-    <div data-reveal style="flex:1 1 420px; max-width:min(520px,100%);">
+    <div data-reveal style="flex:1 1 420px; max-width:min(var(--sudu-studio-illo),100%);">
       <img src="images/team-illustration-alpha.png" alt="Line portrait of the three SuDu Studio founders" width="2048" height="2048" loading="lazy" decoding="async" style="width:100%; height:auto; display:block;">
     </div>
     <div data-reveal style="flex:0 1 340px;">
