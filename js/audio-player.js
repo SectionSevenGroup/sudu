@@ -29,14 +29,16 @@
     '#audioToggle[data-playing="true"]:not([data-viz="true"]) svg rect:nth-child(2){animation-duration:0.9s;animation-delay:-0.3s;}' +
     '#audioToggle[data-playing="true"]:not([data-viz="true"]) svg rect:nth-child(3){animation-duration:1.3s;animation-delay:-0.6s;}' +
     '@keyframes suduEq{0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);}}' +
-    '#audioToggle{position:relative;}#audioToggle::after{content:"";position:absolute;inset:-12px;}' +
-    '#trackSwitch:hover{color:#171613;}' +
-    '.track-pill button:hover{color:#171613 !important;}' +
-    '.track-pill button.on{background:#171613 !important;color:#F3F1EA !important;}' +
-    // in dark/red mode the chip is inverted into a light surface, so it needs the
-    // ink that maps onto the page cream rather than the light-mode ink
-    'html.dm .track-pill button.on{background:rgb(16,14,7) !important;}' +
-    '.track-pill button.on:hover{color:#F3F1EA !important;}';
+    '#audioToggle{position:relative;}#audioToggle::after{content:"";position:absolute;inset:-11px;}' +
+    // The pill lives in the chrome bar, which is exempt from the dark-mode
+    // inversion, so the active chip is coloured directly for each ground
+    // rather than through the pre-image the inverted footer used to need.
+    '#musicPill .track-pill{display:inline-flex;align-items:center;gap:2px;border:0.5px solid currentColor;border-radius:100px;padding:2px;}' +
+    '#musicPill .track-pill button{border:0;border-radius:100px;padding:3px 9px;font-size:9.5px;font-weight:600;letter-spacing:0.06em;' +
+      'background:transparent;color:inherit;opacity:0.6;transition:background .25s ease,color .25s ease,opacity .25s ease;}' +
+    '#musicPill .track-pill button:hover{opacity:1;}' +
+    '#musicPill .track-pill button.on{opacity:1;background:#171613;color:#F3F1EA;}' +
+    'html.dm #musicPill .track-pill button.on{background:#F5F3EC;color:#171613;}';
   document.head.appendChild(css);
 
   function prefOn() { try { return localStorage.getItem(KEY) === 'on'; } catch (e) { return false; } }
@@ -255,13 +257,56 @@
     }
   }
 
+
+  // ---- the music pill ----
+  // Built rather than authored into the pages: it belongs to the chrome bar,
+  // which persists across Turbo visits, so it must not be part of the body
+  // markup that Turbo replaces. paint() finds #audioToggle and [data-track]
+  // by selector, so nothing else has to know where the controls ended up.
+  function buildPill() {
+    if (!window.suduBar || document.getElementById('musicPill')) return;
+    var pill = document.createElement('div');
+    pill.id = 'musicPill';
+
+    var toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.id = 'audioToggle';
+    toggle.setAttribute('aria-label', 'Toggle background music');
+    toggle.setAttribute('aria-pressed', 'false');
+    toggle.setAttribute('data-playing', 'false');
+    toggle.title = 'Background music';
+    toggle.style.cssText = 'border:0;background:transparent;padding:0;width:13px;height:13px;' +
+      'display:inline-flex;align-items:center;justify-content:center;opacity:0.35;transition:opacity .25s ease;';
+    toggle.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;">' +
+      '<rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect>' +
+      '<rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect>' +
+      '<rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg>';
+    pill.appendChild(toggle);
+
+    var seg = document.createElement('span');
+    seg.className = 'track-pill';
+    TRACKS.forEach(function (t, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-track', String(i));
+      b.setAttribute('aria-label', 'Play ' + t.title);
+      b.textContent = t.short;
+      seg.appendChild(b);
+    });
+    pill.appendChild(seg);
+
+    window.suduBar().appendChild(pill);
+    paint();
+  }
+
   function paintOnly() { paint(); [400, 1200, 3000].forEach(function (t) { setTimeout(paint, t); }); }
   function afterLoad(fn) {
     if (document.readyState === 'complete') setTimeout(fn, 500);
     else window.addEventListener('load', function () { setTimeout(fn, 500); });
   }
-  window.addEventListener('DOMContentLoaded', function () { paintOnly(); afterLoad(onPageReady); });
+  window.addEventListener('DOMContentLoaded', function () { buildPill(); paintOnly(); afterLoad(onPageReady); });
   // Turbo page swaps: the player object survives and keeps playing;
   // just repaint the fresh buttons (and resume if something stopped it).
-  document.addEventListener('turbo:load', function () { paintOnly(); afterLoad(onPageReady); });
+  document.addEventListener('turbo:load', function () { buildPill(); paintOnly(); afterLoad(onPageReady); });
+  if (document.readyState !== 'loading') buildPill();
 })();
