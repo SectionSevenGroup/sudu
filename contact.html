@@ -144,6 +144,46 @@
   html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
+
+  /* --- contact form: fills the Burnt inversion turned blank ----------------
+     Burnt sets `html.dm.dmwarm section *:not(img):not(video){color:#171613
+     !important}` and then inverts the whole section. Any control that also
+     paints the dark #171613 fill — a selected interest chip, the submit button
+     under the pointer — took that forced dark ink on top of a dark fill, and
+     invert() turned ground and label into the same near-white: the label
+     vanished. Measured separation was 2 of 255 on a selected chip and 6 on the
+     hovered button. Restate the light ink for exactly those two, specific
+     enough to outrank the blanket rule. (The chip had a second problem too:
+     its fill was being stripped by .dm-flat — see the fg comment in the
+     component.) Charcoal and off-white already resolve correctly and are
+     deliberately left alone. The descendant selectors are load-bearing: the
+     label is rendered into a child span, which the blanket rule targets in its
+     own right, so colouring only the button leaves the glyphs dark. */
+  html.dm.dmwarm form[name="contact"] button[aria-pressed="true"],
+  html.dm.dmwarm form[name="contact"] button[aria-pressed="true"] *,
+  html.dm.dmwarm form[name="contact"] button[type="submit"]:hover:not(:disabled),
+  html.dm.dmwarm form[name="contact"] button[type="submit"]:hover:not(:disabled) * { color:#F5F3EC !important; }
+
+  /* A disabled submit — while sending, and once sent — should not take the
+     hover fill at all. Returning it to the idle pairing keeps the completed
+     label legible on the plain ground in all three themes, including when the
+     pointer is still on the button from the click that sent the form. */
+  form[name="contact"] button[type="submit"]:disabled:hover { background:transparent !important; color:#171613 !important; }
+
+  /* Safari paints an opaque block behind an autofilled field, which on Burnt
+     reads as a black rectangle cutting across the underline fields. Clipping
+     the background to the glyphs keeps the field transparent, so it stays part
+     of the underline system, and letting the ink follow the resolved colour
+     keeps all three grounds coherent. Autofill itself is untouched, and a
+     field that is not autofilled never matches these selectors. */
+  form[name="contact"] input:-webkit-autofill,
+  form[name="contact"] input:-webkit-autofill:hover,
+  form[name="contact"] input:-webkit-autofill:focus,
+  form[name="contact"] input:-webkit-autofill:active {
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:currentColor; caret-color:currentColor;
+    transition:background-color 100000s ease-in-out 0s;
+  }
 </style>
 <script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
@@ -165,7 +205,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=8e35ff92" defer></script>
+<script src="i18n.js?v=6d2845b1" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -191,7 +231,23 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     <div style="display:flex; flex-wrap:wrap; gap:40px 64px; margin-top:clamp(32px,4vw,48px);">
 
       <div style="flex:1 1 400px; max-width:560px;">
-        <form onSubmit="{{ submit }}" style="display:flex; flex-direction:column; gap:24px;">
+        <!-- Netlify reads a form's definition out of the deployed HTML, so every
+             field that gets submitted has to be declared here by name. The two
+             interest selections are chips, not inputs, so they ride along in
+             hidden fields; form-name is written out rather than left to
+             Netlify's injector, because the DC runtime re-renders this form
+             from the template and only what the template declares survives.
+             data-turbo="false" keeps Turbo Drive out of the submit path.
+             The honeypot is visually hidden rather than display:none, so a bot
+             reading computed styles still finds a real, fillable field. It is
+             absolutely positioned, so it is not a flex item and adds no gap;
+             tabindex="-1" keeps it out of the tab order and aria-hidden keeps
+             it out of the accessibility tree. -->
+        <form name="contact" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" data-turbo="false" onSubmit="{{ submit }}" style="display:flex; flex-direction:column; gap:24px;">
+          <input type="hidden" name="form-name" value="contact">
+          <input type="hidden" name="interests" value="{{ interests }}">
+          <input type="hidden" name="sub-interests" value="{{ subInterests }}">
+          <p aria-hidden="true" style="position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;"><label>Leave this field empty <input name="bot-field" tabIndex="-1" autoComplete="off"></label></p>
 
           <div style="display:flex; flex-direction:column; gap:10px;">
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">I'm interested in</span>
@@ -208,19 +264,19 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:22px;">
             <label style="display:flex; flex-direction:column; gap:8px;">
               <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Name</span>
-              <input type="text" name="name" placeholder="Your name" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
+              <input type="text" name="name" required="required" autoComplete="name" placeholder="Your name" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
             </label>
             <label style="display:flex; flex-direction:column; gap:8px;">
               <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Email</span>
-              <input type="email" name="email" placeholder="you@email.com" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
+              <input type="email" name="email" required="required" autoComplete="email" placeholder="you@email.com" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
             </label>
           </div>
           <label style="display:flex; flex-direction:column; gap:8px;">
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
-            <textarea name="body" rows="4" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
+            <textarea name="body" rows="4" required="required" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
-          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
-          <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
+          <button type="submit" disabled="{{ busy }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">{{ sendLabel }} <span style="font-weight:700; color:#E17B3E;">{{ sendGlyph }}</span></button>
+          <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:{{ statusDisp }}; margin-bottom:5px; color:#171613;">{{ statusMsg }}</span>Sends straight to the studio, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
         </form>
       </div>
 
@@ -273,15 +329,24 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { sel: [], sub: [], open: -1 };
+  state = { sel: [], sub: [], open: -1, sending: false, sent: false, status: '' };
   renderVals() {
+    // The inline status line. Kept short on purpose: it sits under the button
+    // in the same 10.5px grey as the fallback address and is the only thing
+    // this form says back to the visitor.
+    const MSG = {
+      blank: 'Please fill in your name, your email, and a note about the project.',
+      badEmail: 'That email address does not look complete.',
+      sent: 'Inquiry sent. We\u2019ll reply by email.',
+      failed: 'That did not send. Please try again, or email us directly.'
+    };
     const TREE = [
       { label: 'Architecture', subs: ['New Build', 'Renovation', 'Addition', 'Feasibility'] }, { label: 'Interiors', subs: ['Full Interiors', 'Millwork', 'Material Direction'] }, { label: 'Branded Environments', subs: ['Brand Integration', 'Naming', 'Signage & Wayfinding'] }, { label: 'Concept Study', subs: ['Massing Study', 'Site Study', 'Visualization'] }, { label: 'Hospitality & Retail', subs: ['Restaurant / Bar', 'Retail Space', 'Guest Experience'] }, { label: 'Advisory', subs: ['Design Direction', 'Developer Advisory', 'Peer Review'] }
     ];
     const FAQS = [
       { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.' }, { q: 'Where do you work?', a: 'The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' }, { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' }, { q: 'Do you handle both architecture and interiors?', a: 'Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' }, { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' }, { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
     ];
-    const { sel, sub, open } = this.state;
+    const { sel, sub, open, sending, sent, status } = this.state;
     const n = TREE.length;
     const pos = (angleDeg, r) => {
       const a = (angleDeg - 90) * Math.PI / 180;
@@ -339,28 +404,73 @@ class Component extends DCLogic {
       nodes, links,
       chips: TREE.map(t => {
         const on = sel.includes(t.label);
-        return { label: t.label, pressed: on ? 'true' : 'false', bg: on ? '#171613' : 'transparent', fg: on ? '#F3F1EA' : '#171613', toggle: () => toggleCat(t.label) };
+        // fg is #F5F3EC, not #F3F1EA. The inline colour is serialised into the
+        // style attribute, and the theme's marker script string-matches
+        // 243, 241, 234 anywhere in that attribute to tag cream *panels* with
+        // .dm-flat — whose rule then forces background:transparent and wiped
+        // this chip's fill. #F5F3EC is the off-white the dark themes already
+        // use for ink, two values away and invisible to the eye, but not a
+        // sentinel. Do not put #F3F1EA back here.
+        return { label: t.label, pressed: on ? 'true' : 'false', bg: on ? '#171613' : 'transparent', fg: on ? '#F5F3EC' : '#171613', toggle: () => toggleCat(t.label) };
       }),
       hasSubs: sub.length > 0,
       subSummary: sub.length ? 'Including: ' + sub.join(', ') : '',
+      // The chips are buttons, so their selections reach Netlify through the
+      // two hidden fields declared in the form.
+      interests: sel.join(', '),
+      subInterests: sub.join(', '),
+      busy: sending || sent,
+      // Send inquiry > / Sending... / Inquiry sent (check). The button is the
+      // thing the visitor is looking at when they press it, so completion is
+      // said there rather than only in the line underneath.
+      sendLabel: sending ? 'Sending\u2026' : (sent ? 'Inquiry sent' : 'Send inquiry'),
+      sendGlyph: sending ? '' : (sent ? '\u2713' : '\u203A'),
+      statusMsg: status,
+      statusDisp: status ? 'block' : 'none',
       faqs: FAQS.map((f, i) => ({
         ...f, pressed: open === i ? 'true' : 'false', disp: open === i ? 'block' : 'none', rot: open === i ? 'rotate(90deg)' : 'rotate(0deg)',
         toggle: () => this.setState(s => ({ open: s.open === i ? -1 : i }))
       })),
+      // Posted to Netlify's form handler in the background, so the visitor
+      // never leaves the page. This used to hand the enquiry to mailto:, which
+      // needed a configured mail client, dropped the enquiry outright when
+      // there wasn't one, and left nothing behind on the site either way.
       submit: (e) => {
         e.preventDefault();
+        // Read the live state, not the render-time copy: a double click can
+        // fire twice before React has handed us a fresh closure.
+        if (this.state.sending || this.state.sent) return;
         const form = e.target;
-        const name = (form.name && form.name.value) || '';
-        const interests = this.state.sel.join(', ');
-        const details = this.state.sub.join(', ');
-        const subject = 'Project inquiry' + (interests ? ' \u2014 ' + interests : '') + (name ? ' (' + name + ')' : '');
-        const lines = [];
-        if (interests) lines.push('Interested in: ' + interests);
-        if (details) lines.push('Specifically: ' + details);
-        if (form.body && form.body.value) lines.push('', form.body.value);
-        if (name) lines.push('', name + (form.email && form.email.value ? ' \u2014 ' + form.email.value : ''));
+        const data = new FormData(form);
+        const val = (k) => String(data.get(k) || '').trim();
+        // required and type=email are enforced by the browser before submit
+        // fires. What survives that is a field holding only spaces, and an
+        // address the email type accepts but no mail server would ('a@gmail').
+        const blank = ['name', 'email', 'body'].find((k) => !val(k));
+        const bad = !blank && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(val('email')) ? 'email' : null;
+        if (blank || bad) {
+          const el = form.querySelector('[name="' + (blank || bad) + '"]');
+          if (el) el.focus();
+          this.setState({ status: blank ? MSG.blank : MSG.badEmail });
+          return;
+        }
         if (window.suduHaptics) window.suduHaptics.tick(14);
-        window.location.href = 'mailto:joe@sudu.studio?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+        this.setState({ sending: true, status: '' });
+        const body = new URLSearchParams();
+        data.forEach((v, k) => body.append(k, String(v)));
+        // Netlify accepts a urlencoded POST carrying form-name at any path on
+        // the site. '/' is used rather than this page's own URL because
+        // pretty_urls 301s /contact.html, and a redirected POST becomes a GET.
+        fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString()
+        }).then((r) => {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          this.setState({ sending: false, sent: true, status: MSG.sent });
+        }).catch(() => {
+          this.setState({ sending: false, status: MSG.failed });
+        });
       }
     };
   }

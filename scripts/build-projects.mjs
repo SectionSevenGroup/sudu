@@ -137,6 +137,43 @@ function generateWorkMirror() {
   return absolutePaths(read('work.html'));
 }
 
+// ---- work.html has to agree with project.html ------------------------------
+// work.html shipped a hard-coded "14 projects" against nineteen cards. The
+// header now reads its total off `order`, so the label cannot drift on its
+// own — but `order` and the project DATA are still two lists in two files,
+// and the "NN / total" counters are a third. Check all three here, where a
+// regeneration is unavoidable after any project is added or removed, so a
+// mismatch fails loudly instead of shipping.
+const workSrc = read('work.html');
+const orderMatch = /const order = \[([\s\S]*?)\];/.exec(workSrc);
+if (!orderMatch) throw new Error('could not locate the project `order` array in work.html');
+const order = eval('([' + orderMatch[1] + '])');
+
+if (order.length !== slugs.length || order.some((s, i) => s !== slugs[i])) {
+  throw new Error(
+    'work.html order and project.html DATA disagree.\n' +
+    `  work.html    (${order.length}): ${order.join(', ')}\n` +
+    `  project.html (${slugs.length}): ${slugs.join(', ')}`
+  );
+}
+
+// The header label is derived; anything else there is a literal that will rot.
+const literalCount = /<span[^>]*>\s*\d+\s+projects?\s*<\/span>/.exec(workSrc);
+if (literalCount) {
+  throw new Error(
+    'work.html states its project count literally (' + literalCount[0].trim() + '). ' +
+    'Render {{ countLabel }} instead, so the total follows the list.'
+  );
+}
+
+const badCounters = slugs
+  .map((s, i) => [s, DATA[s].counter, String(i + 1).padStart(2, '0') + ' / ' + slugs.length])
+  .filter(([, actual, want]) => actual !== want);
+if (badCounters.length) {
+  throw new Error('project counters are stale:\n' +
+    badCounters.map(([s, actual, want]) => `  ${s}: "${actual}" should be "${want}"`).join('\n'));
+}
+
 const undimensioned = slugs.filter((s) => DATA[s].heroSrc && !DIMS[DATA[s].heroSrc]);
 if (undimensioned.length) {
   throw new Error('hero images missing from DIMS: ' +
