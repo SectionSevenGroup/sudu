@@ -97,6 +97,33 @@
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
   section[id] { scroll-margin-top: 110px; }
   @keyframes suduDraw { 0%,100% { transform: scaleX(0.3); opacity: .45; } 50% { transform: scaleX(1); opacity: 1; } }
+  /* Line-art project tiles, lifted from the design export. The export scoped
+     these to its dmwarm theme, which is not being adopted; dmred is main's
+     equivalent non-default theme. The images are inverted with their section
+     rather than counter-inverted, so their ink was recoloured to rgb(16,14,7)
+     to land on the page cream like every other drawing. */
+  html.dm.dmred [data-reveal-clip] img.red-art { display:block !important; filter:none !important; object-fit:contain !important; width:100%; max-width:820px; max-height:520px; margin:0 auto; }
+  html.dm.dmred [data-reveal-clip] a > img:not(.red-art) { display:none !important; }
+  /* The tile's own #E8E5DC panel inverts to near-black, which would frame the
+     art in a dark box on the red page. The export solved this with layout
+     rules that are dropped as theme-scoped; clearing the panel is the
+     smallest equivalent. */
+  html.dm.dmred [data-reveal-clip]:has(img.red-art) { background:transparent !important; }
+
+  /* Pointer crosshair. Appended to <body>, outside the inverted containers, so
+     its colours are used as authored. The export's dmlight variant is dropped. */
+  #xhair { position:fixed; left:0; top:0; width:0; height:0; pointer-events:none; z-index:99998; will-change:transform; }
+  #xhair i { position:absolute; display:block; --xh:#57554E; }
+  html.dm #xhair i { --xh:#F5F3EC; }
+  #xhair { --len:16px; --gap:5px; }
+  #xhair i { opacity:0.72; }
+  #xhair i:nth-child(1), #xhair i:nth-child(2) { width:1px; left:-0.5px; height:var(--len); transform:scaleX(0.75); }
+  #xhair i:nth-child(1) { top:calc(-1 * (var(--len) + var(--gap))); background:linear-gradient(to bottom, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(2) { top:var(--gap); background:linear-gradient(to top, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(3), #xhair i:nth-child(4) { height:1px; top:-0.5px; width:var(--len); transform:scaleY(0.75); }
+  #xhair i:nth-child(3) { left:calc(-1 * (var(--len) + var(--gap))); background:linear-gradient(to right, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(4) { left:var(--gap); background:linear-gradient(to left, transparent 0%, var(--xh) 34%); }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 
   html.dm, html.dm body { background:var(--dm-bg,#121110); }
@@ -142,6 +169,21 @@ build();setInterval(build,1500);})();
 (function(){if(window.__suduHoverVar)return;window.__suduHoverVar=true;
 function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{rules=document.styleSheets[i].cssRules;}catch(e){continue;}for(var j=0;j<rules.length;j++){var r=rules[j];if(r.style&&r.selectorText&&r.selectorText.indexOf(':hover')>-1&&/232, 229, 220/.test(r.style.background||'')&&(r.style.background||'').indexOf('var(')===-1){r.style.setProperty('background','var(--sudu-hover-tint, rgb(232, 229, 220))','important');}}}}
 patch();setInterval(patch,1500);})();</script>
+<script>
+// Pointer crosshair, lifted from the design export. Guarded on
+// (pointer:fine), so touch devices never build it.
+(function(){if(window.__xhInit||!matchMedia('(pointer:fine)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
+function make(){if(!document.body)return;var ex=document.querySelectorAll('#xhair');if(ex.length){for(var i=1;i<ex.length;i++)ex[i].remove();el=ex[0];return;}if(el)return;el=document.createElement('div');el.id='xhair';el.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(el);document.documentElement.classList.add('xh');}
+make();setTimeout(make,600);
+function draw(){raf=0;if(el)el.style.transform='translate3d('+x+'px,'+y+'px,0)';}
+var lx=0,ly=0,lt=0,len=16,tlen=16,loop=0;
+function tick(){var d=tlen-len;len+=d*0.18;if(el)el.style.setProperty('--len',len.toFixed(1)+'px');tlen+=(16-tlen)*0.06;if(Math.abs(d)>0.3||tlen>16.5){loop=requestAnimationFrame(tick);}else{loop=0;len=16;tlen=16;if(el)el.style.setProperty('--len','16px');}}
+addEventListener('pointermove',function(e){var t=e.timeStamp||performance.now();var dt=Math.max(t-lt,8);var sp=Math.hypot(e.clientX-lx,e.clientY-ly)/dt*16;lx=e.clientX;ly=e.clientY;lt=t;x=e.clientX;y=e.clientY;tlen=Math.min(16+sp*2.4,120);make();if(!loop)loop=requestAnimationFrame(tick);if(!raf)raf=requestAnimationFrame(draw);}, { passive:true});
+addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passive:true});
+addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
+document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
+document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();
+</script>
 <script src="i18n.js" defer></script>
 <script src="js/audio-player.js?v=5" defer></script>
 </helmet>
@@ -159,13 +201,13 @@ patch();setInterval(patch,1500);})();</script>
       <a href="work.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Work</a>
       <a href="studio.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Studio</a>
       <a href="contact.html" style="font-size:13px; font-weight:500; padding-bottom:3px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:{{ accent }}; color:{{ accent }};">Contact</a>
-          <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
+          <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:0.5px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
           <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity .25s ease;"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
     </nav>
   </header>
 
   <section id="hero" data-screen-label="Hero" style="position:relative; height:100svh; height:100dvh; min-height:540px; overflow:hidden; background:#F3F1EA;">
-    <img id="heroImg" width="1800" height="843" decoding="async" fetchpriority="high" src="images/hero-drawing-m.png" alt="West Coast Marine Drive concept, single-line drawing" style="position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); width:min(97vw,170vh); max-height:76vh; object-fit:contain; height:auto; display:block;">
+    <img id="heroImg" width="1800" height="843" decoding="async" fetchpriority="high" src="images/hero-drawing-m.png" alt="West Coast Marine Drive concept, single-line drawing" style="position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); width:min(97vw,170vh); max-height:min(76vh,1010px); object-fit:contain; height:auto; display:block;">
     <h1 id="heroStatement" style="position:absolute; left:clamp(20px,4.5vw,64px); bottom:clamp(96px,14vh,150px); margin:0; text-align:left; color:#171613; font-size:clamp(30px,5.2vw,81px); font-weight:900; letter-spacing:-0.035em; line-height:0.85; text-transform:uppercase; max-width:11ch;">Architecture<br>Interiors<br>Design</h1>
     <div id="heroFoot" style="position:absolute; left:0; right:0; bottom:0; display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:0 clamp(20px,4.5vw,64px) 44px; color:#171613;">
       <div>
@@ -226,7 +268,7 @@ patch();setInterval(patch,1500);})();</script>
 
     <article style="display:flex; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=west-vancouver" style="display:block; width:100%; height:100%;"><img src="images/west-vancouver-private-residence.jpg" alt="West Vancouver private residence and gallery" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=west-vancouver" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-west-vancouver.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/west-vancouver-private-residence.jpg" alt="West Vancouver private residence and gallery" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
@@ -248,7 +290,7 @@ patch();setInterval(patch,1500);})();</script>
 
     <article style="display:flex; flex-direction:row-reverse; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=wilfreds" style="display:block; width:100%; height:100%;"><img src="images/wilfreds-hospitality-edmonton.jpg" alt="Wilfreds hospitality interior with coral tile and brass" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=wilfreds" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-wilfreds.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/wilfreds-hospitality-edmonton.jpg" alt="Wilfreds hospitality interior with coral tile and brass" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
@@ -270,7 +312,7 @@ patch();setInterval(patch,1500);})();</script>
 
     <article style="display:flex; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=youth-recovery" style="display:block; width:100%; height:100%;"><img src="images/youth-recovery-centre.jpg" alt="Youth Recovery Centre exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=youth-recovery" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-youth-recovery.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/youth-recovery-centre.jpg" alt="Youth Recovery Centre exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
@@ -292,7 +334,7 @@ patch();setInterval(patch,1500);})();</script>
 
     <article style="display:flex; flex-direction:row-reverse; flex-wrap:wrap; align-items:center; gap:20px 56px; padding:clamp(36px,4.5vw,56px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
       <div data-reveal data-reveal-clip style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-        <a href="project.html?p=atb" style="display:block; width:100%; height:100%;"><img src="images/atb-place-reimagined-edmonton.jpg" alt="ATB Place Reimagined concourse" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
+        <a href="project.html?p=atb" style="display:block; width:100%; height:100%;"><img class="red-art" src="images/red-atb-place.png" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:100%; object-fit:cover;"><img src="images/atb-place-reimagined-edmonton.jpg" alt="ATB Place Reimagined concourse" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .9s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);"></a>
       </div>
       <div data-reveal style="flex:1 1 320px;">
         <span style="display:block; margin-bottom:14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">04</span>
