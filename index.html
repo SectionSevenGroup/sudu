@@ -126,27 +126,22 @@
   html.dm.dmwarm [data-reveal-clip] { display:flex; align-items:center; justify-content:center; aspect-ratio:auto !important; height:auto !important; min-height:0 !important; }
   html.dm.dmwarm [data-reveal-clip] a > img:not(.red-art) { display:none !important; }
   html.dm.dmwarm [data-reveal-clip] { background:transparent !important; }
-  /* --- spatial system: canvas, rail, editorial sub-grid ---------------------
-     Three layers. The viewport stays the canvas: every ground, every section
+  /* --- spatial system: canvas and rail --------------------------------------
+     Two layers. The viewport stays the canvas: every ground, every section
      rule and the hero drawing still run edge to edge, and nothing here gains a
      box, a border, a panel or a background. The rail is expressed as
      horizontal *padding* rather than as a container element, so it can only
      ever widen the fluid gutter the page already uses: below the width where
      the centring term overtakes clamp(20px,4.5vw,64px) every value computes
      exactly as it does today, and above it ordinary content stops travelling
-     toward the viewport edges. The studio bridge takes a narrower editorial
-     grid inside the rail so its pair stops drifting apart once that grid is
-     full. 1460 is chosen so that at full illustration width the void between
-     the drawing and the copy measures exactly one illustration (560 + 560 +
-     340): the negative space is a counted interval in the composition rather
-     than whatever the viewport happens to leave over. No colour is stated in any of these rules, so the dm-flat marker
-     cannot mistake them for a cream panel. Purely horizontal: no rule below
-     touches a vertical value. */
+     toward the viewport edges. A third, narrower editorial layer existed while
+     the studio bridge did; with the bridge gone nothing on this page needs a
+     sub-grid, so the layer is not carried as dead weight. No colour is stated
+     in any of these rules, so the dm-flat marker cannot mistake them for a
+     cream panel. Purely horizontal: no rule below touches a vertical value. */
   :root {
     --sudu-gutter:clamp(20px,4.5vw,64px);
     --sudu-rail:1760px;
-    --sudu-studio-rail:1460px;
-    --sudu-studio-illo:clamp(520px,26vw,560px);
     /* the rail's own side inset, named once. The 100% resolves against
        whichever full-width element it is substituted into, which is every
        element listed below. */
@@ -177,10 +172,6 @@
      an offset. The hero drawing is deliberately not listed anywhere here: it
      is a visual field and keeps breaking the grid exactly as it does now. */
   #heroStatement { left:var(--sudu-inset) !important; }
-  #studio {
-    padding-left:max(var(--sudu-gutter), calc((100% - var(--sudu-studio-rail)) / 2)) !important;
-    padding-right:max(var(--sudu-gutter), calc((100% - var(--sudu-studio-rail)) / 2)) !important;
-  }
 
   .rowrev-txt, .rowrev-txt * { text-align:right !important; }
   .rowrev-txt > *, .rowrev-txt p { margin-left:auto !important; margin-right:0 !important; }
@@ -236,7 +227,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=f7c37e4a" defer></script>
+<script src="i18n.js?v=cf07e084" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -468,23 +459,6 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
   </sc-if>
-
-  <!-- Studio bridge: an editorial pause between the work and the contact CTA.
-       Same skeleton as the Intro section — space-between, one wide column and
-       one narrow one — so the page keeps a single composition idea instead of
-       gaining a new one. The illustration is the existing studio asset; no new
-       imagery, no portraits, no names, no panel behind it. -->
-  <section id="studio" data-screen-label="Studio" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:40px 64px; padding:clamp(48px,10vw,128px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
-    <div data-reveal style="flex:1 1 420px; max-width:min(var(--sudu-studio-illo),100%);">
-      <img src="images/team-illustration-alpha.png" alt="Line portrait of the three SuDu Studio founders" width="2048" height="2048" loading="lazy" decoding="async" style="width:100%; height:auto; display:block;">
-    </div>
-    <div data-reveal style="flex:0 1 340px;">
-      <span style="display:block; margin-bottom:18px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">The Studio</span>
-      <p style="margin:0; font-size:clamp(22px,2.8vw,34px); font-weight:900; line-height:1.1; letter-spacing:-0.025em; text-wrap:pretty;">Designed together, from the start.</p>
-      <p style="margin:18px 0 0; max-width:34ch; font-size:14px; line-height:1.7; color:#67655D; text-wrap:pretty;">Architecture, interiors and design direction developed as a single, continuous process.</p>
-      <a href="studio.html" style="display:inline-block; margin-top:26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#67655D; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Studio</a>
-    </div>
-  </section>
 
   <section id="contact" data-screen-label="Contact" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) 44px; border-top:1px solid rgba(23,22,19,0.13);">
     <div data-reveal style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
