@@ -95,7 +95,22 @@
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
   input::placeholder, textarea::placeholder { color: #A6A399; opacity: 1; }
-  @keyframes webPulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.06); } }
+  /* Motion tokens. Two languages: --ease-ui for micro-interactions,
+     --ease-entrance for anything arriving on screen. Choreography offsets in
+     the hero and clip-reveal (1.2s / 1.4s / 1.6s / 1.8s / 1.9s) stay literal;
+     they are sequence positions, not a shared duration. */
+  :root {
+    --ease-ui: ease;
+    --ease-entrance: cubic-bezier(.16, 1, .3, 1);
+
+    --t-hover: 250ms;
+    --t-ui: 300ms;
+    --t-media: 900ms;
+    --t-enter-fade: 1500ms;
+    --t-enter-move: 1700ms;
+    --t-hero: 2600ms;
+  }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
   html.dm, html.dm body { background:var(--dm-bg,#121110); }
@@ -153,11 +168,11 @@ patch();setInterval(patch,1500);})();</script>
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
       <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a>
           <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
-          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity .25s ease;"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
+          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity var(--t-hover) var(--ease-ui);"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
     </nav>
   </header>
 
@@ -174,7 +189,7 @@ patch();setInterval(patch,1500);})();</script>
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">I'm interested in</span>
             <div style="display:flex; flex-wrap:wrap; gap:8px;">
               <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="6">
-                <button type="button" onClick="{{ chip.toggle }}" aria-pressed="{{ chip.pressed }}" style="border:1px solid rgba(23,22,19,0.32); background:{{ chip.bg }}; color:{{ chip.fg }}; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" style-hover="border-color:#171613;">{{ chip.label }}</button>
+                <button type="button" onClick="{{ chip.toggle }}" aria-pressed="{{ chip.pressed }}" style="border:1px solid rgba(23,22,19,0.32); background:{{ chip.bg }}; color:{{ chip.fg }}; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui), border-color var(--t-hover) var(--ease-ui);" style-hover="border-color:#171613;">{{ chip.label }}</button>
               </sc-for>
             </div>
             <sc-if value="{{ hasSubs }}" hint-placeholder-val="">
@@ -196,25 +211,11 @@ patch();setInterval(patch,1500);})();</script>
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
             <textarea name="body" rows="4" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
-          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
+          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui), border-color var(--t-ui) var(--ease-ui);" style-hover="background:#171613; color:#F3F1EA;">Send inquiry <span style="font-weight:700; color:#E17B3E;">&#8250;</span></button>
           <p style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">Opens in your email client, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
         </form>
       </div>
 
-      <div style="display:none; flex:1 1 380px; max-width:520px; align-self:center; flex-direction:column; gap:12px;">
-        <div style="position:relative; width:100%; max-width:460px; margin:0 auto; aspect-ratio:1; min-height:340px;">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
-            <sc-for list="{{ links }}" as="ln" hint-placeholder-count="6">
-              <line x1="{{ ln.x1 }}" y1="{{ ln.y1 }}" x2="{{ ln.x2 }}" y2="{{ ln.y2 }}" stroke="{{ ln.stroke }}" stroke-width="{{ ln.w }}" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
-            </sc-for>
-          </svg>
-          <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:68px; height:68px; border-radius:50%; border:1px solid rgba(23,22,19,0.35); display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.01em; background:#F3F1EA; z-index:2; animation:webPulse 5s ease-in-out infinite;">Project</div>
-          <sc-for list="{{ nodes }}" as="nd" hint-placeholder-count="6">
-            <button type="button" onClick="{{ nd.click }}" style="position:absolute; left:{{ nd.x }}; top:{{ nd.y }}; transform:{{ nd.tr }}; opacity:{{ nd.op }}; pointer-events:{{ nd.pe }}; z-index:{{ nd.z }}; border:1px solid {{ nd.border }}; border-radius:999px; background:{{ nd.bg }}; color:{{ nd.fg }}; padding:{{ nd.pad }}; font-family:'Urbanist', sans-serif; font-size:{{ nd.fs }}; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:{{ nd.delay }};" style-hover="transform:translate(-50%,-50%) scale(1.06); transition-delay:0ms;">{{ nd.label }}</button>
-          </sc-for>
-        </div>
-        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; text-align:center;">Select an interest to explore what it can include, then tap the branches that fit.</div>
-      </div>
 
     </div>
   </section>
@@ -227,7 +228,7 @@ patch();setInterval(patch,1500);})();</script>
           <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
             <button type="button" onClick="{{ faq.toggle }}" aria-expanded="{{ faq.pressed }}" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
               {{ faq.q }}
-              <span style="flex:none; font-weight:600; color:#E17B3E; transition:transform .3s ease; transform:{{ faq.rot }};">&#8250;</span>
+              <span style="flex:none; font-weight:600; color:#E17B3E; transition:transform var(--t-ui) var(--ease-ui); transform:{{ faq.rot }};">&#8250;</span>
             </button>
             <div style="display:{{ faq.disp }}; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">{{ faq.a }}</div>
           </div>
@@ -243,7 +244,7 @@ patch();setInterval(patch,1500);})();</script>
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
-    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">Isis</button></span></div>
+    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">Isis</button></span></div>
     <span>Alberta</span>
   </footer>
 
@@ -252,6 +253,10 @@ patch();setInterval(patch,1500);})();</script>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
+  componentDidMount() {
+    // Matches the other pages: bail before any motion work is set up.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  }
   state = { sel: [], sub: [], open: -1 };
   renderVals() {
     const TREE = [
@@ -271,11 +276,6 @@ class Component extends DCLogic {
       { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
     ];
     const { sel, sub, open } = this.state;
-    const n = TREE.length;
-    const pos = (angleDeg, r) => {
-      const a = (angleDeg - 90) * Math.PI / 180;
-      return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a) };
-    };
     const toggleCat = (label) => this.setState(s => {
       const on = s.sel.includes(label);
       const cat = TREE.find(t => t.label === label);
@@ -284,48 +284,7 @@ class Component extends DCLogic {
         sub: on ? s.sub.filter(x => !cat.subs.includes(x)) : s.sub
       };
     });
-    const nodes = [];
-    const links = [];
-    TREE.forEach((cat, i) => {
-      const ang = i * (360 / n);
-      const p = pos(ang, 30);
-      const active = sel.includes(cat.label);
-      links.push({ x1: 50, y1: 50, x2: p.x.toFixed(2), y2: p.y.toFixed(2), stroke: active ? 'rgba(23,22,19,0.55)' : 'rgba(23,22,19,0.16)', w: active ? '0.22' : '0.16' });
-      nodes.push({
-        label: cat.label,
-        x: p.x.toFixed(2) + '%', y: p.y.toFixed(2) + '%',
-        op: '1', pe: 'auto', z: '3', tr: 'translate(-50%,-50%) scale(1)', delay: '0ms',
-        border: active ? '#171613' : 'rgba(23,22,19,0.32)',
-        bg: active ? '#171613' : '#F3F1EA',
-        fg: active ? '#F3F1EA' : '#171613',
-        pad: '8px 14px', fs: '11px',
-        click: () => toggleCat(cat.label)
-      });
-      cat.subs.forEach((s, j) => {
-        const step = 20;
-        const spread = (cat.subs.length - 1) * step;
-        const sAng = ang - spread / 2 + j * step;
-        const r = j % 2 === 0 ? 43 : 51;
-        const a2 = (sAng - 90) * Math.PI / 180;
-        const sp = { x: 50 + r * Math.cos(a2), y: 50 + r * 0.84 * Math.sin(a2) };
-        const on = sub.includes(s);
-        if (active) links.push({ x1: p.x.toFixed(2), y1: p.y.toFixed(2), x2: sp.x.toFixed(2), y2: sp.y.toFixed(2), stroke: on ? 'rgba(225,123,62,0.75)' : 'rgba(23,22,19,0.16)', w: on ? '0.22' : '0.16' });
-        nodes.push({
-          label: s,
-          x: (active ? sp.x : p.x).toFixed(2) + '%', y: (active ? sp.y : p.y).toFixed(2) + '%',
-          op: active ? '1' : '0', pe: active ? 'auto' : 'none', z: '2',
-          tr: 'translate(-50%,-50%) scale(' + (active ? 1 : 0.4) + ')',
-          delay: (active ? j * 70 : 0) + 'ms',
-          border: on ? '#E17B3E' : 'rgba(23,22,19,0.25)',
-          bg: on ? '#E17B3E' : '#F3F1EA',
-          fg: on ? '#F3F1EA' : '#67655D',
-          pad: '5px 11px', fs: '10px',
-          click: () => this.setState(st => ({ sub: st.sub.includes(s) ? st.sub.filter(x => x !== s) : [...st.sub, s] }))
-        });
-      });
-    });
     return {
-      nodes, links,
       chips: TREE.map(t => {
         const on = sel.includes(t.label);
         return { label: t.label, pressed: on ? 'true' : 'false', bg: on ? '#171613' : 'transparent', fg: on ? '#F3F1EA' : '#171613', toggle: () => toggleCat(t.label) };

@@ -38,6 +38,22 @@
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  /* Motion tokens. Two languages: --ease-ui for micro-interactions,
+     --ease-entrance for anything arriving on screen. Choreography offsets in
+     the hero and clip-reveal (1.2s / 1.4s / 1.6s / 1.8s / 1.9s) stay literal;
+     they are sequence positions, not a shared duration. */
+  :root {
+    --ease-ui: ease;
+    --ease-entrance: cubic-bezier(.16, 1, .3, 1);
+
+    --t-hover: 250ms;
+    --t-ui: 300ms;
+    --t-media: 900ms;
+    --t-enter-fade: 1500ms;
+    --t-enter-move: 1700ms;
+    --t-hero: 2600ms;
+  }
+
   [data-studio-intro] { display:flex; align-items:center; gap:24px 48px; }
   [data-studio-intro] > div:first-child { flex:1 1 480px; }
   [data-studio-intro] > img { flex:0 1 auto; max-width:40%; max-height:min(40vh,400px); width:auto; height:auto; margin-left:auto; display:block; mix-blend-mode:multiply; }
@@ -107,11 +123,11 @@ patch();setInterval(patch,1500);})();</script>
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
       <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Studio</a>
-      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color var(--t-ui) var(--ease-ui), color var(--t-ui) var(--ease-ui);" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
           <button id="dmToggle" aria-label="Toggle dark mode" title="Dark mode" style="width:13px; height:13px; border-radius:50%; border:1px solid currentColor; background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%); color:inherit; cursor:pointer; padding:0; align-self:center;"></button>
-          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity .25s ease;"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
+          <button id="audioToggle" aria-label="Toggle background music" aria-pressed="false" data-playing="false" title="Background music" style="border:0; background:transparent; padding:0; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; color:inherit; cursor:pointer; align-self:center; opacity:0.35; transition:opacity var(--t-hover) var(--ease-ui);"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style="display:block;"><rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect><rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg></button>
     </nav>
   </header>
 
@@ -134,7 +150,7 @@ patch();setInterval(patch,1500);})();</script>
         <h3 style="margin:0 0 6px; font-size:clamp(18px,1.6vw,23px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Michael Sczesny</h3>
         <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Partner + Principal Architect</div>
         <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Over 40 years of architectural practice across institutional, educational, civic, residential, and commercial work in Western Canada. Mike has led complex multi-stakeholder projects, heritage-sensitive renovations, and award-winning public spaces, and is as comfortable in a municipal process as he is resolving a construction detail.</p>
-        <button type="button" onClick="{{ f1.toggle }}" aria-expanded="{{ f1.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .25s ease, border-color .25s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
+        <button type="button" onClick="{{ f1.toggle }}" aria-expanded="{{ f1.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color var(--t-hover) var(--ease-ui), border-color var(--t-hover) var(--ease-ui);" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
         <div style="display:{{ f1.disp }};">
           <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">With over 40 years of architectural experience, Mike is a pillar of the profession, known for his measured leadership and depth of expertise across project types. His portfolio spans institutional, educational, civic, residential, and commercial work throughout Western Canada.</p>
           <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Over the course of his career, Mike has led complex multi-stakeholder projects, shepherded heritage-sensitive renovations, and designed award-winning public spaces. He is equally comfortable navigating municipal processes as he is resolving construction details. Mike brings an architectural discipline rooted in craft, pragmatism, and respect: for context, for client, and for community.</p>
@@ -145,7 +161,7 @@ patch();setInterval(patch,1500);})();</script>
         <h3 style="margin:0 0 6px; font-size:clamp(18px,1.6vw,23px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Jennifer von Berendt</h3>
         <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Designer + Project Director</div>
         <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Eighteen years consulting across the built environment, with a focus on interiors, project strategy, and stakeholder alignment. Jennifer works with multidisciplinary teams across North and Central America. Her work includes wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta.</p>
-        <button type="button" onClick="{{ f2.toggle }}" aria-expanded="{{ f2.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .25s ease, border-color .25s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
+        <button type="button" onClick="{{ f2.toggle }}" aria-expanded="{{ f2.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color var(--t-hover) var(--ease-ui), border-color var(--t-hover) var(--ease-ui);" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
         <div style="display:{{ f2.disp }};">
           <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Jennifer is in her 18th year of consulting across the built environment, with a focus on interiors, project strategy, stakeholder alignment, and integrated design outcomes that elevate the human experience. She works with multi-disciplinary teams across North and Central America, bringing together clients, developers, builders, and registered consultants around a shared vision.</p>
           <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Her work has included wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta. She brings a systems-level view, where strategy, sustainability, culture, and delivery intersect, and believes the built environment can foster connection, dignity, and belonging.</p>
@@ -156,7 +172,7 @@ patch();setInterval(patch,1500);})();</script>
         <h3 style="margin:0 0 6px; font-size:clamp(18px,1.6vw,23px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Joe Johnson</h3>
         <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Designer + Design Director</div>
         <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Twenty-five years of design experience across the built environment, interiors, retail, hospitality, and residential work. Known for clarity of vision and cross-sector versatility, Joe led design direction for ATB Financial&rsquo;s &ldquo;Branches of the Future&rdquo; and provides senior design leadership from early concepts through refined execution, working with registered professionals where required.</p>
-        <button type="button" onClick="{{ f3.toggle }}" aria-expanded="{{ f3.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .25s ease, border-color .25s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
+        <button type="button" onClick="{{ f3.toggle }}" aria-expanded="{{ f3.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color var(--t-hover) var(--ease-ui), border-color var(--t-hover) var(--ease-ui);" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
         <div style="display:{{ f3.disp }};">
           <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Joe is a designer with 25 years of experience across the built environment, interiors, retail, hospitality, and residential design. Known for clarity of vision and cross-sector versatility, his work ranges from custom residences and multifamily housing to high-profile hospitality and retail interiors.</p>
           <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Notably, Joe led the strategic planning, concept development, and design direction for ATB Financial&rsquo;s &ldquo;Branches of the Future&rdquo;, a multi-year initiative to reimagine the bank&rsquo;s flagship and neighbourhood locations across Alberta. His portfolio includes restaurants for award-winning chefs, branded commercial spaces, and design systems that balance atmosphere with operational function. He provides senior design leadership from early concepts through refined execution, working with the studio&rsquo;s registered professionals where regulated services are required.</p>
@@ -165,7 +181,7 @@ patch();setInterval(patch,1500);})();</script>
     </div>
   </section>
 
-  <a href="contact.html" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
+  <a href="contact.html" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background var(--t-ui) var(--ease-ui);" style-hover="background:#E8E5DC;">
     <div>
       <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Start a project</div>
       <div style="font-size:clamp(24px,3vw,38px); font-weight:900; letter-spacing:-0.02em; line-height:0.9; text-transform:uppercase;">Say hello</div>
@@ -180,7 +196,7 @@ patch();setInterval(patch,1500);})();</script>
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
-    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background .25s ease, color .25s ease;">Isis</button></span></div>
+    <div class="track-pill-wrap" style="display:flex; align-items:center; gap:10px;"><span data-track-artist style="letter-spacing:0.04em;">MF Rothschild</span><span class="track-pill" style="display:inline-flex; align-items:center; gap:2px; border:1px solid rgba(23,22,19,0.2); border-radius:100px; padding:3px;"><button type="button" data-track="0" aria-label="Play MF Rothschild &middot; 432" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">432</button><button type="button" data-track="1" aria-label="Play MF Rothschild &middot; Isis" style="border:0; border-radius:100px; padding:4px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; letter-spacing:0.06em; cursor:pointer; background:transparent; color:rgba(23,22,19,0.65); transition:background var(--t-hover) var(--ease-ui), color var(--t-hover) var(--ease-ui);">Isis</button></span></div>
     <span>Alberta</span>
   </footer>
 
@@ -200,12 +216,16 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ease = 'cubic-bezier(.16,1,.3,1)';
+    // Read from the token so there is one definition site; the literal is the
+    // fallback if the custom property is ever missing.
+    const ease = getComputedStyle(document.documentElement)
+      .getPropertyValue('--ease-entrance').trim() || 'cubic-bezier(.16,1,.3,1)';
     if (window.__suduStudioIO) { window.__suduStudioIO.refresh(); return; }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
         const el = en.target;
         if (!en.isIntersecting) return;
+        el.style.transitionDelay = (el._delay || 0) + 'ms';
         el.style.opacity = '1';
         el.style.transform = 'translateY(0)';
         io.unobserve(el);
@@ -213,18 +233,23 @@ class Component extends DCLogic {
     }, { rootMargin: '0px 0px -8% 0px' });
     const refresh = () => {
       const vh = window.innerHeight || 1;
+      const counters = new Map();
       document.querySelectorAll('[data-reveal]').forEach((el) => {
         if (el._prepped) {
+          counters.set(el.parentElement, (counters.get(el.parentElement) || 0) + 1);
           if (el.style.opacity === '0' && el.getBoundingClientRect().bottom <= 0) {
             el.style.opacity = '1'; el.style.transform = 'translateY(0)';
           }
           return;
         }
         el._prepped = true;
+        const gi = counters.get(el.parentElement) || 0;
+        counters.set(el.parentElement, gi + 1);
+        el._delay = Math.min(gi, 4) * 140;
         if (el.getBoundingClientRect().top < vh * 0.92) { el.style.opacity = '1'; return; }
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 1.5s ' + ease + ', transform 1.7s ' + ease;
+        el.style.transition = 'opacity var(--t-enter-fade) ' + ease + ', transform var(--t-enter-move) ' + ease;
         io.observe(el);
       });
     };
