@@ -6,8 +6,8 @@
 
 var lastTick = 0;
 
-// A held arrow or a run of fast swipes can drive an interaction faster than
-// separate buzzes read as separate, so at most one tick per 120ms.
+// A control tapped in quick succession can be driven faster than separate
+// buzzes read as separate, so at most one tick per 120ms.
 var MIN_GAP_MS = 120;
 
 export function tick(ms = 10) {
@@ -25,5 +25,25 @@ export function tick(ms = 10) {
 }
 
 // The page components are plain scripts rather than modules, so they reach
-// tick() through the window instead of importing it.
+// tick() through the window instead of importing it. contact.html calls it
+// directly on submit, which is the one interaction not delegated below.
 window.suduHaptics = { tick: tick };
+
+// One delegated listener rather than per-control binding, so the controls the
+// DC runtime rebuilds on every Turbo visit stay covered without rebinding.
+// Most specific match wins and returns, so a single tap never ticks twice.
+var TARGETS = [
+  ['.track-pill button[data-track]', 8],   // track selection
+  ['#dmSwatches button', 8],               // theme picker
+  ['#audioToggle', 10],                    // music on / off
+];
+
+if (!window.__suduHapticsWired) {
+  window.__suduHapticsWired = true;
+  document.addEventListener('click', function (e) {
+    if (!e.target || !e.target.closest) return;
+    for (var i = 0; i < TARGETS.length; i++) {
+      if (e.target.closest(TARGETS[i][0])) { tick(TARGETS[i][1]); return; }
+    }
+  });
+}

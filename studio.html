@@ -7,6 +7,8 @@
 <link rel="icon" type="image/png" sizes="64x64" href="/sudu-s-64.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/sudu-s-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/sudu-s-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#F3F1EA">
 
 <title>SuDu Studio &middot; The Studio</title>
 <meta name="description" content="Meet SuDu Studio: three founders with decades of experience designing custom homes, hospitality and commercial spaces in Edmonton and across Alberta.">
@@ -36,6 +38,18 @@
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  [data-studio-intro] { display:flex; align-items:center; gap:24px 48px; }
+  [data-studio-intro] > div:first-child { flex:1 1 480px; }
+  [data-studio-intro] > img { flex:0 1 auto; max-width:40%; max-height:min(40vh,400px); width:auto; height:auto; margin-left:auto; display:block; mix-blend-mode:multiply; }
+  [data-founders-grid] { display:grid; grid-template-columns:repeat(3,1fr); gap:3rem; align-items:start; }
+  [data-lbl-less] { display:none; }
+  button[aria-expanded="true"] [data-lbl-less] { display:inline; }
+  button[aria-expanded="true"] [data-lbl-more] { display:none; }
+  @media (max-width: 900px) {
+    [data-studio-intro] { flex-direction:column; align-items:flex-start; }
+    [data-studio-intro] > img { max-width:min(520px,100%); max-height:none; margin-left:0; }
+    [data-founders-grid] { grid-template-columns:1fr; gap:2rem; }
+  }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
   html.dm, html.dm body { background:var(--dm-bg,#121110); }
@@ -83,6 +97,7 @@ function patch(){for(var i=0;i<document.styleSheets.length;i++){var rules;try{ru
 patch();setInterval(patch,1500);})();</script>
 <script src="i18n.js" defer></script>
 <script src="js/audio-player.js?v=5" defer></script>
+<script type="module" src="js/haptics.js?v=2"></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
@@ -100,45 +115,54 @@ patch();setInterval(patch,1500);})();</script>
     </nav>
   </header>
 
-  <section data-screen-label="Studio Intro" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) 0;">
-    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">The Studio</div>
-    <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:24px 64px; padding-bottom:clamp(20px,2.5vw,32px);">
-      <div style="flex:0 0 auto;"><h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; ">Three founders.<br>Decades of experience.<br>One shared vision.</h1></div>
-      <p style="flex:0 1 44ch; min-width:min(340px,100%); max-width:44ch; padding-top:8px; margin-left:auto; margin:0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;">SuDu Studio brings together a team of architects and designers with a long history of delivering thoughtful, human-centered architecture. Building on an established foundation, the leadership guides projects from concept to completion with care, clarity, and purpose.</p>
+  <section data-screen-label="Studio Intro" data-studio-intro style="padding:clamp(96px,12vh,116px) clamp(20px,4.5vw,64px) clamp(16px,2.5vh,28px);">
+    <div>
+      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:16px;">The Studio</div>
+      <h1 style="margin:0; max-width:24ch; font-size:clamp(26px,3.2vw,42px); font-weight:900; letter-spacing:-0.03em; line-height:1.0; text-wrap:pretty;">Three founders. Decades of experience. One shared vision.</h1>
+      <p style="margin:18px 0 0; max-width:34rem; font-size:15px; line-height:1.7; color:#67655D; text-wrap:pretty;">SuDu Studio brings together a team of architects and designers with a long history of delivering thoughtful, human-centered architecture. Building on an established foundation, the leadership guides projects from concept to completion with care, clarity, and purpose.</p>
     </div>
-    <img data-reveal src="images/team-illustration-alpha.png" alt="Line portrait of the three SuDu Studio founders" decoding="async" style="width:min(680px,92%); height:auto; display:block; margin:0 0 clamp(12px,1.5vw,20px);">
+    <img data-reveal src="images/team-illustration-alpha.png" alt="Line portrait of the three SuDu Studio founders" width="2048" height="2048" decoding="async">
   </section>
 
-  <section data-screen-label="Founders" style="padding:0 clamp(20px,4.5vw,64px) 0;">
-    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-bottom:18px;">
+  <section data-screen-label="Founders" style="padding:0 clamp(20px,4.5vw,64px) clamp(28px,4vh,44px);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-bottom:14px;">
       <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Founders</h2>
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">01 / 03</span>
     </div>
-
-    <div style="display:flex; flex-wrap:wrap; gap:40px clamp(28px,3.5vw,56px); padding:32px 0 clamp(40px,5vw,56px); border-top:1px solid rgba(23,22,19,0.13);">
-      <div data-reveal style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
-        <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Michael Sczesny</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Partner + Principal Architect</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">With over 40 years of architectural experience, Mike is a pillar of the profession, known for his measured leadership and depth of expertise across project types. His portfolio spans institutional, educational, civic, residential, and commercial work throughout Western Canada.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Over the course of his career, Mike has led complex multi-stakeholder projects, shepherded heritage-sensitive renovations, and designed award-winning public spaces. He is equally comfortable navigating municipal processes as he is resolving construction details. Mike brings an architectural discipline rooted in craft, pragmatism, and respect: for context, for client, and for community.</p>
-      </div>
-      <div data-reveal style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
-        <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Jennifer von Berendt</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Designer + Project Director</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Jennifer is in her 18th year of consulting across the built environment, with a focus on interiors, project strategy, stakeholder alignment, and integrated design outcomes that elevate the human experience. She works with multi-disciplinary teams across North and Central America, bringing together clients, developers, builders, and registered consultants around a shared vision.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Her work has included wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta. She brings a systems-level view, where strategy, sustainability, culture, and delivery intersect, and believes the built environment can foster connection, dignity, and belonging.</p>
-      </div>
-      <div data-reveal style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
-        <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Joe Johnson</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Designer + Design Director</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Joe is a designer with 25 years of experience across the built environment, interiors, retail, hospitality, and residential design. Known for clarity of vision and cross-sector versatility, his work ranges from custom residences and multifamily housing to high-profile hospitality and retail interiors.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Notably, Joe led the strategic planning, concept development, and design direction for ATB Financial&rsquo;s &ldquo;Branches of the Future&rdquo;, a multi-year initiative to reimagine the bank&rsquo;s flagship and neighbourhood locations across Alberta. His portfolio includes restaurants for award-winning chefs, branded commercial spaces, and design systems that balance atmosphere with operational function. He provides senior design leadership from early concepts through refined execution, working with the studio&rsquo;s registered professionals where regulated services are required.</p>
-      </div>
+    <div data-founders-grid style="border-top:1px solid rgba(23,22,19,0.13); padding-top:clamp(20px,3vh,30px);">
+      <article data-reveal>
+        <span style="display:block; margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
+        <h3 style="margin:0 0 6px; font-size:clamp(18px,1.6vw,23px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Michael Sczesny</h3>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Partner + Principal Architect</div>
+        <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Over 40 years of architectural practice across institutional, educational, civic, residential, and commercial work in Western Canada. Mike has led complex multi-stakeholder projects, heritage-sensitive renovations, and award-winning public spaces, and is as comfortable in a municipal process as he is resolving a construction detail.</p>
+        <button type="button" onClick="{{ f1.toggle }}" aria-expanded="{{ f1.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .25s ease, border-color .25s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
+        <div style="display:{{ f1.disp }};">
+          <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">With over 40 years of architectural experience, Mike is a pillar of the profession, known for his measured leadership and depth of expertise across project types. His portfolio spans institutional, educational, civic, residential, and commercial work throughout Western Canada.</p>
+          <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Over the course of his career, Mike has led complex multi-stakeholder projects, shepherded heritage-sensitive renovations, and designed award-winning public spaces. He is equally comfortable navigating municipal processes as he is resolving construction details. Mike brings an architectural discipline rooted in craft, pragmatism, and respect: for context, for client, and for community.</p>
+        </div>
+      </article>
+      <article data-reveal>
+        <span style="display:block; margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
+        <h3 style="margin:0 0 6px; font-size:clamp(18px,1.6vw,23px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Jennifer von Berendt</h3>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Designer + Project Director</div>
+        <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Eighteen years consulting across the built environment, with a focus on interiors, project strategy, and stakeholder alignment. Jennifer works with multidisciplinary teams across North and Central America. Her work includes wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta.</p>
+        <button type="button" onClick="{{ f2.toggle }}" aria-expanded="{{ f2.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .25s ease, border-color .25s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
+        <div style="display:{{ f2.disp }};">
+          <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Jennifer is in her 18th year of consulting across the built environment, with a focus on interiors, project strategy, stakeholder alignment, and integrated design outcomes that elevate the human experience. She works with multi-disciplinary teams across North and Central America, bringing together clients, developers, builders, and registered consultants around a shared vision.</p>
+          <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Her work has included wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta. She brings a systems-level view, where strategy, sustainability, culture, and delivery intersect, and believes the built environment can foster connection, dignity, and belonging.</p>
+        </div>
+      </article>
+      <article data-reveal>
+        <span style="display:block; margin-bottom:12px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
+        <h3 style="margin:0 0 6px; font-size:clamp(18px,1.6vw,23px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Joe Johnson</h3>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;">Designer + Design Director</div>
+        <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Twenty-five years of design experience across the built environment, interiors, retail, hospitality, and residential work. Known for clarity of vision and cross-sector versatility, Joe led design direction for ATB Financial&rsquo;s &ldquo;Branches of the Future&rdquo; and provides senior design leadership from early concepts through refined execution, working with registered professionals where required.</p>
+        <button type="button" onClick="{{ f3.toggle }}" aria-expanded="{{ f3.exp }}" style="margin-top:12px; border:0; background:transparent; padding:0 0 2px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#171613; cursor:pointer; border-bottom:1px solid rgba(23,22,19,0.32); transition:color .25s ease, border-color .25s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;"><span data-lbl-more>More</span><span data-lbl-less>Less</span> <span aria-hidden="true" style="color:#E17B3E; font-weight:700;">&#8250;</span></button>
+        <div style="display:{{ f3.disp }};">
+          <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Joe is a designer with 25 years of experience across the built environment, interiors, retail, hospitality, and residential design. Known for clarity of vision and cross-sector versatility, his work ranges from custom residences and multifamily housing to high-profile hospitality and retail interiors.</p>
+          <p style="margin:14px 0 0; font-size:13.5px; line-height:1.65; color:#67655D; text-wrap:pretty;">Notably, Joe led the strategic planning, concept development, and design direction for ATB Financial&rsquo;s &ldquo;Branches of the Future&rdquo;, a multi-year initiative to reimagine the bank&rsquo;s flagship and neighbourhood locations across Alberta. His portfolio includes restaurants for award-winning chefs, branded commercial spaces, and design systems that balance atmosphere with operational function. He provides senior design leadership from early concepts through refined execution, working with the studio&rsquo;s registered professionals where regulated services are required.</p>
+        </div>
+      </article>
     </div>
-  
   </section>
 
   <a href="contact.html" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
@@ -165,6 +189,15 @@ patch();setInterval(patch,1500);})();</script>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
+  state = { open: {} };
+  renderVals() {
+    const f = (k) => ({
+      exp: this.state.open[k] ? 'true' : 'false',
+      disp: this.state.open[k] ? 'block' : 'none',
+      toggle: () => this.setState((st) => ({ open: { ...st.open, [k]: !st.open[k] } }))
+    });
+    return { f1: f('f1'), f2: f('f2'), f3: f('f3') };
+  }
   componentDidMount() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const ease = 'cubic-bezier(.16,1,.3,1)';
