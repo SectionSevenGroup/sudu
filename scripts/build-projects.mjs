@@ -6,13 +6,22 @@
 //
 // Run from the repo root after editing project.html or work.html:
 //   node scripts/build-projects.mjs
+//
+// Stamps the pages' script references with content hashes first (see
+// scripts/stamp-assets.mjs), so a changed script can never keep serving from
+// cache under an unchanged ?v=. Generated pages inherit the stamps.
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(join(root, f), 'utf8');
+
+// Stamp before reading: the generated pages copy the source pages' script
+// tags verbatim, so the hashes have to be current when we read them.
+execFileSync(process.execPath, [join(root, 'scripts/stamp-assets.mjs')], { cwd: root, stdio: 'inherit' });
 
 const projectSrc = read('project.html');
 
