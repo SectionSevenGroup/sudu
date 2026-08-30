@@ -236,7 +236,8 @@ function buildSwitcher(){
     wrap=document.createElement('div');
     wrap.id='langSwitch';
     wrap.style.cssText='position:fixed;left:clamp(20px,4.5vw,64px);bottom:16px;z-index:9999;display:flex;gap:11px;align-items:center;padding:6px 12px;background:transparent;border:0.5px solid currentColor;border-radius:22px;';
-    document.body.appendChild(wrap);
+    /* <html>, not <body>: Turbo replaces the body on every visit. */
+    document.documentElement.appendChild(wrap);
   }
   if(wrap.getAttribute('data-cur')===cur)return;
   wrap.setAttribute('data-cur',cur);
