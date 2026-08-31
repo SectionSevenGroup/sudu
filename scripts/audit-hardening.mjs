@@ -48,9 +48,6 @@ function extensionless(html) {
 }
 
 function architectureIdentity(html, page) {
-  // The firm is SuDu Studio Architecture, a registered Alberta architecture
-  // practice. Keep individual titles as authored; this only normalises firm
-  // identity in metadata where the old shortened form undersold the practice.
   if (page === 'studio.html') {
     html = html
       .replace('<title>About Our Edmonton Architecture Firm | SuDu Studio</title>', '<title>SuDu Studio Architecture | Registered Architecture Firm in Alberta</title>')
@@ -65,7 +62,6 @@ function architectureIdentity(html, page) {
 }
 
 function addCoreShell(html) {
-  // Service pages predate the current shared rail/chrome/navigation shell.
   if (!html.includes('css/rail.css')) {
     html = html.replace('</head>', '<link rel="stylesheet" href="css/rail.css">\n<script src="js/chrome-bar.js"></script>\n<script src="js/turbo-boot.js" defer></script>\n<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>\n<meta name="turbo-cache-control" content="no-preview">\n</head>');
   }
@@ -79,13 +75,9 @@ function addCoreShell(html) {
   html = html.replace(/data-screen-label="Related"(?![^>]*data-theme-surface)/g, 'data-screen-label="Related" data-theme-surface="content"');
   html = html.replace(/<a href="\/contact" data-turbo-preload data-reveal/g, '<a href="/contact" data-turbo-preload data-screen-label="Start a Project" data-reveal');
   html = html.replace(/<a href="\/contact" data-reveal/g, '<a href="/contact" data-screen-label="Start a Project" data-reveal');
-
-  // Current site CTA language; no detached ornamental symbol.
   html = html.replace(/<div style="font-size:clamp\(24px,3vw,38px\); font-weight:700; letter-spacing:-0\.03em; line-height:1;">Say hello<\/div>/g,
     '<div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Get in touch</div>');
   html = html.replace(/\s*<span style="font-size:clamp\(19px,2\.3vw,30px\);[^>]*>&#8250;&#8250;<\/span>/g, '');
-
-  // Old 20px rise reveal is visually out of family. Keep opacity dominant.
   html = html.replaceAll("el.style.transform = 'translateY(20px)';", "el.style.transform = 'translateY(7px)';");
   html = html.replaceAll("'opacity 1.5s ' + ease + ', transform 1.7s ' + ease", "'opacity 1.0s ' + ease + ', transform 1.1s ' + ease");
   return html;
@@ -93,10 +85,10 @@ function addCoreShell(html) {
 
 function studioReveal(html) {
   const old = '<img data-reveal data-motion="major" src="images/team-illustration-alpha.png" alt="Line portrait of the three SuDu Studio founders" decoding="async" style="width:min(680px,92%); height:auto; display:block; margin:0 0 clamp(12px,1.5vw,20px);">';
-  const next = '<img id="studioTeamIllustration" src="images/team-illustration-alpha.png" width="2048" height="2048" alt="Line portrait of the three SuDu Studio founders" decoding="async" style="width:min(680px,92%); height:auto; aspect-ratio:1/1; display:block; margin:0 0 clamp(12px,1.5vw,20px); opacity:0; transition:opacity 1.9s cubic-bezier(.16,1,.3,1);">';
+  const next = '<img id="studioTeamIllustration" src="images/team-illustration-alpha.png" srcset="/.netlify/images?url=/images/team-illustration-alpha.png&w=480&q=88 480w, /.netlify/images?url=/images/team-illustration-alpha.png&w=768&q=88 768w, /.netlify/images?url=/images/team-illustration-alpha.png&w=1080&q=88 1080w" sizes="(max-width:720px) 92vw, 680px" width="2048" height="2048" alt="Line portrait of the three SuDu Studio founders" loading="eager" fetchpriority="high" decoding="async" style="width:min(680px,92%); height:auto; aspect-ratio:1/1; display:block; margin:0 0 clamp(12px,1.5vw,20px); opacity:0; transition:opacity 1.9s cubic-bezier(.16,1,.3,1);">';
   html = html.replace(old, next);
   if (!html.includes('studioTeamIllustration.dataset.suduRevealOwned')) {
-    html = html.replace('class Component extends DCLogic {\n  componentDidMount() {', `class Component extends DCLogic {\n  componentDidMount() {\n    const studioTeamIllustration = document.getElementById('studioTeamIllustration');\n    if (studioTeamIllustration && !studioTeamIllustration.dataset.suduRevealOwned) {\n      studioTeamIllustration.dataset.suduRevealOwned = '1';\n      const showTeam = () => {\n        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) studioTeamIllustration.style.transition = 'none';\n        requestAnimationFrame(() => setTimeout(() => { studioTeamIllustration.style.opacity = '1'; }, 250));\n      };\n      if (studioTeamIllustration.complete) showTeam();\n      else { studioTeamIllustration.addEventListener('load', showTeam, { once:true }); setTimeout(showTeam, 350); }\n    }`);
+    html = html.replace('class Component extends DCLogic {\n  componentDidMount() {', `class Component extends DCLogic {\n  componentDidMount() {\n    const studioTeamIllustration = document.getElementById('studioTeamIllustration');\n    if (studioTeamIllustration && !studioTeamIllustration.dataset.suduRevealOwned) {\n      studioTeamIllustration.dataset.suduRevealOwned = '1';\n      let teamShown = false;\n      const showTeam = () => {\n        if (teamShown) return;\n        teamShown = true;\n        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) studioTeamIllustration.style.transition = 'none';\n        requestAnimationFrame(() => setTimeout(() => { studioTeamIllustration.style.opacity = '1'; }, 180));\n      };\n      const readyTeam = () => {\n        if (typeof studioTeamIllustration.decode === 'function') {\n          studioTeamIllustration.decode().then(showTeam).catch(showTeam);\n        } else showTeam();\n      };\n      if (studioTeamIllustration.complete && studioTeamIllustration.naturalWidth) readyTeam();\n      else {\n        studioTeamIllustration.addEventListener('load', readyTeam, { once:true });\n        studioTeamIllustration.addEventListener('error', showTeam, { once:true });\n      }\n    }`);
   }
   return html;
 }
@@ -105,10 +97,6 @@ function projectSource(html) {
   html = html.replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">');
   html = html.replace('<link rel="canonical" href="https://sudu.studio/project.html">', '<link rel="canonical" href="https://sudu.studio/work">');
   html = html.replace('<meta property="og:url" content="https://sudu.studio/project.html">', '<meta property="og:url" content="https://sudu.studio/work">');
-
-  // Restrained editorial rhythm: the opening image in each group receives the
-  // full datum; supporting images remain paired. This replaces the repeated
-  // uniform 4:3 catalogue feel without inventing bespoke layouts per project.
   html = html.replace(
     '<div data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min({{ grp.minW }}px,100%), 1fr)); gap:clamp(16px,2vw,28px);">',
     '<div class="project-gallery-grid" data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,2vw,28px);">'
@@ -117,8 +105,6 @@ function projectSource(html) {
     '<div style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">',
     '<div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">'
   );
-  // The DC loop resolves g.src inside all attributes, so responsive derivatives
-  // can be expressed in the source template and inherited by generated pages.
   html = html.replace(
     '<img src="{{ g.src }}" alt="{{ g.alt }}" loading="lazy" decoding="async"',
     '<img src="{{ g.src }}" srcset="/.netlify/images?url=/{{ g.src }}&w=480&q=82 480w, /.netlify/images?url=/{{ g.src }}&w=768&q=82 768w, /.netlify/images?url=/{{ g.src }}&w=1080&q=82 1080w, /.netlify/images?url=/{{ g.src }}&w=1440&q=82 1440w, /.netlify/images?url=/{{ g.src }}&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="{{ g.alt }}" loading="lazy" decoding="async"'
@@ -130,10 +116,6 @@ function projectSource(html) {
 }
 
 function semanticTheme(html) {
-  // Migrate runtime classification away from scanning inline style strings.
-  // The build pass labels known cream/transparent surfaces once; the existing
-  // visual inversion rules continue unchanged, making this a zero-visual-change
-  // structural refactor rather than another theme redesign.
   html = html.replace(/<([a-z][a-z0-9-]*)([^>]*?)style="([^"]*(?:#F3F1EA|243,241,234|243, 241, 234)[^"]*)"/gi,
     (m, tag, attrs, style) => attrs.includes('data-theme-surface=')
       ? m
@@ -146,9 +128,6 @@ function semanticTheme(html) {
 }
 
 function responsiveImages(html) {
-  // Netlify Image CDN performs Accept-header content negotiation automatically
-  // when fm is omitted, yielding WebP/AVIF where supported. Originals remain
-  // the source of truth; no binary derivative set is committed to Git.
   return html.replace(/<img([^>]*?)src="(images\/(?!sudu-mark|hero-drawing|team-illustration|red-)[^"]+\.(?:jpg|jpeg|png))"([^>]*?)>/gi,
     (m, before, src, after) => {
       if (/srcset=/.test(m)) return m;
@@ -172,8 +151,6 @@ for (const p of HTML) {
   write(p, html);
 }
 
-// Canonical-only sitemap. project.html and query-string generator URLs are
-// deliberately absent; generated /work/<slug>/ URLs are the destinations.
 const slugs = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','opt','factory-club','factory-yyc','selkirk','enoch','youth-recovery'];
 const urls = [
   '/', '/work', '/studio', '/contact',
