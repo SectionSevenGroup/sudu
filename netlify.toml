@@ -1,9 +1,14 @@
 # Netlify configuration for the sudustudioarchitecture site.
-# The site is static with no build step, so the repository root is published
-# as-is and _redirects sits alongside this file at the publish root.
+# The public site remains static-first. The lightweight project generator runs
+# before each deploy so SuDu / Control can update the canonical project source
+# and let Netlify produce the clean /work/<slug>/ pages automatically.
 
 [build]
+  command = "node scripts/build-projects.mjs"
   publish = "."
+
+[functions]
+  directory = "netlify/functions"
 
 [build.processing]
   skip_processing = false
@@ -12,6 +17,20 @@
 # /path/), which is why _redirects carries no /*.html splat rule.
 [build.processing.html]
   pretty_urls = true
+
+# --- Control ---------------------------------------------------------------
+# /control/ is a static, no-index shell. All reads and writes go through the
+# authenticated Netlify Function; GitHub credentials are never sent to the
+# browser. Required environment variables:
+#   GITHUB_TOKEN
+#   SUDU_CONTROL_PASSWORD
+#   SUDU_CONTROL_SESSION_SECRET
+# Optional overrides:
+#   SUDU_GITHUB_OWNER / SUDU_GITHUB_REPO / SUDU_GITHUB_BASE /
+#   SUDU_GITHUB_DRAFT / SUDU_NETLIFY_SITE
+#
+# Control writes to control/content-draft, opens a GitHub PR for the Netlify
+# Deploy Preview, and only merges to main after the explicit Publish action.
 
 # --- contact form -----------------------------------------------------------
 # The enquiry form on contact.html is a Netlify form (name="contact"). It is
