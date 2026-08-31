@@ -71,6 +71,9 @@
     if (typeof window.__suduWorkArrive === 'function') {
       try { window.__suduWorkArrive(); } catch (e) {}
     }
+    if (typeof window.__suduArrival === 'function') {
+      try { window.__suduArrival(); } catch (e) {}
+    }
     var host = document.getElementById('dc-root');
     if (!host || REDUCED.matches) { reveal(); return; }
     host.style.transition = 'none';
