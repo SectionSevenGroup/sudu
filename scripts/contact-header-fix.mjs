@@ -21,4 +21,13 @@ html = html.replace(
   '<span aria-hidden="true" style="position:relative; flex:none; width:10px; height:14px; color:inherit; transition:transform .3s ease; transform:{{ faq.rot }};"><span style="position:absolute; left:1px; top:3px; width:8px; height:8px; border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor; transform:rotate(-45deg);"></span></span>'
 );
 
+// The Send inquiry arrow should use the same ink as its label rather than the
+// orange accent, and carry enough weight to read as part of the control rather
+// than a decorative punctuation mark. The sent-state checkmark inherits this
+// same treatment.
+html = html.replace(
+  /<span style="font-weight:700; color:#E17B3E;">\{\{ sendGlyph \}\}<\/span>/g,
+  '<span style="font-weight:900; font-size:15px; line-height:1; color:inherit;">{{ sendGlyph }}</span>'
+);
+
 writeFileSync(path, html);
