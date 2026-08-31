@@ -71,6 +71,26 @@
  ]
 }
 </script>
+
+<!-- The router and its coordinator are singletons, so they live in the real
+     document head rather than in the template helmet: Turbo re-activates
+     every script in the body it swaps in, and a router tag inside the
+     template therefore started a second Turbo Session on every navigation.
+     Head scripts whose markup is unchanged are carried across a visit
+     untouched and execute exactly once.
+     Nothing above the template may name the template tag literally: the
+     runtime locates it by regex over the raw source, so the first textual
+     match wins even inside a comment.
+     The coordinator is listed first on purpose. Turbo scans for preload
+     links the moment its own script runs, and the coordinator is what
+     withdraws those links on a metered connection. -->
+<script src="js/turbo-boot.js?v=3469de03" defer></script>
+<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
+<!-- One render per application visit. no-preview stops Turbo showing the
+     cached copy of a page before the fresh response arrives, which is what
+     made a revisit play two arrivals. It is deliberately not no-cache:
+     snapshots are still stored, and Back/Forward still restores from them. -->
+<meta name="turbo-cache-control" content="no-preview">
 </head>
 <body>
 <x-dc>
@@ -191,9 +211,9 @@
 window.__suduMark=mark;})();
 (function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
 function apply(v){if(window.__suduMark)window.__suduMark();var h=document.documentElement;if(v==='#F3F1EA'){h.classList.remove('dm','dmwarm','dmred','dmlight');h.style.removeProperty('--dm-bg');}else{h.classList.add('dm');h.style.setProperty('--dm-bg',v);h.classList.toggle('dmwarm',v!=='#121110');h.classList.toggle('dmred',v!=='#121110');h.classList.remove('dmlight');}try{localStorage.setItem(P,v);}catch(e){}var sw=document.getElementById('dmSwatches');if(sw)[].forEach.call(sw.children,function(b){b.hidden=b.getAttribute('data-v')===v;});}
-try{var s=localStorage.getItem(P);apply(s==='#D0271F'||!s?'#C0431F':s);}catch(e){apply('#C0431F');}
+try{var s=localStorage.getItem(P);apply(s==='#D0271F'?'#C0431F':(s||'#F3F1EA'));}catch(e){apply('#F3F1EA');}
 function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});if(window.suduBar)window.suduBar().appendChild(d);else document.documentElement.appendChild(d);}
-build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#C0431F');},900);})();
+build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#F3F1EA');},900);})();
 
 (function(){if(window.__xhInit||!matchMedia('(pointer:fine)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
 function make(){if(!document.body)return;var ex=document.querySelectorAll('#xhair');if(ex.length){for(var i=1;i<ex.length;i++)ex[i].remove();el=ex[0];return;}if(el)return;el=document.createElement('div');el.id='xhair';el.innerHTML='<i></i><i></i><i></i><i></i>';document.documentElement.appendChild(el);document.documentElement.classList.add('xh');}
@@ -207,9 +227,7 @@ addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="i18n.js?v=6006c1b9" defer></script>
-<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
-<script src="js/turbo-boot.js?v=96ce2268" defer></script>
-<script src="js/page-arrival.js?v=b978bdfc" defer></script>
+<script src="js/page-arrival.js?v=084e8a28" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
 </helmet>
@@ -217,13 +235,13 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
 
   <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
-    <a href="./" style="display:flex; align-items:flex-end; gap:12px;">
+    <a href="./" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a></nav>
+      <a href="work.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="studio.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="contact.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a></nav>
   </header>
 
   <section data-screen-label="Contact" style="flex:1; padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">

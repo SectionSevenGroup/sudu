@@ -1,10 +1,16 @@
-// First-screen arrival for the inner pages.
+// First-screen arrival for the inner pages, on a direct load only.
 //
-// The router already brings a page in over 850ms, but everything inside it was
-// simply present the moment it rendered, so the information all landed at once.
-// This gives the opening screen a small order: the page's principal statement
+// On a first load nothing brings the page in, so everything inside it is simply
+// present the moment it renders and the information all lands at once. This
+// gives the opening screen a small order: the page's principal statement
 // settles first, its supporting information a beat later, and everything below
 // is left to the scroll reveals.
+//
+// It deliberately does not run during a Turbo navigation. There the page-level
+// transition already owns the first screen — it holds the outgoing page on
+// screen, assembles the incoming one out of sight and cross-fades the finished
+// composition in. Fading the same pixels a second time on top of that is the
+// double arrival this pass used to cause, so navigation is left alone.
 //
 // Two groups only. Labels, metadata and fields are never animated individually
 // — related information moves together, and the fixed frame (header, nav,
@@ -92,7 +98,12 @@
     if (run() || tries > 20) return;
     requestAnimationFrame(function () { pump(tries + 1); });
   };
+  // Exposed for the direct-load path only; the coordinator does not call it
+  // during a visit, and there is no turbo:load listener for the same reason.
   window.__suduArrival = function () { pump(0); };
-  pump(0);
-  document.addEventListener('turbo:load', function () { pump(0); });
+  // This file is loaded by the page it belongs to, so on a navigation it first
+  // executes in the middle of the visit. __suduVisited is the difference
+  // between "nothing else is bringing this page in" and "the coordinator
+  // already is".
+  if (!window.__suduVisited) pump(0);
 })();
