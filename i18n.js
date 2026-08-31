@@ -45,6 +45,8 @@ var T=[
 ["Collaboration", "Collaboration", "Colaboración", "Zusammenarbeit", "協働"],
 ["with DIALOG", "avec DIALOG", "con DIALOG", "mit DIALOG", "DIALOGとの協働"],
 ["Experience Index", "Index d'expérience", "Índice de experiencia", "Erfahrungsindex", "実績インデックス"],
+["Open", "Ouvrir", "Abrir", "Öffnen", "開く"],
+["Close", "Fermer", "Cerrar", "Schließen", "閉じる"],
 ["Beyond the selected work", "Au-delà des projets choisis", "Más allá de la obra seleccionada", "Über die ausgewählten Arbeiten hinaus", "主な作品のその先へ"],
 ["Residential & Private", "Résidentiel et privé", "Residencial y privado", "Wohnen & Privat", "住宅・個人邸"],
 ["Custom homes, major renovations, additions, interiors, and private galleries.", "Maisons sur mesure, rénovations majeures, agrandissements, intérieurs et galeries privées.", "Casas a medida, renovaciones mayores, ampliaciones, interiores y galerías privadas.", "Maßgefertigte Häuser, umfassende Sanierungen, Erweiterungen, Innenräume und private Galerien.", "注文住宅、大規模改修、増築、インテリア、プライベートギャラリー。"],

@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="css/rail.css?v=2535cfb5">
+<link rel="stylesheet" href="css/rail.css?v=5c83c80e">
 <script src="./js/support.js?v=8fe7df74"></script>
 <script src="js/chrome-bar.js?v=9da5ed2e"></script>
 <script type="application/ld+json">
@@ -162,6 +162,7 @@
   #work > div,
   #work > article,
   #work > a,
+  #experience > button,
   #studio,
   #contact,
   footer {
@@ -171,6 +172,10 @@
   #offerings > div:last-child {
     padding-left:calc(var(--sudu-inset) - var(--sudu-card-pad)) !important;
     padding-right:calc(var(--sudu-inset) - var(--sudu-card-pad)) !important;
+  }
+  #experience > div > div:last-child {
+    padding-left:calc(var(--sudu-inset) - clamp(20px,2.4vw,32px)) !important;
+    padding-right:calc(var(--sudu-inset) - clamp(20px,2.4vw,32px)) !important;
   }
   /* the hero statement is absolutely positioned, so it takes the same datum as
      an offset. The hero drawing is deliberately not listed anywhere here: it
@@ -231,7 +236,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=1ccea6d9" defer></script>
+<script src="i18n.js?v=a634fd45" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
@@ -413,12 +418,17 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     <a href="work.html" data-reveal style="display:block; padding:clamp(26px,2.8vw,34px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1; transition:color .3s ease;">All work</a>
   </section>
 
-  <sc-if value="{{ showExperienceIndex }}" hint-placeholder-val="{{ true }}">
+  <!-- The retained index, collapsed. The disclosure row replaces the section's
+       old heading row; the list itself is untouched. sc-if renders nothing at
+       all when closed, so the entries are absent from the DOM and therefore
+       from the tab order rather than merely hidden. -->
   <section id="experience" data-screen-label="Experience Index" style="border-top:1px solid rgba(23,22,19,0.13);">
-    <div data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(40px,7vw,80px) clamp(20px,4.5vw,64px) 24px;">
-      <h3 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Experience Index</h3>
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">Beyond the selected work</span>
-    </div>
+    <button type="button" onClick="{{ indexToggle }}" aria-expanded="{{ indexOpen }}" aria-controls="experienceList" style="width:100%; display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(26px,2.8vw,34px) clamp(20px,4.5vw,64px); border:0; background:transparent; color:inherit; font-family:inherit; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1; text-align:left; cursor:pointer; transition:color .3s ease;">
+      <span>Experience Index</span>
+      <span>{{ indexLabel }}</span>
+    </button>
+    <sc-if value="{{ indexOpen }}">
+    <div id="experienceList">
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); border-top:1px solid rgba(23,22,19,0.13); padding:0 calc(clamp(20px,4.5vw,64px) - clamp(20px,2.4vw,32px));">
       <div data-reveal style="padding:clamp(28px,3vw,40px) clamp(20px,2.4vw,32px) clamp(32px,3.6vw,48px); border-right:1px solid rgba(23,22,19,0.13);">
         <h4 style="margin:0 0 12px; font-size:16px; font-weight:900; letter-spacing:-0.015em; line-height:1.1; text-transform:uppercase;">Residential &amp; Private</h4>
@@ -466,8 +476,9 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
         </ul>
       </div>
     </div>
+    </div>
+    </sc-if>
   </section>
-  </sc-if>
 
   <!-- Practice context, not an about-us module: the same compact composition the
        page carried before Phase 2 — a small label, a short statement, one
@@ -526,6 +537,8 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#E17B3E&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#E17B3E&quot;,&quot;#171613&quot;,&quot;#67655D&quot;],&quot;section&quot;:&quot;Interaction&quot;},&quot;showScrollCue&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showExperienceIndex&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;}}">
 class Component extends DCLogic {
+  state = { indexOpen: false };
+
   componentDidMount() {
     this.install();
   }
@@ -720,13 +733,13 @@ class Component extends DCLogic {
     return {
       accent: this.props.accent ?? '#E17B3E',
       showScrollCue: this.props.showScrollCue ?? true,
-      // Off for the homepage. The section's markup is deliberately left in the
-      // template rather than deleted: its entries (Sturgeon House, Macson,
-      // Olla, Socca, Steamoji, Homeward Trust and the rest) exist nowhere else
-      // in the repository, and a later phase decides whether they belong on
-      // Work, on Studio, or nowhere. sc-if renders nothing at all when false,
-      // so no wrapper, anchor or marker survives on the page.
-      showExperienceIndex: this.props.showExperienceIndex ?? false
+      // The index is on the page but closed on load, and closed again after
+      // any navigation because the runtime remounts. Its entries (Sturgeon
+      // House, Macson, Olla, Socca, Steamoji, Homeward Trust and the rest)
+      // exist nowhere else in the repository and are carried unchanged.
+      indexOpen: this.state.indexOpen,
+      indexLabel: this.state.indexOpen ? 'Close' : 'Open',
+      indexToggle: () => this.setState((st) => ({ indexOpen: !st.indexOpen }))
     };
   }
 }

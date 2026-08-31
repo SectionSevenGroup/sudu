@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="/css/rail.css?v=2535cfb5">
+<link rel="stylesheet" href="/css/rail.css?v=5c83c80e">
 <script src="/js/support.js?v=8fe7df74"></script>
 <script src="/js/chrome-bar.js?v=9da5ed2e"></script>
 </head>
@@ -113,7 +113,7 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="/i18n.js?v=1ccea6d9" defer></script>
+<script src="/i18n.js?v=a634fd45" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <script src="/js/turbo-boot.js?v=21fd1bc5" defer></script>
 <script src="/js/audio-player.js?v=5e49f639" defer></script>
@@ -156,13 +156,15 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
 
-  <a href="/contact.html" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:rgba(23,22,19,0.05);">
-    <div>
-      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Start a project</div>
-      <div style="font-size:clamp(24px,3vw,38px); font-weight:900; letter-spacing:-0.02em; line-height:0.9; text-transform:uppercase;">Say hello</div>
+  <!-- Page-end CTA, in the homepage's language: the statement and a quiet
+       text link, no detached symbol at the far edge. The field stays full
+       width and its content takes the shared rail. -->
+  <section data-screen-label="Start a Project" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) clamp(48px,9vw,120px); border-top:1px solid rgba(23,22,19,0.13);">
+    <div data-reveal style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
+      <h2 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:900; line-height:0.95; letter-spacing:-0.02em; text-transform:uppercase;">Start a project</h2>
+      <a href="/contact.html" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Get in touch</a>
     </div>
-    <span style="font-size:clamp(19px,2.3vw,30px); font-weight:700; color:#E17B3E; line-height:1; letter-spacing:-0.12em;">&#8250;&#8250;</span>
-  </a>
+  </section>
 
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">

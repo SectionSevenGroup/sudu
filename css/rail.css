@@ -46,7 +46,8 @@ section[data-screen-label="Project Hero"],
 section[data-screen-label="Project Facts"],
 section[data-screen-label="Project Gallery"],
 section[data-screen-label="Project Gallery Slots"],
-section[data-screen-label="Related Work"] {
+section[data-screen-label="Related Work"],
+section[data-screen-label="Start a Project"] {
   padding-left: var(--sudu-inset) !important;
   padding-right: var(--sudu-inset) !important;
 }
