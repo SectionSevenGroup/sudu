@@ -52,3 +52,7 @@
 #
 # Spam: the form carries a honeypot (netlify-honeypot="bot-field"); Netlify's
 # own filtering is on top of that. The free tier caps submissions per month.
+
+# Shared theme contrast/state hardening is owned by js/chrome-bar.js so the
+# same rules survive Turbo navigation across Home, Work, Studio, Contact,
+# projects and evergreen service pages.
