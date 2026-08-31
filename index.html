@@ -17,9 +17,9 @@
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="css/rail.css?v=5c83c80e">
+<link rel="stylesheet" href="css/rail.css?v=1e8a086e">
 <script src="./js/support.js?v=8fe7df74"></script>
-<script src="js/chrome-bar.js?v=9da5ed2e"></script>
+<script src="js/chrome-bar.js?v=6ede34ea"></script>
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -195,6 +195,25 @@
   }
   #work > a:last-child:hover, #work > a:last-child:focus-visible { color:inherit; }
 
+  /* The hero's lower zone. Everything below the statement is reserved from the
+     same datum: the bottom control zone (52px plus whatever the home indicator
+     takes), a breathing gap, then the metadata row's own measured height. The
+     statement sits above all of it, so the three can never meet however the
+     metadata wraps or however tall the indicator strip is. */
+  :root { --sudu-hero-gap:clamp(14px,2.2vh,22px); --sudu-hero-foot:34px; }
+  #heroFoot {
+    padding-bottom:calc(var(--sudu-chrome, 52px) + var(--sudu-hero-gap)) !important;
+  }
+  #heroStatement {
+    bottom:calc(var(--sudu-chrome, 52px) + var(--sudu-hero-gap) * 2 + var(--sudu-hero-foot)) !important;
+  }
+  /* On a phone the metadata and the scroll cue stack deliberately instead of
+     wrapping wherever the flex line happens to break. All text is kept. */
+  @media (max-width:559px) {
+    #heroFoot { flex-direction:column; align-items:flex-start; gap:10px; }
+    #heroFoot > div:first-child > div { flex-wrap:wrap; row-gap:4px; }
+  }
+
   .rowrev-txt, .rowrev-txt * { text-align:right !important; }
   .rowrev-txt > *, .rowrev-txt p { margin-left:auto !important; margin-right:0 !important; }
   .rowrev-txt dl { justify-content:flex-end !important; }
@@ -238,9 +257,35 @@ try{var s=localStorage.getItem(P);apply(s==='#D0271F'||!s?'#C0431F':s);}catch(e)
 function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});if(window.suduBar)window.suduBar().appendChild(d);else document.documentElement.appendChild(d);}
 build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#C0431F');},900);})();
 
-(function(){if(window.__xhInit||!matchMedia('(pointer:fine)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
+(function(){
+  // The hero's reserved zone needs the metadata row's real height: it changes
+  // with wrapping and with language, and a guessed value is what let the
+  // statement and the row meet on a small phone. Published as a custom
+  // property so the CSS above stays the single place the geometry is written.
+  var sync = function () {
+    var foot = document.getElementById('heroFoot');
+    if (!foot) return false;
+    var pad = parseFloat(getComputedStyle(foot).paddingBottom) || 0;
+    var h = Math.round(foot.getBoundingClientRect().height - pad);
+    if (h > 0) document.documentElement.style.setProperty('--sudu-hero-foot', h + 'px');
+    return true;
+  };
+  var pump = function (n) { if (sync() || n > 20) return; requestAnimationFrame(function () { pump(n + 1); }); };
+  window.__suduHeroZone = function () { pump(0); };
+  pump(0);
+  addEventListener('resize', function () { pump(0); }, { passive: true });
+  addEventListener('orientationchange', function () { pump(0); }, { passive: true });
+  document.addEventListener('turbo:load', function () { pump(0); });
+})();
+
+(function(){
+// A touch device gets no crosshair and keeps its native cursor: hover:hover
+// rules out the hybrids that claim a fine pointer but are driven by touch.
+if(window.__xhInit||!matchMedia('(pointer:fine)').matches||!matchMedia('(hover:hover)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
 function make(){if(!document.body)return;var ex=document.querySelectorAll('#xhair');if(ex.length){for(var i=1;i<ex.length;i++)ex[i].remove();el=ex[0];return;}if(el)return;el=document.createElement('div');el.id='xhair';el.innerHTML='<i></i><i></i><i></i><i></i>';document.documentElement.appendChild(el);document.documentElement.classList.add('xh');}
-make();setTimeout(make,600);
+// Built on the first genuine pointer movement, not on load — created up
+// front it sat stranded at 0,0 until the pointer happened to move.
+
 function draw(){raf=0;if(el)el.style.transform='translate3d('+x+'px,'+y+'px,0)';}
 var lx=0,ly=0,lt=0,len=16,tlen=16,loop=0;
 function tick(){var d=tlen-len;len+=d*0.18;if(el)el.style.setProperty('--len',len.toFixed(1)+'px');tlen+=(16-tlen)*0.06;if(Math.abs(d)>0.3||tlen>16.5){loop=requestAnimationFrame(tick);}else{loop=0;len=16;tlen=16;if(el)el.style.setProperty('--len','16px');}}

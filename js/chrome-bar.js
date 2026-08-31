@@ -18,14 +18,18 @@
   var CSS = [
     // The bar: a blurred ground and nothing else. No rule along the top, and
     // no outline around the groups inside it — the separators do that work.
-    '#suduBar{position:fixed;left:0;right:0;bottom:0;z-index:9999;height:52px;',
+    // The ground extends through the home indicator's strip; the controls stay
+    // in the 52px above it, so nothing sits under the indicator.
+    '#suduBar{position:fixed;left:0;right:0;bottom:0;z-index:9999;box-sizing:content-box;'
+      + 'height:52px;',
     'display:flex;align-items:center;justify-content:space-between;',
     // The gutter widens into the same content rail the homepage uses, so the
     // bar's controls stop drifting out to the far corners of a wide display.
     // Written as padding rather than an inner container: below the rail's
     // engagement width the max() picks the plain gutter and nothing moves.
     // The fallback keeps this self-contained on pages that set no --sudu-rail.
-    'gap:12px;padding:0 max(clamp(20px,4.5vw,64px),calc((100% - var(--sudu-rail,1760px)) / 2));',
+    'gap:12px;padding:0 max(clamp(20px,4.5vw,64px),calc((100% - var(--sudu-rail,1760px)) / 2)) '
+      + 'env(safe-area-inset-bottom,0px);',
     'font-family:\'Urbanist\',sans-serif;',
     '-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);',
     'background:color-mix(in srgb,#F3F1EA 72%,transparent);',
@@ -56,7 +60,7 @@
     'content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);',
     'width:1px;height:11px;background:currentColor;opacity:0.32;pointer-events:none;}',
     // Below 560px the music group rejoins the flow so the three share the width.
-    '@media (max-width:559px){#suduBar{gap:10px;padding:0 16px;}',
+    '@media (max-width:559px){#suduBar{gap:10px;padding:0 16px env(safe-area-inset-bottom,0px);}',
     '#suduBar #musicPill{position:static !important;transform:none;}',
     '#suduBar #langSwitch,#suduBar #dmSwatches,#suduBar #musicPill{gap:13px;}}',
     '#suduBar button{font-family:inherit;color:inherit;cursor:none;background:none;border:0;padding:0;}'
