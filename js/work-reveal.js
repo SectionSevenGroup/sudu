@@ -1,29 +1,15 @@
 // Ordered reveal for the Work grid.
 //
-// Split into two halves so it cannot race the page transition. The prepare
-// half puts the cards into their starting state and is called by the
-// navigation coordinator before the incoming page is captured, so the grid is
-// never captured visible and then hidden. The start half runs the reading
-// order and waits for sudu:navigation-ready, so the cards arrive with the page
-// rather than at whatever moment turbo:load happened to fire.
-//
-// Lives in its own file rather than inline in the page template: the DC
-// runtime re-creates helmet <script> elements when it renders, and this
-// script does not survive that round trip intact.
-
+// The card is the only visual reveal owner. Images are allowed to paint once
+// their pixels are ready; they do not run a second nested opacity animation.
+// This matters most on mobile, where a late image fade multiplied by the card
+// fade read as a second load/flicker.
 (function () {
   if (window.__suduWorkPrepare) return;
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
   var STAGGER = 90, ROW_TOL = 12;
 
   function cards() {
-    // Scoped to the rendered root, and never to a source the runtime has not
-    // resolved yet: during a Turbo swap the raw <x-dc> template is briefly in
-    // the document, and touching one of its unresolved images makes the browser
-    // fetch the placeholder string literally.
-    //
-    // The braces are built rather than written: this script lives inside the
-    // template, so a literal pair here would itself be read as an interpolation.
     var OPEN = '{' + '{';
     var root = document.getElementById('dc-root');
     if (!root) return [];
@@ -38,10 +24,6 @@
     return out;
   }
 
-  // Rows are read off the rendered layout rather than assumed, so the same
-  // code serves five columns at 2560, whatever 1440 resolves to, two on a
-  // tablet and one on a phone. Group by top edge within a tolerance, order
-  // the groups top to bottom and each group left to right.
   function rows(list) {
     var byTop = [];
     for (var i = 0; i < list.length; i++) {
@@ -61,24 +43,9 @@
     return byTop;
   }
 
-  function decoded(card) {
-    var img = card.querySelector('img');
-    return !!(img && img.complete && img.naturalWidth > 0);
-  }
-
-  // A card always reveals in its turn. If its image has not arrived, the card
-  // still goes — only the image waits, and fades in when it lands. Readiness
-  // never reorders anything.
   function show(card, delay) {
     if (card.getAttribute('data-shown')) return;
     card.setAttribute('data-shown', '1');
-    var img = card.querySelector('img');
-    if (img && !decoded(card) && !REDUCED.matches) {
-      img.classList.add('wk-late');
-      var lit = function () { img.classList.add('wk-on'); };
-      img.addEventListener('load', lit, { once: true });
-      img.addEventListener('error', lit, { once: true });
-    }
     setTimeout(function () { card.classList.add('wk-on'); }, delay);
   }
 
@@ -87,22 +54,24 @@
   }
 
   var observer = null;
-  var staged = null;      // rows worked out by prepare(), consumed by start()
+  var staged = null;
 
-  // Everything that must be true before the incoming page is captured: the
-  // cards carry their starting state and the opening images are being fetched.
-  // Nothing animates here.
   function prepare() {
     var list = cards();
     if (!list.length) return false;
 
-    // Keep the promotion the loading fix put in place: the first two visible
-    // rows are fetched with the document, everything below the fold stays lazy.
-    for (var j = 0; j < list.length && j < 5; j++) {
-      if (list[j].querySelector('img').getAttribute('loading') !== 'eager') {
-        list[j].querySelector('img').setAttribute('loading', 'eager');
-        list[j].querySelector('img').setAttribute('fetchpriority', 'high');
-      }
+    // Promote only what is actually in/near the opening viewport. The old
+    // fixed first-five rule asked a phone to high-priority fetch five cards at
+    // once, competing with the one image the visitor could actually see.
+    var vh = window.innerHeight || 1;
+    var promoted = 0;
+    for (var j = 0; j < list.length && promoted < 6; j++) {
+      var img = list[j].querySelector('img');
+      var box = list[j].getBoundingClientRect();
+      if (!img || box.top > vh * 1.25 || box.bottom < -vh * 0.1) continue;
+      if (img.getAttribute('loading') !== 'eager') img.setAttribute('loading', 'eager');
+      img.setAttribute('fetchpriority', 'high');
+      promoted++;
     }
 
     if (REDUCED.matches) {
@@ -111,14 +80,11 @@
       return true;
     }
 
-    // A card restored from the cache is already in its final state and must be
-    // left alone: Back returns the page as it was left, it does not replay it.
     for (var h = 0; h < list.length; h++) {
       if (!list[h].getAttribute('data-shown')) list[h].classList.add('wk-card');
     }
 
     var grouped = rows(list);
-    var vh = window.innerHeight;
     var first = [], later = [];
     for (var g = 0; g < grouped.length; g++) {
       (grouped[g].top - window.scrollY < vh ? first : later).push(grouped[g]);
@@ -127,8 +93,6 @@
     return true;
   }
 
-  // The reading order itself. Called once the coordinator says the incoming
-  // view exists, so the stagger runs with the page's arrival.
   function start() {
     if (!staged) { if (!prepare()) return false; }
     var first = staged.first, later = staged.later;
@@ -139,8 +103,6 @@
       base += first[f].items.length * STAGGER;
     }
 
-    // Later rows wait for the scroller. Revealed once per visit: the observer
-    // stops watching a row as soon as it has gone.
     if (observer) observer.disconnect();
     observer = new IntersectionObserver(function (entries) {
       for (var e = 0; e < entries.length; e++) {
@@ -156,8 +118,6 @@
     return true;
   }
 
-  // The grid is rendered by the runtime, so the first pass may run before it
-  // exists; retry for a few frames rather than assuming.
   function pump(fn, tries) {
     if (fn() || tries > 20) return;
     requestAnimationFrame(function () { pump(fn, tries + 1); });
@@ -165,22 +125,14 @@
 
   window.__suduWorkPrepare = function () { staged = null; pump(prepare, 0); };
 
-  // Before the page is cloned into Turbo's cache, settle the grid: a card
-  // frozen mid-reveal would be restored invisible, and a visitor pressing Back
-  // should find the page as they left it rather than watch it assemble again.
   window.__suduWorkSettle = function () {
     var list = cards();
     for (var i = 0; i < list.length; i++) {
       list[i].setAttribute('data-shown', '1');
       list[i].classList.add('wk-card', 'wk-on');
-      var img = list[i].querySelector('img');
-      if (img) img.classList.remove('wk-late');
     }
   };
 
-  // start() prepares first if the coordinator has not already done it, so the
-  // same call serves a direct load and a visit whose gate ran before this file
-  // had finished loading. Only a visit still in its gate waits.
   if (window.__suduNavPhase !== 'gating') pump(start, 0);
   document.addEventListener('sudu:navigation-ready', function () { pump(start, 0); });
 })();
