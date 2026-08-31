@@ -17,9 +17,9 @@
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
+<link rel="stylesheet" href="css/rail.css?v=1e8a086e">
 <script src="./js/support.js?v=8fe7df74"></script>
-<script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
+<script src="js/chrome-bar.js?v=6ede34ea"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the real
      document head rather than in the template helmet: Turbo re-activates
@@ -33,7 +33,7 @@
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="js/turbo-boot.js?v=113aaca3" defer></script>
+<script src="js/turbo-boot.js?v=ab29423a" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
@@ -59,13 +59,18 @@
      never cropped: each carries its own width/height so it reserves exactly its
      own proportion and nothing shifts as it loads. An inset is a single image
      given a width and an edge — it is the pause between two large ones. */
-  .pj-seq { padding: 0 clamp(20px,4.5vw,64px); }
+  /* The shared content rail, not a bare gutter: past 1888px the imagery stops
+     at the same 1760px datum as every other section on the site. */
+  .pj-seq {
+    padding-left: var(--sudu-inset, clamp(20px,4.5vw,64px));
+    padding-right: var(--sudu-inset, clamp(20px,4.5vw,64px));
+  }
   .pj-block { padding-top: clamp(56px,8vw,132px); }
   .pj-block:first-child { padding-top: clamp(36px,4.5vw,64px); }
   .pj-label {
     display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
     gap: 8px 24px; padding: 14px 0 clamp(22px,2.6vw,34px);
-    border-top: 1px solid rgba(23,22,19,0.13);
+    border-top: 0.5px solid rgba(23,22,19,0.13);
   }
   .pj-label h2 {
     margin: 0; font-size: 13px; font-weight: 900; line-height: 1;
@@ -579,10 +584,13 @@ class Component extends DCLogic {
   // are the same block: an inset is simply given a width and an edge to sit
   // against. A project with no entry here renders the original gallery, which
   // is why nothing else on the site had to change.
+  //
+  // Nothing here names a photograph or repeats a heading: DATA owns the images
+  // and the words, this owns only the order they are read in.
   //   t   's' single | 'p' pair
-  //   i   indices into media, in reading order
-  //   media entries are paths; their proportions come from DIMS below, which the
-  //   page already carried
+  //   i   indices into the project's own images, in DATA order
+  //   g   index of the DATA group whose head and sub label this block, so the
+  //       heading and the architect credit are never copied out of DATA
   //   w   single: width as a percentage of the rail (omit for full width)
   //   al  single: 'l' or 'r', the edge an inset sits against
   //   sp  pair: grid-template-columns, so the relationship is stated not implied
@@ -590,31 +598,15 @@ class Component extends DCLogic {
   static EDITORIAL = {
     'atb-banking': {
       rhythm: 'monograph',
-      media: [
-        'images/atbb-eap1.jpg',
-        'images/atbb-eap2.jpg',
-        'images/atbb-eap3.jpg',
-        'images/atbb-eap4.jpg',
-        'images/atbb-eap5.jpg',
-        'images/atbb-eap6.jpg',
-        'images/atbb-cc1.jpg',
-        'images/atbb-cc2.jpg',
-        'images/atbb-cc3.jpg',
-        'images/atbb-hb1.jpg',
-        'images/atbb-hb2.jpg',
-        'images/atbb-hb3.jpg',
-        'images/atbb-hb4.jpg',
-        'images/atbb-hb5.jpg'
-      ],
       seq: [
-        { t: 's', i: [1], lb: 'Eighth Avenue Place / Calgary', nt: 'Branch prototype' },
+        { t: 's', i: [1], g: 0 },
         { t: 'p', i: [0, 2], sp: '1fr 1fr' },
         { t: 's', i: [5] },
         { t: 's', i: [3], w: 66, al: 'r' },
         { t: 's', i: [4] },
-        { t: 's', i: [6], lb: 'City Centre / Edmonton', nt: 'Mall branch' },
+        { t: 's', i: [6], g: 1 },
         { t: 'p', i: [8, 7], sp: '1.5fr 1fr' },
-        { t: 's', i: [9], lb: 'Hudson Block / Calgary', nt: 'Street branch' },
+        { t: 's', i: [9], g: 2 },
         { t: 'p', i: [10, 11], sp: '1fr 1fr' },
         { t: 's', i: [12] },
         { t: 's', i: [13] }
@@ -622,24 +614,10 @@ class Component extends DCLogic {
     },
     'the-helm': {
       rhythm: 'monograph',
-      media: [
-        'images/helm-1.jpg',
-        'images/helm-2.jpg',
-        'images/helm-3.jpg',
-        'images/helm-4.jpg',
-        'images/helm-5.jpg',
-        'images/helm-6.jpg',
-        'images/helm-8.jpg',
-        'images/helm-9.jpg',
-        'images/helm-10.jpg',
-        'images/helm-c1.jpg',
-        'images/helm-c2.jpg',
-        'images/helm-c3.jpg'
-      ],
       seq: [
-        { t: 's', i: [11], lb: 'Process / Construction', nt: 'Base building' },
+        { t: 's', i: [11], g: 1 },
         { t: 'p', i: [9, 10], sp: '1fr 1fr' },
-        { t: 's', i: [2], lb: 'Completed Space', nt: 'Retail floor' },
+        { t: 's', i: [2], g: 0 },
         { t: 's', i: [8], w: 58, al: 'l' },
         { t: 's', i: [6] },
         { t: 'p', i: [1, 4], sp: '1fr 1fr' },
@@ -651,40 +629,20 @@ class Component extends DCLogic {
     },
     'west-vancouver': {
       rhythm: 'linear',
-      media: [
-        'images/wv-elevation.jpg',
-        'images/wv-interior.jpg',
-        'images/wv-plans.png',
-        'images/wv-glass-1.jpg',
-        'images/wv-glass-2.jpg',
-        'images/wv-glass-3.jpg',
-        'images/wv-glass-top.png',
-        'images/wv-cant-1.jpg',
-        'images/wv-cant-2.jpg',
-        'images/wv-cant-3.jpg',
-        'images/wv-cant-plans.png'
-      ],
       seq: [
-        { t: 's', i: [0], lb: 'H.21.01 / White Box', nt: 'Selected concept' },
+        { t: 's', i: [0], g: 0 },
         { t: 's', i: [1] },
         { t: 's', i: [2], w: 58, al: 'r' },
-        { t: 's', i: [3], lb: 'H.21.02 / Glass Gallery', nt: 'Alternative study' },
+        { t: 's', i: [3], g: 2 },
         { t: 'p', i: [4, 5], sp: '1fr 1fr' },
         { t: 's', i: [6], w: 58, al: 'l' },
-        { t: 's', i: [7], lb: 'H.21.03 / The Cantilever', nt: 'Alternative study' },
+        { t: 's', i: [7], g: 3 },
         { t: 'p', i: [8, 9], sp: '1fr 1fr' },
         { t: 's', i: [10], w: 58, al: 'r' }
       ]
     },
     'wilfreds': {
       rhythm: 'linear',
-      media: [
-        'images/wf-2.jpg',
-        'images/wf-3.jpg',
-        'images/wf-4.jpg',
-        'images/wf-5.jpg',
-        'images/wf-6.jpg'
-      ],
       seq: [
         { t: 's', i: [1] },
         { t: 's', i: [0] },
@@ -694,11 +652,6 @@ class Component extends DCLogic {
     },
     'selkirk': {
       rhythm: 'compact',
-      media: [
-        'images/the-selkirk-exterior.jpg',
-        'images/the-selkirk-interior.jpg',
-        'images/sel-aerial.jpg'
-      ],
       seq: [
         { t: 's', i: [2] },
         { t: 's', i: [0] },
@@ -820,6 +773,11 @@ class Component extends DCLogic {
     const slug = Component.DATA[key] ? key : 'west-vancouver';
     const d = Component.DATA[slug];
     const ed = Component.EDITORIAL[slug] || null;
+    // One source of truth for the photographs. The sequence indexes into this,
+    // in the same order the gallery would have shown them.
+    const projectMedia = d.groups
+      ? d.groups.reduce((all, grp) => all.concat(grp.images || []), [])
+      : (d.gallery || []);
     const nd = Component.DATA[d.next];
     const projects = Component.DATA;
     return {
@@ -830,8 +788,15 @@ class Component extends DCLogic {
         ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', minW: grp.small ? 300 : 560, bg: grp.small ? 'transparent' : '#E8E5DC', fit: grp.small ? 'contain' : 'cover', images: grp.images.map((src) => ({ src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
         : [{ hasHead: false, head: '', sub: '', minW: 560, bg: '#E8E5DC', fit: 'cover', images: (d.gallery || []).map((src) => ({ src, alt: d.title })) }]),
       hasEditorial: !!ed,
-      editorialBlocks: (ed ? ed.seq : []).map((b, n) => {
-        const m = b.i.map((k) => ed.media[k]).filter(Boolean);
+      editorialBlocks: (ed ? ed.seq : []).map((b) => {
+        const m = b.i.map((k) => {
+          const im = projectMedia[k];
+          // A sequence that points past the end of a project's images would
+          // otherwise render an empty block and look like a styling problem.
+          if (!im) throw new Error('EDITORIAL[' + slug + ']: no image at index ' + k);
+          return im;
+        });
+        const grp = (typeof b.g === 'number' && d.groups) ? d.groups[b.g] : null;
         // width/height come from DIMS so the browser reserves each image's own
         // proportion before it loads: nothing is cropped and nothing shifts.
         // Loading stays lazy in the markup rather than being interpolated — an
@@ -844,9 +809,9 @@ class Component extends DCLogic {
         return {
           isPair: b.t === 'p',
           isSingle: b.t !== 'p',
-          hasLabel: !!b.lb,
-          label: b.lb || '',
-          note: b.nt || '',
+          hasLabel: !!(grp && grp.head),
+          label: grp ? (grp.head || '') : '',
+          note: grp ? (grp.sub || '') : '',
           // an inset is a width and an edge; 'r' pushes it against the right rail
           style: b.t === 'p'
             ? '--pj-cols:' + (b.sp || '1fr 1fr')
