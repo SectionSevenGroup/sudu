@@ -1,15 +1,18 @@
 # Netlify configuration for the sudustudioarchitecture site.
-# The site is static with no build step, so the repository root is published
-# as-is and _redirects sits alongside this file at the publish root.
+# The authored source remains static HTML. The deploy command performs only
+# deterministic source hardening and the existing dependency-light project
+# generation; there is no framework runtime or client-side build dependency.
 
 [build]
+  command = "node scripts/audit-hardening.mjs && node scripts/service-shell-inject.mjs && node scripts/build-projects.mjs && node scripts/post-generate.mjs"
   publish = "."
 
 [build.processing]
   skip_processing = false
 
 # pretty_urls issues the .html -> extensionless 301 (and /path/index.html ->
-# /path/), which is why _redirects carries no /*.html splat rule.
+# /path/). Internal links and canonicals now point at those destinations
+# directly so normal navigation never pays that redirect.
 [build.processing.html]
   pretty_urls = true
 
