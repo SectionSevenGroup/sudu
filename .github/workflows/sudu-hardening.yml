@@ -1,4 +1,4 @@
-name: SuDu hardening pass
+name: SuDu hardening follow-up
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   apply:
-    if: ${{ !contains(github.event.head_commit.message, '[hardening-output]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[post-hardening-output]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,16 +19,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Apply approved SuDu hardening
-        run: node scripts/apply-site-hardening.mjs
-      - name: Commit generated hardening output
+      - name: Apply post-hardening consistency fixes
+        run: node scripts/apply-post-hardening.mjs
+      - name: Commit follow-up output
         run: |
           if git diff --quiet; then
-            echo "No hardening changes produced."
+            echo "No follow-up changes produced."
             exit 0
           fi
           git config user.name "sudu-hardening-bot"
           git config user.email "actions@users.noreply.github.com"
           git add -A
-          git commit -m "Apply SuDu hardening [hardening-output]"
+          git commit -m "Finish SuDu hardening [post-hardening-output]"
           git push
