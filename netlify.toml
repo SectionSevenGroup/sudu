@@ -4,7 +4,7 @@
 # generation; there is no framework runtime or client-side build dependency.
 
 [build]
-  command = "node scripts/audit-hardening.mjs && node scripts/build-projects.mjs"
+  command = "node scripts/audit-hardening.mjs && node scripts/service-shell-inject.mjs && node scripts/build-projects.mjs && node scripts/post-generate.mjs"
   publish = "."
 
 [build.processing]
