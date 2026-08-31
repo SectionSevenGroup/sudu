@@ -12,44 +12,6 @@ html = html.replace(
   '$1border-bottom:1px solid transparent;$2'
 );
 
-// Contact already authors the exact same glyph used by the homepage controls:
-// U+203A / &#8250; (›). Do not mutate the DOM to change it. Instead, verify
-// that the source still contains the expected glyphs and apply the homepage's
-// Urbanist chevron treatment with CSS only. If either source contract changes,
-// fail the build rather than silently shipping a different arrow language.
-if (!html.includes('>&#8250;</span>')) {
-  throw new Error('Contact FAQ chevron glyph contract changed: expected U+203A / &#8250;');
-}
-if (!html.includes("sent ? '\\u2713' : '\\u203A'")) {
-  throw new Error('Contact Send inquiry glyph contract changed: expected U+203A in sendGlyph');
-}
-
-if (!html.includes('id="contactChevronStandard"')) {
-  const chevrons = `
-<style id="contactChevronStandard">
-  section[data-screen-label="FAQ"] button[aria-expanded] > span:last-child,
-  form[name="contact"] button[type="submit"] > span:last-child {
-    font-family:'Urbanist',sans-serif !important;
-    font-weight:700 !important;
-    letter-spacing:-0.12em !important;
-    line-height:1 !important;
-    color:inherit !important;
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    width:1.2em !important;
-    height:1.2em !important;
-    flex:none !important;
-  }
-  section[data-screen-label="FAQ"] button[aria-expanded] > span:last-child {
-    font-size:20px !important;
-  }
-  form[name="contact"] button[type="submit"] > span:last-child {
-    font-size:18px !important;
-  }
-</style>`;
-  html = html.replace('</helmet>', chevrons + '\n</helmet>');
-}
 
 // Charcoal needs more optical contrast than Off-white/Burnt. The current dark
 // theme is produced by filtering each section, so the original warm greys and
@@ -83,4 +45,4 @@ work = work.replace(
 );
 writeFileSync(workPath, work);
 
-console.log('Applied Contact header, chevron CSS, charcoal contrast, and Work count fixes.');
+console.log('Applied Contact header, charcoal contrast, and Work count fixes.');
