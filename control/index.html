@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>SuDu / Control</title>
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+<link rel="stylesheet" href="/css/control.css">
+</head>
+<body>
+<header class="control-header">
+  <a class="brand" href="/control/" aria-label="SuDu Control"><img src="/images/sudu-mark.png" alt="SuDu Studio"></a>
+  <div class="header-actions">
+    <span class="control-word">CONTROL</span>
+    <a href="/" target="_blank" rel="noopener">View site</a>
+    <button id="signOut" class="text-button" hidden>Sign out</button>
+  </div>
+</header>
+
+<main id="app" class="control-shell">
+  <section id="loginView" class="login-view">
+    <div class="eyebrow">PRIVATE ADMINISTRATION</div>
+    <h1>SuDu / Control</h1>
+    <p>Edit project content and imagery without touching code. Changes remain on a private review branch until you publish them.</p>
+    <form id="loginForm" class="login-form">
+      <label for="password">Password</label>
+      <div class="inline-field"><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">Enter</button></div>
+      <p id="loginError" class="status error" role="status"></p>
+    </form>
+  </section>
+
+  <section id="adminView" hidden>
+    <div class="control-intro">
+      <div><div class="eyebrow">PRIVATE ADMINISTRATION</div><h1>Control</h1></div>
+      <div class="release-block">
+        <div><span>Draft</span><strong id="draftState">Checking…</strong></div>
+        <div><span>Preview</span><a id="previewLink" href="#" target="_blank" rel="noopener">Not available</a></div>
+      </div>
+    </div>
+
+    <nav class="section-nav" aria-label="Control sections">
+      <button class="section-tab active" data-view="projects">Projects</button>
+      <button class="section-tab" data-view="site">Site</button>
+      <button class="section-tab" data-view="history">Changes</button>
+    </nav>
+
+    <section id="projectsPanel" class="panel active">
+      <div class="panel-heading">
+        <div><div class="eyebrow">WORK</div><h2>Projects</h2></div>
+        <button id="newProject" class="primary-action">New project</button>
+      </div>
+      <div class="project-layout">
+        <aside class="project-index">
+          <div class="search-wrap"><label for="projectSearch">Find project</label><input id="projectSearch" type="search" placeholder="Search"></div>
+          <ol id="projectList" class="project-list"></ol>
+        </aside>
+        <section id="projectEditor" class="project-editor" aria-live="polite">
+          <div class="empty-editor">Select a project to edit.</div>
+        </section>
+      </div>
+    </section>
+
+    <section id="sitePanel" class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">SITE</div><h2>Site controls</h2></div></div>
+      <div class="notice"><strong>Deliberately constrained.</strong><p>Global colour, typography, navigation and structural layout remain governed design decisions. This first release does not turn SuDu into a page builder.</p></div>
+      <div class="settings-list">
+        <div><span>Default authored ground</span><strong>Off-white</strong></div>
+        <div><span>Primary grounds</span><strong>Burnt / Off-white / Charcoal</strong></div>
+        <div><span>Typography</span><strong>Urbanist</strong></div>
+        <div><span>Global content rail</span><strong>1760 px</strong></div>
+      </div>
+    </section>
+
+    <section id="historyPanel" class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">REVIEW + PUBLISH</div><h2>Changes</h2></div></div>
+      <div class="publish-layout">
+        <div>
+          <h3>Draft workflow</h3>
+          <p>Every save is committed to the Control draft branch. Netlify builds that branch for review. Publishing merges the reviewed changes into <code>main</code>; Netlify then deploys the public site.</p>
+        </div>
+        <div class="publish-actions">
+          <button id="refreshStatus">Refresh preview</button>
+          <button id="discardDraft">Discard draft</button>
+          <button id="publishDraft" class="primary-action">Publish changes</button>
+          <p id="publishStatus" class="status" role="status"></p>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<footer class="control-footer">
+  <div><img src="/images/sudu-mark.png" alt=""><span></span><small>© 2026 SuDu Studio Architecture</small></div>
+  <small>Private / Control</small>
+</footer>
+<script src="/js/control.js" defer></script>
+</body>
+</html>
