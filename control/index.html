@@ -25,7 +25,7 @@
   <section id="loginView" class="login-view">
     <div class="eyebrow">PRIVATE ADMINISTRATION</div>
     <h1>SuDu / Control</h1>
-    <p>Edit project content and imagery without touching code. Changes remain on a private review branch until you publish them.</p>
+    <p>Edit project content, imagery and site copy without touching code. Changes remain on a private review branch until you publish them.</p>
     <form id="loginForm" class="login-form">
       <label for="password">Password</label>
       <div class="inline-field"><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">Enter</button></div>
@@ -44,7 +44,8 @@
 
     <nav class="section-nav" aria-label="Control sections">
       <button class="section-tab active" data-view="projects">Projects</button>
-      <button class="section-tab" data-view="site">Site</button>
+      <button class="section-tab" data-view="site">Site copy</button>
+      <button class="section-tab" data-view="design">Design system</button>
       <button class="section-tab" data-view="history">Changes</button>
     </nav>
 
@@ -65,13 +66,29 @@
     </section>
 
     <section id="sitePanel" class="panel">
-      <div class="panel-heading"><div><div class="eyebrow">SITE</div><h2>Site controls</h2></div></div>
-      <div class="notice"><strong>Deliberately constrained.</strong><p>Global colour, typography, navigation and structural layout remain governed design decisions. This first release does not turn SuDu into a page builder.</p></div>
+      <div class="panel-heading">
+        <div><div class="eyebrow">SITE</div><h2>Site copy</h2></div>
+        <a id="copyPagePreview" class="text-preview-link" href="/" target="_blank" rel="noopener">Open page</a>
+      </div>
+      <div class="copy-layout">
+        <aside class="copy-page-index">
+          <div class="copy-index-label">Pages</div>
+          <ol id="copyPageList" class="copy-page-list"><li class="copy-loading">Loading…</li></ol>
+        </aside>
+        <section id="copyEditor" class="copy-editor" aria-live="polite">
+          <div class="empty-editor">Choose a page to edit its copy.</div>
+        </section>
+      </div>
+    </section>
+
+    <section id="designPanel" class="panel">
+      <div class="panel-heading"><div><div class="eyebrow">SYSTEM</div><h2>Design system</h2></div></div>
+      <div class="notice"><strong>Protected by design governance.</strong><p>Global colour, typography, navigation and structural layout remain governed decisions. Control exposes their current values for reference but does not turn them into casual page-builder settings.</p></div>
       <div class="settings-list">
-        <div><span>Default authored ground</span><strong>Off-white</strong></div>
         <div><span>Primary grounds</span><strong>Burnt / Off-white / Charcoal</strong></div>
         <div><span>Typography</span><strong>Urbanist</strong></div>
         <div><span>Global content rail</span><strong>1760 px</strong></div>
+        <div><span>Section separation</span><strong>0.5 px hairlines</strong></div>
       </div>
     </section>
 
