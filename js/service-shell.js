@@ -25,7 +25,10 @@
 
   var P = 'sudu-dm-bg';
   var opts = [['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
+  var saved = '#F3F1EA';
+
   function apply(v) {
+    saved = v;
     var h = document.documentElement;
     if (v === '#F3F1EA') { h.classList.remove('dm'); h.style.removeProperty('--dm-bg'); }
     else { h.classList.add('dm'); h.style.setProperty('--dm-bg', v); }
@@ -46,7 +49,7 @@
     if (window.suduBar) window.suduBar().appendChild(d);
     else document.documentElement.appendChild(d);
   }
-  var saved = '#F3F1EA';
+
   try { saved = localStorage.getItem(P) || saved; } catch(e) {}
   apply(saved === '#D0271F' ? '#C0431F' : saved);
   build();
