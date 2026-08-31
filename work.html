@@ -94,63 +94,21 @@
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
 </style>
 <style>
-  /* An eager thumb that is already decoded simply paints. One that lands
-     late arrives on the same easing as everything else rather than
-     snapping in. No placeholder: the aspect-ratio box and the field are
-     already holding the slot. */
-  .wk-wait { opacity:0; }
-  .wk-in { opacity:1; transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
-  @media (prefers-reduced-motion: reduce){ .wk-wait, .wk-in { opacity:1; transition:none; } }
+  /* The card is the unit that reveals: image, eyebrow, number, title and
+     location move as one object. A thumb that is already decoded simply
+     paints with its card; one that lands late arrives on the same easing
+     rather than snapping in. No placeholder — the aspect-ratio box and the
+     field are already holding the slot. */
+  .wk-card { opacity:0; transform:translateY(8px); }
+  .wk-card.wk-on { opacity:1; transform:none;
+    transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1); }
+  .wk-late { opacity:0; }
+  .wk-late.wk-on { opacity:1; transition:opacity .7s cubic-bezier(.16,1,.3,1); }
+  @media (prefers-reduced-motion: reduce) {
+    .wk-card, .wk-card.wk-on, .wk-late, .wk-late.wk-on { opacity:1; transform:none; transition:none; }
+  }
 </style>
-<script>(function(){
-  if (window.__suduWorkArrive) return;
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var arrive = function(){
-    // Scoped to the rendered root, and never to a source the runtime has not
-    // resolved yet: during a Turbo swap the raw <x-dc> template is briefly in
-    // the document, and promoting one of its "{{ it.thumb }}" images to eager
-    // makes the browser fetch that literal string.
-    var root = document.getElementById('dc-root');
-    if (!root) return;
-    var all = root.querySelectorAll('section[data-screen-label="Work Index"] img');
-    var list = [];
-    for (var n = 0; n < all.length; n++) {
-      var src = all[n].getAttribute('src') || '';
-      if (src.indexOf('{{') === -1) list.push(all[n]);
-    }
-    // The first two rows are what a visitor sees when Work opens, so they are
-    // promoted the moment the grid exists instead of waiting on the scroller.
-    // Everything below the fold stays lazy: 19 full-resolution thumbs is not a
-    // payload to pull eagerly.
-    for (var j = 0; j < list.length && j < 5; j++) {
-      if (list[j].getAttribute('loading') !== 'eager') {
-        list[j].setAttribute('loading', 'eager');
-        list[j].setAttribute('fetchpriority', 'high');
-      }
-    }
-    if (reduced) return;
-    for (var i = 0; i < list.length; i++) (function(im){
-      if (im.getAttribute('data-arrive')) return;
-      im.setAttribute('data-arrive', '1');
-      if (im.complete && im.naturalWidth > 0) return;   // already there
-      im.classList.add('wk-wait');
-      var show = function(){ im.classList.remove('wk-wait'); im.classList.add('wk-in'); };
-      im.addEventListener('load', show, { once:true });
-      im.addEventListener('error', show, { once:true });
-    })(list[i]);
-  };
-  // The grid is rendered by the runtime, so the first pass may run before it
-  // exists; retry for a few frames rather than assuming.
-  var pump = function (tries) {
-    arrive();
-    var root = document.getElementById('dc-root');
-    var has = root && root.querySelector('section[data-screen-label="Work Index"] img');
-    if (!has && tries < 20) requestAnimationFrame(function () { pump(tries + 1); });
-  };
-  window.__suduWorkArrive = function () { pump(0); };
-  pump(0);
-  document.addEventListener('turbo:load', function () { pump(0); });
-})();</script>
+<script src="js/work-reveal.js?v=8890047d" defer></script>
 <script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 window.__suduMark=mark;})();
