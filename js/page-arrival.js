@@ -28,6 +28,12 @@
     if (!root) return null;
     var secs = root.querySelectorAll('section[data-screen-label]');
     for (var i = 0; i < secs.length; i++) {
+      // The homepage hero is not an inner page's opening screen. It runs its
+      // own intro, and its drawing is positioned by a transform, so settling
+      // this section overwrote translate(-50%,-50%) with translateY(6px) and
+      // then cleared it: the drawing ended up half its own width to the right
+      // of centre, which read as the whole page being displaced.
+      if (secs[i].id === 'hero' || secs[i].querySelector('#heroImg')) continue;
       // the opening screen is the first section that actually carries content
       if (secs[i].textContent.trim().length > 20) return secs[i];
     }
@@ -36,6 +42,11 @@
 
   function settle(el, delay) {
     if (!el || el.getAttribute('data-arrived')) return;
+    // An element that carries its own inline transform is positioning itself.
+    // This pass animates a transform and then clears it, which would destroy
+    // that positioning, so it leaves such elements alone.
+    if (el.style && el.style.transform) return;
+    if (el.querySelector && el.querySelector('#heroImg')) return;
     el.setAttribute('data-arrived', '1');
     if (REDUCED.matches) return;
     el.style.opacity = '0';
