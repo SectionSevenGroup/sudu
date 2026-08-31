@@ -1,0 +1,53 @@
+/* The site-wide content rail.
+ *
+ * One datum for every page. Expressed as horizontal *padding* rather than as a
+ * container element, so it can only ever widen the fluid gutter the pages
+ * already use: below the width where the centring term overtakes
+ * clamp(20px,4.5vw,64px) every value computes exactly as it did before, and
+ * above it ordinary content stops travelling toward the viewport edges. There
+ * is no breakpoint — the crossover is continuous.
+ *
+ * The canvas stays full bleed. Nothing here touches a ground, a hero field, a
+ * section rule, a divider or the chrome bar's background: those are all set on
+ * the elements themselves and keep running edge to edge. Only the ordinary
+ * content inside them moves.
+ *
+ * No colour is stated anywhere in this file, so the dark-mode marker cannot
+ * mistake any of it for a cream panel. Purely horizontal: no rule below
+ * touches a vertical value, a size, a weight or a colour.
+ */
+:root {
+  --sudu-gutter: clamp(20px, 4.5vw, 64px);
+  --sudu-rail: 1760px;
+  --sudu-inset: max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2));
+}
+
+/* Shared chrome. The header's blurred ground and the footer's field and
+   hairline stay full width; only the mark, the nav and the footer's two
+   information groups come in to the rail. Matched by tag: only the homepage's
+   header carries an id, the footer is wrapped by the runtime rather than being
+   a child of body, and there is exactly one of each per page. */
+header,
+footer {
+  padding-left: var(--sudu-inset) !important;
+  padding-right: var(--sudu-inset) !important;
+}
+
+/* Ordinary page content. Every one of these already carried the same
+   clamp(20px,4.5vw,64px) gutter, so this substitutes the rail inset for it and
+   changes nothing below the engagement width. The homepage keeps its own list
+   from Phase 2.1, which resolves to the identical value. */
+section[data-screen-label="Work Index"],
+section[data-screen-label="Studio Intro"],
+section[data-screen-label="Founders"],
+section[data-screen-label="Contact"],
+section[data-screen-label="FAQ"],
+section[data-screen-label="Project Hero"],
+section[data-screen-label="Project Facts"],
+section[data-screen-label="Project Gallery"],
+section[data-screen-label="Project Gallery Slots"],
+section[data-screen-label="Related Work"],
+section[data-screen-label="Start a Project"] {
+  padding-left: var(--sudu-inset) !important;
+  padding-right: var(--sudu-inset) !important;
+}

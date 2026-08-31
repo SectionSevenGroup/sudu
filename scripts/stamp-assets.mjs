@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 const PAGES = ['index.html', 'work.html', 'studio.html', 'contact.html', 'project.html'];
-const REF = /(<script[^>]*\ssrc=")(\.?\/?)([A-Za-z0-9._\/-]+\.js)(\?v=[^"]*)?(")/g;
+const REF = /(<(?:script[^>]*\ssrc|link[^>]*\shref)=")(\.?\/?)([A-Za-z0-9._\/-]+\.(?:js|css))(\?v=[^"]*)?(")/g;
 
 const hashes = new Map();
 function stamp(file) {
@@ -31,5 +31,5 @@ for (const page of PAGES) {
   if (after !== before) { writeFileSync(page, after); changed++; }
 }
 const list = [...hashes].map(([f, h]) => `${f}=${h}`).join(' ');
-console.log(`stamped ${hashes.size} scripts across ${PAGES.length} pages (${changed} rewritten)`);
+console.log(`stamped ${hashes.size} assets across ${PAGES.length} pages (${changed} rewritten)`);
 console.log('  ' + list);
