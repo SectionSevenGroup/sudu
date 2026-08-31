@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
-const PAGES = ['index.html', 'work.html', 'studio.html', 'contact.html', 'project.html'];
+const PAGES = ['index.html', 'work.html', 'studio.html', 'contact.html', 'project.html', 'custom-home-design-edmonton.html', 'renovations-additions-edmonton.html', 'restaurant-hospitality-design-edmonton.html', 'commercial-retail-design-edmonton.html'];
 const REF = /(<(?:script[^>]*\ssrc|link[^>]*\shref)=")(\.?\/?)([A-Za-z0-9._\/-]+\.(?:js|css))(\?v=[^"]*)?(")/g;
 
 const hashes = new Map();

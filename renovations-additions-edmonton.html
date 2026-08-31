@@ -6,24 +6,29 @@
 <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Home Renovations + Additions Edmonton | SuDu Studio Architecture</title>
+<title>Home Renovation + Addition Design Edmonton | SuDu Studio</title>
 <meta name="description" content="Architect-led renovations and additions in Edmonton. SuDu Studio reworks existing homes with the same care as new builds: planning, permits, and construction.">
-<link rel="canonical" href="https://sudu.studio/renovations-additions-edmonton.html">
-<meta property="og:title" content="Home Renovations + Additions Edmonton | SuDu Studio Architecture">
+<link rel="canonical" href="https://sudu.studio/renovations-additions-edmonton">
+<meta property="og:title" content="Home Renovation + Addition Design Edmonton | SuDu Studio">
 <meta property="og:description" content="Architect-led renovations and additions in Edmonton. SuDu Studio reworks existing homes with the same care as new builds: planning, permits, and construction.">
-<meta property="og:url" content="https://sudu.studio/renovations-additions-edmonton.html">
+<meta property="og:url" content="https://sudu.studio/renovations-additions-edmonton">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://sudu.studio/images/west-vancouver-private-residence.jpg">
 <meta name="robots" content="index, follow">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Renovations + Additions in Edmonton","provider":{"@id":"https://sudu.studio/#org"},"areaServed":[{"@type":"City","name":"Edmonton"},{"@type":"State","name":"Alberta"}],"url":"https://sudu.studio/renovations-additions-edmonton.html","description":"Architect-led renovations and additions in Edmonton. SuDu Studio reworks existing homes with the same care as new builds: planning, permits, and construction."}</script>
-<script src="./js/support.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Renovations + Additions in Edmonton","provider":{"@id":"https://sudu.studio/#org"},"areaServed":[{"@type":"City","name":"Edmonton"},{"@type":"State","name":"Alberta"}],"url":"https://sudu.studio/renovations-additions-edmonton","description":"Architect-led renovations and additions in Edmonton. SuDu Studio reworks existing homes with the same care as new builds: planning, permits, and construction."}</script>
+<link rel="stylesheet" href="/css/rail.css?v=6237dc0c">
+<script src="/js/support.js?v=8fe7df74"></script>
+<script src="/js/chrome-bar.js?v=6ede34ea"></script>
+<script src="/js/turbo-boot.js?v=113aaca3" defer></script>
+<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
+<meta name="turbo-cache-control" content="no-preview">
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -33,19 +38,99 @@
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  html.dm, html.dm body { background:var(--dm-bg,#C0431F); }
+  html.dm .dm-wrap { background:var(--dm-bg,#C0431F) !important; }
+  html.dm .dm-flat:not(header):not(footer):not(#suduNav) { background:transparent !important; }
+  /* Ground, blur, border and ink for all three pills now come from the chrome
+     bar (js/chrome-bar.js), which states them once for every theme instead of
+     each pill restating them. What stays here is the swatch buttons. */
+  #dmSwatches { display:flex !important; }
+  #dmSwatches button { box-shadow:none !important; border:0 !important; }
+  html.dm #dmSwatches button { filter:none !important; }
+  html.xh, html.xh * { cursor:none !important; }
+  #xhair { position:fixed; left:0; top:0; width:0; height:0; pointer-events:none; z-index:99998; will-change:transform; }
+  #xhair i { position:absolute; display:block; --xh:#57554E; }
+  html.dm #xhair i { --xh:#F5F3EC; }
+  html.dm.dmlight #xhair i { --xh:#171613; }
+  #xhair { --len:16px; --gap:5px; }
+  #xhair i { opacity:0.72; }
+  #xhair i:nth-child(1), #xhair i:nth-child(2) { width:1px; left:-0.5px; height:var(--len); transform:scaleX(0.75); }
+  #xhair i:nth-child(1) { top:calc(-1 * (var(--len) + var(--gap))); background:linear-gradient(to bottom, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(2) { top:var(--gap); background:linear-gradient(to top, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(3), #xhair i:nth-child(4) { height:1px; top:-0.5px; width:var(--len); transform:scaleY(0.75); }
+  #xhair i:nth-child(3) { left:calc(-1 * (var(--len) + var(--gap))); background:linear-gradient(to right, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(4) { left:var(--gap); background:linear-gradient(to left, transparent 0%, var(--xh) 34%); }
+  html.dm.dmred section p, html.dm.dmred section dt, html.dm.dmred section dd, html.dm.dmred section li, html.dm.dmred section h1, html.dm.dmred section h2, html.dm.dmred section h3, html.dm.dmred section h4, html.dm.dmred section h5, html.dm.dmred section span, html.dm.dmred section a, html.dm.dmred section small, html.dm.dmred section strong, html.dm.dmred section em, html.dm.dmred section label, html.dm.dmred section button, html.dm.dmred section input, html.dm.dmred section textarea, html.dm.dmred section figcaption, html.dm.dmred .dm-wrap > *:not(header):not(footer) p, html.dm.dmred .dm-wrap > *:not(header):not(footer) dt, html.dm.dmred .dm-wrap > *:not(header):not(footer) dd, html.dm.dmred .dm-wrap > *:not(header):not(footer) li, html.dm.dmred .dm-wrap > *:not(header):not(footer) h1, html.dm.dmred .dm-wrap > *:not(header):not(footer) h2, html.dm.dmred .dm-wrap > *:not(header):not(footer) h3, html.dm.dmred .dm-wrap > *:not(header):not(footer) h4, html.dm.dmred .dm-wrap > *:not(header):not(footer) h5, html.dm.dmred .dm-wrap > *:not(header):not(footer) span, html.dm.dmred .dm-wrap > *:not(header):not(footer) a, html.dm.dmred .dm-wrap > *:not(header):not(footer) small, html.dm.dmred .dm-wrap > *:not(header):not(footer) strong, html.dm.dmred .dm-wrap > *:not(header):not(footer) em, html.dm.dmred .dm-wrap > *:not(header):not(footer) label, html.dm.dmred .dm-wrap > *:not(header):not(footer) button, html.dm.dmred .dm-wrap > *:not(header):not(footer) input, html.dm.dmred .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmred .dm-wrap > *:not(header):not(footer) figcaption { color:#171613 !important; }
+  html.dm.dmlight section p, html.dm.dmlight section dt, html.dm.dmlight section dd, html.dm.dmlight section li, html.dm.dmlight section h1, html.dm.dmlight section h2, html.dm.dmlight section h3, html.dm.dmlight section h4, html.dm.dmlight section h5, html.dm.dmlight section span, html.dm.dmlight section a, html.dm.dmlight section small, html.dm.dmlight section strong, html.dm.dmlight section em, html.dm.dmlight section label, html.dm.dmlight section button, html.dm.dmlight section input, html.dm.dmlight section textarea, html.dm.dmlight section figcaption, html.dm.dmlight .dm-wrap > *:not(header):not(footer) p, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dt, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dd, html.dm.dmlight .dm-wrap > *:not(header):not(footer) li, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h1, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h2, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h3, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h4, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h5, html.dm.dmlight .dm-wrap > *:not(header):not(footer) span, html.dm.dmlight .dm-wrap > *:not(header):not(footer) a, html.dm.dmlight .dm-wrap > *:not(header):not(footer) small, html.dm.dmlight .dm-wrap > *:not(header):not(footer) strong, html.dm.dmlight .dm-wrap > *:not(header):not(footer) em, html.dm.dmlight .dm-wrap > *:not(header):not(footer) label, html.dm.dmlight .dm-wrap > *:not(header):not(footer) button, html.dm.dmlight .dm-wrap > *:not(header):not(footer) input, html.dm.dmlight .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmlight .dm-wrap > *:not(header):not(footer) figcaption { color:#F5F3EC !important; }
+  html.dm.dmred [style*="A6A399"], html.dm.dmred [style*="67655D"] { color:#171613 !important; }
+  html.dm.dmlight [style*="A6A399"], html.dm.dmlight [style*="67655D"] { color:#F5F3EC !important; }
+  #langSwitch button { position:relative; }
+  #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
+  html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
+  html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
+  html.dm section { filter: invert(1) hue-rotate(180deg); }
+  html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
+  html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm section img[src*="sudu-mark"], html.dm .dm-wrap > *:not(section):not(header):not(footer) img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
+  
+
+  /* header/footer chrome: declared last, single source of truth */
+  html.dm header, html.dm footer { filter:none !important; }
+  html.dm header { background:color-mix(in srgb, var(--dm-bg,#C0431F) 90%, transparent) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:0 !important; }
+  html.dm footer { background:transparent !important; }
+  /* burnt/charcoal: every footer rule, divider and glyph is off white — no greys */
+  html.dm footer, html.dm footer * { border-color:rgba(245,243,236,.45) !important; }
+  html.dm footer, html.dm footer *:not(img) { color:#F5F3EC !important; }
+  html.dm footer span[style*="background"], html.dm footer div[style*="width:1px"] { background:rgba(245,243,236,.5) !important; }
+  html.dm.dmwarm section, html.dm.dmwarm section * { border-color:rgba(23,22,19,.42) !important; }
+  html.dm.dmwarm section *:not(img):not(video) { color:#171613 !important; }
+  /* placeholders are pseudo-elements, so * never reached them */
+  html.dm input::placeholder, html.dm textarea::placeholder { color:#26241F !important; opacity:1 !important; }
+  /* one hairline weight everywhere: chips, field underlines, dividers, section rules */
+  html.dm section, html.dm section *, html.dm footer, html.dm footer * { border-width:0.5px !important; }
+  section, section *, footer, footer *, header, header * { border-width:0.5px; }
+  html.dm:not(.dmlight) header a, html.dm:not(.dmlight) footer a, html.dm:not(.dmlight) header span, html.dm:not(.dmlight) footer span, html.dm:not(.dmlight) header div, html.dm:not(.dmlight) footer div, html.dm:not(.dmlight) header button, html.dm:not(.dmlight) footer button, html.dm:not(.dmlight) header small, html.dm:not(.dmlight) footer small, html.dm:not(.dmlight) header strong, html.dm:not(.dmlight) footer strong, html.dm:not(.dmlight) header nav a, html.dm:not(.dmlight) footer nav a { color:#F5F3EC !important; }
+  html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
+  html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
+  html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
 </style>
+<script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
+[0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
+window.__suduMark=mark;})();
+(function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
+function apply(v){if(window.__suduMark)window.__suduMark();var h=document.documentElement;if(v==='#F3F1EA'){h.classList.remove('dm','dmwarm','dmred','dmlight');h.style.removeProperty('--dm-bg');}else{h.classList.add('dm');h.style.setProperty('--dm-bg',v);h.classList.toggle('dmwarm',v!=='#121110');h.classList.toggle('dmred',v!=='#121110');h.classList.remove('dmlight');}try{localStorage.setItem(P,v);}catch(e){}var sw=document.getElementById('dmSwatches');if(sw)[].forEach.call(sw.children,function(b){b.hidden=b.getAttribute('data-v')===v;});}
+try{var s=localStorage.getItem(P);apply(s==='#D0271F'?'#C0431F':(s||'#F3F1EA'));}catch(e){apply('#F3F1EA');}
+function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});if(window.suduBar)window.suduBar().appendChild(d);else document.documentElement.appendChild(d);}
+build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#F3F1EA');},900);})();
+
+(function(){if(window.__xhInit||!matchMedia('(pointer:fine)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
+function make(){if(!document.body)return;var ex=document.querySelectorAll('#xhair');if(ex.length){for(var i=1;i<ex.length;i++)ex[i].remove();el=ex[0];return;}if(el)return;el=document.createElement('div');el.id='xhair';el.innerHTML='<i></i><i></i><i></i><i></i>';document.documentElement.appendChild(el);document.documentElement.classList.add('xh');}
+make();setTimeout(make,600);
+function draw(){raf=0;if(el)el.style.transform='translate3d('+x+'px,'+y+'px,0)';}
+var lx=0,ly=0,lt=0,len=16,tlen=16,loop=0;
+function tick(){var d=tlen-len;len+=d*0.18;if(el)el.style.setProperty('--len',len.toFixed(1)+'px');tlen+=(16-tlen)*0.06;if(Math.abs(d)>0.3||tlen>16.5){loop=requestAnimationFrame(tick);}else{loop=0;len=16;tlen=16;if(el)el.style.setProperty('--len','16px');}}
+addEventListener('pointermove',function(e){var t=e.timeStamp||performance.now();var dt=Math.max(t-lt,8);var sp=Math.hypot(e.clientX-lx,e.clientY-ly)/dt*16;lx=e.clientX;ly=e.clientY;lt=t;x=e.clientX;y=e.clientY;tlen=Math.min(16+sp*2.4,120);make();if(!loop)loop=requestAnimationFrame(tick);if(!raf)raf=requestAnimationFrame(draw);}, { passive:true});
+addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passive:true});
+addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
+document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
+document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
+<script src="i18n.js?v=6006c1b9" defer></script>
+<script src="js/page-arrival.js?v=084e8a28" defer></script>
+<script src="js/audio-player.js?v=5e49f639" defer></script>
+<script type="module" src="js/haptics.js?v=3c4ba22c"></script>
 </helmet>
 
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
-    <a href="index.html" style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+    <header id="suduNav" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
+    <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="work.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="studio.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="contact.html" style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
     </nav>
   </header>
 
@@ -56,8 +141,8 @@
       <p style="flex:1 1 380px; max-width:56ch; margin:0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;">The best house is often the one you already own. SuDu Studio designs renovations and additions across Edmonton and Alberta that rework existing homes with the same discipline as a new build.</p>
     </div>
     <div style="display:flex; flex-wrap:wrap; gap:clamp(14px,1.8vw,24px); padding-bottom:clamp(28px,3.5vw,44px);">
-      <div data-reveal style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/west-vancouver-private-residence.jpg" alt="Renovated private residence and gallery, West Vancouver" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
-      <div data-reveal style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/wv-interior.jpg" alt="Interior of renovated residence with gallery walls" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
+      <div data-reveal style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img srcset="/.netlify/images?url=/images/west-vancouver-private-residence.jpg&amp;w=480&amp;q=82 480w, /.netlify/images?url=/images/west-vancouver-private-residence.jpg&amp;w=800&amp;q=82 800w, /.netlify/images?url=/images/west-vancouver-private-residence.jpg&amp;w=1200&amp;q=82 1200w, /.netlify/images?url=/images/west-vancouver-private-residence.jpg&amp;w=1600&amp;q=82 1600w" sizes="(max-width: 720px) 100vw, 50vw" src="/.netlify/images?url=/images/west-vancouver-private-residence.jpg&amp;w=800&amp;q=82" alt="Renovated private residence and gallery, West Vancouver" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
+      <div data-reveal style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img srcset="/.netlify/images?url=/images/wv-interior.jpg&amp;w=480&amp;q=82 480w, /.netlify/images?url=/images/wv-interior.jpg&amp;w=800&amp;q=82 800w, /.netlify/images?url=/images/wv-interior.jpg&amp;w=1200&amp;q=82 1200w, /.netlify/images?url=/images/wv-interior.jpg&amp;w=1600&amp;q=82 1600w" sizes="(max-width: 720px) 100vw, 50vw" src="/.netlify/images?url=/images/wv-interior.jpg&amp;w=800&amp;q=82" alt="Interior of renovated residence with gallery walls" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
     </div>
   </section>
 
@@ -81,21 +166,20 @@
 
   <section data-reveal data-screen-label="Related" style="display:flex; flex-wrap:wrap; align-items:baseline; gap:14px 28px; padding:clamp(32px,4vw,48px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
     <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">Also from the studio</span>
-    <a href="custom-home-design-edmonton.html" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.3); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Custom Home Design</a>
-      <a href="commercial-retail-design-edmonton.html" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.3); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Commercial + Retail Design</a>
+    <a href="/custom-home-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.3); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Custom Home Design</a>
+      <a href="/commercial-retail-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.3); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Commercial + Retail Design</a>
   </section>
 
-  <a href="contact.html" data-reveal style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
-    <div>
-      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Start a project</div>
-      <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Say hello</div>
+    <section data-screen-label="Start a Project" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) clamp(48px,9vw,120px); border-top:1px solid rgba(23,22,19,0.13);">
+    <div data-reveal data-motion="detail" style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
+      <h2 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:900; line-height:0.95; letter-spacing:-0.02em; text-transform:uppercase;">Start a project</h2>
+      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Get in touch</a>
     </div>
-    <span style="font-size:clamp(19px,2.3vw,30px); font-weight:700; color:#E17B3E; line-height:1; letter-spacing:-0.12em;">&#8250;&#8250;</span>
-  </a>
+  </section>
 
-  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;">
+    <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; padding-bottom:64px;">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
@@ -110,23 +194,65 @@ class Component extends DCLogic {
   componentDidMount() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const ease = 'cubic-bezier(.16,1,.3,1)';
+    if (window.__suduStudioIO) { window.__suduStudioIO.refresh(); return; }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
+        const el = en.target;
         if (!en.isIntersecting) return;
-        en.target.style.opacity = '1';
-        en.target.style.transform = 'translateY(0)';
-        io.unobserve(en.target);
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        io.unobserve(el);
       });
     }, { rootMargin: '0px 0px -8% 0px' });
-    const vh = window.innerHeight || 1;
-    document.querySelectorAll('[data-reveal]').forEach((el) => {
-      if (el.getBoundingClientRect().top < vh * 0.92) return;
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 1.5s ' + ease + ', transform 1.7s ' + ease;
-      io.observe(el);
-    });
+    const refresh = () => {
+      const vh = window.innerHeight || 1;
+      document.querySelectorAll('[data-reveal]').forEach((el) => {
+        if (el._prepped) {
+          if (el.style.opacity === '0' && el.getBoundingClientRect().bottom <= 0) {
+            el.style.opacity = '1'; el.style.transform = 'none';
+          }
+          return;
+        }
+        el._prepped = true;
+        if (el.getBoundingClientRect().top < vh * 0.92) { el.style.opacity = '1'; return; }
+        // A small editorial vocabulary. Which one an element gets is decided by
+        // its place in the composition (data-motion), not by its index or by
+        // what kind of asset it holds. Opacity is the dominant effect
+        // throughout; movement is small enough to be felt rather than seen.
+        //   major  — full-width imagery: opacity only, nothing moves
+        //   pair   — adjacent members of one row, staggered left to right
+        //   detail — ordinary editorial content and grouped galleries
+        // Anything without data-motion keeps the quiet default.
+        const MOTION = {
+          major:  { rise: 0, op: 1.15, tr: 1.15 },
+          pair:   { rise: 6, op: 0.95, tr: 1.05 },
+          detail: { rise: 7, op: 1.0,  tr: 1.1 },
+          '':     { rise: 8, op: 1.0,  tr: 1.1 }
+        };
+        const kind = el.getAttribute('data-motion') || '';
+        const m = MOTION[kind] || MOTION[''];
+        // a pair takes its stagger from its own order within its row, so the
+        // sequence reads left to right without anything being hard-coded
+        let delay = 0;
+        if (kind === 'pair' && el.parentElement) {
+          const sibs = [...el.parentElement.querySelectorAll('[data-motion="pair"]')]
+            .sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+          delay = Math.max(0, sibs.indexOf(el)) * 0.1;
+        }
+        el.style.opacity = '0';
+        el.style.transform = m.rise ? 'translateY(' + m.rise + 'px)' : 'none';
+        el.style.transition = 'opacity ' + m.op + 's ' + ease + ' ' + delay + 's, transform '
+          + m.tr + 's ' + ease + ' ' + delay + 's';
+        io.observe(el);
+      });
+    };
+    window.__suduStudioIO = { refresh };
+    refresh();
+    setTimeout(refresh, 400);
+    setTimeout(refresh, 1500);
+    window.addEventListener('scroll', () => { if (!window.__ssq) { window.__ssq = 1; requestAnimationFrame(() => { window.__ssq = 0; refresh(); }); } }, { passive: true });
   }
+  componentDidUpdate() { if (window.__suduStudioIO) window.__suduStudioIO.refresh(); }
 }
 </script>
 </body>

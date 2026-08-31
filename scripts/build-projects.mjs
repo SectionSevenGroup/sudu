@@ -103,7 +103,7 @@ function generateProjectPage(slug) {
     html = html.replaceAll(`{{ ${k} }}`, v);
   }
   // strip the template-only redirect + noindex (generated pages are the real URLs)
-  html = html.replace(/<meta name="robots" content="noindex">\n/, '');
+  html = html.replace(/<meta name="robots" content="noindex(?:,\s*follow)?">\n?/, '');
   html = html.replace(/<script data-strip-on-generate>[\s\S]*?<\/script>\n/, '');
   // pin the project instead of reading ?p=
   html = html.replace(

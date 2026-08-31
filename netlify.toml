@@ -49,3 +49,19 @@
 #
 # Spam: the form carries a honeypot (netlify-honeypot="bot-field"); Netlify's
 # own filtering is on top of that. The free tier caps submissions per month.
+
+# --- browser caching ---------------------------------------------------------
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, must-revalidate"

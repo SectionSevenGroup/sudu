@@ -17,9 +17,8 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="/css/rail.css?v=1e8a086e">
+<link rel="stylesheet" href="/css/rail.css?v=6237dc0c">
 <script src="/js/support.js?v=8fe7df74"></script>
 <script src="/js/chrome-bar.js?v=6ede34ea"></script>
 
@@ -35,7 +34,7 @@
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="/js/turbo-boot.js?v=ab29423a" defer></script>
+<script src="/js/turbo-boot.js?v=113aaca3" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
@@ -149,13 +148,13 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="/studio.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
   </header>
 
   <section data-screen-label="Project Hero" style="padding:clamp(96px,12vh,128px) clamp(20px,4.5vw,64px) 0;">
-    <a href="/work.html" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
+    <a href="/work" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
       <span style="display:inline-block;">&#8592;</span> All work
     </a>
     <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 40px; margin-top:20px; padding-bottom:28px;">
@@ -168,7 +167,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   </section>
 
   <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <img src="/images/corso-32-restaurant-edmonton.jpg" alt="Corso 32" width="1500" height="998" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
+    <img srcset="/.netlify/images?url=/images/corso-32-restaurant-edmonton.jpg&amp;w=800&amp;q=84 800w, /.netlify/images?url=/images/corso-32-restaurant-edmonton.jpg&amp;w=1200&amp;q=84 1200w, /.netlify/images?url=/images/corso-32-restaurant-edmonton.jpg&amp;w=1600&amp;q=84 1600w, /.netlify/images?url=/images/corso-32-restaurant-edmonton.jpg&amp;w=2200&amp;q=84 2200w" sizes="100vw" data-sudu-project-hero="1" src="/.netlify/images?url=/images/corso-32-restaurant-edmonton.jpg&amp;w=1200&amp;q=84" alt="Corso 32" width="1500" height="998" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">

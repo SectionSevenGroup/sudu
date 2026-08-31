@@ -7,17 +7,17 @@
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-<title>Contact an Edmonton Architect | SuDu Studio</title>
+<title>Contact SuDu Studio | Architecture + Interiors | Edmonton</title>
 <meta name="description" content="Planning a custom home, renovation or commercial project in Edmonton? Start a conversation with SuDu Studio, architecture and interior design in Alberta.">
-<link rel="canonical" href="https://sudu.studio/contact.html">
-<meta property="og:title" content="Contact an Edmonton Architect | SuDu Studio">
+<link rel="canonical" href="https://sudu.studio/contact">
+<meta property="og:title" content="Contact SuDu Studio | Architecture + Interiors | Edmonton">
 <meta property="og:description" content="Planning a custom home, renovation or commercial project in Edmonton? Start a conversation with SuDu Studio, architecture and interior design in Alberta.">
-<meta property="og:url" content="https://sudu.studio/contact.html">
+<meta property="og:url" content="https://sudu.studio/contact">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="css/rail.css?v=1e8a086e">
+<link rel="stylesheet" href="css/rail.css?v=6237dc0c">
 <script src="./js/support.js?v=8fe7df74"></script>
 <script src="js/chrome-bar.js?v=6ede34ea"></script>
 <script type="application/ld+json">
@@ -30,7 +30,7 @@
    "name": "What types of projects do you take on?",
    "acceptedAnswer": {
     "@type": "Answer",
-    "text": "Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question."
+    "text": "Residential, hospitality, retail, commercial, and community work, from concept studies through architectural services delivered by registered professionals. No project is too early: some of our best work starts as a feasibility question."
    }
   }, {
    "@type": "Question",
@@ -84,7 +84,7 @@
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="js/turbo-boot.js?v=ab29423a" defer></script>
+<script src="js/turbo-boot.js?v=113aaca3" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
@@ -235,13 +235,13 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 <div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
 
   <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
-    <a href="./" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
+    <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="work.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="studio.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="contact.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a></nav>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a></nav>
   </header>
 
   <section data-screen-label="Contact" style="flex:1; padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
@@ -364,7 +364,7 @@ class Component extends DCLogic {
       { label: 'Architecture', subs: ['New Build', 'Renovation', 'Addition', 'Feasibility'] }, { label: 'Interiors', subs: ['Full Interiors', 'Millwork', 'Material Direction'] }, { label: 'Branded Environments', subs: ['Brand Integration', 'Naming', 'Signage & Wayfinding'] }, { label: 'Concept Study', subs: ['Massing Study', 'Site Study', 'Visualization'] }, { label: 'Hospitality & Retail', subs: ['Restaurant / Bar', 'Retail Space', 'Guest Experience'] }, { label: 'Advisory', subs: ['Design Direction', 'Developer Advisory', 'Peer Review'] }
     ];
     const FAQS = [
-      { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.' }, { q: 'Where do you work?', a: 'The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' }, { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' }, { q: 'Do you handle both architecture and interiors?', a: 'Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' }, { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' }, { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
+      { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies through architectural services delivered by registered professionals. No project is too early: some of our best work starts as a feasibility question.' }, { q: 'Where do you work?', a: 'The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' }, { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' }, { q: 'Do you handle both architecture and interiors?', a: 'Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' }, { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' }, { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
     ];
     const { sel, sub, open, sending, sent, status } = this.state;
     const n = TREE.length;
