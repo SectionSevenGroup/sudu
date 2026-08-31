@@ -47,6 +47,8 @@ Recommended `GITHUB_TOKEN`: a fine-grained GitHub personal access token restrict
 
 `SUDU_CONTROL_SESSION_SECRET` should be at least 32 random bytes.
 
+After changing any of these variables, trigger a fresh deploy. An already-built Netlify Function does not retroactively receive newly configured environment values.
+
 Optional overrides, normally unnecessary:
 
 - `SUDU_GITHUB_OWNER`
