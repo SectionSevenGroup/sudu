@@ -8,21 +8,21 @@
 // image still has to decode. Anything that paints in between is an intermediate
 // state the visitor was never meant to see.
 //
-// So navigation is wrapped in one document View Transition. The browser holds
-// the outgoing page on screen while the update callback runs, and every one of
-// those steps happens inside that callback — invisibly. Only when the page is
-// genuinely finished does the callback resolve, and only then does the browser
-// capture the incoming state and cross-fade to it. One outgoing state, one
-// incoming state, nothing in between.
+// The shape of the answer is two independent halves rather than one held frame:
 //
-// Turbo 8.0.23 ships its own View Transition integration, enabled with
-// <meta name="view-transition" content="same-origin">. We deliberately do not
-// use it. Its update callback resolves as soon as turbo:render has been
-// dispatched, and React commits asynchronously after that: measured on this
-// site, the browser captured #dc-root with zero children and no text, so the
-// native path cross-faded the old page into a blank field and then popped the
-// content in. The callback is ours precisely so it can be held open until the
-// content is real.
+//   click  -> the outgoing content starts fading on the very next paint, while
+//             Turbo's request runs concurrently
+//          -> it reaches the permanent SuDu field
+//          -> the incoming page is assembled behind that field, from opacity 0
+//          -> it fades gently in, once, when it is genuinely ready
+//
+// This was built on a document View Transition first, and that was wrong. A
+// view transition holds the outgoing frame still while its update callback
+// runs, and our callback is where all the assembly happens — so the visitor
+// clicked and watched a frozen page until the whole gate resolved, then got a
+// hard swap. Responsiveness has to come first and be independent of readiness.
+// The exit is therefore driven by turbo:before-visit, which fires before the
+// request, and the entrance waits on the gate. Neither blocks the other.
 //
 // The permanent frame is not part of any of this. The theme lives on <html>
 // and the chrome bar is a child of <html>, both of which Turbo never replaces,
@@ -43,67 +43,38 @@
 
   var root = document.documentElement;
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var CAN_VT = typeof document.startViewTransition === 'function';
 
-  var OUT_MS = 200;      // the fallback path's out-fade, where there is one layer
-  var IN_MS = 760;       // the incoming one settles
+  var OUT_MS = 200;      // the outgoing content leaves quickly
+  var IN_MS = 700;       // the incoming one resolves gently
   var EASE = 'cubic-bezier(.16,1,.3,1)';
-  var IMAGE_HOLD = 350;  // hard cap on waiting for the opening image
-  // Without a View Transition there is no held snapshot, so the gate is spent
-  // on an empty field rather than on the outgoing page. The same work still
-  // happens — it is simply not worth as much time when the visitor is looking
-  // at the ground while it runs.
-  var IMAGE_HOLD_FALLBACK = 180;
+  var IMAGE_HOLD = 300;  // hard cap on waiting for the opening image
   var GATE_CAP = 1400;   // absolute cap: navigation never hangs on this file
   var COMMIT_TRIES = 30; // bounded wait for React to commit
 
   var css = document.createElement('style');
   css.textContent =
     '.turbo-progress-bar{height:2px;background:#E17B3E;}' +
-    // Opacity only. No translate, scale, blur or clip: the field stays put and
-    // only what sits on it changes.
+    // Only #dc-root moves. The ground on <html>, the chrome bar, the theme and
+    // the language, music and colour controls are all outside it and hold
+    // still: content leaves the field, content arrives into it.
     //
-    // The two halves share one window and one curve, so the outgoing layer's
-    // opacity and the incoming layer's always sum to exactly 1. That matters
-    // because the browser composites the pair additively: giving the old a
-    // short fade and the new a long one leaves a stretch where neither is
-    // opaque and the cream ground shows through both. Measured on Work to
-    // Project, the pair summed to about 0.63 around 100ms and the screen
-    // washed out to near-bare ground between two dark pages.
-    //
-    // The curve is what makes the departure quick without breaking that sum:
-    // it is heavily front-loaded, so the outgoing page is 84% gone by 200ms
-    // and 95% gone by 300ms, while the incoming one spends the remaining
-    // half-second settling the last of the way in.
-    '::view-transition-group(root){animation-timing-function:' + EASE + ';}' +
-    '::view-transition-old(root){animation:sudu-out ' + IN_MS + 'ms ' + EASE + ' both;}' +
-    '::view-transition-new(root){animation:sudu-in ' + IN_MS + 'ms ' + EASE + ' both;}' +
-    '@keyframes sudu-out{to{opacity:0}}' +
-    '@keyframes sudu-in{from{opacity:0}}' +
-    // The chrome bar lives outside <body> and survives every visit intact.
-    // Giving it its own group takes it out of the root cross-fade, so it holds
-    // still while the content behind it changes.
-    '#suduBar{view-transition-name:sudu-chrome;}' +
-    '::view-transition-group(sudu-chrome){animation:none;}' +
-    '::view-transition-old(sudu-chrome),::view-transition-new(sudu-chrome){animation:none;mix-blend-mode:normal;}' +
-    // Reduced motion keeps the atomicity and drops the animation: the incoming
-    // page is still assembled out of sight, it simply arrives without a fade.
-    // Both halves have to be stated. Dropping only the animation leaves the
-    // pair at their default opacity of 1, and the browser composites them
-    // additively — two pages summed, which measured as a two-frame wash to
-    // near-white. The outgoing half is taken out and the incoming one painted
-    // normally instead.
-    '@media (prefers-reduced-motion: reduce){' +
-      '::view-transition-old(root){animation:none;opacity:0;}' +
-      '::view-transition-new(root){animation:none;opacity:1;mix-blend-mode:normal;}}' +
-    // The fallback for browsers without the View Transition API. One fade, on
-    // the content host only, driven by an attribute on <html>.
+    // The exit is a plain class change on <html>, so it starts on the next
+    // paint after the click with no JavaScript in the way. The hold that
+    // follows is the same rule without a transition, which is what keeps a
+    // half-assembled page off the screen — the incoming root is already at 0
+    // before it can paint, so it never goes 1 to 0 to 1.
     'html[data-nav] #dc-root{opacity:0;}' +
     'html[data-nav="out"] #dc-root{transition:opacity ' + OUT_MS + 'ms ' + EASE + ';}' +
+    // Reduced motion keeps the ordering and drops the animation: the incoming
+    // page is still assembled out of sight, it simply arrives without a fade.
     '@media (prefers-reduced-motion: reduce){html[data-nav] #dc-root{transition:none;}}';
   document.head.appendChild(css);
 
   // ---------------------------------------------------------------- helpers
+
+  function now() {
+    return (window.performance && performance.now) ? performance.now() : Date.now();
+  }
 
   function deferred() {
     var d = {};
@@ -189,7 +160,7 @@
     return out;
   }
 
-  function decodeCritical(cap) {
+  function decodeCritical() {
     var imgs = criticalImages();
     if (!imgs.length) return Promise.resolve();
     var jobs = [];
@@ -210,8 +181,9 @@
     }
     if (!jobs.length) return Promise.resolve();
     // allSettled: a broken image resolves the wait like any other, and the cap
-    // means a slow one costs a bounded pause and then arrives on its own fade.
-    return within(cap || IMAGE_HOLD, Promise.allSettled(jobs));
+    // means a slow one costs a bounded pause on the field and then arrives on
+    // its own fade. There is no minimum hold: the page goes as soon as it can.
+    return within(IMAGE_HOLD, Promise.allSettled(jobs));
   }
 
   // Everything that has to be true before the incoming page may be shown. All
@@ -226,6 +198,8 @@
 
   // Local reveal engines start here and nowhere else: the coordinator says when
   // the incoming view exists, instead of every engine guessing from turbo:load.
+  // It fires as the entrance begins, so the Work reading order runs with the
+  // page's arrival rather than after it.
   function navigationReady() {
     window.__suduNavPhase = 'idle';
     root.removeAttribute('data-nav');
@@ -236,9 +210,36 @@
 
   // ------------------------------------------------------------ the render
 
-  var pending = null;   // resolved by turbo:render once the runtime has booted
+  var pending = null;    // resolved by turbo:render once the runtime has booted
+  var exitAt = 0;        // when the outgoing fade began
+
+  // Everything that has to be true before the incoming page may be shown. It
+  // runs while that page is held at opacity 0, over the permanent field.
+  function gate(rendered) {
+    return rendered
+      .then(committed)
+      .then(function () { markTheme(); prepareReveals(); })
+      .then(afterFrame)          // let the prepared state reach layout
+      .then(decodeCritical);
+  }
+
+  // The immediate half. This fires before Turbo issues its request, so the
+  // outgoing content is already fading while the fetch, the render and the
+  // assembly all happen. Nothing here waits for anything.
+  function beginExit() {
+    if (root.getAttribute('data-nav') === 'out') return;
+    exitAt = now();
+    window.__suduNavPhase = 'exiting';
+    window.__suduVisited = true;
+    root.setAttribute('data-nav', 'out');
+  }
+
+  document.addEventListener('turbo:before-visit', beginExit);
 
   document.addEventListener('turbo:render', function () {
+    // The attribute is still on <html>, so the new #dc-root is already at
+    // opacity 0 under the hold rule the moment it exists. It is never painted
+    // at full opacity and then taken back.
     var booted = false;
     if (typeof window.__dcBoot === 'function') {
       try { window.__dcBoot(); booted = true; } catch (e) { booted = false; }
@@ -246,11 +247,11 @@
     if (!booted) {
       // The runtime was not resident. Fetch it, as the original glue did, and
       // let the gate's own cap decide how long that may take.
-      var s = document.createElement('script');
-      s.src = '/js/support.js';
-      s.onload = function () { if (pending) pending.resolve(); };
-      s.onerror = function () { if (pending) pending.resolve(); };
-      document.body.appendChild(s);
+      var sc = document.createElement('script');
+      sc.src = '/js/support.js';
+      sc.onload = function () { if (pending) pending.resolve(); };
+      sc.onerror = function () { if (pending) pending.resolve(); };
+      document.body.appendChild(sc);
       return;
     }
     if (pending) pending.resolve();
@@ -259,58 +260,50 @@
   document.addEventListener('turbo:before-render', function (event) {
     var resume = event.detail && event.detail.resume;
     if (typeof resume !== 'function') return;   // nothing to coordinate
+
+    // Back and Forward do not raise turbo:before-visit, so the exit starts
+    // here for them instead. They render from the restoration cache, which is
+    // ready immediately, so the visual language is the same either way.
+    beginExit();
     event.preventDefault();
     window.__suduNavPhase = 'gating';
-    window.__suduVisited = true;
 
     pending = deferred();
     var rendered = pending.promise;
 
-    if (!CAN_VT) {
-      // One fade, on the content host, with the same single-render discipline:
-      // the incoming page is still assembled before it is revealed.
-      root.setAttribute('data-nav', 'out');
-      setTimeout(function () {
-        root.setAttribute('data-nav', 'in');
-        resume();
-        within(GATE_CAP, gate(rendered, IMAGE_HOLD_FALLBACK)).then(function () {
-          var host = document.getElementById('dc-root');
-          if (!host || REDUCED.matches) { navigationReady(); return; }
-          host.style.transition = 'none';
-          host.style.opacity = '0';
-          void host.offsetWidth;                       // commit the zero
-          requestAnimationFrame(function () {
-            host.style.transition = 'opacity ' + IN_MS + 'ms ' + EASE;
-            host.style.opacity = '1';
-            navigationReady();
-            setTimeout(function () {
-              host.style.transition = ''; host.style.opacity = '';
-            }, IN_MS + 120);
-          });
-        });
-      }, REDUCED.matches ? 0 : OUT_MS);
-      return;
-    }
-
-    var started;
-    try {
-      started = document.startViewTransition(function () {
-        resume();
-        return within(GATE_CAP, gate(rendered));
-      });
-    } catch (e) {
+    // Only the remainder of the exit, never a fresh delay: by the time a
+    // preloaded route's response arrives the fade is usually already spent,
+    // and then the swap happens at once.
+    var left = REDUCED.matches ? 0 : Math.max(0, OUT_MS - (now() - exitAt));
+    setTimeout(function () {
+      root.setAttribute('data-nav', 'in');    // hold, no transition
       resume();
-      within(GATE_CAP, gate(rendered)).then(navigationReady);
-      return;
-    }
-    // updateCallbackDone fires the moment the incoming state has been captured
-    // and the cross-fade begins, which is when the local engines should start:
-    // their reveals then run with the arrival rather than after it.
-    started.updateCallbackDone.then(navigationReady, navigationReady);
+      within(GATE_CAP, gate(rendered)).then(reveal);
+    }, left);
   });
 
+  // The incoming page is ready. Fade it in from where it already is — zero —
+  // rather than setting zero again. The transition is driven on the element
+  // because a brand-new #dc-root has no committed start value for the
+  // stylesheet's rule to run from.
+  function reveal() {
+    var host = document.getElementById('dc-root');
+    if (!host || REDUCED.matches) { navigationReady(); return; }
+    host.style.transition = 'none';
+    host.style.opacity = '0';
+    void host.offsetWidth;                     // commit the zero
+    requestAnimationFrame(function () {
+      host.style.transition = 'opacity ' + IN_MS + 'ms ' + EASE;
+      host.style.opacity = '1';
+      navigationReady();                       // drops the hold; the inline value carries it
+      setTimeout(function () {
+        host.style.transition = ''; host.style.opacity = '';
+      }, IN_MS + 120);
+    });
+  }
+
   // Safety net. If anything above failed to take ownership, the page is never
-  // left hidden behind the fallback attribute.
+  // left hidden behind the hold.
   document.addEventListener('turbo:load', function () {
     setTimeout(function () { if (root.hasAttribute('data-nav')) navigationReady(); }, 1500);
   });
