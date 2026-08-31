@@ -1,18 +1,28 @@
-// Stamp every local script reference with a hash of the file it points at.
+// Stamp every local script and stylesheet reference with a hash of the file it points at.
 //
-// The pages cache-bust with ?v=N, bumped by hand. That failed once already:
-// i18n.js and audio-player.js were rewritten to mount their pills into the
-// chrome bar, the ?v= stayed put, and returning visitors kept running the old
-// files — the language pill positioned itself in the corner instead of in the
-// bar, and the music pill never got built at all. A version derived from the
-// content cannot drift from it, so the bump stops being something to remember.
+// Returning visitors once kept running stale shared runtime files after those
+// files had changed. Content-derived ?v= hashes prevent URL reuse; the chrome
+// runtime is additionally marked data-turbo-track="reload" so a changed
+// persistent singleton forces a full document reload instead of surviving a
+// Turbo body swap.
 //
-// Run before build-projects.mjs; the generated pages inherit the stamps.
+// Run before build-projects.mjs; generated pages inherit the stamped source.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
-const PAGES = ['index.html', 'work.html', 'studio.html', 'contact.html', 'project.html'];
+const PAGES = [
+  'index.html',
+  'work.html',
+  'studio.html',
+  'contact.html',
+  'project.html',
+  'custom-home-design-edmonton.html',
+  'renovations-additions-edmonton.html',
+  'restaurant-hospitality-design-edmonton.html',
+  'commercial-retail-design-edmonton.html'
+];
 const REF = /(<(?:script[^>]*\ssrc|link[^>]*\shref)=")(\.?\/?)([A-Za-z0-9._\/-]+\.(?:js|css))(\?v=[^"]*)?(")/g;
+const CHROME = /<script([^>]*\bsrc="[^"]*js\/chrome-bar\.js\?v=[^"]+"[^>]*)>/g;
 
 const hashes = new Map();
 function stamp(file) {
@@ -25,10 +35,23 @@ function stamp(file) {
 
 let changed = 0;
 for (const page of PAGES) {
+  if (!existsSync(page)) continue;
   const before = readFileSync(page, 'utf8');
-  const after = before.replace(REF, (m, open, prefix, file, _old, close) =>
+  let after = before.replace(REF, (m, open, prefix, file, _old, close) =>
     open + prefix + file + '?v=' + stamp(file) + close);
-  if (after !== before) { writeFileSync(page, after); changed++; }
+
+  // chrome-bar.js is a persistent singleton outside Turbo's replaceable body.
+  // If its content hash changes, Turbo must reload the whole document so an
+  // already-running previous version cannot remain alive in the tab.
+  after = after.replace(CHROME, (m, attrs) =>
+    /\bdata-turbo-track=/.test(attrs)
+      ? m
+      : '<script' + attrs + ' data-turbo-track="reload">');
+
+  if (after !== before) {
+    writeFileSync(page, after);
+    changed++;
+  }
 }
 const list = [...hashes].map(([f, h]) => `${f}=${h}`).join(' ');
 console.log(`stamped ${hashes.size} assets across ${PAGES.length} pages (${changed} rewritten)`);
