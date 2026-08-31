@@ -93,6 +93,35 @@
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
 </style>
+<style>
+  /* An eager thumb that is already decoded simply paints. One that lands
+     late arrives on the same easing as everything else rather than
+     snapping in. No placeholder: the aspect-ratio box and the field are
+     already holding the slot. */
+  .wk-wait { opacity:0; }
+  .wk-in { opacity:1; transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+  @media (prefers-reduced-motion: reduce){ .wk-wait, .wk-in { opacity:1; transition:none; } }
+</style>
+<script>(function(){
+  if (window.__suduWorkArrive) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var arrive = function(){
+    if (reduced) return;
+    var list = document.querySelectorAll('section[data-screen-label="Work Index"] img');
+    for (var i = 0; i < list.length; i++) (function(im){
+      if (im.getAttribute('data-arrive')) return;
+      im.setAttribute('data-arrive', '1');
+      if (im.complete && im.naturalWidth > 0) return;   // already there
+      im.classList.add('wk-wait');
+      var show = function(){ im.classList.remove('wk-wait'); im.classList.add('wk-in'); };
+      im.addEventListener('load', show, { once:true });
+      im.addEventListener('error', show, { once:true });
+    })(list[i]);
+  };
+  window.__suduWorkArrive = arrive;
+  arrive();
+  document.addEventListener('turbo:load', arrive);
+})();</script>
 <script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 window.__suduMark=mark;})();
@@ -115,7 +144,7 @@ document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="i18n.js?v=a634fd45" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
-<script src="js/turbo-boot.js?v=af55cae1" defer></script>
+<script src="js/turbo-boot.js?v=cedfdbdd" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
 </helmet>

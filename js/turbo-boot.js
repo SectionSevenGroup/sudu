@@ -33,15 +33,22 @@
     // The incoming page is held at zero for the one frame it takes the runtime
     // to render, then settles. Opacity only: no transform, no scale, nothing
     // that would fight the reveal engine already running inside the page.
+    // Only #dc-root fades. The ground lives on <html>/<body> and is never
+    // touched, so the Burnt / Charcoal / Off-white field stays continuously
+    // visible: content leaves the field and content arrives into it.
     'html[data-nav] #dc-root{opacity:0;}' +
-    'html[data-nav="out"] #dc-root{transition:opacity .14s linear;}' +
-    '#dc-root{transition:opacity .22s cubic-bezier(.16,1,.3,1);}' +
+    'html[data-nav="out"] #dc-root{transition:opacity .18s cubic-bezier(.16,1,.3,1);}' +
+    // The arrival borrows the reveal engine's easing and sits at roughly half
+    // its 1.5s duration — long enough to read as settling rather than cutting,
+    // short enough that navigation is not something you wait through.
+    '#dc-root{transition:opacity .85s cubic-bezier(.16,1,.3,1);}' +
     // Reduced motion drops both fades. The hold itself stays: it is what keeps
     // a half-rendered template off the screen, which is not decoration.
     '@media (prefers-reduced-motion: reduce){#dc-root{transition:none;}}';
 
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var OUT_MS = 140;
+  var OUT_MS = 180;
+  var IN_MS = 850;
   document.head.appendChild(css);
 
   function reveal() {
@@ -53,18 +60,34 @@
   // load, so after a swap the incoming sections stayed unmarked and html.dm's
   // invert applied to content that was never meant to be inverted — the bright
   // frame. It has to run against the committed DOM, before anything is shown.
+  // The runtime replaces #dc-root wholesale on every boot, and a brand-new
+  // element has no committed start value for a transition to run from — the
+  // attribute-driven fade simply jumped to 1. So the arrival is driven on the
+  // element itself, with the zero flushed before the change.
   function settle() {
     if (typeof window.__suduMark === 'function') {
       try { window.__suduMark(); } catch (e) { /* never block the reveal */ }
     }
-    requestAnimationFrame(reveal);
+    if (typeof window.__suduWorkArrive === 'function') {
+      try { window.__suduWorkArrive(); } catch (e) {}
+    }
+    var host = document.getElementById('dc-root');
+    if (!host || REDUCED.matches) { reveal(); return; }
+    host.style.transition = 'none';
+    host.style.opacity = '0';
+    void host.offsetWidth;                       // commit the zero
+    requestAnimationFrame(function () {
+      host.style.transition = 'opacity ' + IN_MS + 'ms cubic-bezier(.16,1,.3,1)';
+      host.style.opacity = '1';
+      reveal();
+      // hand the element back to the stylesheet once it has arrived
+      setTimeout(function () {
+        host.style.transition = '';
+        host.style.opacity = '';
+      }, IN_MS + 120);
+    });
   }
 
-  // React commits asynchronously, so the runtime cannot render into the frame
-  // the swap happens on: measured at ~40ms between turbo:render and content.
-  // Rather than leave that as a blink of empty ground, the outgoing page is
-  // taken to zero first and Turbo is held until it gets there — the swap then
-  // occurs on an already-blank page and the gap stops being visible at all.
   document.addEventListener('turbo:before-render', function (event) {
     if (REDUCED.matches) { root.setAttribute('data-nav', 'in'); return; }
     root.setAttribute('data-nav', 'out');
@@ -98,12 +121,25 @@
     var tries = 0;
     (function wait() {
       var host = document.getElementById('dc-root');
+      // hold the new host at zero the instant it exists, so it never paints
+      // at full opacity while React is still committing into it
+      if (host && !REDUCED.matches && host.style.opacity !== '0') {
+        host.style.transition = 'none';
+        host.style.opacity = '0';
+      }
       if ((host && host.firstChild) || ++tries > 12) { settle(); return; }
       requestAnimationFrame(wait);
     })();
   });
 
   // Belt and braces: whatever happened above, the page is never left hidden.
-  document.addEventListener('turbo:load', reveal);
+  // turbo:load fires immediately after turbo:render — long before React has
+  // committed — so revealing there exposed the incoming page at full opacity
+  // for a frame or two before the arrival could take it back to zero. It is a
+  // safety net, so it behaves like one: it only acts if the render path has
+  // not already taken ownership.
+  document.addEventListener('turbo:load', function () {
+    setTimeout(function () { if (root.hasAttribute('data-nav')) reveal(); }, 1500);
+  });
   document.addEventListener('turbo:before-cache', reveal);
 })();
