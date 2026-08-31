@@ -151,10 +151,10 @@
       var im = all[i];
       if (im.id === 'heroImg') continue;
       var src = im.getAttribute('src') || '';
-      if (!src || src.indexOf('{' + '{') !== -1) continue;   // unresolved template
+      if (!src || src.indexOf('{' + '{') !== -1) continue;
       var b = im.getBoundingClientRect();
-      if (b.width < 120 || b.height < 90) continue;          // marks and icons
-      if (b.top >= vh || b.bottom <= 0) continue;            // first screen only
+      if (b.width < 120 || b.height < 90) continue;
+      if (b.top >= vh || b.bottom <= 0) continue;
       out.push(im);
     }
     return out;
@@ -168,11 +168,7 @@
       var im = imgs[i];
       // Every critical image is decoded, including one that already reports
       // complete. complete only says the bytes arrived; it does not say the
-      // pixels are ready at the size this page draws it. The project hero is
-      // the same file as its thumbnail on the Work index, so arriving from
-      // there it was complete and skipped — and the page was captured with an
-      // empty hero box, which the fade then hid rather than prevented.
-      // decode() is the only thing that actually promises the next paint.
+      // pixels are ready at the size this page draws it.
       if (im.getAttribute('loading') === 'lazy') {
         im.setAttribute('loading', 'eager');
         im.setAttribute('fetchpriority', 'high');
@@ -180,26 +176,11 @@
       try { jobs.push(im.decode()); } catch (e) {}
     }
     if (!jobs.length) return Promise.resolve();
-    // allSettled: a broken image resolves the wait like any other, and the cap
-    // means a slow one costs a bounded pause on the field and then arrives on
-    // its own fade. There is no minimum hold: the page goes as soon as it can.
     return within(IMAGE_HOLD, Promise.allSettled(jobs));
-  }
-
-  // Everything that has to be true before the incoming page may be shown. All
-  // of it runs while the browser is holding the outgoing page on screen.
-  function gate(rendered, cap) {
-    return rendered
-      .then(committed)
-      .then(function () { markTheme(); prepareReveals(); })
-      .then(afterFrame)          // let the prepared state reach layout
-      .then(function () { return decodeCritical(cap); });
   }
 
   // Local reveal engines start here and nowhere else: the coordinator says when
   // the incoming view exists, instead of every engine guessing from turbo:load.
-  // It fires as the entrance begins, so the Work reading order runs with the
-  // page's arrival rather than after it.
   function navigationReady() {
     window.__suduNavPhase = 'idle';
     root.removeAttribute('data-nav');
@@ -210,8 +191,8 @@
 
   // ------------------------------------------------------------ the render
 
-  var pending = null;    // resolved by turbo:render once the runtime has booted
-  var exitAt = 0;        // when the outgoing fade began
+  var pending = null;
+  var exitAt = 0;
 
   // Everything that has to be true before the incoming page may be shown. It
   // runs while that page is held at opacity 0, over the permanent field.
@@ -219,7 +200,7 @@
     return rendered
       .then(committed)
       .then(function () { markTheme(); prepareReveals(); })
-      .then(afterFrame)          // let the prepared state reach layout
+      .then(afterFrame)
       .then(decodeCritical);
   }
 
@@ -237,16 +218,11 @@
   document.addEventListener('turbo:before-visit', beginExit);
 
   document.addEventListener('turbo:render', function () {
-    // The attribute is still on <html>, so the new #dc-root is already at
-    // opacity 0 under the hold rule the moment it exists. It is never painted
-    // at full opacity and then taken back.
     var booted = false;
     if (typeof window.__dcBoot === 'function') {
       try { window.__dcBoot(); booted = true; } catch (e) { booted = false; }
     }
     if (!booted) {
-      // The runtime was not resident. Fetch it, as the original glue did, and
-      // let the gate's own cap decide how long that may take.
       var sc = document.createElement('script');
       sc.src = '/js/support.js';
       sc.onload = function () { if (pending) pending.resolve(); };
@@ -259,11 +235,8 @@
 
   document.addEventListener('turbo:before-render', function (event) {
     var resume = event.detail && event.detail.resume;
-    if (typeof resume !== 'function') return;   // nothing to coordinate
+    if (typeof resume !== 'function') return;
 
-    // Back and Forward do not raise turbo:before-visit, so the exit starts
-    // here for them instead. They render from the restoration cache, which is
-    // ready immediately, so the visual language is the same either way.
     beginExit();
     event.preventDefault();
     window.__suduNavPhase = 'gating';
@@ -271,49 +244,39 @@
     pending = deferred();
     var rendered = pending.promise;
 
-    // Only the remainder of the exit, never a fresh delay: by the time a
-    // preloaded route's response arrives the fade is usually already spent,
-    // and then the swap happens at once.
     var left = REDUCED.matches ? 0 : Math.max(0, OUT_MS - (now() - exitAt));
     setTimeout(function () {
-      root.setAttribute('data-nav', 'in');    // hold, no transition
+      root.setAttribute('data-nav', 'in');
       resume();
       within(GATE_CAP, gate(rendered)).then(reveal);
     }, left);
   });
 
   // The incoming page is ready. Fade it in from where it already is — zero —
-  // rather than setting zero again. The transition is driven on the element
-  // because a brand-new #dc-root has no committed start value for the
-  // stylesheet's rule to run from.
+  // rather than setting zero again.
   function reveal() {
     var host = document.getElementById('dc-root');
     if (!host || REDUCED.matches) { navigationReady(); return; }
     host.style.transition = 'none';
     host.style.opacity = '0';
-    void host.offsetWidth;                     // commit the zero
+    void host.offsetWidth;
     requestAnimationFrame(function () {
       host.style.transition = 'opacity ' + IN_MS + 'ms ' + EASE;
       host.style.opacity = '1';
-      navigationReady();                       // drops the hold; the inline value carries it
+      navigationReady();
       setTimeout(function () {
-        host.style.transition = ''; host.style.opacity = '';
+        host.style.transition = '';
+        host.style.opacity = '';
       }, IN_MS + 120);
     });
   }
 
-  // Safety net. If anything above failed to take ownership, the page is never
-  // left hidden behind the hold.
   document.addEventListener('turbo:load', function () {
     setTimeout(function () { if (root.hasAttribute('data-nav')) navigationReady(); }, 1500);
   });
 
   // ------------------------------------------------------------- preload
 
-  // Turbo 8 prefetches eligible links on hover on its own. data-turbo-preload
-  // additionally warms the four primary routes up front. On a metered or very
-  // slow connection that is four documents the visitor did not ask for, so the
-  // attribute is stripped before Turbo's preloader ever looks for it.
   (function () {
     var c = navigator.connection;
     if (!c) return;
@@ -324,9 +287,6 @@
       for (var i = 0; i < links.length; i++) links[i].removeAttribute('data-turbo-preload');
     };
     strip();
-    // Turbo rescans for preload links immediately after dispatching
-    // turbo:render, so stripping there is what actually keeps the four
-    // documents off a metered connection on every visit after the first.
     document.addEventListener('turbo:before-render', strip);
     document.addEventListener('turbo:render', strip);
     document.addEventListener('sudu:navigation-ready', strip);
@@ -334,22 +294,12 @@
 
   // ------------------------------------------------------- cache hygiene
 
-  // Turbo caches the page with cloneNode(true), so whatever is inline on an
-  // element at this moment is what a later Back button restores. Nothing
-  // transient may be frozen into that clone: not a half-finished fade, not a
-  // navigation opacity, not a temporary translate.
-  //
-  // What this must never do is clear a transform an element authored for
-  // itself. The homepage drawing positions itself with translate(-50%,-50%),
-  // and a pass that cleared it left the drawing half its own width off centre.
-  // Only elements this site's own arrival passes marked as theirs are cleaned.
   document.addEventListener('turbo:before-cache', function () {
     root.removeAttribute('data-nav');
 
     var host = document.getElementById('dc-root');
     if (host) { host.style.transition = ''; host.style.opacity = ''; }
 
-    // the first-screen arrival pass tags every element it touched
     var touched = document.querySelectorAll('[data-arrived]');
     for (var i = 0; i < touched.length; i++) {
       var el = touched[i];
@@ -358,9 +308,6 @@
       el.style.transform = '';
     }
 
-    // The Work grid is cached in its revealed state. Restoration should return
-    // the page as the visitor left it, not replay the whole reading order, and
-    // a card cached mid-reveal would otherwise come back invisible.
     if (typeof window.__suduWorkSettle === 'function') {
       try { window.__suduWorkSettle(); } catch (e) {}
     }
