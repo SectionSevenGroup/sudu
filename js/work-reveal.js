@@ -1,13 +1,20 @@
 // Ordered reveal for the Work grid.
 //
+// Split into two halves so it cannot race the page transition. The prepare
+// half puts the cards into their starting state and is called by the
+// navigation coordinator before the incoming page is captured, so the grid is
+// never captured visible and then hidden. The start half runs the reading
+// order and waits for sudu:navigation-ready, so the cards arrive with the page
+// rather than at whatever moment turbo:load happened to fire.
+//
 // Lives in its own file rather than inline in the page template: the DC
 // runtime re-creates helmet <script> elements when it renders, and this
 // script does not survive that round trip intact.
 
 (function () {
-  if (window.__suduWorkArrive) return;
+  if (window.__suduWorkPrepare) return;
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var DUR = 850, STAGGER = 90, HOLD = 250, ROW_TOL = 12;
+  var STAGGER = 90, ROW_TOL = 12;
 
   function cards() {
     // Scoped to the rendered root, and never to a source the runtime has not
@@ -80,7 +87,12 @@
   }
 
   var observer = null;
-  function run() {
+  var staged = null;      // rows worked out by prepare(), consumed by start()
+
+  // Everything that must be true before the incoming page is captured: the
+  // cards carry their starting state and the opening images are being fetched.
+  // Nothing animates here.
+  function prepare() {
     var list = cards();
     if (!list.length) return false;
 
@@ -95,9 +107,12 @@
 
     if (REDUCED.matches) {
       for (var r = 0; r < list.length; r++) list[r].setAttribute('data-shown', '1');
+      staged = { first: [], later: [] };
       return true;
     }
 
+    // A card restored from the cache is already in its final state and must be
+    // left alone: Back returns the page as it was left, it does not replay it.
     for (var h = 0; h < list.length; h++) {
       if (!list[h].getAttribute('data-shown')) list[h].classList.add('wk-card');
     }
@@ -108,29 +123,21 @@
     for (var g = 0; g < grouped.length; g++) {
       (grouped[g].top - window.scrollY < vh ? first : later).push(grouped[g]);
     }
+    staged = { first: first, later: later };
+    return true;
+  }
 
-    // A short bounded wait lets the promoted images land so the opening row is
-    // not a set of empty boxes — but a slow image never holds the sequence.
-    var started = false;
-    var begin = function () {
-      if (started) return; started = true;
-      var base = 0;
-      for (var f = 0; f < first.length; f++) {
-        showRow(first[f], base);
-        base += first[f].items.length * STAGGER;
-      }
-    };
-    var ready = function () {
-      for (var q = 0; q < first.length; q++) {
-        for (var w = 0; w < first[q].items.length; w++) if (!decoded(first[q].items[w].el)) return false;
-      }
-      return true;
-    };
-    var t0 = Date.now();
-    (function poll() {
-      if (ready() || Date.now() - t0 >= HOLD) { begin(); return; }
-      requestAnimationFrame(poll);
-    })();
+  // The reading order itself. Called once the coordinator says the incoming
+  // view exists, so the stagger runs with the page's arrival.
+  function start() {
+    if (!staged) { if (!prepare()) return false; }
+    var first = staged.first, later = staged.later;
+
+    var base = 0;
+    for (var f = 0; f < first.length; f++) {
+      showRow(first[f], base);
+      base += first[f].items.length * STAGGER;
+    }
 
     // Later rows wait for the scroller. Revealed once per visit: the observer
     // stops watching a row as soon as it has gone.
@@ -151,11 +158,29 @@
 
   // The grid is rendered by the runtime, so the first pass may run before it
   // exists; retry for a few frames rather than assuming.
-  var pump = function (tries) {
-    if (run() || tries > 20) return;
-    requestAnimationFrame(function () { pump(tries + 1); });
+  function pump(fn, tries) {
+    if (fn() || tries > 20) return;
+    requestAnimationFrame(function () { pump(fn, tries + 1); });
+  }
+
+  window.__suduWorkPrepare = function () { staged = null; pump(prepare, 0); };
+
+  // Before the page is cloned into Turbo's cache, settle the grid: a card
+  // frozen mid-reveal would be restored invisible, and a visitor pressing Back
+  // should find the page as they left it rather than watch it assemble again.
+  window.__suduWorkSettle = function () {
+    var list = cards();
+    for (var i = 0; i < list.length; i++) {
+      list[i].setAttribute('data-shown', '1');
+      list[i].classList.add('wk-card', 'wk-on');
+      var img = list[i].querySelector('img');
+      if (img) img.classList.remove('wk-late');
+    }
   };
-  window.__suduWorkArrive = function () { pump(0); };
-  pump(0);
-  document.addEventListener('turbo:load', function () { pump(0); });
+
+  // start() prepares first if the coordinator has not already done it, so the
+  // same call serves a direct load and a visit whose gate ran before this file
+  // had finished loading. Only a visit still in its gate waits.
+  if (window.__suduNavPhase !== 'gating') pump(start, 0);
+  document.addEventListener('sudu:navigation-ready', function () { pump(start, 0); });
 })();
