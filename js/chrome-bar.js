@@ -1,6 +1,11 @@
 // The persistent chrome bar: a fixed strip across the bottom of the viewport
 // holding the language pill, the music pill, and the background-colour pill.
 //
+// Runtime recovery epoch: this comment intentionally changes the content hash
+// after PR #33. A tab that executed that broken singleton must not be allowed to
+// reuse it under an older asset URL; stamp-assets.mjs gives this file a new
+// content-derived ?v= and marks it as Turbo reload-tracked.
+//
 // It is appended to <html> rather than <body> for two reasons. Turbo replaces
 // the body on every visit, which would orphan the bar and everything mounted
 // in it; and dark mode applies `filter: invert(1) hue-rotate(180deg)` to
