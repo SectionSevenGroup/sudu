@@ -20,7 +20,15 @@
   --sudu-gutter: clamp(20px, 4.5vw, 64px);
   --sudu-rail: 1760px;
   --sudu-inset: max(var(--sudu-gutter), calc((100% - var(--sudu-rail)) / 2));
+
+  /* The bottom control zone, named once. The bar's ground fills the home
+     indicator's strip while its controls stay in the 52px above it, and the
+     hero reserves exactly the same height so nothing can sit under either. */
+  --sudu-chrome: calc(52px + env(safe-area-inset-bottom, 0px));
 }
+
+/* iOS inflates text in some rotations unless it is told not to. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 /* Shared chrome. The header's blurred ground and the footer's field and
    hairline stay full width; only the mark, the nav and the footer's two
