@@ -19,9 +19,9 @@
 
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="/css/rail.css?v=1e8a086e">
+<link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
 <script src="/js/support.js?v=8fe7df74"></script>
-<script src="/js/chrome-bar.js?v=6ede34ea"></script>
+<script src="/js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the real
      document head rather than in the template helmet: Turbo re-activates
@@ -35,7 +35,7 @@
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="/js/turbo-boot.js?v=ab29423a" defer></script>
+<script src="/js/turbo-boot.js?v=113aaca3" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
@@ -55,6 +55,45 @@
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
+
+  /* Editorial project sequence.
+     The rail and gutters are the site's; everything here is pacing. Images are
+     never cropped: each carries its own width/height so it reserves exactly its
+     own proportion and nothing shifts as it loads. An inset is a single image
+     given a width and an edge — it is the pause between two large ones. */
+  /* The shared content rail, not a bare gutter: past 1888px the imagery stops
+     at the same 1760px datum as every other section on the site. */
+  .pj-seq {
+    padding-left: var(--sudu-inset, clamp(20px,4.5vw,64px));
+    padding-right: var(--sudu-inset, clamp(20px,4.5vw,64px));
+  }
+  .pj-block { padding-top: clamp(56px,8vw,132px); }
+  .pj-block:first-child { padding-top: clamp(36px,4.5vw,64px); }
+  .pj-label {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+    gap: 8px 24px; padding: 14px 0 clamp(22px,2.6vw,34px);
+    border-top: 0.5px solid rgba(23,22,19,0.13);
+  }
+  .pj-label h2 {
+    margin: 0; font-size: 13px; font-weight: 900; line-height: 1;
+    letter-spacing: 0.02em; text-transform: uppercase;
+  }
+  .pj-label span {
+    font-family: 'Urbanist', sans-serif; font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; color: #A6A399;
+  }
+  .pj-single { width: var(--pj-w, 100%); margin-left: var(--pj-ml, 0); }
+  /* A pair reads as one composition: shared bottom datum, unequal heights allowed. */
+  .pj-pair { display: grid; grid-template-columns: var(--pj-cols, 1fr 1fr);
+             gap: clamp(16px,2.2vw,32px); align-items: end; }
+  .pj-img { width: 100%; height: auto; display: block; }
+  /* Below the pair's comfortable width the composition stacks rather than
+     shrinking: two 40%-wide architectural photographs on a phone are neither. */
+  @media (max-width: 820px) {
+    .pj-block { padding-top: clamp(40px,11vw,72px); }
+    .pj-single { width: 100%; margin-left: 0; }
+    .pj-pair { grid-template-columns: 1fr; gap: clamp(24px,6vw,40px); }
+  }
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
@@ -192,6 +231,33 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
 
+  <sc-if value="{{ hasEditorial }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Project Sequence" class="pj-seq">
+      <sc-for list="{{ editorialBlocks }}" as="b" hint-placeholder-count="2">
+        <div class="pj-block">
+          <sc-if value="{{ b.hasLabel }}" hint-placeholder-val="{{ false }}">
+            <div class="pj-label">
+              <h2>{{ b.label }}</h2>
+              <span>{{ b.note }}</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.isSingle }}" hint-placeholder-val="{{ false }}">
+            <div data-reveal data-motion="major" class="pj-single" style="{{ b.style }}">
+              <img class="pj-img" src="{{ b.a.src }}" srcset="/.netlify/images?url={{ b.a.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.a.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.a.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.a.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.a.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 92vw" alt="{{ b.a.alt }}" width="{{ b.a.w }}" height="{{ b.a.h }}" loading="lazy" decoding="async">
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.isPair }}" hint-placeholder-val="{{ false }}">
+            <div data-reveal data-motion="major" class="pj-pair" style="{{ b.style }}">
+              <img class="pj-img" src="{{ b.a.src }}" srcset="/.netlify/images?url={{ b.a.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.a.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.a.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.a.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.a.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 46vw" alt="{{ b.a.alt }}" width="{{ b.a.w }}" height="{{ b.a.h }}" loading="lazy" decoding="async">
+              <sc-if value="{{ b.hasB }}" hint-placeholder-val="{{ false }}">
+                <img class="pj-img" src="{{ b.b.src }}" srcset="/.netlify/images?url={{ b.b.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.b.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.b.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.b.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.b.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 46vw" alt="{{ b.b.alt }}" width="{{ b.b.w }}" height="{{ b.b.h }}" loading="lazy" decoding="async">
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </section>
+  </sc-if>
   <sc-if value="{{ hasGallery }}" hint-placeholder-val="{{ false }}">
     <section data-screen-label="Project Gallery" style="padding:clamp(24px,3vw,40px) clamp(20px,4.5vw,64px) 0;">
       <sc-for list="{{ galleryGroups }}" as="grp" hint-placeholder-count="1">
@@ -508,6 +574,93 @@ class Component extends DCLogic {
       ]
     }
   };
+
+  // Editorial sequencing for the project pages.
+  //
+  // A project's images are data; the order they are read in is design. This map
+  // holds that reading — which image establishes the project, which two belong
+  // together, where the page should pause — and it is kept apart from DATA
+  // because the photographs do not change when the sequencing does.
+  //
+  // A block is only ever one image or a pair. A full-width image and an inset
+  // are the same block: an inset is simply given a width and an edge to sit
+  // against. A project with no entry here renders the original gallery, which
+  // is why nothing else on the site had to change.
+  //
+  // Nothing here names a photograph or repeats a heading: DATA owns the images
+  // and the words, this owns only the order they are read in.
+  //   t   's' single | 'p' pair
+  //   i   indices into the project's own images, in DATA order
+  //   g   index of the DATA group whose head and sub label this block, so the
+  //       heading and the architect credit are never copied out of DATA
+  //   w   single: width as a percentage of the rail (omit for full width)
+  //   al  single: 'l' or 'r', the edge an inset sits against
+  //   sp  pair: grid-template-columns, so the relationship is stated not implied
+  //   lb/nt  a quiet label above a block, only where the project has real headings
+  static EDITORIAL = {
+    'atb-banking': {
+      rhythm: 'monograph',
+      seq: [
+        { t: 's', i: [1], g: 0 },
+        { t: 'p', i: [0, 2], sp: '1fr 1fr' },
+        { t: 's', i: [5] },
+        { t: 's', i: [3], w: 66, al: 'r' },
+        { t: 's', i: [4] },
+        { t: 's', i: [6], g: 1 },
+        { t: 'p', i: [8, 7], sp: '1.5fr 1fr' },
+        { t: 's', i: [9], g: 2 },
+        { t: 'p', i: [10, 11], sp: '1fr 1fr' },
+        { t: 's', i: [12] },
+        { t: 's', i: [13] }
+      ]
+    },
+    'the-helm': {
+      rhythm: 'monograph',
+      seq: [
+        { t: 's', i: [11], g: 1 },
+        { t: 'p', i: [9, 10], sp: '1fr 1fr' },
+        { t: 's', i: [2], g: 0 },
+        { t: 's', i: [8], w: 58, al: 'l' },
+        { t: 's', i: [6] },
+        { t: 'p', i: [1, 4], sp: '1fr 1fr' },
+        { t: 's', i: [3] },
+        { t: 's', i: [7], w: 66, al: 'r' },
+        { t: 's', i: [0] },
+        { t: 's', i: [5] }
+      ]
+    },
+    'west-vancouver': {
+      rhythm: 'linear',
+      seq: [
+        { t: 's', i: [0], g: 0 },
+        { t: 's', i: [1] },
+        { t: 's', i: [2], w: 58, al: 'r' },
+        { t: 's', i: [3], g: 2 },
+        { t: 'p', i: [4, 5], sp: '1fr 1fr' },
+        { t: 's', i: [6], w: 58, al: 'l' },
+        { t: 's', i: [7], g: 3 },
+        { t: 'p', i: [8, 9], sp: '1fr 1fr' },
+        { t: 's', i: [10], w: 58, al: 'r' }
+      ]
+    },
+    'wilfreds': {
+      rhythm: 'linear',
+      seq: [
+        { t: 's', i: [1] },
+        { t: 's', i: [0] },
+        { t: 'p', i: [3, 4], sp: '1fr 1fr' },
+        { t: 's', i: [2] }
+      ]
+    },
+    'selkirk': {
+      rhythm: 'compact',
+      seq: [
+        { t: 's', i: [2] },
+        { t: 's', i: [0] },
+        { t: 's', i: [1] }
+      ]
+    }
+  };
   // Intrinsic pixel dimensions, measured from the files in images/. The
   // generator bakes these onto the hero <img> so project pages reserve
   // layout before the image decodes.
@@ -619,7 +772,14 @@ class Component extends DCLogic {
   };
   renderVals() {
     const key = 'alder-room-alta';
-    const d = Component.DATA[key] || Component.DATA['west-vancouver'];
+    const slug = Component.DATA[key] ? key : 'west-vancouver';
+    const d = Component.DATA[slug];
+    const ed = Component.EDITORIAL[slug] || null;
+    // One source of truth for the photographs. The sequence indexes into this,
+    // in the same order the gallery would have shown them.
+    const projectMedia = d.groups
+      ? d.groups.reduce((all, grp) => all.concat(grp.images || []), [])
+      : (d.gallery || []);
     const nd = Component.DATA[d.next];
     const projects = Component.DATA;
     return {
@@ -629,7 +789,41 @@ class Component extends DCLogic {
       galleryGroups: (d.groups
         ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', minW: grp.small ? 300 : 560, bg: grp.small ? 'transparent' : '#E8E5DC', fit: grp.small ? 'contain' : 'cover', images: grp.images.map((src) => ({ src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
         : [{ hasHead: false, head: '', sub: '', minW: 560, bg: '#E8E5DC', fit: 'cover', images: (d.gallery || []).map((src) => ({ src, alt: d.title })) }]),
-      hasGallery: !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
+      hasEditorial: !!ed,
+      editorialBlocks: (ed ? ed.seq : []).map((b) => {
+        const m = b.i.map((k) => {
+          const im = projectMedia[k];
+          // A sequence that points past the end of a project's images would
+          // otherwise render an empty block and look like a styling problem.
+          if (!im) throw new Error('EDITORIAL[' + slug + ']: no image at index ' + k);
+          return im;
+        });
+        const grp = (typeof b.g === 'number' && d.groups) ? d.groups[b.g] : null;
+        // width/height come from DIMS so the browser reserves each image's own
+        // proportion before it loads: nothing is cropped and nothing shifts.
+        // Loading stays lazy in the markup rather than being interpolated — an
+        // interpolated loading= is not a valid value at parse time, so the
+        // browser falls back to eager and fetches the literal placeholder.
+        const shot = (im) => {
+          const dim = Component.DIMS[im] || [3, 2];
+          return { src: im, abs: im.charAt(0) === '/' ? im : '/' + im, w: dim[0], h: dim[1], alt: d.title };
+        };
+        return {
+          isPair: b.t === 'p',
+          isSingle: b.t !== 'p',
+          hasLabel: !!(grp && grp.head),
+          label: grp ? (grp.head || '') : '',
+          note: grp ? (grp.sub || '') : '',
+          // an inset is a width and an edge; 'r' pushes it against the right rail
+          style: b.t === 'p'
+            ? '--pj-cols:' + (b.sp || '1fr 1fr')
+            : (b.w ? '--pj-w:' + b.w + '%;--pj-ml:' + (b.al === 'r' ? 'auto' : '0') : ''),
+          a: shot(m[0]),
+          b: m[1] ? shot(m[1]) : null,
+          hasB: !!m[1]
+        };
+      }),
+      hasGallery: !ed && !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
       showSlots: false,
       nextTitle: nd.title, nextHref: 'project.html?p=' + d.next,
       heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,

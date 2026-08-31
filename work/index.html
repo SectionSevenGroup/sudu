@@ -17,9 +17,9 @@
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="/css/rail.css?v=1e8a086e">
+<link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
 <script src="/js/support.js?v=8fe7df74"></script>
-<script src="/js/chrome-bar.js?v=6ede34ea"></script>
+<script src="/js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the real
      document head rather than in the template helmet: Turbo re-activates
@@ -33,7 +33,7 @@
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="/js/turbo-boot.js?v=ab29423a" defer></script>
+<script src="/js/turbo-boot.js?v=113aaca3" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
@@ -128,7 +128,7 @@
     .wk-card, .wk-card.wk-on, .wk-late, .wk-late.wk-on { opacity:1; transform:none; transition:none; }
   }
 </style>
-<script src="/js/work-reveal.js?v=3b2fe28f" defer></script>
+<script src="/js/work-reveal.js?v=0197cf8c" defer></script>
 <script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 window.__suduMark=mark;})();
