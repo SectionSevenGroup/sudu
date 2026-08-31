@@ -84,69 +84,6 @@
     }
   }
 
-  // Contact is rendered by the DC runtime after the static template arrives,
-  // and can re-render again after FAQ/form state changes. Normalise the visible
-  // arrow controls after every render so the old orange inline colour cannot
-  // reappear. The glyph is exactly the homepage's Urbanist U+203A chevron.
-  // Size may differ by control; geometry and ink ownership do not.
-  function normaliseContactChevrons() {
-    var contact = document.querySelector('section[data-screen-label="Contact"]');
-    var faq = document.querySelector('section[data-screen-label="FAQ"]');
-    if (!contact || !faq) return;
-
-    var applyGlyph = function (el, size) {
-      if (!el) return;
-      el.textContent = '\u203A';
-      el.setAttribute('aria-hidden','true');
-      el.style.setProperty('font-family', "'Urbanist', sans-serif", 'important');
-      el.style.setProperty('font-size', size, 'important');
-      el.style.setProperty('font-weight', '700', 'important');
-      el.style.setProperty('letter-spacing', '-0.12em', 'important');
-      el.style.setProperty('line-height', '1', 'important');
-      el.style.setProperty('color', 'inherit', 'important');
-      el.style.setProperty('display', 'inline-flex', 'important');
-      el.style.setProperty('align-items', 'center', 'important');
-      el.style.setProperty('justify-content', 'center', 'important');
-      el.style.setProperty('width', '1.2em', 'important');
-      el.style.setProperty('height', '1.2em', 'important');
-      el.style.setProperty('flex', 'none', 'important');
-    };
-
-    faq.querySelectorAll('button').forEach(function (button) {
-      var spans = button.querySelectorAll('span');
-      var arrow = spans.length ? spans[spans.length - 1] : null;
-      if (arrow) applyGlyph(arrow, '18px');
-    });
-
-    var submit = contact.querySelector('form[name="contact"] button[type="submit"]');
-    if (submit) {
-      var send = submit.querySelector('span');
-      if (send) {
-        var t = (send.textContent || '').trim();
-        // Preserve sending's blank state and the sent-state checkmark.
-        if (t !== '' && t !== '\u2713') applyGlyph(send, '17px');
-        else if (t === '\u2713') {
-          send.style.setProperty('color', 'inherit', 'important');
-          send.style.setProperty('font-family', "'Urbanist', sans-serif", 'important');
-        }
-      }
-    }
-  }
-
-  var chevronObserver = null;
-  function watchContactChevrons() {
-    normaliseContactChevrons();
-    if (chevronObserver) chevronObserver.disconnect();
-    if (!document.body) return;
-    chevronObserver = new MutationObserver(function () {
-      normaliseContactChevrons();
-    });
-    chevronObserver.observe(document.body, { childList:true, subtree:true });
-    [0,50,150,350,800,1500].forEach(function (t) {
-      setTimeout(normaliseContactChevrons, t);
-    });
-  }
-
   function ensure() {
     var bar = document.getElementById('suduBar');
     if (bar) return bar;
@@ -166,12 +103,10 @@
   window.suduBar = ensure;
   syncThemeState();
   ensure();
-  watchContactChevrons();
 
   document.addEventListener('turbo:render', function () {
     syncThemeState();
     ensure();
-    watchContactChevrons();
   });
   document.addEventListener('click', function (e) {
     var b = e.target && e.target.closest && e.target.closest('#dmSwatches button');
