@@ -103,6 +103,29 @@
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
+
+  /* One arrow language across the site. Contact's controls use the same
+     Urbanist single chevron the homepage already uses (U+203A), sized and
+     spaced here rather than coloured inline: the glyph belongs to the text it
+     sits beside, so it inherits that text's colour and follows every theme
+     without an override. Authored here on purpose — an earlier attempt kept
+     the orange inline and tried to beat it from a build-injected stylesheet,
+     which only held as long as that stylesheet reached the page. */
+  .sudu-chevron {
+    flex: none;
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.12em;
+    line-height: 1;
+    color: currentColor;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2em;
+    height: 1.2em;
+  }
+  .sudu-chevron--faq { font-size: 20px; transition: transform .3s ease; }
+  .sudu-chevron--send { font-size: 18px; }
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
@@ -295,7 +318,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
             <textarea name="body" rows="4" required="required" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
-          <button type="submit" disabled="{{ busy }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">{{ sendLabel }} <span style="font-weight:700; color:#E17B3E;">{{ sendGlyph }}</span></button>
+          <button type="submit" disabled="{{ busy }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">{{ sendLabel }} <span aria-hidden="true" class="sudu-chevron sudu-chevron--send">{{ sendGlyph }}</span></button>
           <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:{{ statusDisp }}; margin-bottom:5px; color:#171613;">{{ statusMsg }}</span>Sends straight to the studio, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
         </form>
       </div>
@@ -326,7 +349,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
           <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
             <button type="button" onClick="{{ faq.toggle }}" aria-expanded="{{ faq.pressed }}" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
               {{ faq.q }}
-              <span style="flex:none; font-weight:600; color:#E17B3E; transition:transform .3s ease; transform:{{ faq.rot }};">&#8250;</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:{{ faq.rot }};">&#8250;</span>
             </button>
             <div style="display:{{ faq.disp }}; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">{{ faq.a }}</div>
           </div>
