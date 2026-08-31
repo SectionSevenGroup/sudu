@@ -115,7 +115,7 @@ document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="i18n.js?v=a634fd45" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
-<script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
+<script src="js/turbo-boot.js?v=af55cae1" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
 </helmet>
@@ -143,7 +143,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
         <a href="{{ it.href }}" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-            <img src="{{ it.thumb }}" alt="{{ it.title }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+            <img src="{{ it.thumb }}" alt="{{ it.title }}" loading="{{ it.loading }}" fetchpriority="{{ it.priority }}" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
           </div>
           <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ it.eyebrow }}</span>
@@ -242,7 +242,13 @@ class Component extends DCLogic {
     const label = Component.COUNT_LABEL[this.state.lang] || Component.COUNT_LABEL.en;
     return {
       countLabel: label(order.length),
-      items: order.map((k, i) => ({ ...names[k], href: 'project.html?p=' + k, num: String(i + 1).padStart(2, '0') }))
+      // The first two rows are what a visitor sees when Work opens, so they
+      // are fetched with the document instead of after it. Everything below
+      // the fold stays lazy: 19 full-resolution thumbs is not a payload to
+      // pull eagerly, and the aspect-ratio box already holds each slot's
+      // geometry so nothing reflows as they land.
+      items: order.map((k, i) => ({ ...names[k], href: 'project.html?p=' + k, num: String(i + 1).padStart(2, '0'),
+        loading: i < 5 ? 'eager' : 'lazy', priority: i < 5 ? 'high' : 'auto' }))
     };
   }
 }

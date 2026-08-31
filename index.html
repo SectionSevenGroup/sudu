@@ -238,7 +238,7 @@ document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="i18n.js?v=a634fd45" defer></script>
 <script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
-<script src="js/turbo-boot.js?v=21fd1bc5" defer></script>
+<script src="js/turbo-boot.js?v=af55cae1" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
 </helmet>
@@ -415,7 +415,10 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
          Urbanist), the section's own hairline as its datum, and the rail from
          the shared rule below. The whole row is the target; nothing is drawn
          around it and no arrow is added back. -->
-    <a href="work.html" data-reveal style="display:block; padding:clamp(26px,2.8vw,34px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1; transition:color .3s ease;">All work</a>
+    <a href="work.html" data-reveal style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(26px,2.8vw,34px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1; transition:color .3s ease;">
+      <span>All work</span>
+      <span aria-hidden="true" style="font-family:'Urbanist', sans-serif; font-size:13px; font-weight:900; letter-spacing:-0.08em; line-height:1; color:inherit; display:inline-flex; align-items:center; justify-content:flex-end; width:1.4em; height:1.4em;">&#8250;&#8250;</span>
+    </a>
   </section>
 
   <!-- The retained index, collapsed. The disclosure row replaces the section's
@@ -423,9 +426,9 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
        all when closed, so the entries are absent from the DOM and therefore
        from the tab order rather than merely hidden. -->
   <section id="experience" data-screen-label="Experience Index" style="border-top:1px solid rgba(23,22,19,0.13);">
-    <button type="button" onClick="{{ indexToggle }}" aria-expanded="{{ indexOpen }}" aria-controls="experienceList" style="width:100%; display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(26px,2.8vw,34px) clamp(20px,4.5vw,64px); border:0; background:transparent; color:inherit; font-family:inherit; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1; text-align:left; cursor:pointer; transition:color .3s ease;">
+    <button type="button" onClick="{{ indexToggle }}" aria-expanded="{{ indexOpen }}" aria-controls="experienceList" aria-label="Experience Index" style="width:100%; display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(26px,2.8vw,34px) clamp(20px,4.5vw,64px); border:0; background:transparent; color:inherit; font-family:inherit; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1; text-align:left; cursor:pointer; transition:color .3s ease;">
       <span>Experience Index</span>
-      <span>{{ indexLabel }}</span>
+      <span aria-hidden="true" style="font-family:'Urbanist', sans-serif; font-size:13px; font-weight:900; letter-spacing:-0.08em; line-height:1; color:inherit; display:inline-flex; align-items:center; justify-content:flex-end; width:1.4em; height:1.4em; transform:{{ indexChevron }}; transition:transform .3s ease;">&#8250;&#8250;</span>
     </button>
     <sc-if value="{{ indexOpen }}">
     <div id="experienceList">
@@ -738,7 +741,10 @@ class Component extends DCLogic {
       // House, Macson, Olla, Socca, Steamoji, Homeward Trust and the rest)
       // exist nowhere else in the repository and are carried unchanged.
       indexOpen: this.state.indexOpen,
-      indexLabel: this.state.indexOpen ? 'Close' : 'Open',
+      // one glyph, rotated: down means expand, up means collapse, and the
+      // right-pointing form on ALL WORK means navigate. Same weight and
+      // position in both rows.
+      indexChevron: this.state.indexOpen ? 'rotate(-90deg)' : 'rotate(90deg)',
       indexToggle: () => this.setState((st) => ({ indexOpen: !st.indexOpen }))
     };
   }
