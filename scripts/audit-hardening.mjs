@@ -6,7 +6,7 @@
  * project generator runs. The authored compositions stay intact while route
  * hygiene, Studio image geometry/reveal ownership, service-page shell drift,
  * SEO canonicals, responsive image delivery, project gallery rhythm and theme
- * surface classification are hardened.
+ * semantics are hardened.
  *
  * Idempotent: running twice produces the same files.
  */
@@ -115,15 +115,55 @@ function projectSource(html) {
   return html;
 }
 
-function semanticTheme(html) {
-  html = html.replace(/<([a-z][a-z0-9-]*)([^>]*?)style="([^"]*(?:#F3F1EA|243,241,234|243, 241, 234)[^"]*)"/gi,
-    (m, tag, attrs, style) => attrs.includes('data-theme-surface=')
-      ? m
-      : `<${tag}${attrs}data-theme-surface="cream" style="${style}"`);
+function addAttr(tag, name, value) {
+  if (tag.includes(`${name}=`)) return tag;
+  return tag.replace(/\s*\/?>$/, (end) => ` ${name}="${value}"${end}`);
+}
 
-  const legacy = "var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};";
-  const semantic = "var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};";
-  html = html.replaceAll(legacy, semantic);
+function semanticTheme(html) {
+  // Classify authored HTML once at build time. Runtime theme code no longer
+  // scans inline style strings and normal page content no longer relies on
+  // subtree invert()/hue-rotate() filters.
+  html = html.replace(/<([a-z][a-z0-9-]*)([^>]*?)>/gi, (tag) => {
+    const styleMatch = tag.match(/style="([^"]*)"/i);
+    const style = styleMatch ? styleMatch[1] : '';
+    let out = tag;
+
+    if (/#F3F1EA|243,\s*241,\s*234/i.test(style)) out = addAttr(out, 'data-theme-surface', 'ground');
+    else if (/#E8E5DC/i.test(style)) out = addAttr(out, 'data-theme-surface', 'media');
+
+    if (/color:\s*#171613/i.test(style)) out = addAttr(out, 'data-theme-ink', 'primary');
+    else if (/color:\s*#67655D/i.test(style)) out = addAttr(out, 'data-theme-ink', 'muted');
+    else if (/color:\s*#A6A399/i.test(style)) out = addAttr(out, 'data-theme-ink', 'quiet');
+
+    if (/border(?:-[a-z]+)?:[^;]*rgba\(23,\s*22,\s*19,\s*0\.13\)/i.test(style)) out = addAttr(out, 'data-theme-rule', 'soft');
+    else if (/border(?:-[a-z]+)?:[^;]*rgba\(23,\s*22,\s*19,\s*(?:0\.3|0\.30|0\.4|0\.40)\)/i.test(style)) out = addAttr(out, 'data-theme-rule', 'strong');
+
+    if (/background:\s*rgba\(23,\s*22,\s*19,\s*0\.22\)/i.test(style)) out = addAttr(out, 'data-theme-rule-bg', 'soft');
+
+    if (/^<img\b/i.test(out)) {
+      const src = (out.match(/src="([^"]*)"/i) || [,''])[1];
+      if (/sudu-mark/i.test(src)) out = addAttr(out, 'data-theme-image', 'mark');
+      else if (/hero-drawing|team-illustration/i.test(src)) out = addAttr(out, 'data-theme-image', 'linework');
+      else out = addAttr(out, 'data-theme-image', 'photo');
+    }
+    return out;
+  });
+
+  // Top-level authored wrappers and sections inherit the approved ground.
+  html = html.replace(/<section(?![^>]*data-theme-surface)/g, '<section data-theme-surface="content"');
+
+  // Remove runtime style-string classification: semantic roles are already in
+  // the document by the time the browser receives it. Keep the hook as a no-op
+  // because the navigation coordinator still calls __suduMark during its gate.
+  const legacyA = /var mark=function\(\)\{document\.querySelectorAll\('\[style\]'\)[\s\S]*?window\.__suduMark=mark;\}\)\(\);/g;
+  const legacyB = /var mark=function\(\)\{document\.querySelectorAll\('\[data-theme-surface\]'\)[\s\S]*?window\.__suduMark=mark;\}\)\(\);/g;
+  const noop = "var mark=function(){};window.__suduMark=mark;})();";
+  html = html.replace(legacyA, noop).replace(legacyB, noop);
+
+  if (!html.includes('css/theme-semantic.css')) {
+    html = html.replace('</helmet>', '<link rel="stylesheet" href="css/theme-semantic.css">\n</helmet>');
+  }
   return html;
 }
 
