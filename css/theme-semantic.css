@@ -1,0 +1,100 @@
+/* SuDu semantic theme layer
+ *
+ * This stylesheet is deliberately visual, not behavioural. The build labels
+ * authored elements with semantic roles; this file maps those roles to the
+ * three approved SuDu grounds. It replaces broad subtree inversion and runtime
+ * style-string inference without changing layout, type, spacing or motion.
+ */
+:root {
+  --sudu-bg: #F3F1EA;
+  --sudu-ink: #171613;
+  --sudu-ink-muted: #67655D;
+  --sudu-ink-quiet: #A6A399;
+  --sudu-rule: rgba(23,22,19,.13);
+  --sudu-rule-strong: rgba(23,22,19,.30);
+  --sudu-media-field: #E8E5DC;
+  --sudu-chrome-ink: #171613;
+  --sudu-chrome-rule: rgba(23,22,19,.22);
+}
+
+html.dm {
+  --sudu-bg: var(--dm-bg,#C0431F);
+  --sudu-chrome-ink: #F5F3EC;
+  --sudu-chrome-rule: rgba(245,243,236,.45);
+}
+
+/* Burnt ground: the editorial field keeps dark ink exactly as the current
+   approved site does, while persistent chrome remains off-white. */
+html.dm.dmred,
+html.dm.dmwarm {
+  --sudu-ink: #171613;
+  --sudu-ink-muted: #171613;
+  --sudu-ink-quiet: #171613;
+  --sudu-rule: rgba(23,22,19,.42);
+  --sudu-rule-strong: rgba(23,22,19,.50);
+  --sudu-media-field: rgba(23,22,19,.08);
+}
+
+/* Charcoal reproduces the neutral values produced by the former invert pass,
+   but states them explicitly so photos, SVGs and future interactive geometry
+   never need filter exceptions. */
+html.dm:not(.dmred):not(.dmwarm) {
+  --sudu-ink: #E8E9EC;
+  --sudu-ink-muted: #989AA2;
+  --sudu-ink-quiet: #595B66;
+  --sudu-rule: rgba(232,233,236,.18);
+  --sudu-rule-strong: rgba(232,233,236,.34);
+  --sudu-media-field: #171A23;
+}
+
+html,
+body,
+[data-theme-surface="ground"],
+[data-theme-surface="content"] {
+  background: var(--sudu-bg) !important;
+}
+
+[data-theme-surface="transparent"] { background: transparent !important; }
+[data-theme-surface="media"] { background: var(--sudu-media-field) !important; }
+
+[data-theme-ink="primary"] { color: var(--sudu-ink) !important; }
+[data-theme-ink="muted"] { color: var(--sudu-ink-muted) !important; }
+[data-theme-ink="quiet"] { color: var(--sudu-ink-quiet) !important; }
+
+[data-theme-rule="soft"] { border-color: var(--sudu-rule) !important; }
+[data-theme-rule="strong"] { border-color: var(--sudu-rule-strong) !important; }
+[data-theme-rule-bg="soft"] { background: var(--sudu-rule) !important; }
+[data-theme-rule-bg="strong"] { background: var(--sudu-rule-strong) !important; }
+
+/* One semantic image rule replaces all image inversion / exception chains. */
+html.dm [data-theme-image] { filter: none !important; mix-blend-mode: normal !important; }
+html.dm section,
+html.dm section *,
+html.dm .dm-wrap,
+html.dm .dm-flat { filter: none !important; }
+
+/* Persistent chrome has its own ink because Burnt uses dark editorial ink but
+   off-white header/footer controls. */
+html.dm header,
+html.dm footer {
+  color: var(--sudu-chrome-ink) !important;
+  filter: none !important;
+}
+html.dm header *,
+html.dm footer * { color: inherit; border-color: var(--sudu-chrome-rule) !important; }
+html.dm header img[data-theme-image="mark"],
+html.dm footer img[data-theme-image="mark"] { filter: invert(1) !important; }
+html:not(.dm) header img[data-theme-image="mark"],
+html:not(.dm) footer img[data-theme-image="mark"] { filter: none !important; }
+
+/* The header field remains the current 90% ground over transparency. */
+html.dm header { background: color-mix(in srgb,var(--sudu-bg) 90%,transparent) !important; }
+html:not(.dm) header { background: rgba(243,241,234,.94); }
+html.dm footer { background: transparent !important; }
+
+/* Placeholder text follows editorial ink without the former blanket selector. */
+html.dm input::placeholder,
+html.dm textarea::placeholder { color: var(--sudu-ink) !important; opacity: 1; }
+
+/* Hairline weight is a design token, not a theme side effect. */
+section, section *, footer, footer *, header, header * { border-width: .5px; }
