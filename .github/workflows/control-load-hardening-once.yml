@@ -1,0 +1,94 @@
+name: Harden Control loading once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/control-load-hardening-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch Control loading behaviour
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          # 1) Never let a GitHub API request hang the editor forever.
+          p = Path('lib/github.mjs')
+          s = p.read_text()
+          old = """    const res = await fetch(API + path, {\n      ...options,\n      headers: {"""
+          new = """    const res = await fetch(API + path, {\n      ...options,\n      signal: options.signal || AbortSignal.timeout(10000),\n      headers: {"""
+          assert old in s
+          p.write_text(s.replace(old, new, 1))
+
+          # 2) Content reads do not depend on review/preview state being healthy.
+          p = Path('netlify/functions/control.mjs')
+          s = p.read_text()
+          anchor = """async function settle(gh, written) {\n  const state = await stateAfterWrite(gh, written);\n  return { review: state.unknown ? written.review : state.review, state };\n}\n"""
+          helper = anchor + """\nasync function stateForRead(gh, area) {\n  try {\n    return await gh.state();\n  } catch (e) {\n    console.error('control: content loaded, state check failed for ' + area,\n      e && e.status ? e.status : '', redactSecrets(e && e.message, env()));\n    return { unknown: true, review: 'unknown', hasChanges: false, canPublish: false };\n  }\n}\n"""
+          assert anchor in s
+          s = s.replace(anchor, helper, 1)
+          s = s.replace("return { state: await gh.state(), projects: model.listProjects(site).length };",
+                        "return { state: await stateForRead(gh, 'overview'), projects: model.listProjects(site).length };", 1)
+          s = s.replace("return { projects: model.listProjects(site), state: await gh.state() };",
+                        "return { projects: model.listProjects(site), state: await stateForRead(gh, 'projects') };", 1)
+          s = s.replace("return { pages: out, state: await gh.state() };",
+                        "return { pages: out, state: await stateForRead(gh, 'pages') };", 1)
+          p.write_text(s)
+
+          # 3) A failed read says what happened and offers Retry instead of
+          # leaving 'Reading the site…' on screen forever.
+          p = Path('control/control.js')
+          s = p.read_text()
+          anchor = """function toast(message) {\n  const el = $('#toast');\n  el.textContent = message;\n  el.hidden = false;\n  clearTimeout(toast.timer);\n  toast.timer = setTimeout(() => { el.hidden = true; }, 2600);\n}\n"""
+          helper = anchor + """\nfunction loadError(selector, label, error, retry) {\n  const el = $(selector);\n  if (!el) return;\n  el.innerHTML = `<div class=\"load-error\"><p><strong>${escape(label)} could not load.</strong></p><p class=\"hint\">${escape(error && error.message ? error.message : 'Control could not reach the site.')}</p><button class=\"button\" data-load-retry>Retry</button></div>`;\n  const b = el.querySelector('[data-load-retry]');\n  if (b) b.addEventListener('click', retry);\n}\n"""
+          assert anchor in s
+          s = s.replace(anchor, helper, 1)
+
+          old = """  const { state: s, projects } = await call('overview');\n  footState(s);"""
+          new = """  let response;\n  try { response = await call('overview'); }\n  catch (e) { loadError('#overviewDraft', 'Overview', e, loadOverview); return; }\n  const { state: s, projects } = response;\n  footState(s);"""
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = """  const { projects, state: s } = await call('projects');\n  state.projects = projects;"""
+          new = """  let response;\n  try { response = await call('projects'); }\n  catch (e) { loadError('#projectList', 'Projects', e, loadProjects); return; }\n  const { projects, state: s } = response;\n  state.projects = projects;"""
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = """  const { files, missing, unused, projects } = await call('media');\n  state.library = files;"""
+          new = """  let response;\n  try { response = await call('media'); }\n  catch (e) { loadError('#mediaGrid', 'Media', e, loadMedia); return; }\n  const { files, missing, unused, projects } = response;\n  state.library = files;"""
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = """  const { state: s } = await call('status');\n  footState(s);"""
+          new = """  let response;\n  try { response = await call('status'); }\n  catch (e) { loadError('#publishPanel', 'Publish status', e, loadPublish); return; }\n  const { state: s } = response;\n  footState(s);"""
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = """  const { pages, state: s } = await call('pages');\n  pagesState.pages = pages;"""
+          new = """  let response;\n  try { response = await call('pages'); }\n  catch (e) { loadError('#pageEditor', 'Pages', e, loadPages); return; }\n  const { pages, state: s } = response;\n  pagesState.pages = pages;"""
+          assert old in s
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+
+          p = Path('control/control.css')
+          s = p.read_text()
+          s += """\n\n/* Failed reads are explicit, not endless loading states. */\n.load-error { border-top: 0.5px solid var(--line); padding: 22px 0 32px; max-width: 620px; }\n.load-error p { margin: 0 0 8px; }\n.load-error .button { margin-top: 16px; }\n"""
+          p.write_text(s)
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/github.mjs netlify/functions/control.mjs control/control.js control/control.css
+          git commit -m "Make Control content reads resilient" || exit 0
+          git push origin HEAD:main
