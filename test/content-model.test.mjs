@@ -1,17 +1,13 @@
 // The content model rewrites the site's own source, so the test that matters
 // is that reading and writing it back changes nothing at all.
 import { readFileSync } from 'node:fs';
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as cm from '../lib/content-model.mjs';
 
-let pass = 0, fail = 0;
-const test = (name, fn) => {
-  try { fn(); pass++; console.log('PASS  ' + name); }
-  catch (e) { fail++; console.log('FAIL  ' + name + '\n      ' + e.message.split('\n')[0]); }
-};
-
-const projectSrc = readFileSync('project.html', 'utf8');
-const workSrc = readFileSync('work.html', 'utf8');
+// resolved against this file, so the suite runs from any directory
+const projectSrc = readFileSync(new URL('../project.html', import.meta.url), 'utf8');
+const workSrc = readFileSync(new URL('../work.html', import.meta.url), 'utf8');
 const site = cm.readSite(projectSrc, workSrc);
 
 test('reads every project', () => {
@@ -104,6 +100,3 @@ test('an edit lands and nothing else moves', () => {
     assert.deepEqual(again.DATA[slug], site.DATA[slug], slug + ' changed');
   }
 });
-
-console.log(`\ncontent-model: ${pass}/${pass + fail} passed`);
-process.exit(fail ? 1 : 0);

@@ -54,6 +54,21 @@ file's actual leading bytes, so renaming a file does not get it past the check;
 the whole upload is buffered into the function as base64, which is what sets
 the ceiling.
 
+## What the browser is told when something fails
+
+An exception is shown to the editor only where Control wrote the sentence and
+marked it public, with `publicError()` in `lib/public-error.mjs`. Having a
+`.message` is not what makes an error safe to show: GitHub's API errors, failed
+fetches and the content model's own parser diagnostics all have one.
+
+Anything unmarked becomes a single fixed line — *That did not work. Nothing was
+changed.* — whatever detail it was carrying. The detail is written to the
+function log instead, after `redactSecrets()` has struck out the live values of
+`GITHUB_TOKEN`, `SUDU_CONTROL_PASSWORD` and `SUDU_CONTROL_SESSION_SECRET`, plus
+anything shaped like a GitHub token or an `Authorization` header. If GitHub
+refuses a merge, its reason goes to the log and the editor is told that the
+draft was not merged and nothing else moved.
+
 ## The session
 
 Signing in sets one cookie: `HttpOnly`, `Secure`, `SameSite=Strict`, eight
@@ -62,8 +77,29 @@ there is no record to leak and no token for a script to read. Every privileged
 request also has to carry `X-SuDu-Control: 1`, which a cross-site form post
 cannot set.
 
-## Running it locally
+## Running the tests
 
-The tests in `test/` cover the content model and the session without any
-network. The interface and the whole draft/publish state machine can be driven
-against a mock GitHub — see the pull request for the harness.
+From the repository root, with nothing installed:
+
+    node --test test/*.test.mjs
+
+Node 18 or later; there is no framework and no `package.json`. The suite needs
+no credential and makes no network request — `test/mock-github.mjs` stands in
+for everything under `api.github.com`, and the environment values it uses are
+obvious fakes.
+
+| File | What it covers |
+| --- | --- |
+| `test/content-model.test.mjs` | Reading and rewriting `project.html` and `work.html`: a no-op save is byte-identical, a one-field edit touches one entry. |
+| `test/session.test.mjs` | Password comparison, secret strength, signing, expiry, the cookie's flags. |
+| `test/github-control.test.mjs` | The repository side: branch creation, fast-forward-only writes, one pull request, the exact deploy-preview gate, publish, the draft reset, reconcile. |
+| `test/control-function.test.mjs` | The endpoint end to end: method and header checks, the session, validation, uploads, the publish gate, and error redaction. |
+
+The redaction cases plant `INTERNAL_SHOULD_NEVER_REACH_BROWSER` inside errors
+raised below Control — from GitHub, from a failed fetch, from the parser — and
+assert that it never appears in a response, while an error Control marked
+public does reach the client.
+
+Authenticated production integration is not covered: it needs the private
+Control environment values, which are set in Netlify and are not available to
+the test suite.

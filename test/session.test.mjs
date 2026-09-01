@@ -1,9 +1,6 @@
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as s from '../lib/session.mjs';
-
-let pass = 0, fail = 0;
-const test = (n, f) => { try { f(); pass++; console.log('PASS  ' + n); }
-  catch (e) { fail++; console.log('FAIL  ' + n + '\n      ' + e.message.split('\n')[0]); } };
 
 const env = { GITHUB_TOKEN: 'ghp_x', SUDU_CONTROL_PASSWORD: 'correct horse', SUDU_CONTROL_SESSION_SECRET: 'a'.repeat(48) };
 
@@ -78,6 +75,3 @@ test('reads its cookie out of a crowded header', () => {
   assert.equal(s.readCookie(''), '');
   assert.equal(s.readCookie(undefined), '');
 });
-
-console.log(`\nsession: ${pass}/${pass + fail} passed`);
-process.exit(fail ? 1 : 0);

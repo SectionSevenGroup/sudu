@@ -4,9 +4,14 @@
 // session cookie first. The GitHub token, the password and the signing secret
 // are read from the environment here and never appear in a response, in the
 // page, or in a log line.
+//
+// Failures follow the same rule. An exception is shown to the editor only
+// where Control wrote the sentence and marked it with publicError(); anything
+// else becomes one fixed line. See lib/public-error.mjs.
 import * as session from '../../lib/session.mjs';
 import * as model from '../../lib/content-model.mjs';
 import { client } from '../../lib/github.mjs';
+import { publicError, publicPartsOf, redactSecrets } from '../../lib/public-error.mjs';
 
 const json = (status, body, extra = {}) => new Response(JSON.stringify(body), {
   status,
@@ -36,12 +41,12 @@ const SIGNATURES = {
 // A name Control chose, from a name a person typed. Never a path.
 function mediaName(fileName, mime) {
   const ext = UPLOAD_TYPES[mime];
-  if (!ext) throw new Error('Images must be JPEG, PNG or WebP.');
+  if (!ext) throw publicError('Images must be JPEG, PNG or WebP.');
   const given = String(fileName || '');
   // Sanitising a hostile name into a safe one hides that it was hostile.
   // A filename with a path in it is refused and said so.
   if (/[\\/]/.test(given) || given.includes('..')) {
-    throw new Error('Give the file a plain name, without any folders in it.');
+    throw publicError('Give the file a plain name, without any folders in it.');
   }
   const stem = given
     .replace(/\.[^.]+$/, '')
@@ -82,7 +87,7 @@ const actions = {
   async saveProject(gh, body) {
     const slug = String(body.slug || '');
     const before = await loadSite(gh);
-    if (!before.site.DATA[slug]) throw new Error('That project does not exist.');
+    if (!before.site.DATA[slug]) throw publicError('That project does not exist.', 404);
     let next = model.applyProject(before.site, slug, body.patch || {});
     if (body.editorial !== undefined && next.EDITORIAL[slug]) {
       next = { ...next, EDITORIAL: { ...next.EDITORIAL, [slug]: body.editorial } };
@@ -126,17 +131,17 @@ const actions = {
 
   async upload(gh, body) {
     const file = body.file || {};
-    if (!file.base64) throw new Error('No image was supplied.');
+    if (!file.base64) throw publicError('No image was supplied.');
     const bytes = Buffer.from(String(file.base64), 'base64');
-    if (!bytes.length) throw new Error('That image was empty.');
-    if (bytes.length > UPLOAD_LIMIT) throw new Error('Images must be under 4 MB.');
+    if (!bytes.length) throw publicError('That image was empty.');
+    if (bytes.length > UPLOAD_LIMIT) throw publicError('Images must be under 4 MB.');
     const looksRight = SIGNATURES[file.type];
-    if (!looksRight) throw new Error('Images must be JPEG, PNG or WebP.');
-    if (!looksRight(bytes)) throw new Error('The file contents do not match its image type.');
+    if (!looksRight) throw publicError('Images must be JPEG, PNG or WebP.');
+    if (!looksRight(bytes)) throw publicError('The file contents do not match its image type.');
     const path = mediaName(file.name, file.type);
     // the name was built here, but check it against the same rule the rest of
     // Control uses before anything is written
-    if (model.safeMediaPath(path) !== path) throw new Error('That filename cannot be used.');
+    if (model.safeMediaPath(path) !== path) throw publicError('That filename cannot be used.');
     await gh.commit([{ path, content: bytes.toString('base64'), encoding: 'base64' }], `Add image ${path.split('/').pop()}`);
     await gh.ensurePR();
     return { ok: true, path, state: await gh.state() };
@@ -184,12 +189,17 @@ export default async function handler(request) {
   try {
     return json(200, { ok: true, ...(await run(client(env), body)) });
   } catch (e) {
-    // Never echo the exception's own detail: it can carry a URL with the token
-    // in it. The message is ours; the detail goes to the function log.
-    console.error('control:', action, e && e.code ? e.code : '', e && e.status ? e.status : '');
-    const known = e && (e.code === 'draft-moved' || typeof e.message === 'string');
-    return json(e && e.status === 404 ? 404 : 500, {
-      error: known ? e.message : 'That did not work. Nothing was changed.',
-    });
+    // An exception is shown to the editor only where Control itself wrote the
+    // sentence and marked it public. Everything unmarked — GitHub's API, a
+    // failed fetch, the content-model parser, a bug in this file — becomes
+    // one fixed line, whatever detail it happened to be carrying.
+    const shown = publicPartsOf(e);
+    // The detail goes to the function log instead, with the live secret
+    // values, GitHub token shapes and Authorization headers struck out first.
+    console.error('control:', action, e && e.name ? e.name : 'Error',
+      e && e.code ? e.code : '', e && e.status ? e.status : '',
+      shown ? '(public)' : redactSecrets(e && e.message, env));
+    if (shown) return json(shown.status, { error: shown.message });
+    return json(500, { error: 'That did not work. Nothing was changed.' });
   }
 }
