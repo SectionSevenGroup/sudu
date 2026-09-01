@@ -153,6 +153,14 @@ html.xh * { cursor: none !important; }
   align-items: center;
   gap: 0;
 }
+.sketch-tools {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.sketch-tools::-webkit-scrollbar { display: none; }
+.sketch-actions { flex: 0 0 auto; }
 
 .sketch-toolbar button,
 .sketch-workspace-footer button,
@@ -238,6 +246,9 @@ button:disabled { cursor: default !important; opacity: .28; }
 
 .draw-stage[data-tool='erase'] .draw-cursor { width: 28px; height: 28px; }
 .draw-stage[data-tool='note'] .draw-cursor { width: 7px; height: 7px; background: var(--ink); }
+.draw-stage[data-tool='area'] .draw-cursor { width: 14px; height: 14px; border-radius: 0; }
+.draw-stage[data-tool='door'] .draw-cursor,
+.draw-stage[data-tool='window'] .draw-cursor { width: 8px; height: 8px; }
 .draw-scale {
   position: absolute;
   z-index: 2;
@@ -271,6 +282,79 @@ button:disabled { cursor: default !important; opacity: .28; }
   text-transform: uppercase;
 }
 
+.sketch-ruler {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  left: 50%;
+  width: clamp(240px, 32vw, 380px);
+  height: 44px;
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  touch-action: none;
+  user-select: none;
+}
+.sketch-ruler[hidden] { display: none; }
+.ruler-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: .75px solid var(--ink);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 13px, var(--ink) 13px 14px, transparent 14px 28px) 0 0 / 100% 8px no-repeat,
+    color-mix(in srgb, var(--paper) 82%, transparent);
+  backdrop-filter: blur(6px);
+  cursor: grab;
+}
+.ruler-face::after {
+  position: absolute;
+  right: 14px;
+  bottom: 8px;
+  left: 14px;
+  height: .5px;
+  background: var(--rule-strong);
+  content: '';
+}
+.ruler-face:active { cursor: grabbing; }
+.ruler-angle {
+  position: absolute;
+  z-index: 2;
+  left: 10px;
+  bottom: 8px;
+  padding-right: 6px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+.ruler-rotate {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  right: -11px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: .75px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  transform: translateY(-50%);
+  touch-action: none;
+}
+.ruler-rotate::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
 .sketch-workspace-footer p {
   margin: 0;
   color: var(--faint);
@@ -278,6 +362,7 @@ button:disabled { cursor: default !important; opacity: .28; }
   line-height: 1.4;
 }
 
+.sketch-workspace-footer [data-action='screenshot'],
 .sketch-workspace-footer [data-action='send'] { color: var(--ink); }
 
 .send-panel {
@@ -417,6 +502,7 @@ html.dm .sketch-header { background: color-mix(in srgb, var(--paper) 92%, transp
   .sketch-toolbar button { flex: 0 0 auto; padding-top: 12px; padding-bottom: 12px; }
   .sketch-toolbar button.is-active::after { bottom: 5px; }
   .draw-stage { height: 64svh; min-height: 440px; }
+  .sketch-ruler { width: min(68vw, 320px); }
   .sketch-workspace-footer { align-items: flex-start; flex-direction: column; gap: 0; padding-top: 12px; }
   .sketch-workspace-footer p { min-height: 22px; }
   .sketch-workspace-footer > div { width: 100%; justify-content: flex-end; }

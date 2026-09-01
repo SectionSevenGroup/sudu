@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-<link rel="stylesheet" href="/css/sketch.css?v=3f006c74">
+<link rel="stylesheet" href="/css/sketch.css?v=e57fb469">
 <script src="/js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 </head>
 <body>
@@ -46,10 +46,14 @@
           <button type="button" class="tool-button is-active" data-tool="pen" aria-pressed="true" aria-keyshortcuts="P">Pen</button>
           <button type="button" class="tool-button" data-tool="line" aria-pressed="false" aria-keyshortcuts="L">Line</button>
           <button type="button" class="tool-button" data-tool="room" aria-pressed="false" aria-keyshortcuts="R">Room</button>
+          <button type="button" class="tool-button" data-tool="door" aria-pressed="false" aria-keyshortcuts="D">Door</button>
+          <button type="button" class="tool-button" data-tool="window" aria-pressed="false" aria-keyshortcuts="W">Window</button>
+          <button type="button" class="tool-button" data-tool="area" aria-pressed="false" aria-keyshortcuts="A">Area</button>
           <button type="button" class="tool-button" data-tool="note" aria-pressed="false" aria-keyshortcuts="N">Note</button>
           <button type="button" class="tool-button" data-tool="erase" aria-pressed="false" aria-keyshortcuts="E">Erase</button>
         </div>
         <div class="sketch-actions" aria-label="Drawing actions">
+          <button type="button" data-action="ruler" aria-pressed="false" aria-keyshortcuts="U">Ruler</button>
           <button type="button" data-action="undo" disabled>Undo</button>
           <button type="button" data-action="redo" disabled>Redo</button>
           <button type="button" data-action="clear" disabled>Clear</button>
@@ -63,13 +67,20 @@
           <span class="sr-only">Note text</span>
           <input id="noteInput" type="text" maxlength="80" placeholder="TYPE A NOTE" autocomplete="off">
         </label>
+        <div id="sketchRuler" class="sketch-ruler" hidden aria-label="Rotatable drawing ruler">
+          <div class="ruler-face" data-ruler-drag>
+            <output id="rulerAngle" class="ruler-angle" aria-live="polite">0°</output>
+          </div>
+          <button id="rulerRotate" class="ruler-rotate" type="button" aria-label="Rotate ruler"></button>
+        </div>
         <div class="draw-scale" aria-hidden="true">Concept sketch / Not to scale</div>
       </div>
 
       <div class="sketch-workspace-footer">
         <p id="toolHint" aria-live="polite">Draw freely with the pen.</p>
         <div>
-          <button type="button" data-action="download" disabled>Download</button>
+          <button type="button" data-action="save" disabled>Save</button>
+          <button type="button" data-action="screenshot" disabled>Screenshot</button>
           <button type="button" data-action="send" disabled hidden>Send to SuDu</button>
         </div>
       </div>
@@ -133,6 +144,6 @@
   <script src="/i18n.js?v=6006c1b9" defer></script>
   <script src="/js/audio-player.js?v=5e49f639" defer></script>
   <script type="module" src="/js/haptics.js?v=3c4ba22c"></script>
-  <script src="/js/sketch.js?v=2aa76d10" defer></script>
+  <script src="/js/sketch.js?v=022dac9b" defer></script>
 </body>
 </html>

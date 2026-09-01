@@ -10,6 +10,10 @@
   var hint = document.getElementById('toolHint');
   var noteComposer = document.getElementById('noteComposer');
   var noteInput = document.getElementById('noteInput');
+  var ruler = document.getElementById('sketchRuler');
+  var rulerFace = ruler.querySelector('[data-ruler-drag]');
+  var rulerRotate = document.getElementById('rulerRotate');
+  var rulerAngle = document.getElementById('rulerAngle');
   var sendPanel = document.getElementById('sendPanel');
   var form = document.getElementById('sketchForm');
   var formStatus = document.getElementById('formStatus');
@@ -34,33 +38,59 @@
   var cssHeight = 0;
   var dpr = 1;
   var saveTimer = 0;
+  var hintTimer = 0;
+  var doorFlip = false;
+  var rulerDrag = null;
+  var rulerState = { visible: false, x: 0.5, y: 0.5, angle: 0 };
   var STORAGE_KEY = 'sudu-sketch-v1';
+  var RULER_KEY = 'sudu-sketch-ruler-v1';
+  var allowedTypes = ['pen', 'line', 'room', 'door', 'window', 'area', 'note'];
   var toolHints = {
-    pen: 'Draw freely with the pen.',
+    pen: 'Draw freely. Strokes smooth automatically.',
     line: 'Drag between two points to draw a straight wall.',
     room: 'Drag diagonally to block out a room.',
+    door: 'Drag across an opening. Select Door again or hold Shift to reverse the swing.',
+    window: 'Drag along a wall to place a window.',
+    area: 'Drag a rectangle to shade an area.',
     note: 'Select a point on the plan, then type a note.',
-    erase: 'Select a line, room or note to remove it.'
+    erase: 'Select a line, room, opening, area or note to remove it.'
   };
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
   }
 
+  function persistDrawing() {
+    window.clearTimeout(saveTimer);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(objects)); } catch (error) {}
+  }
+
   function scheduleSave() {
     window.clearTimeout(saveTimer);
-    saveTimer = window.setTimeout(function () {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(objects)); } catch (error) {}
-    }, 160);
+    saveTimer = window.setTimeout(persistDrawing, 160);
+  }
+
+  function persistRuler() {
+    try { localStorage.setItem(RULER_KEY, JSON.stringify(rulerState)); } catch (error) {}
   }
 
   function loadSaved() {
     try {
       var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       if (Array.isArray(saved)) objects = saved.filter(function (item) {
-        return item && ['pen', 'line', 'room', 'note'].indexOf(item.type) !== -1;
-      }).slice(-160);
+        return item && allowedTypes.indexOf(item.type) !== -1;
+      }).slice(-200);
     } catch (error) { objects = []; }
+
+    try {
+      var savedRuler = JSON.parse(localStorage.getItem(RULER_KEY) || 'null');
+      if (savedRuler && typeof savedRuler === 'object') {
+        rulerState.visible = Boolean(savedRuler.visible);
+        rulerState.x = Math.max(0.08, Math.min(0.92, Number(savedRuler.x) || 0.5));
+        rulerState.y = Math.max(0.08, Math.min(0.92, Number(savedRuler.y) || 0.5));
+        rulerState.angle = Number(savedRuler.angle) || 0;
+      }
+    } catch (error) {}
   }
 
   function syncPalette() {
@@ -86,8 +116,11 @@
     actionButtons.undo.disabled = undoStack.length === 0;
     actionButtons.redo.disabled = redoStack.length === 0;
     actionButtons.clear.disabled = !hasDrawing;
-    actionButtons.download.disabled = !hasDrawing;
+    actionButtons.save.disabled = !hasDrawing;
+    actionButtons.screenshot.disabled = !hasDrawing;
     actionButtons.send.disabled = !hasDrawing;
+    actionButtons.ruler.classList.toggle('is-active', rulerState.visible);
+    actionButtons.ruler.setAttribute('aria-pressed', rulerState.visible ? 'true' : 'false');
   }
 
   function resize() {
@@ -100,6 +133,7 @@
     canvas.style.width = cssWidth + 'px';
     canvas.style.height = cssHeight + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    positionRuler();
     render();
   }
 
@@ -121,8 +155,22 @@
     return { x: point.x * cssWidth, y: point.y * cssHeight };
   }
 
+  function constrainToRuler(start, end) {
+    var a = px(start);
+    var b = px(end);
+    var radians = rulerState.angle * Math.PI / 180;
+    var ux = Math.cos(radians);
+    var uy = Math.sin(radians);
+    var distance = (b.x - a.x) * ux + (b.y - a.y) * uy;
+    return {
+      x: Math.max(0, Math.min(1, (a.x + ux * distance) / cssWidth)),
+      y: Math.max(0, Math.min(1, (a.y + uy * distance) / cssHeight))
+    };
+  }
+
   function drawGrid(target, width, height) {
-    var spacing = 28;
+    var outputScale = cssWidth ? width / cssWidth : 1;
+    var spacing = 28 * outputScale;
     var offsetX = (width % spacing) / 2;
     var offsetY = (height % spacing) / 2;
     target.save();
@@ -130,15 +178,96 @@
     for (var x = offsetX; x <= width; x += spacing) {
       for (var y = offsetY; y <= height; y += spacing) {
         target.beginPath();
-        target.arc(x, y, 1, 0, Math.PI * 2);
+        target.arc(x, y, Math.max(1, outputScale), 0, Math.PI * 2);
         target.fill();
       }
     }
     target.restore();
   }
 
+  function drawOpening(target, object, width, height, outputScale) {
+    var start = { x: object.start.x * width, y: object.start.y * height };
+    var end = { x: object.end.x * width, y: object.end.y * height };
+    var dx = end.x - start.x;
+    var dy = end.y - start.y;
+    var length = Math.hypot(dx, dy);
+    if (length < 2) return;
+
+    target.save();
+    target.translate(start.x, start.y);
+    target.rotate(Math.atan2(dy, dx));
+    target.fillStyle = PAPER;
+    target.fillRect(-4 * outputScale, -7 * outputScale, length + 8 * outputScale, 14 * outputScale);
+    target.strokeStyle = INK;
+    target.lineWidth = 1.45 * outputScale;
+    target.lineCap = 'butt';
+
+    target.beginPath();
+    target.moveTo(0, -6 * outputScale);
+    target.lineTo(0, 6 * outputScale);
+    target.moveTo(length, -6 * outputScale);
+    target.lineTo(length, 6 * outputScale);
+    target.stroke();
+
+    if (object.type === 'window') {
+      target.beginPath();
+      target.moveTo(0, -2.5 * outputScale);
+      target.lineTo(length, -2.5 * outputScale);
+      target.moveTo(0, 2.5 * outputScale);
+      target.lineTo(length, 2.5 * outputScale);
+      target.stroke();
+    } else {
+      var direction = object.flip ? -1 : 1;
+      target.beginPath();
+      target.moveTo(0, 0);
+      target.lineTo(0, direction * length);
+      target.stroke();
+      target.globalAlpha = 0.72;
+      target.beginPath();
+      target.arc(0, 0, length, 0, direction * Math.PI / 2, direction < 0);
+      target.stroke();
+    }
+    target.restore();
+  }
+
+  function drawArea(target, object, width, height, outputScale) {
+    var start = { x: object.start.x * width, y: object.start.y * height };
+    var end = { x: object.end.x * width, y: object.end.y * height };
+    var x = Math.min(start.x, end.x);
+    var y = Math.min(start.y, end.y);
+    var w = Math.abs(end.x - start.x);
+    var h = Math.abs(end.y - start.y);
+    var hatch = 12 * outputScale;
+
+    target.save();
+    target.beginPath();
+    target.rect(x, y, w, h);
+    target.clip();
+    target.globalAlpha = 0.07;
+    target.fillStyle = INK;
+    target.fillRect(x, y, w, h);
+    target.globalAlpha = 0.18;
+    target.strokeStyle = INK;
+    target.lineWidth = 0.7 * outputScale;
+    for (var d = -h; d < w + h; d += hatch) {
+      target.beginPath();
+      target.moveTo(x + d, y + h);
+      target.lineTo(x + d + h, y);
+      target.stroke();
+    }
+    target.restore();
+
+    target.save();
+    target.globalAlpha = 0.34;
+    target.strokeStyle = INK;
+    target.lineWidth = 0.75 * outputScale;
+    target.strokeRect(x, y, w, h);
+    target.restore();
+  }
+
   function drawObject(target, object, width, height) {
     var toPx = function (point) { return { x: point.x * width, y: point.y * height }; };
+    var outputScale = cssWidth ? width / cssWidth : 1;
     target.save();
     target.strokeStyle = INK;
     target.fillStyle = INK;
@@ -147,7 +276,7 @@
 
     if (object.type === 'pen') {
       if (!object.points.length) { target.restore(); return; }
-      target.lineWidth = 1.55;
+      target.lineWidth = 1.55 * outputScale;
       target.beginPath();
       var first = toPx(object.points[0]);
       target.moveTo(first.x, first.y);
@@ -164,7 +293,7 @@
     if (object.type === 'line') {
       var lineStart = toPx(object.start);
       var lineEnd = toPx(object.end);
-      target.lineWidth = 2.1;
+      target.lineWidth = 2.1 * outputScale;
       target.beginPath();
       target.moveTo(lineStart.x, lineStart.y);
       target.lineTo(lineEnd.x, lineEnd.y);
@@ -174,13 +303,25 @@
     if (object.type === 'room') {
       var roomStart = toPx(object.start);
       var roomEnd = toPx(object.end);
-      target.lineWidth = 2.1;
+      target.lineWidth = 2.1 * outputScale;
       target.strokeRect(roomStart.x, roomStart.y, roomEnd.x - roomStart.x, roomEnd.y - roomStart.y);
+    }
+
+    if (object.type === 'door' || object.type === 'window') {
+      target.restore();
+      drawOpening(target, object, width, height, outputScale);
+      return;
+    }
+
+    if (object.type === 'area') {
+      target.restore();
+      drawArea(target, object, width, height, outputScale);
+      return;
     }
 
     if (object.type === 'note') {
       var note = toPx(object.point);
-      var size = Math.max(10, Math.min(13, width / 110));
+      var size = Math.max(10 * outputScale, Math.min(13 * outputScale, width / 110));
       target.font = '600 ' + size + 'px Urbanist, sans-serif';
       target.textBaseline = 'middle';
       target.fillText(String(object.text || '').toUpperCase(), note.x, note.y);
@@ -199,13 +340,21 @@
     if (active) drawObject(ctx, active, cssWidth, cssHeight);
   }
 
+  function setHint(message, restore) {
+    window.clearTimeout(hintTimer);
+    hint.textContent = message;
+    if (restore) {
+      hintTimer = window.setTimeout(function () { hint.textContent = toolHints[tool]; }, restore);
+    }
+  }
+
   function setTool(next) {
     if (!toolHints[next]) return;
     tool = next;
     active = null;
     closeNoteComposer();
     stage.setAttribute('data-tool', tool);
-    hint.textContent = toolHints[tool];
+    setHint(toolHints[tool]);
     toolButtons.forEach(function (button) {
       var on = button.getAttribute('data-tool') === tool;
       button.classList.toggle('is-active', on);
@@ -241,6 +390,40 @@
     render();
   }
 
+  function screenDistance(a, b) {
+    return Math.hypot((a.x - b.x) * cssWidth, (a.y - b.y) * cssHeight);
+  }
+
+  function smoothStroke(points) {
+    if (points.length < 3) return points;
+    var reduced = [points[0]];
+    for (var i = 1; i < points.length - 1; i++) {
+      if (screenDistance(points[i], reduced[reduced.length - 1]) >= 2.4) reduced.push(points[i]);
+    }
+    reduced.push(points[points.length - 1]);
+
+    var smoothed = reduced;
+    for (var pass = 0; pass < 2 && smoothed.length > 2; pass++) {
+      var next = [smoothed[0]];
+      for (var j = 0; j < smoothed.length - 1; j++) {
+        var a = smoothed[j];
+        var b = smoothed[j + 1];
+        next.push({ x: a.x * 0.75 + b.x * 0.25, y: a.y * 0.75 + b.y * 0.25 });
+        next.push({ x: a.x * 0.25 + b.x * 0.75, y: a.y * 0.25 + b.y * 0.75 });
+      }
+      next.push(smoothed[smoothed.length - 1]);
+      smoothed = next;
+    }
+
+    if (smoothed.length > 480) {
+      var sampled = [];
+      var step = (smoothed.length - 1) / 479;
+      for (var k = 0; k < 480; k++) sampled.push(smoothed[Math.round(k * step)]);
+      smoothed = sampled;
+    }
+    return smoothed;
+  }
+
   function distanceToSegment(point, start, end) {
     var p = px(point);
     var a = px(start);
@@ -253,13 +436,21 @@
     return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
   }
 
+  function pointInsideRect(point, start, end) {
+    return point.x >= Math.min(start.x, end.x) && point.x <= Math.max(start.x, end.x) &&
+      point.y >= Math.min(start.y, end.y) && point.y <= Math.max(start.y, end.y);
+  }
+
   function hitObject(object, point) {
     if (object.type === 'pen') {
       for (var i = 1; i < object.points.length; i++) {
         if (distanceToSegment(point, object.points[i - 1], object.points[i]) < 16) return true;
       }
     }
-    if (object.type === 'line') return distanceToSegment(point, object.start, object.end) < 16;
+    if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
+      return distanceToSegment(point, object.start, object.end) < 18;
+    }
+    if (object.type === 'area') return pointInsideRect(point, object.start, object.end);
     if (object.type === 'room') {
       var a = object.start;
       var b = object.end;
@@ -291,30 +482,30 @@
   function onPointerDown(event) {
     if (event.button !== undefined && event.button !== 0) return;
     canvas.setPointerCapture(event.pointerId);
-    var snap = tool === 'line' || tool === 'room';
+    var snap = ['line', 'room', 'door', 'window', 'area'].indexOf(tool) !== -1;
     var point = pointFromEvent(event, snap);
     if (tool === 'erase') { eraseAt(point); return; }
     if (tool === 'note') { openNoteComposer(point); return; }
     if (tool === 'pen') active = { type: 'pen', points: [point] };
     if (tool === 'line') active = { type: 'line', start: point, end: point };
     if (tool === 'room') active = { type: 'room', start: point, end: point };
+    if (tool === 'door') active = { type: 'door', start: point, end: point, flip: event.shiftKey ? !doorFlip : doorFlip };
+    if (tool === 'window') active = { type: 'window', start: point, end: point };
+    if (tool === 'area') active = { type: 'area', start: point, end: point };
     render();
   }
 
   function onPointerMove(event) {
-    var rect = stage.getBoundingClientRect();
-    cursor.style.left = (event.clientX - rect.left) + 'px';
-    cursor.style.top = (event.clientY - rect.top) + 'px';
     if (!active) return;
-    var snap = active.type === 'line' || active.type === 'room';
+    var snap = ['line', 'room', 'door', 'window', 'area'].indexOf(active.type) !== -1;
     var point = pointFromEvent(event, snap);
     if (active.type === 'pen') {
       var last = active.points[active.points.length - 1];
-      var dx = (point.x - last.x) * cssWidth;
-      var dy = (point.y - last.y) * cssHeight;
-      if (Math.hypot(dx, dy) > 1.4) active.points.push(point);
+      if (screenDistance(point, last) > 1.4) active.points.push(point);
     } else {
+      if (active.type === 'line' && rulerState.visible && !event.altKey) point = constrainToRuler(active.start, point);
       active.end = point;
+      if (active.type === 'door') active.flip = event.shiftKey ? !doorFlip : doorFlip;
     }
     render();
   }
@@ -324,11 +515,12 @@
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     var valid = active.type === 'pen'
       ? active.points.length > 1
-      : Math.hypot((active.end.x - active.start.x) * cssWidth, (active.end.y - active.start.y) * cssHeight) > 6;
+      : screenDistance(active.end, active.start) > (active.type === 'door' || active.type === 'window' ? 16 : 6);
     if (valid) {
       var previous = clone(objects);
+      if (active.type === 'pen') active.points = smoothStroke(active.points);
       objects.push(clone(active));
-      if (objects.length > 160) objects.shift();
+      if (objects.length > 200) objects.shift();
       remember(previous);
     }
     active = null;
@@ -362,6 +554,14 @@
     render();
   }
 
+  function saveDrawing() {
+    if (!objects.length) return;
+    persistDrawing();
+    persistRuler();
+    if (window.suduHaptics) window.suduHaptics.tick(10);
+    setHint('Saved on this device.', 1800);
+  }
+
   function exportCanvas(callback) {
     var width = 1800;
     var height = Math.round(width * cssHeight / cssWidth);
@@ -373,20 +573,77 @@
     outCtx.fillRect(0, 0, width, height);
     drawGrid(outCtx, width, height);
     objects.forEach(function (object) { drawObject(outCtx, object, width, height); });
-    out.toBlob(callback, 'image/png', .94);
+    out.toBlob(callback, 'image/png', 0.94);
   }
 
-  function downloadSketch() {
+  function captureScreenshot() {
     exportCanvas(function (blob) {
       if (!blob) return;
       var link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
+      var url = URL.createObjectURL(blob);
+      link.href = url;
       link.download = 'sudu-sketch.png';
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
+      window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      setHint('Screenshot saved.', 1800);
     });
+  }
+
+  function positionRuler() {
+    ruler.hidden = !rulerState.visible;
+    ruler.style.left = (rulerState.x * 100) + '%';
+    ruler.style.top = (rulerState.y * 100) + '%';
+    ruler.style.transform = 'translate(-50%, -50%) rotate(' + rulerState.angle + 'deg)';
+    var shown = Math.round(((rulerState.angle % 180) + 180) % 180);
+    rulerAngle.textContent = shown + '°';
+  }
+
+  function toggleRuler() {
+    rulerState.visible = !rulerState.visible;
+    positionRuler();
+    persistRuler();
+    updateActions();
+    setHint(rulerState.visible
+      ? 'Drag the ruler to move it. Drag its round end to rotate; Line follows its angle.'
+      : toolHints[tool]);
+  }
+
+  function beginRulerDrag(event, mode) {
+    if (event.button !== undefined && event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    var rect = stage.getBoundingClientRect();
+    rulerDrag = {
+      mode: mode,
+      startX: event.clientX,
+      startY: event.clientY,
+      x: rulerState.x,
+      y: rulerState.y,
+      centerX: rect.left + rulerState.x * rect.width,
+      centerY: rect.top + rulerState.y * rect.height,
+      stageWidth: rect.width,
+      stageHeight: rect.height
+    };
+  }
+
+  function moveRuler(event) {
+    if (!rulerDrag) return;
+    event.preventDefault();
+    if (rulerDrag.mode === 'move') {
+      rulerState.x = Math.max(0.08, Math.min(0.92, rulerDrag.x + (event.clientX - rulerDrag.startX) / rulerDrag.stageWidth));
+      rulerState.y = Math.max(0.08, Math.min(0.92, rulerDrag.y + (event.clientY - rulerDrag.startY) / rulerDrag.stageHeight));
+    } else {
+      rulerState.angle = Math.atan2(event.clientY - rulerDrag.centerY, event.clientX - rulerDrag.centerX) * 180 / Math.PI;
+    }
+    positionRuler();
+  }
+
+  function endRulerDrag() {
+    if (!rulerDrag) return;
+    rulerDrag = null;
+    persistRuler();
   }
 
   function openSendPanel() {
@@ -430,23 +687,47 @@
   }
 
   toolButtons.forEach(function (button) {
-    button.addEventListener('click', function () { setTool(button.getAttribute('data-tool')); });
+    button.addEventListener('click', function () {
+      var next = button.getAttribute('data-tool');
+      if (next === 'door' && tool === 'door') {
+        doorFlip = !doorFlip;
+        button.textContent = doorFlip ? 'Door ↺' : 'Door';
+        setHint(doorFlip ? 'Door swing reversed.' : toolHints.door, 1600);
+        return;
+      }
+      setTool(next);
+    });
   });
+
   canvas.addEventListener('pointerdown', onPointerDown);
   canvas.addEventListener('pointermove', onPointerMove);
   canvas.addEventListener('pointerup', onPointerUp);
   canvas.addEventListener('pointercancel', onPointerUp);
+  stage.addEventListener('pointermove', function (event) {
+    var rect = stage.getBoundingClientRect();
+    cursor.style.left = (event.clientX - rect.left) + 'px';
+    cursor.style.top = (event.clientY - rect.top) + 'px';
+  }, { passive: true });
   stage.addEventListener('pointerenter', function () { cursor.style.opacity = '1'; });
   stage.addEventListener('pointerleave', function () { cursor.style.opacity = '0'; });
+
+  rulerFace.addEventListener('pointerdown', function (event) { beginRulerDrag(event, 'move'); });
+  rulerRotate.addEventListener('pointerdown', function (event) { beginRulerDrag(event, 'rotate'); });
+  document.addEventListener('pointermove', moveRuler, { passive: false });
+  document.addEventListener('pointerup', endRulerDrag, { passive: true });
+  document.addEventListener('pointercancel', endRulerDrag, { passive: true });
+
   noteInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter') { event.preventDefault(); commitNote(); }
     if (event.key === 'Escape') { event.preventDefault(); closeNoteComposer(); canvas.focus(); }
   });
   noteInput.addEventListener('blur', function () { if (!noteComposer.hidden) commitNote(); });
+  actionButtons.ruler.addEventListener('click', toggleRuler);
   actionButtons.undo.addEventListener('click', undo);
   actionButtons.redo.addEventListener('click', redo);
   actionButtons.clear.addEventListener('click', clearDrawing);
-  actionButtons.download.addEventListener('click', downloadSketch);
+  actionButtons.save.addEventListener('click', saveDrawing);
+  actionButtons.screenshot.addEventListener('click', captureScreenshot);
   actionButtons.send.addEventListener('click', openSendPanel);
   actionButtons['close-send'].addEventListener('click', closeSendPanel);
   form.addEventListener('submit', submitForm);
@@ -458,7 +739,16 @@
       if (event.shiftKey) redo(); else undo();
       return;
     }
-    var keyTools = { p: 'pen', l: 'line', r: 'room', n: 'note', e: 'erase' };
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault();
+      saveDrawing();
+      return;
+    }
+    if (event.key.toLowerCase() === 'u') {
+      toggleRuler();
+      return;
+    }
+    var keyTools = { p: 'pen', l: 'line', r: 'room', d: 'door', w: 'window', a: 'area', n: 'note', e: 'erase' };
     if (keyTools[event.key.toLowerCase()]) setTool(keyTools[event.key.toLowerCase()]);
   });
 
@@ -468,7 +758,7 @@
 
   var resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(stage);
-  window.addEventListener('pagehide', scheduleSave);
+  window.addEventListener('pagehide', function () { persistDrawing(); persistRuler(); });
 
   function buildThemePicker() {
     if (document.getElementById('dmSwatches')) return;
@@ -531,6 +821,7 @@
   loadSaved();
   buildThemePicker();
   buildCrosshair();
+  positionRuler();
   updateActions();
   resize();
   syncPalette();
