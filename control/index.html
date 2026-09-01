@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>SuDu Control</title>
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/control/control.css">
+</head>
+<body>
+
+<!-- Signed out -------------------------------------------------------- -->
+<main id="gate" class="gate" hidden>
+  <form id="signInForm" class="gate-form" novalidate>
+    <p class="mark">SuDu<span>.</span></p>
+    <h1 class="gate-title">Control</h1>
+    <p class="gate-note">This is the studio's private side of the site.</p>
+    <label class="field">
+      <span class="field-label">Password</span>
+      <input id="password" name="password" type="password" autocomplete="current-password" required="required" autofocus>
+    </label>
+    <p id="gateError" class="error" role="alert" hidden></p>
+    <button class="button" type="submit">Sign in</button>
+  </form>
+</main>
+
+<!-- Signed in --------------------------------------------------------- -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="top-rail">
+      <a class="mark" href="/control/">SuDu<span>.</span> <em>Control</em></a>
+      <nav class="tabs" aria-label="Control sections">
+        <button class="tab" data-view="overview" aria-current="page">Overview</button>
+        <button class="tab" data-view="projects">Projects</button>
+        <button class="tab" data-view="media">Media</button>
+        <button class="tab" data-view="publish">Publish</button>
+      </nav>
+      <button id="signOut" class="link">Sign out</button>
+    </div>
+  </header>
+
+  <main class="rail">
+    <section id="view-overview" class="view" hidden>
+      <h1 class="view-title">Overview</h1>
+      <dl id="overviewFacts" class="facts"></dl>
+      <div id="overviewDraft" class="panel"></div>
+    </section>
+
+    <section id="view-projects" class="view" hidden>
+      <h1 class="view-title">Projects</h1>
+      <div id="projectList" class="rows"></div>
+      <div id="projectEditor" hidden></div>
+    </section>
+
+    <section id="view-media" class="view" hidden>
+      <h1 class="view-title">Media</h1>
+      <div class="panel">
+        <label class="field">
+          <span class="field-label">Add an image</span>
+          <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp">
+        </label>
+        <p class="hint">JPEG, PNG or WebP, up to 8 MB. The file is committed to the draft, never straight to the live site.</p>
+        <p id="mediaMessage" class="hint" role="status"></p>
+      </div>
+      <div id="mediaMissing"></div>
+      <div id="mediaGrid" class="media-grid"></div>
+    </section>
+
+    <section id="view-publish" class="view" hidden>
+      <h1 class="view-title">Publish</h1>
+      <div id="publishPanel" class="panel"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>SuDu Control</span>
+    <span id="footState"></span>
+  </footer>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script type="module" src="/control/control.js"></script>
+</body>
+</html>
