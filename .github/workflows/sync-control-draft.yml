@@ -36,10 +36,22 @@ jobs:
             git checkout -b control/draft refs/remotes/origin/main
           fi
 
+          # Draft already contains current main: nothing to do.
           if git merge-base --is-ancestor refs/remotes/origin/main HEAD; then
             echo "Control draft already contains current main."
             exit 0
           fi
 
+          # No unpublished Control work: the draft is simply an older main.
+          # Fast-forward it instead of creating a merge commit that would look
+          # like a fake pending Control change.
+          if git merge-base --is-ancestor HEAD refs/remotes/origin/main; then
+            git reset --hard refs/remotes/origin/main
+            git push origin HEAD:control/draft
+            exit 0
+          fi
+
+          # Real unpublished Control work exists. Preserve it and merge the
+          # latest site into the draft so edits stay current without rewriting.
           git merge --no-edit refs/remotes/origin/main
           git push origin HEAD:control/draft
