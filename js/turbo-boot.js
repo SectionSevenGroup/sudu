@@ -53,10 +53,6 @@
   var IN_MS = 1150;      // the incoming one materialises
   var EASE = 'cubic-bezier(.16,1,.3,1)';
   var IMAGE_HOLD = 260;  // hard cap on waiting for the opening image
-  // First direct arrival only: the ground is painted immediately and the page
-  // resolves into it. A CSS animation rather than a transition, so it finishes
-  // on its own and cannot strand at zero if anything else goes wrong.
-  var ARRIVE_MS = 1500;
   var GATE_CAP = 1400;   // absolute cap: navigation never hangs on this file
   var COMMIT_TRIES = 30; // bounded wait for React to commit
 
@@ -76,13 +72,7 @@
     'html[data-nav="out"] #dc-root{transition:opacity ' + OUT_MS + 'ms ' + EASE + ';}' +
     // Reduced motion keeps the ordering and drops the animation: the incoming
     // page is still assembled out of sight, it simply arrives without a fade.
-    '@media (prefers-reduced-motion: reduce){html[data-nav] #dc-root{transition:none;}}' +
-    // The first arrival. The class is only ever added by script, after the
-    // page has committed, so a browser that never runs it simply shows the
-    // page — there is no authored opacity:0 for anything to get stuck behind.
-    'html.sudu-arrive #dc-root{animation:suduArrive ' + ARRIVE_MS + 'ms ' + EASE + ' forwards;}' +
-    '@keyframes suduArrive{from{opacity:0;}to{opacity:1;}}' +
-    '@media (prefers-reduced-motion: reduce){html.sudu-arrive #dc-root{animation:none;}}';
+    '@media (prefers-reduced-motion: reduce){html[data-nav] #dc-root{transition:none;}}';
   document.head.appendChild(css);
 
   // ---------------------------------------------------------------- helpers
@@ -295,31 +285,6 @@
   document.addEventListener('turbo:load', function () {
     setTimeout(function () { if (root.hasAttribute('data-nav')) navigationReady(); }, 1500);
   });
-
-  // ------------------------------------------------------- first arrival
-  //
-  // Only a genuine direct load, and only once. Every later view is a Turbo
-  // navigation, which has its own rhythm above. Opacity only: nothing moves,
-  // nothing scales, and there is no splash — the ground, the chrome bar and
-  // the controls are all outside #dc-root and are painted before this starts.
-  (function () {
-    if (REDUCED.matches) return;
-    // The class goes on straight away, before #dc-root exists. Waiting for the
-    // element meant it painted at full opacity for the frame before the class
-    // landed — the page appearing, dropping out, and fading back in. The rule
-    // only ever addresses #dc-root, so arming it early costs nothing: if that
-    // element is never created there is nothing for it to act on, and if it is
-    // created the animation begins from the frame it exists.
-    root.classList.add('sudu-arrive');
-    var done = function () { root.classList.remove('sudu-arrive'); };
-    // Detached the moment the arrival finishes, so nothing carries into a
-    // navigation, and on a cap regardless in case it never started.
-    document.addEventListener('animationend', function (e) {
-      if (e.animationName === 'suduArrive') done();
-    }, true);
-    document.addEventListener('turbo:before-visit', done);
-    setTimeout(done, ARRIVE_MS + 4000);
-  })();
 
   // ------------------------------------------------------------- preload
 
