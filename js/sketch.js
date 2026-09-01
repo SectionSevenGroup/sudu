@@ -69,6 +69,7 @@
   var stencilId = 'car-sedan';
   var stencilFilled = false;
   var stencilRotation = 0;
+  var STENCIL_CATEGORY_LABELS = { cars: 'car', trees: 'tree', furniture: 'furniture' };
   var STENCILS = [
     { id: 'car-sedan', category: 'cars', name: 'Sedan', dots: [4, 2] },
     { id: 'car-suv', category: 'cars', name: 'SUV', dots: [4.5, 2.2] },
@@ -1059,7 +1060,7 @@
     var choices = STENCILS.filter(function (spec) { return spec.category === category; });
     if (!choices.some(function (spec) { return spec.id === stencilId; })) stencilId = choices[0].id;
     renderStencilChoices();
-    setHint('Choose a ' + category.slice(0, -1) + ' template, then click the grid to place it.');
+    setHint('Choose a ' + STENCIL_CATEGORY_LABELS[category] + ' template, then click the grid to place it.');
   }
 
   function chooseStencil(id) {
