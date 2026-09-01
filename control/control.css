@@ -299,3 +299,9 @@ input:hover, textarea:hover { border-bottom-color: var(--ink); }
   .seq-block { grid-template-columns: 1fr; gap: 8px; }
   .seq-controls { justify-content: flex-start; flex-wrap: wrap; }
 }
+
+
+/* Failed reads are explicit, not endless loading states. */
+.load-error { border-top: 0.5px solid var(--line); padding: 22px 0 32px; max-width: 620px; }
+.load-error p { margin: 0 0 8px; }
+.load-error .button { margin-top: 16px; }

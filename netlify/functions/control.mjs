@@ -147,6 +147,16 @@ async function settle(gh, written) {
   return { review: state.unknown ? written.review : state.review, state };
 }
 
+async function stateForRead(gh, area) {
+  try {
+    return await gh.state();
+  } catch (e) {
+    console.error('control: content loaded, state check failed for ' + area,
+      e && e.status ? e.status : '', redactSecrets(e && e.message, env()));
+    return { unknown: true, review: 'unknown', hasChanges: false, canPublish: false };
+  }
+}
+
 // Every project mutation runs the same way: read the site from one commit,
 // transform it, validate, reindex, and offer it back against that commit. The
 // transform is the only thing that differs, so none of them can accidentally
@@ -171,12 +181,12 @@ const num = (v, fallback = 0) => (Number.isFinite(Number(v)) ? Number(v) : fallb
 const actions = {
   async overview(gh) {
     const { site } = await loadSite(gh);
-    return { state: await gh.state(), projects: model.listProjects(site).length };
+    return { state: await stateForRead(gh, 'overview'), projects: model.listProjects(site).length };
   },
 
   async projects(gh) {
     const { site } = await loadSite(gh);
-    return { projects: model.listProjects(site), state: await gh.state() };
+    return { projects: model.listProjects(site), state: await stateForRead(gh, 'projects') };
   },
 
   async saveProject(gh, body) {
@@ -233,7 +243,7 @@ const actions = {
           : null,
       });
     }
-    return { pages: out, state: await gh.state() };
+    return { pages: out, state: await stateForRead(gh, 'pages') };
   },
 
   async savePage(gh, body) {

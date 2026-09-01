@@ -31,6 +31,14 @@ function toast(message) {
   toast.timer = setTimeout(() => { el.hidden = true; }, 2600);
 }
 
+function loadError(selector, label, error, retry) {
+  const el = $(selector);
+  if (!el) return;
+  el.innerHTML = `<div class="load-error"><p><strong>${escape(label)} could not load.</strong></p><p class="hint">${escape(error && error.message ? error.message : 'Control could not reach the site.')}</p><button class="button" data-load-retry>Retry</button></div>`;
+  const b = el.querySelector('[data-load-retry]');
+  if (b) b.addEventListener('click', retry);
+}
+
 const escape = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -155,7 +163,10 @@ function wireRetry(reload) {
 
 async function loadOverview() {
   $('#overviewDraft').innerHTML = '<p class="hint">Reading the site…</p>';
-  const { state: s, projects } = await call('overview');
+  let response;
+  try { response = await call('overview'); }
+  catch (e) { loadError('#overviewDraft', 'Overview', e, loadOverview); return; }
+  const { state: s, projects } = response;
   footState(s);
   const status = draftStatus(s);
   $('#overviewFacts').innerHTML = [
@@ -187,7 +198,10 @@ function wireGotos() {
 async function loadProjects() {
   $('#projectEditor').hidden = true;
   $('#projectList').innerHTML = '<p class="hint">Reading the site…</p>';
-  const { projects, state: s } = await call('projects');
+  let response;
+  try { response = await call('projects'); }
+  catch (e) { loadError('#projectList', 'Projects', e, loadProjects); return; }
+  const { projects, state: s } = response;
   state.projects = projects;
   footState(s);
   $('#projectList').innerHTML = projects.map((p, i) => `
@@ -636,7 +650,10 @@ async function saveProject() {
 
 async function loadMedia() {
   $('#mediaGrid').innerHTML = '<p class="hint">Reading the images…</p>';
-  const { files, missing, unused, projects } = await call('media');
+  let response;
+  try { response = await call('media'); }
+  catch (e) { loadError('#mediaGrid', 'Media', e, loadMedia); return; }
+  const { files, missing, unused, projects } = response;
   state.library = files;
   const title = (slug) => (projects.find((p) => p.slug === slug) || {}).title || slug;
   const kb = (n) => (n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB');
@@ -722,7 +739,10 @@ $('#mediaFile').addEventListener('change', async (e) => {
 
 async function loadPublish() {
   $('#publishPanel').innerHTML = '<p class="hint">Checking the draft…</p>';
-  const { state: s } = await call('status');
+  let response;
+  try { response = await call('status'); }
+  catch (e) { loadError('#publishPanel', 'Publish status', e, loadPublish); return; }
+  const { state: s } = response;
   footState(s);
   if (!s.hasChanges) {
     $('#publishPanel').innerHTML = '<p>There is nothing waiting to publish.</p>';
@@ -784,7 +804,10 @@ const pagesState = { pages: [], current: 'home' };
 
 async function loadPages() {
   $('#pageEditor').innerHTML = '<p class="hint">Reading the pages…</p>';
-  const { pages, state: s } = await call('pages');
+  let response;
+  try { response = await call('pages'); }
+  catch (e) { loadError('#pageEditor', 'Pages', e, loadPages); return; }
+  const { pages, state: s } = response;
   pagesState.pages = pages;
   footState(s);
   $('#pageList').innerHTML = pages.map((p) => `
