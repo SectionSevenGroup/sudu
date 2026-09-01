@@ -15,6 +15,7 @@ const PAGES = [
   'work.html',
   'studio.html',
   'contact.html',
+  'sketch/index.html',
   'project.html',
   'custom-home-design-edmonton.html',
   'renovations-additions-edmonton.html',

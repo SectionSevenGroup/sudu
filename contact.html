@@ -269,7 +269,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 
   <section data-screen-label="Contact" style="flex:1; padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
     <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">Start a project</div>
-    <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; max-width:24ch; ">Every project begins<br>with a conversation.</h1>
+    <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; max-width:24ch; "><span data-i18n="contact.openingLineOne">{{ copy.openingLineOne }}</span><br><span data-i18n="contact.openingLineTwo">{{ copy.openingLineTwo }}</span></h1>
 
     <div style="display:flex; flex-wrap:wrap; gap:40px 64px; margin-top:clamp(32px,4vw,48px);">
 
@@ -319,7 +319,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
             <textarea name="body" rows="4" required="required" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
           <button type="submit" disabled="{{ busy }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">{{ sendLabel }} <span aria-hidden="true" class="sudu-chevron sudu-chevron--send">{{ sendGlyph }}</span></button>
-          <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:{{ statusDisp }}; margin-bottom:5px; color:#171613;">{{ statusMsg }}</span>Sends straight to the studio, or write us directly at <a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
+          <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:{{ statusDisp }}; margin-bottom:5px; color:#171613;">{{ statusMsg }}</span><span data-i18n="contact.formNote">{{ copy.formNote }}</span><a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
         </form>
       </div>
 
@@ -335,7 +335,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
             <button type="button" onClick="{{ nd.click }}" style="position:absolute; left:{{ nd.x }}; top:{{ nd.y }}; transform:{{ nd.tr }}; opacity:{{ nd.op }}; pointer-events:{{ nd.pe }}; z-index:{{ nd.z }}; border:1px solid {{ nd.border }}; border-radius:999px; background:{{ nd.bg }}; color:{{ nd.fg }}; padding:{{ nd.pad }}; font-family:'Urbanist', sans-serif; font-size:{{ nd.fs }}; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:{{ nd.delay }};" style-hover="transform:translate(-50%,-50%) scale(1.06); transition-delay:0ms;">{{ nd.label }}</button>
           </sc-for>
         </div>
-        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; text-align:center;">Select an interest to explore what it can include, then tap the branches that fit.</div>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; text-align:center;" data-i18n="contact.mindMapNote">{{ copy.mindMapNote }}</div>
       </div>
 
     </div>
@@ -348,10 +348,10 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
         <sc-for list="{{ faqs }}" as="faq" hint-placeholder-count="6">
           <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
             <button type="button" onClick="{{ faq.toggle }}" aria-expanded="{{ faq.pressed }}" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
-              {{ faq.q }}
+              <span data-i18n="{{ faq.qKey }}">{{ faq.q }}</span>
               <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:{{ faq.rot }};">&#8250;</span>
             </button>
-            <div style="display:{{ faq.disp }}; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">{{ faq.a }}</div>
+            <div data-i18n="{{ faq.aKey }}" style="display:{{ faq.disp }}; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">{{ faq.a }}</div>
           </div>
         </sc-for>
       </div>
@@ -372,8 +372,24 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
+  // The authored copy of this page, in one place, so SuDu Control can edit it
+  // and so each string has a stable identity. The markup binds to these names
+  // and carries the matching data-i18n key, which is what i18n.js translates
+  // against — never the English sentence itself, which is the thing that
+  // changes when someone edits the page.
+  static COPY = {
+    faqs: [
+      { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.' }, { q: 'Where do you work?', a: 'The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' }, { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' }, { q: 'Do you handle both architecture and interiors?', a: 'Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' }, { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' }, { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
+    ],
+    openingLineOne: 'Every project begins',
+    openingLineTwo: 'with a conversation.',
+    formNote: 'Sends straight to the studio, or write us directly at ',
+    mindMapNote: 'Select an interest to explore what it can include, then tap the branches that fit.',
+  };
+
   state = { sel: [], sub: [], open: -1, sending: false, sent: false, status: '' };
   renderVals() {
+    const copy = Component.COPY;
     // The inline status line. Kept short on purpose: it sits under the button
     // in the same 10.5px grey as the fallback address and is the only thing
     // this form says back to the visitor.
@@ -386,9 +402,7 @@ class Component extends DCLogic {
     const TREE = [
       { label: 'Architecture', subs: ['New Build', 'Renovation', 'Addition', 'Feasibility'] }, { label: 'Interiors', subs: ['Full Interiors', 'Millwork', 'Material Direction'] }, { label: 'Branded Environments', subs: ['Brand Integration', 'Naming', 'Signage & Wayfinding'] }, { label: 'Concept Study', subs: ['Massing Study', 'Site Study', 'Visualization'] }, { label: 'Hospitality & Retail', subs: ['Restaurant / Bar', 'Retail Space', 'Guest Experience'] }, { label: 'Advisory', subs: ['Design Direction', 'Developer Advisory', 'Peer Review'] }
     ];
-    const FAQS = [
-      { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.' }, { q: 'Where do you work?', a: 'The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' }, { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' }, { q: 'Do you handle both architecture and interiors?', a: 'Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' }, { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' }, { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
-    ];
+    const FAQS = Component.COPY.faqs;
     const { sel, sub, open, sending, sent, status } = this.state;
     const n = TREE.length;
     const pos = (angleDeg, r) => {
@@ -444,6 +458,7 @@ class Component extends DCLogic {
       });
     });
     return {
+      copy,
       nodes, links,
       chips: TREE.map(t => {
         const on = sel.includes(t.label);
@@ -471,7 +486,8 @@ class Component extends DCLogic {
       statusMsg: status,
       statusDisp: status ? 'block' : 'none',
       faqs: FAQS.map((f, i) => ({
-        ...f, pressed: open === i ? 'true' : 'false', disp: open === i ? 'block' : 'none', rot: open === i ? 'rotate(90deg)' : 'rotate(0deg)',
+        ...f, qKey: 'contact.faq.' + i + '.question', aKey: 'contact.faq.' + i + '.answer',
+        pressed: open === i ? 'true' : 'false', disp: open === i ? 'block' : 'none', rot: open === i ? 'rotate(90deg)' : 'rotate(0deg)',
         toggle: () => this.setState(s => ({ open: s.open === i ? -1 : i }))
       })),
       // Posted to Netlify's form handler in the background, so the visitor
