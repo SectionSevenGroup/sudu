@@ -9,6 +9,8 @@ source, in place:
 
 | What | Where it lives |
 | --- | --- |
+| Home, Work, Studio and Contact copy | `static COPY` in each page |
+| Contact's common questions | `COPY.faqs` in `contact.html` |
 | Project title, category, location, scope, status, copy, hero | `static DATA` in `project.html` |
 | Reading order for the five editorial projects | `static EDITORIAL` in `project.html` |
 | Image proportions | `static DIMS` in `project.html` |
@@ -57,20 +59,60 @@ verified. If the draft moved in between, Control says so; and the merge request
 carries the verified SHA as GitHub's own precondition, so even a move in the
 last instant is refused by GitHub rather than published.
 
+## Page copy and translation
+
+The authored text of Home, Work, Studio and Contact lives in `static COPY` on
+each page. The markup binds to it and every editable node carries a stable
+identifier — `home.heroStatement`, `contact.faq.0.answer` — which is what
+`i18n.js` translates against.
+
+That identifier is the point. The old table keyed translations on the exact
+English sentence, which works only while the sentence never changes; the
+moment copy became editable it would have un-translated the site in four
+languages the first time anyone rewrote a line. Now the English can change
+freely and the French, Spanish, German and Japanese stay under the same key.
+`KEN` in `i18n.js` records the English each translation was made against, so a
+changed sentence marks its translations as worth revisiting instead of
+dropping them. A key with no entry for a language simply stays in English.
+
+Chrome, navigation labels, system text and the design constants are
+deliberately not editable.
+
+## The work index is derived
+
+`work.html` used to carry a hand-kept second copy of every project's title,
+category, location and thumbnail. It is now generated from `static DATA` in
+`project.html`: `scripts/derive-work-index.mjs` runs first in the Netlify
+build, and `reindex()` regenerates it on every Control save. Counters and the
+next-project chain come from the order the same way. Nothing about a project
+is typed in two places.
+
 ## What Control can change
 
-Only what the interface exposes. `saveProject` accepts exactly the seven
-fields the editor renders — `title`, `eyebrow`, `location`, `scope`, `status`,
-`lede`, `body` — and drops everything else at the function boundary. The
-content model can also write `heroSrc`, `groups`, `gallery` and `related`,
-because the features that need them are coming, but none of them has an editor
-in this version and so none is reachable through the endpoint. `EDITORIAL` and
-the work index order are read, displayed and validated, and likewise not
-writable: a reading order sent to `saveProject` is ignored, and there is no
-reorder action.
+Only what the interface exposes, and every mutation has its own action so the
+allowlist stays legible:
 
-The server's capability and the interface's are the same set on purpose. A
-mutating endpoint with no interface is a way in that nobody is looking at.
+| | |
+| --- | --- |
+| `savePage` | the seven-to-twelve copy fields each page declares, plus Contact's questions |
+| `saveProject` | title, category, location, scope, status, opening line, description |
+| `hero` | the hero, and the proportions recorded into `DIMS` |
+| `addImage` `removeImage` `moveImage` | the gallery, in whichever shape the project already uses |
+| `saveGroup` `addGroup` `removeGroup` `moveGroup` | grouped galleries |
+| `related` | related projects, which must resolve |
+| `editorial` | the reading order — composition only |
+| `reorder` | the catalogue order; counters and the next chain follow |
+| `addProject` | a new project, its index row and its page |
+| `upload` `removeMedia` | the image library |
+| `reconcile` `publish` | the draft and the site |
+
+`saveProject` drops any other field at the function boundary. The content model
+can write more than this — it has to, for what comes next — but nothing beyond
+the list is reachable through the endpoint. `design` is read-only: the grounds,
+the typeface, the rail and the hairline are shown so the work stays legible,
+and there is no action that changes them.
+
+A mutating endpoint with no interface is a way in that nobody is looking at.
 
 ## Configuration
 
@@ -79,7 +121,7 @@ never reach the browser, the page, or a log line.
 
 | Variable | Purpose |
 | --- | --- |
-| `GITHUB_TOKEN` | Fine-grained, this repository only. Contents: read/write. Pull requests: read/write. |
+| `GITHUB_TOKEN` | Fine-grained, this repository only. **Contents: read/write** *and* **Pull requests: read/write**. These are separate permissions and Control needs both: the first lets it commit, the second lets it open the review pull request Netlify builds the preview from. With only the first, a save lands on the draft, no preview is ever built, and Control reports *Draft saved · review needs attention* rather than claiming the save failed. |
 | `SUDU_CONTROL_PASSWORD` | The sign-in password. |
 | `SUDU_CONTROL_SESSION_SECRET` | Random, **at least 32 bytes**. Signs the session cookie. A shorter value counts as not configured. |
 
@@ -135,7 +177,9 @@ obvious fakes.
 | `test/content-model.test.mjs` | Reading and rewriting `project.html` and `work.html`: a no-op save is byte-identical, a one-field edit touches one entry. |
 | `test/session.test.mjs` | Password comparison, secret strength, signing, expiry, the cookie's flags. |
 | `test/github-control.test.mjs` | The repository side: branch creation, fast-forward-only writes, one pull request, the exact deploy-preview gate, publish, the draft reset, reconcile. |
-| `test/control-function.test.mjs` | The endpoint end to end: method and header checks, the session, validation, uploads, the publish gate, error redaction, the expected-parent guard, the clean-draft fast-forward, and the absence of any mutation the interface does not expose. |
+| `test/control-function.test.mjs` | The endpoint end to end: method and header checks, the session, validation, uploads, the publish gate, error redaction, the expected-parent guard, the clean-draft fast-forward, the SHA-pinned publish, partial success when the review cannot be opened, page copy, every project mutation, Add Project, media safety, and the absence of any mutation the interface does not expose. |
+| `test/page-copy.test.mjs` | The four pages against their real source: every field present and bound, a one-field save touching nothing else, a no-op byte-identical, the FAQ, and the translation keys — all four languages present, keys that name a field rather than a sentence, and an English edit leaving them intact. |
+| `test/project-editing.test.mjs` | Hero and `DIMS`, both gallery shapes, groups, related projects, the reading order and its bounds, catalogue order with derived counters, Add Project including a round trip through the source, and media usage. |
 
 The redaction cases plant `INTERNAL_SHOULD_NEVER_REACH_BROWSER` inside errors
 raised below Control — from GitHub, from a failed fetch, from the parser — and
