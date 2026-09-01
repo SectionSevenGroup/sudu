@@ -252,15 +252,40 @@ button:disabled { cursor: default !important; opacity: .28; }
 .draw-scale {
   position: absolute;
   z-index: 2;
-  right: 14px;
+  left: 14px;
   bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   color: var(--faint);
   font-size: 9px;
-  font-weight: 500;
-  letter-spacing: .08em;
+  font-weight: 600;
+  letter-spacing: .1em;
   text-transform: uppercase;
   pointer-events: none;
 }
+
+.scale-mark {
+  position: relative;
+  display: block;
+  width: 28px;
+  height: 9px;
+  border-top: .75px solid currentColor;
+}
+.scale-mark::before,
+.scale-mark::after,
+.scale-mark i {
+  position: absolute;
+  top: -2.5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
+}
+.scale-mark::before { left: 0; transform: translateX(-50%); }
+.scale-mark::after { right: 0; transform: translateX(50%); }
+.scale-mark i { left: 50%; transform: translateX(-50%); }
 
 .note-composer {
   position: absolute;
