@@ -4,45 +4,148 @@
       "id": "residential",
       "label": "Residential & Private",
       "entries": [
-        { "name": "West Vancouver Gallery", "project": "west-vancouver", "preview": "images/west-vancouver-private-residence.jpg" },
-        { "name": "West Shore Residence", "project": "westshore", "preview": "images/westshore-estates-house-exterior.jpg" },
-        { "name": "Casita, Costa Rica", "project": "casita", "preview": "images/casita-costa-rica-hillside.jpg" },
-        { "name": "Sturgeon House", "info": "6,000 sq ft private residence | Architecture & Interiors" },
-        { "name": "Mackenzie Ravine", "project": "mackenzie-ravine", "preview": "images/mackenzie-ravine-front-drive-dusk.jpg" },
-        { "name": "Macson", "info": "Multi-unit apartment block | Architecture" },
-        { "name": "Saskatchewan 20", "info": "Twenty-unit apartment block | Architecture" }
+        {
+          "name": "West Vancouver Gallery",
+          "project": "west-vancouver",
+          "preview": "images/west-vancouver-private-residence.jpg"
+        },
+        {
+          "name": "West Shore Residence",
+          "project": "westshore",
+          "preview": "images/westshore-estates-house-exterior.jpg"
+        },
+        {
+          "name": "Casita, Costa Rica",
+          "project": "casita",
+          "preview": "images/casita-costa-rica-hillside.jpg"
+        },
+        {
+          "name": "Sturgeon House",
+          "info": "6,000 sq ft private residence | Architecture & Interiors"
+        },
+        {
+          "name": "Mackenzie Ravine",
+          "project": "mackenzie-ravine",
+          "preview": "images/mackenzie-ravine-front-drive-dusk.jpg"
+        },
+        {
+          "name": "Macson",
+          "info": "Multi-unit apartment block | Architecture"
+        },
+        {
+          "name": "Saskatchewan 20",
+          "info": "Twenty-unit apartment block | Architecture"
+        }
       ]
     },
     {
       "id": "hospitality",
       "label": "Hospitality, Retail & Experience",
       "entries": [
-        { "name": "Corso 32", "project": "corso32", "preview": "images/corso-32-restaurant-edmonton.jpg" },
-        { "name": "Bar Bricco", "project": "bar-bricco", "preview": "images/bar-bricco-edmonton.jpg" },
-        { "name": "Uccellino", "project": "uccellino", "preview": "images/uccellino-restaurant-edmonton.jpg" },
-        { "name": "Wilfred's", "project": "wilfreds", "preview": "images/wilfreds-hospitality-edmonton.jpg" },
-        { "name": "The Helm", "project": "the-helm", "preview": "images/the-helm-edmonton.jpg" },
-        { "name": "Hell’s Kitchen at Enoch Casino", "project": "hells-kitchen", "preview": "images/hells-kitchen-enoch.jpg" },
-        { "name": "ATB Reimagining Banking", "project": "atb-banking", "preview": "images/atb-reimagining-banking.jpg" },
-        { "name": "Factory YYC", "project": "factory-yyc", "preview": "images/factory-yyc-calgary.jpg" },
-        { "name": "Factory Private Club", "project": "factory-club", "preview": "images/factory-club-edison-bar-mural.jpg" },
-        { "name": "Alder Room & Alta", "project": "alder-room-alta", "preview": "images/alder-room-dining-room-edmonton.jpg" },
-        { "name": "Olla, Miami", "info": "Mexican restaurant for chef Scott Linquist of Coyo Taco | Lincoln Road, Miami Beach" },
-        { "name": "Socca", "info": "Revitalization of the landmark restaurant Chez Pipo | Nice, France" },
-        { "name": "Steamoji", "info": "STEM academy environment | West Vancouver, BC" },
-        { "name": "OPT", "project": "opt", "preview": "images/opt-optometry-eye-chart.jpg" }
+        {
+          "name": "Corso 32",
+          "project": "corso32",
+          "preview": "images/corso-32-restaurant-edmonton.jpg"
+        },
+        {
+          "name": "Bar Bricco",
+          "project": "bar-bricco",
+          "preview": "images/bar-bricco-edmonton.jpg"
+        },
+        {
+          "name": "Uccellino",
+          "project": "uccellino",
+          "preview": "images/uccellino-restaurant-edmonton.jpg"
+        },
+        {
+          "name": "Wilfred's",
+          "project": "wilfreds",
+          "preview": "images/wilfreds-hospitality-edmonton.jpg"
+        },
+        {
+          "name": "The Helm",
+          "project": "the-helm",
+          "preview": "images/the-helm-edmonton.jpg"
+        },
+        {
+          "name": "Hell’s Kitchen at Enoch Casino",
+          "project": "hells-kitchen",
+          "preview": "images/hells-kitchen-enoch.jpg"
+        },
+        {
+          "name": "ATB Reimagining Banking",
+          "project": "atb-banking",
+          "preview": "images/atb-reimagining-banking.jpg"
+        },
+        {
+          "name": "Factory YYC",
+          "project": "factory-yyc",
+          "preview": "images/factory-yyc-calgary.jpg"
+        },
+        {
+          "name": "Factory Private Club",
+          "project": "factory-club",
+          "preview": "images/factory-club-edison-bar-mural.jpg"
+        },
+        {
+          "name": "Alder Room & Alta",
+          "project": "alder-room-alta",
+          "preview": "images/alder-room-dining-room-edmonton.jpg"
+        },
+        {
+          "name": "Olla, Miami",
+          "info": "Mexican restaurant for chef Scott Linquist of Coyo Taco | Lincoln Road, Miami Beach"
+        },
+        {
+          "name": "Socca",
+          "info": "Revitalization of the landmark restaurant Chez Pipo | Nice, France"
+        },
+        {
+          "name": "Steamoji",
+          "info": "STEM academy environment | West Vancouver, BC"
+        },
+        {
+          "name": "OPT",
+          "project": "opt",
+          "preview": "images/opt-optometry-eye-chart.jpg"
+        }
       ]
     },
     {
       "id": "commercial",
       "label": "Commercial & Community",
       "entries": [
-        { "name": "ATB Place Reimagined", "project": "atb", "preview": "images/atb-place-reimagined-edmonton.jpg" },
-        { "name": "The Selkirk", "project": "selkirk", "preview": "images/the-selkirk-commercial.jpg" },
-        { "name": "Enoch Elders Lodge", "project": "enoch", "preview": "images/enoch-elders-lodge.jpg" },
-        { "name": "Youth Recovery Centre", "project": "youth-recovery", "preview": "images/youth-recovery-centre.jpg" },
-        { "name": "Homeward Trust Office", "info": "Office environment | Workplace Interiors" },
-        { "name": "Enoch, Tsuut’ina & Smoky Lake Recovery Centres", "info": "Recovery centres for the Enoch, Tsuut’ina and Smoky Lake (Métis) communities | Community wellness" }
+        {
+          "name": "ATB Place Reimagined",
+          "project": "atb",
+          "preview": "images/atb-place-reimagined-edmonton.jpg"
+        },
+        {
+          "name": "The Selkirk",
+          "project": "selkirk",
+          "preview": "images/the-selkirk-commercial.jpg"
+        },
+        {
+          "name": "Enoch Elders Lodge",
+          "project": "enoch",
+          "preview": "images/enoch-elders-lodge.jpg"
+        },
+        {
+          "name": "Youth Recovery Centre",
+          "project": "youth-recovery",
+          "preview": "images/youth-recovery-centre.jpg"
+        },
+        {
+          "name": "Homeward Trust Office",
+          "info": "Office environment | Workplace Interiors"
+        },
+        {
+          "name": "Enoch, Tsuut’ina & Smoky Lake Recovery Centres",
+          "info": "Recovery centres for the Enoch, Tsuut’ina and Smoky Lake (Métis) communities | Community wellness"
+        },
+        {
+          "name": "Red Deer College | Master Planning"
+        }
       ]
     }
   ]
