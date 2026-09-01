@@ -7,6 +7,6 @@ test('the drawing stage is never registered as a toolbar button', async () => {
   const page = await readFile(new URL('../sketch/index.html', import.meta.url), 'utf8');
 
   assert.match(page, /id="drawStage"[^>]+data-tool=/);
-  assert.match(script, /querySelectorAll\('\.tool-button\[data-tool\]'\)/);
+  assert.match(script, /^\s*var toolButtons = .*querySelectorAll\('\.tool-button\[data-tool\]'\).*;$/m);
   assert.doesNotMatch(script, /querySelectorAll\('\[data-tool\]'\)/);
 });
