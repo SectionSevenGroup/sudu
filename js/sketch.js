@@ -418,8 +418,17 @@
       var data = new FormData(form);
       data.delete('sketch');
       data.append('sketch', blob, 'sudu-sketch.png');
-      fetch('/', { method: 'POST', body: data }).then(function (response) {
-        if (!response.ok) throw new Error('HTTP ' + response.status);
+      // sudu.studio is currently served by GitHub Pages while form storage is
+      // owned by the mirrored Netlify deployment. A normal cross-origin form
+      // POST is allowed, but its response is intentionally opaque to this
+      // page. On a Netlify preview the same code posts locally and can inspect
+      // the response in full.
+      var onNetlify = /\.netlify\.app$/.test(window.location.hostname);
+      var endpoint = onNetlify ? '/' : 'https://sudustudioarchitecture.netlify.app/';
+      var options = { method: 'POST', body: data };
+      if (!onNetlify) options.mode = 'no-cors';
+      fetch(endpoint, options).then(function (response) {
+        if (response.type !== 'opaque' && !response.ok) throw new Error('HTTP ' + response.status);
         formStatus.textContent = 'Sketch sent. We will reply by email.';
         submit.textContent = 'Sketch sent ✓';
       }).catch(function () {
