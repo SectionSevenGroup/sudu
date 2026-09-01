@@ -71,10 +71,53 @@ async function readModel(gh) {
   throw last || publicError('The Experience Index content file is missing.', 404);
 }
 
+// This is deliberately a single-file Contents API save rather than the
+// repository-wide Git Data transaction used by the project editor. Experience
+// Index edits only own one JSON file, so the narrower endpoint gives GitHub a
+// concrete file SHA to protect against concurrent edits and avoids coupling a
+// simple archive update to the multi-file project commit path.
 async function saveModel(gh, before, model, message) {
   validateModel(model);
   const content = JSON.stringify(model, null, 2) + '\n';
-  const sha = await gh.commit([{ path: FILE, content }], message, before.parent);
+  const head = await gh.ensureDraft();
+  if (before.parent && head !== before.parent) {
+    throw publicError('The Experience Index changed while you were editing. Reload it and try again.', 409);
+  }
+
+  let current;
+  try {
+    current = await gh.getFile(FILE, head);
+  } catch (e) {
+    console.error('control-experience: could not read file before save',
+      e && e.status ? e.status : '', redactSecrets(e && e.message, process.env));
+    throw publicError('The Experience Index could not be prepared for saving. Nothing was changed.', 500);
+  }
+
+  let written;
+  try {
+    const path = FILE.split('/').map(encodeURIComponent).join('/');
+    written = await gh.call(`/repos/${gh.owner}/${gh.repo}/contents/${path}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        message,
+        content: Buffer.from(content, 'utf8').toString('base64'),
+        sha: current.sha,
+        branch: gh.draft,
+      }),
+    });
+  } catch (e) {
+    console.error('control-experience: GitHub refused content save',
+      e && e.status ? e.status : '', redactSecrets(e && e.message, process.env));
+    if (e && (e.status === 401 || e.status === 403)) {
+      throw publicError('GitHub refused the Experience Index save. The Control token needs Contents: Read and write.', 409);
+    }
+    if (e && (e.status === 409 || e.status === 422)) {
+      throw publicError('The Experience Index changed while you were editing. Reload it and try again.', 409);
+    }
+    throw publicError('The Experience Index could not be saved. Nothing was changed.', 500);
+  }
+
+  const sha = written?.commit?.sha || head;
   let review = 'ready';
   try { await gh.ensurePR(); }
   catch (e) {
