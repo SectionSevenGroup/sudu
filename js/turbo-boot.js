@@ -49,7 +49,7 @@
   // blank hold followed by a quick appearance reads as a stall, not as a
   // transition — so the incoming page starts its visible fade the moment it
   // has something to show, and takes its time from there.
-  var OUT_MS = 280;      // the outgoing content leaves
+  var OUT_MS = 200;      // the outgoing content leaves
   var IN_MS = 1150;      // the incoming one materialises
   var EASE = 'cubic-bezier(.16,1,.3,1)';
   var IMAGE_HOLD = 260;  // hard cap on waiting for the opening image
