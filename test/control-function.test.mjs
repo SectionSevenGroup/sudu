@@ -409,13 +409,17 @@ test('a merge GitHub refuses is reported without repeating its reason', async ()
   await withControl({
     statuses: [{ context: PREVIEW, state: 'success' }],
     mergeRefusal: `not mergeable: ${INTERNAL}`,
-  }, async ({ post, signIn }) => {
+  }, async ({ post, signIn, logged }) => {
     await signIn();
     await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'About to be refused.' } });
     const r = await post({ action: 'publish' });
     assert.equal(r.status, 409);
     assert.equal(r.body.error, 'GitHub did not merge the draft. Nothing else was changed.');
     assert.equal(r.text.includes(INTERNAL), false);
+    // the reason is kept, but only in the log, and only after scrubbing
+    const line = logged.join('\n');
+    assert.match(line, /merge refused/);
+    for (const secret of SECRETS) assert.equal(line.includes(secret), false);
   });
 });
 
