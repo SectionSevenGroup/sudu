@@ -209,8 +209,10 @@ async function mutate(action, body, note) {
     toast(res.review === 'failed' ? `${note} — review setup needs attention` : note);
     renderExperience();
   } catch (e) {
+    // A failed save must never erase what the editor just typed. Leave the
+    // form exactly as-is, unlock it, and show the specific server sentence.
+    root?.querySelectorAll('button, input, select').forEach((el) => { el.disabled = false; });
     toast(e.message);
-    renderExperience();
   } finally {
     expState.busy = false;
   }
