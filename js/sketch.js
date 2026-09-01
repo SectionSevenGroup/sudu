@@ -27,7 +27,7 @@
 
   var INK = '#171613';
   var PAPER = '#F3F1EA';
-  var GRID = 'rgba(23,22,19,0.18)';
+  var GRID = 'rgba(23,22,19,0.26)';
   var tool = 'pen';
   var objects = [];
   var undoStack = [];
@@ -44,13 +44,14 @@
   var rulerState = { visible: false, x: 0.5, y: 0.5, angle: 0 };
   var STORAGE_KEY = 'sudu-sketch-v1';
   var RULER_KEY = 'sudu-sketch-ruler-v1';
+  var GRID_SPACING = 28;
   var allowedTypes = ['pen', 'line', 'room', 'door', 'window', 'area', 'note'];
   var toolHints = {
     pen: 'Draw freely. Strokes smooth automatically.',
     line: 'Drag between two points to draw a straight wall.',
     room: 'Drag diagonally to block out a room.',
-    door: 'Drag across an opening. Select Door again or hold Shift to reverse the swing.',
-    window: 'Drag along a wall to place a window.',
+    door: 'Click for a 3′ door or drag a custom opening. Select Door again or hold Shift to reverse the swing.',
+    window: 'Click for a 4′ window or drag a custom opening.',
     area: 'Drag a rectangle to shade an area.',
     note: 'Select a point on the plan, then type a note.',
     erase: 'Select a line, room, opening, area or note to remove it.'
@@ -98,8 +99,8 @@
     PAPER = styles.getPropertyValue('--paper').trim() || '#F3F1EA';
     INK = styles.getPropertyValue('--ink').trim() || '#171613';
     GRID = document.documentElement.classList.contains('dm') && !document.documentElement.classList.contains('dmwarm')
-      ? 'rgba(245,243,236,0.18)'
-      : 'rgba(23,22,19,0.18)';
+      ? 'rgba(245,243,236,0.26)'
+      : 'rgba(23,22,19,0.26)';
     render();
   }
 
@@ -142,7 +143,7 @@
     var x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
     var y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
     if (snap) {
-      var spacing = 28;
+      var spacing = GRID_SPACING;
       var offsetX = (rect.width % spacing) / 2;
       var offsetY = (rect.height % spacing) / 2;
       x = Math.round((x - offsetX) / spacing) * spacing + offsetX;
@@ -170,7 +171,7 @@
 
   function drawGrid(target, width, height) {
     var outputScale = cssWidth ? width / cssWidth : 1;
-    var spacing = 28 * outputScale;
+    var spacing = GRID_SPACING * outputScale;
     var offsetX = (width % spacing) / 2;
     var offsetY = (height % spacing) / 2;
     target.save();
@@ -178,7 +179,7 @@
     for (var x = offsetX; x <= width; x += spacing) {
       for (var y = offsetY; y <= height; y += spacing) {
         target.beginPath();
-        target.arc(x, y, Math.max(1, outputScale), 0, Math.PI * 2);
+        target.arc(x, y, Math.max(1.15, 1.15 * outputScale), 0, Math.PI * 2);
         target.fill();
       }
     }
@@ -394,6 +395,64 @@
     return Math.hypot((a.x - b.x) * cssWidth, (a.y - b.y) * cssHeight);
   }
 
+  function wallSegments() {
+    var segments = [];
+    objects.forEach(function (object) {
+      if (object.type === 'line') segments.push([object.start, object.end]);
+      if (object.type === 'room') {
+        var a = object.start;
+        var b = object.end;
+        var corners = [a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }];
+        for (var i = 0; i < 4; i++) segments.push([corners[i], corners[(i + 1) % 4]]);
+      }
+    });
+    return segments;
+  }
+
+  function openingFromClick(type, point, flip) {
+    var centre = px(point);
+    var direction = { x: 1, y: 0 };
+    var closest = null;
+
+    wallSegments().forEach(function (segment) {
+      var a = px(segment[0]);
+      var b = px(segment[1]);
+      var dx = b.x - a.x;
+      var dy = b.y - a.y;
+      var lengthSquared = dx * dx + dy * dy;
+      if (!lengthSquared) return;
+      var t = ((centre.x - a.x) * dx + (centre.y - a.y) * dy) / lengthSquared;
+      t = Math.max(0, Math.min(1, t));
+      var projected = { x: a.x + dx * t, y: a.y + dy * t };
+      var distance = Math.hypot(centre.x - projected.x, centre.y - projected.y);
+      if (!closest || distance < closest.distance) {
+        var segmentLength = Math.sqrt(lengthSquared);
+        closest = {
+          distance: distance,
+          point: projected,
+          direction: { x: dx / segmentLength, y: dy / segmentLength }
+        };
+      }
+    });
+
+    if (closest && closest.distance <= GRID_SPACING * 1.25) {
+      centre = closest.point;
+      direction = closest.direction;
+    }
+
+    var openingLength = GRID_SPACING * (type === 'door' ? 1.5 : 2);
+    var half = openingLength / 2;
+    var start = {
+      x: Math.max(0, Math.min(cssWidth, centre.x - direction.x * half)) / cssWidth,
+      y: Math.max(0, Math.min(cssHeight, centre.y - direction.y * half)) / cssHeight
+    };
+    var end = {
+      x: Math.max(0, Math.min(cssWidth, centre.x + direction.x * half)) / cssWidth,
+      y: Math.max(0, Math.min(cssHeight, centre.y + direction.y * half)) / cssHeight
+    };
+    return { type: type, start: start, end: end, flip: Boolean(flip) };
+  }
+
   function smoothStroke(points) {
     if (points.length < 3) return points;
     var reduced = [points[0]];
@@ -513,9 +572,11 @@
   function onPointerUp(event) {
     if (!active) return;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    var openingClick = (active.type === 'door' || active.type === 'window') && screenDistance(active.end, active.start) <= 16;
+    if (openingClick) active = openingFromClick(active.type, active.start, active.flip);
     var valid = active.type === 'pen'
       ? active.points.length > 1
-      : screenDistance(active.end, active.start) > (active.type === 'door' || active.type === 'window' ? 16 : 6);
+      : screenDistance(active.end, active.start) > 6;
     if (valid) {
       var previous = clone(objects);
       if (active.type === 'pen') active.points = smoothStroke(active.points);
