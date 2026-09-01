@@ -39,14 +39,20 @@ never reach the browser, the page, or a log line.
 | --- | --- |
 | `GITHUB_TOKEN` | Fine-grained, this repository only. Contents: read/write. Pull requests: read/write. |
 | `SUDU_CONTROL_PASSWORD` | The sign-in password. |
-| `SUDU_CONTROL_SESSION_SECRET` | Random, at least 32 bytes. Signs the session cookie. |
+| `SUDU_CONTROL_SESSION_SECRET` | Random, **at least 32 bytes**. Signs the session cookie. A shorter value counts as not configured. |
 
 Optional: `SUDU_CONTROL_SESSION_EPOCH` (change it to sign everyone out),
 `SUDU_GITHUB_OWNER`, `SUDU_GITHUB_REPO`, `SUDU_GITHUB_BASE`,
 `SUDU_GITHUB_DRAFT`, `SUDU_NETLIFY_SITE`.
 
-Until all three are set, Control answers every request with a 503 explaining
-what is missing. Nothing is exposed in the meantime.
+Until all three are set — and the secret is long enough — Control answers every
+request with a 503 explaining what is missing. Nothing is exposed in the
+meantime.
+
+Uploads are JPEG, PNG or WebP, up to 4 MB. The declared type has to match the
+file's actual leading bytes, so renaming a file does not get it past the check;
+the whole upload is buffered into the function as base64, which is what sets
+the ceiling.
 
 ## The session
 

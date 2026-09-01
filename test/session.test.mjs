@@ -13,6 +13,20 @@ test('reports missing configuration', () => {
   assert.equal(s.configured(env), true);
 });
 
+test('a short signing secret counts as unconfigured', () => {
+  const base = { GITHUB_TOKEN: 'x', SUDU_CONTROL_PASSWORD: 'y' };
+  assert.equal(s.SECRET_MIN_BYTES, 32);
+  assert.equal(s.configured({ ...base }), false, 'missing');
+  assert.equal(s.configured({ ...base, SUDU_CONTROL_SESSION_SECRET: '' }), false, 'empty');
+  assert.equal(s.configured({ ...base, SUDU_CONTROL_SESSION_SECRET: 'a'.repeat(31) }), false, '31 bytes');
+  assert.equal(s.configured({ ...base, SUDU_CONTROL_SESSION_SECRET: 'a'.repeat(32) }), true, '32 bytes');
+  assert.equal(s.configured({ ...base, SUDU_CONTROL_SESSION_SECRET: 'a'.repeat(96) }), true, '96 bytes');
+  // counted in bytes, not characters: ten of these are 30 bytes, not 30 chars
+  assert.equal(s.configured({ ...base, SUDU_CONTROL_SESSION_SECRET: '\u6f22'.repeat(10) }), false, '30 bytes multibyte');
+  assert.equal(s.configured({ ...base, SUDU_CONTROL_SESSION_SECRET: '\u6f22'.repeat(11) }), true, '33 bytes multibyte');
+  assert.equal(s.configured({ ...base, SUDU_CONTROL_SESSION_SECRET: 12345678901234567890123456789012 }), false, 'not a string');
+});
+
 test('password comparison accepts only the exact secret', () => {
   assert.ok(s.secretEqual('correct horse', env.SUDU_CONTROL_PASSWORD));
   for (const wrong of ['', 'correct hors', 'correct horses', 'CORRECT HORSE', null, undefined, 'x'.repeat(500)]) {

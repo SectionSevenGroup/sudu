@@ -19,8 +19,19 @@ const json = (status, body, extra = {}) => new Response(JSON.stringify(body), {
   },
 });
 
-const UPLOAD_LIMIT = 8 * 1024 * 1024;
+// The upload arrives base64-encoded inside a JSON body the function buffers
+// whole, so the ceiling is about what this architecture can hold, not about
+// what an image might reasonably weigh.
+const UPLOAD_LIMIT = 4 * 1024 * 1024;
 const UPLOAD_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+
+// What the browser calls a file is only a claim. These are the bytes each
+// format actually begins with, and the claim has to match them.
+const SIGNATURES = {
+  'image/jpeg': (b) => b.length > 3 && b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF,
+  'image/png': (b) => b.length > 8 && b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])),
+  'image/webp': (b) => b.length > 12 && b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP',
+};
 
 // A name Control chose, from a name a person typed. Never a path.
 function mediaName(fileName, mime) {
@@ -118,7 +129,10 @@ const actions = {
     if (!file.base64) throw new Error('No image was supplied.');
     const bytes = Buffer.from(String(file.base64), 'base64');
     if (!bytes.length) throw new Error('That image was empty.');
-    if (bytes.length > UPLOAD_LIMIT) throw new Error('Images must be under 8 MB.');
+    if (bytes.length > UPLOAD_LIMIT) throw new Error('Images must be under 4 MB.');
+    const looksRight = SIGNATURES[file.type];
+    if (!looksRight) throw new Error('Images must be JPEG, PNG or WebP.');
+    if (!looksRight(bytes)) throw new Error('The file contents do not match its image type.');
     const path = mediaName(file.name, file.type);
     // the name was built here, but check it against the same rule the rest of
     // Control uses before anything is written
