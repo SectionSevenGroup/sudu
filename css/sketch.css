@@ -136,6 +136,113 @@ html.xh * { cursor: none !important; }
 }
 
 .sketch-workspace { border-top: .5px solid var(--rule-strong); }
+.sketch-context-bar,
+.trace-bar {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  border-bottom: .5px solid var(--rule);
+}
+.sketch-context-bar {
+  justify-content: space-between;
+  gap: 24px;
+}
+.floor-tabs,
+.floor-references,
+.trace-bar,
+.trace-layers,
+.trace-layer {
+  display: flex;
+  align-items: center;
+}
+.floor-tabs,
+.floor-references,
+.trace-layers {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.floor-tabs::-webkit-scrollbar,
+.floor-references::-webkit-scrollbar,
+.trace-layers::-webkit-scrollbar { display: none; }
+.context-label {
+  flex: 0 0 auto;
+  margin-right: 12px;
+  color: var(--faint);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.sketch-context-bar button,
+.trace-bar button {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 0 13px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.floor-tabs button:first-of-type,
+.floor-references button:first-of-type { padding-left: 0; }
+.sketch-context-bar button:hover,
+.trace-bar button:hover,
+.floor-button.is-active,
+.floor-references button.is-active,
+.trace-layer.is-active .trace-select { color: var(--ink); }
+.floor-button.is-active::after,
+.floor-references button.is-active::after,
+.trace-layer.is-active .trace-select::after {
+  position: absolute;
+  right: 13px;
+  bottom: 8px;
+  left: 13px;
+  height: 1px;
+  background: currentColor;
+  content: '';
+}
+.floor-tabs button:first-of-type.is-active::after,
+.floor-references button:first-of-type.is-active::after { left: 0; }
+.floor-button.has-content::before {
+  position: absolute;
+  top: 11px;
+  right: 7px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
+}
+.floor-references button:disabled { opacity: .2; }
+.trace-bar { gap: 0; }
+.trace-bar > .context-label { margin-right: 2px; }
+.trace-layers { flex: 1 1 auto; }
+.trace-layer {
+  flex: 0 0 auto;
+  border-right: .5px solid var(--rule);
+}
+.trace-layer:first-child { border-left: .5px solid var(--rule); }
+.trace-layer button { padding-right: 10px; padding-left: 10px; }
+.trace-layer .trace-select { padding-right: 8px; }
+.trace-layer .trace-select::after { right: 8px; left: 10px; }
+.trace-layer .trace-visible,
+.trace-layer .trace-remove {
+  min-width: 30px;
+  padding: 0 7px;
+  color: var(--faint);
+  letter-spacing: .02em;
+}
+.trace-layer.is-hidden .trace-select { opacity: .34; text-decoration: line-through; }
+.trace-layer.is-hidden .trace-visible { color: var(--ink); }
+.trace-add {
+  margin-left: auto;
+  padding-right: 0 !important;
+  color: var(--ink) !important;
+}
 .sketch-toolbar,
 .sketch-workspace-footer {
   display: flex;
@@ -528,6 +635,11 @@ html.dm .sketch-header { background: color-mix(in srgb, var(--paper) 92%, transp
   .sketch-intro-grid { grid-template-columns: 1fr; gap: 24px; }
   .sketch-intro h1 { font-size: clamp(46px, 16vw, 76px); }
   .sketch-intro p { max-width: 34ch; }
+  .sketch-context-bar { align-items: stretch; flex-direction: column; gap: 0; padding: 7px 0; }
+  .floor-tabs, .floor-references { min-height: 38px; width: 100%; }
+  .floor-references { border-top: .5px solid var(--rule); }
+  .trace-bar { overflow: hidden; }
+  .trace-bar > .context-label { display: none; }
   .sketch-toolbar { align-items: stretch; flex-direction: column; gap: 0; padding: 8px 0; }
   .sketch-tools, .sketch-actions { overflow-x: auto; }
   .sketch-toolbar button { flex: 0 0 auto; padding-top: 12px; padding-bottom: 12px; }

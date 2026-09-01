@@ -18,6 +18,8 @@
   var form = document.getElementById('sketchForm');
   var formStatus = document.getElementById('formStatus');
   var nav = document.getElementById('suduNav');
+  var traceLayers = document.getElementById('traceLayers');
+  var floorButtons = Array.prototype.slice.call(document.querySelectorAll('[data-floor]'));
   var siteXhair = null;
   // The stage also carries data-tool so CSS can style the active cursor.
   // Only actual toolbar buttons belong in this collection; otherwise pointer
@@ -31,7 +33,12 @@
   var INK = '#171613';
   var PAPER = '#F3F1EA';
   var GRID = 'rgba(23,22,19,0.26)';
+  var FLOOR_ORDER = ['basement', 'main', 'second'];
+  var FLOOR_LABELS = { basement: 'Basement', main: 'Main', second: 'Second' };
   var tool = 'pen';
+  var floors = {};
+  var activeFloor = 'main';
+  var traceSerial = 0;
   var objects = [];
   var undoStack = [];
   var redoStack = [];
@@ -47,7 +54,8 @@
   var doorFlip = false;
   var rulerDrag = null;
   var rulerState = { visible: false, x: 0.5, y: 0.5, angle: 0 };
-  var STORAGE_KEY = 'sudu-sketch-v1';
+  var STORAGE_KEY = 'sudu-sketch-v2';
+  var LEGACY_STORAGE_KEY = 'sudu-sketch-v1';
   var RULER_KEY = 'sudu-sketch-ruler-v1';
   var GRID_SPACING = 28;
   var allowedTypes = ['pen', 'line', 'room', 'door', 'window', 'area', 'note'];
@@ -67,9 +75,118 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function makeLayer(id, name, layerObjects) {
+    return {
+      id: id,
+      name: name,
+      visible: true,
+      objects: layerObjects || [],
+      undoStack: [],
+      redoStack: []
+    };
+  }
+
+  function makeFloor() {
+    return {
+      layers: [makeLayer('base', 'Drawing', [])],
+      activeLayerId: 'base',
+      references: { below: false, above: false }
+    };
+  }
+
+  function resetFloors() {
+    floors = { basement: makeFloor(), main: makeFloor(), second: makeFloor() };
+  }
+
+  function cleanObjects(value) {
+    if (!Array.isArray(value)) return [];
+    return value.filter(function (item) {
+      return item && allowedTypes.indexOf(item.type) !== -1;
+    }).slice(-200);
+  }
+
+  function floorState(key) {
+    return floors[key] || floors.main;
+  }
+
+  function layerState(floor, id) {
+    for (var i = 0; i < floor.layers.length; i++) {
+      if (floor.layers[i].id === id) return floor.layers[i];
+    }
+    return floor.layers[0];
+  }
+
+  function activeFloorState() {
+    return floorState(activeFloor);
+  }
+
+  function activeLayerState() {
+    var floor = activeFloorState();
+    return layerState(floor, floor.activeLayerId);
+  }
+
+  function bindActiveLayer() {
+    var layer = activeLayerState();
+    objects = layer.objects;
+    undoStack = layer.undoStack;
+    redoStack = layer.redoStack;
+  }
+
+  function setObjects(next) {
+    var layer = activeLayerState();
+    layer.objects = next;
+    objects = next;
+  }
+
+  function floorHasDrawing(key) {
+    return floorState(key).layers.some(function (layer) { return layer.objects.length > 0; });
+  }
+
+  function visibleObjectsForFloor(key) {
+    var visible = [];
+    floorState(key).layers.forEach(function (layer) {
+      if (layer.visible) visible = visible.concat(layer.objects);
+    });
+    return visible;
+  }
+
+  function adjacentFloor(direction) {
+    var index = FLOOR_ORDER.indexOf(activeFloor);
+    var next = direction === 'below' ? index - 1 : index + 1;
+    return next >= 0 && next < FLOOR_ORDER.length ? FLOOR_ORDER[next] : null;
+  }
+
+  function currentSceneHasDrawing() {
+    if (visibleObjectsForFloor(activeFloor).length) return true;
+    var refs = activeFloorState().references;
+    var below = refs.below && adjacentFloor('below');
+    var above = refs.above && adjacentFloor('above');
+    return Boolean((below && floorHasDrawing(below)) || (above && floorHasDrawing(above)));
+  }
+
+  function serializeWorkspace() {
+    var savedFloors = {};
+    FLOOR_ORDER.forEach(function (key) {
+      var floor = floorState(key);
+      savedFloors[key] = {
+        activeLayerId: floor.activeLayerId,
+        references: clone(floor.references),
+        layers: floor.layers.map(function (layer) {
+          return {
+            id: layer.id,
+            name: layer.name,
+            visible: layer.visible,
+            objects: layer.objects
+          };
+        })
+      };
+    });
+    return { version: 2, activeFloor: activeFloor, traceSerial: traceSerial, floors: savedFloors };
+  }
+
   function persistDrawing() {
     window.clearTimeout(saveTimer);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(objects)); } catch (error) {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeWorkspace())); } catch (error) {}
   }
 
   function scheduleSave() {
@@ -82,12 +199,42 @@
   }
 
   function loadSaved() {
+    resetFloors();
     try {
-      var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      if (Array.isArray(saved)) objects = saved.filter(function (item) {
-        return item && allowedTypes.indexOf(item.type) !== -1;
-      }).slice(-200);
-    } catch (error) { objects = []; }
+      var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (saved && saved.version === 2 && saved.floors) {
+        FLOOR_ORDER.forEach(function (key) {
+          var source = saved.floors[key];
+          if (!source || !Array.isArray(source.layers)) return;
+          var layers = source.layers.slice(0, 12).map(function (layer, index) {
+            var id = String(layer.id || (index ? 'trace-' + index : 'base')).slice(0, 36);
+            var name = String(layer.name || (index ? 'Trace ' + index : 'Drawing')).slice(0, 32);
+            var clean = makeLayer(id, name, cleanObjects(layer.objects));
+            clean.visible = layer.visible !== false;
+            return clean;
+          });
+          if (!layers.length || layers[0].id !== 'base') layers.unshift(makeLayer('base', 'Drawing', []));
+          floors[key].layers = layers;
+          floors[key].activeLayerId = layers.some(function (layer) { return layer.id === source.activeLayerId; })
+            ? source.activeLayerId
+            : layers[0].id;
+          floors[key].references = {
+            below: Boolean(source.references && source.references.below),
+            above: Boolean(source.references && source.references.above)
+          };
+        });
+        if (FLOOR_ORDER.indexOf(saved.activeFloor) !== -1) activeFloor = saved.activeFloor;
+        traceSerial = Math.max(0, Number(saved.traceSerial) || 0);
+      } else {
+        var legacy = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) || '[]');
+        floors.main.layers[0].objects = cleanObjects(legacy);
+      }
+    } catch (error) {
+      resetFloors();
+      activeFloor = 'main';
+      traceSerial = 0;
+    }
+    bindActiveLayer();
 
     try {
       var savedRuler = JSON.parse(localStorage.getItem(RULER_KEY) || 'null');
@@ -113,21 +260,176 @@
   function remember(previous) {
     undoStack.push(previous);
     if (undoStack.length > 80) undoStack.shift();
-    redoStack = [];
+    redoStack.length = 0;
     scheduleSave();
     updateActions();
   }
 
   function updateActions() {
     var hasDrawing = objects.length > 0;
+    var hasProjectDrawing = FLOOR_ORDER.some(floorHasDrawing);
+    var hasSceneDrawing = currentSceneHasDrawing();
     actionButtons.undo.disabled = undoStack.length === 0;
     actionButtons.redo.disabled = redoStack.length === 0;
     actionButtons.clear.disabled = !hasDrawing;
-    actionButtons.save.disabled = !hasDrawing;
-    actionButtons.screenshot.disabled = !hasDrawing;
-    actionButtons.send.disabled = !hasDrawing;
+    actionButtons.save.disabled = !hasProjectDrawing;
+    actionButtons.screenshot.disabled = !hasSceneDrawing;
+    actionButtons.send.disabled = !hasSceneDrawing;
     actionButtons.ruler.classList.toggle('is-active', rulerState.visible);
     actionButtons.ruler.setAttribute('aria-pressed', rulerState.visible ? 'true' : 'false');
+    updateWorkspaceControls();
+  }
+
+  function renderTraceControls() {
+    var floor = activeFloorState();
+    traceLayers.textContent = '';
+    floor.layers.forEach(function (layer) {
+      var group = document.createElement('div');
+      group.className = 'trace-layer';
+      group.setAttribute('data-layer', layer.id);
+      group.classList.toggle('is-active', floor.activeLayerId === layer.id);
+      group.classList.toggle('is-hidden', !layer.visible);
+
+      var select = document.createElement('button');
+      select.type = 'button';
+      select.className = 'trace-select';
+      select.setAttribute('data-layer-select', layer.id);
+      select.setAttribute('aria-pressed', floor.activeLayerId === layer.id ? 'true' : 'false');
+      select.textContent = layer.name;
+      group.appendChild(select);
+
+      var visible = document.createElement('button');
+      visible.type = 'button';
+      visible.className = 'trace-visible';
+      visible.setAttribute('data-layer-visible', layer.id);
+      visible.setAttribute('aria-label', (layer.visible ? 'Hide ' : 'Show ') + layer.name);
+      visible.setAttribute('aria-pressed', layer.visible ? 'true' : 'false');
+      visible.textContent = layer.visible ? 'On' : 'Off';
+      group.appendChild(visible);
+
+      if (layer.id !== 'base') {
+        var remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'trace-remove';
+        remove.setAttribute('data-layer-remove', layer.id);
+        remove.setAttribute('aria-label', 'Remove ' + layer.name);
+        remove.textContent = '×';
+        group.appendChild(remove);
+      }
+      traceLayers.appendChild(group);
+    });
+  }
+
+  function updateWorkspaceControls() {
+    floorButtons.forEach(function (button) {
+      var key = button.getAttribute('data-floor');
+      var on = key === activeFloor;
+      button.classList.toggle('is-active', on);
+      button.classList.toggle('has-content', floorHasDrawing(key));
+      button.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+
+    var refs = activeFloorState().references;
+    ['below', 'above'].forEach(function (direction) {
+      var button = actionButtons['reference-' + direction];
+      var available = Boolean(adjacentFloor(direction));
+      button.disabled = !available;
+      button.classList.toggle('is-active', available && refs[direction]);
+      button.setAttribute('aria-pressed', available && refs[direction] ? 'true' : 'false');
+    });
+    actionButtons['add-trace'].disabled = activeFloorState().layers.length >= 12;
+    renderTraceControls();
+  }
+
+  function resetDrawingInteraction() {
+    active = null;
+    selectedIndex = -1;
+    resizeDrag = null;
+    closeNoteComposer();
+  }
+
+  function selectFloor(next) {
+    if (FLOOR_ORDER.indexOf(next) === -1 || next === activeFloor) return;
+    persistDrawing();
+    activeFloor = next;
+    bindActiveLayer();
+    resetDrawingInteraction();
+    updateActions();
+    render();
+    setHint(FLOOR_LABELS[next] + ' floor — ' + activeLayerState().name + '.');
+  }
+
+  function selectLayer(id) {
+    var floor = activeFloorState();
+    var layer = layerState(floor, id);
+    if (!layer || floor.activeLayerId === layer.id) return;
+    floor.activeLayerId = layer.id;
+    layer.visible = true;
+    bindActiveLayer();
+    resetDrawingInteraction();
+    updateActions();
+    render();
+    setHint(layer.name + ' selected on the ' + FLOOR_LABELS[activeFloor].toLowerCase() + ' floor.');
+  }
+
+  function addTrace() {
+    var floor = activeFloorState();
+    if (floor.layers.length >= 12) return;
+    traceSerial += 1;
+    var id = 'trace-' + Date.now().toString(36) + '-' + traceSerial;
+    var name = 'Trace ' + String(traceSerial).padStart(2, '0');
+    floor.layers.push(makeLayer(id, name, []));
+    floor.activeLayerId = id;
+    bindActiveLayer();
+    resetDrawingInteraction();
+    scheduleSave();
+    updateActions();
+    render();
+    setHint(name + ' added. Draw on it, or switch back to another layer.');
+  }
+
+  function toggleLayerVisibility(id) {
+    var floor = activeFloorState();
+    var layer = layerState(floor, id);
+    if (!layer) return;
+    layer.visible = !layer.visible;
+    if (!layer.visible && floor.activeLayerId === layer.id) {
+      var replacement = floor.layers.find(function (item) { return item.visible; });
+      if (!replacement) {
+        replacement = floor.layers[0];
+        replacement.visible = true;
+      }
+      floor.activeLayerId = replacement.id;
+      bindActiveLayer();
+      resetDrawingInteraction();
+    }
+    scheduleSave();
+    updateActions();
+    render();
+  }
+
+  function removeTrace(id) {
+    if (id === 'base') return;
+    var floor = activeFloorState();
+    var layer = layerState(floor, id);
+    if (!layer || !window.confirm('Remove ' + layer.name + ' and its drawing?')) return;
+    floor.layers = floor.layers.filter(function (item) { return item.id !== id; });
+    if (floor.activeLayerId === id) floor.activeLayerId = floor.layers[0].id;
+    bindActiveLayer();
+    resetDrawingInteraction();
+    scheduleSave();
+    updateActions();
+    render();
+  }
+
+  function toggleReference(direction) {
+    if (!adjacentFloor(direction)) return;
+    var refs = activeFloorState().references;
+    refs[direction] = !refs[direction];
+    scheduleSave();
+    updateActions();
+    render();
+    setHint((refs[direction] ? 'Showing ' : 'Hiding ') + 'the ' + direction + ' floor outline.');
   }
 
   function resize() {
@@ -193,6 +495,7 @@
   }
 
   function drawOpening(target, object, width, height, outputScale) {
+    var baseAlpha = target.globalAlpha;
     var start = { x: object.start.x * width, y: object.start.y * height };
     var end = { x: object.end.x * width, y: object.end.y * height };
     var dx = end.x - start.x;
@@ -229,7 +532,7 @@
       target.moveTo(0, 0);
       target.lineTo(0, direction * length);
       target.stroke();
-      target.globalAlpha = 0.72;
+      target.globalAlpha = baseAlpha * 0.72;
       target.beginPath();
       target.arc(0, 0, length, 0, direction * Math.PI / 2, direction < 0);
       target.stroke();
@@ -238,6 +541,7 @@
   }
 
   function drawArea(target, object, width, height, outputScale) {
+    var baseAlpha = target.globalAlpha;
     var start = { x: object.start.x * width, y: object.start.y * height };
     var end = { x: object.end.x * width, y: object.end.y * height };
     var x = Math.min(start.x, end.x);
@@ -250,10 +554,10 @@
     target.beginPath();
     target.rect(x, y, w, h);
     target.clip();
-    target.globalAlpha = 0.07;
+    target.globalAlpha = baseAlpha * 0.07;
     target.fillStyle = INK;
     target.fillRect(x, y, w, h);
-    target.globalAlpha = 0.18;
+    target.globalAlpha = baseAlpha * 0.18;
     target.strokeStyle = INK;
     target.lineWidth = 0.7 * outputScale;
     for (var d = -h; d < w + h; d += hatch) {
@@ -265,7 +569,7 @@
     target.restore();
 
     target.save();
-    target.globalAlpha = 0.34;
+    target.globalAlpha = baseAlpha * 0.34;
     target.strokeStyle = INK;
     target.lineWidth = 0.75 * outputScale;
     target.strokeRect(x, y, w, h);
@@ -409,18 +713,75 @@
     target.restore();
   }
 
+  function drawFloorOutline(target, key, width, height, direction) {
+    var outlineObjects = visibleObjectsForFloor(key);
+    if (!outlineObjects.length) return;
+    var outputScale = cssWidth ? width / cssWidth : 1;
+    target.save();
+    target.strokeStyle = INK;
+    target.fillStyle = INK;
+    target.globalAlpha = direction === 'above' ? 0.2 : 0.27;
+    target.lineWidth = 1.05 * outputScale;
+    target.lineCap = 'round';
+    target.lineJoin = 'round';
+    target.setLineDash(direction === 'above'
+      ? [2.5 * outputScale, 5 * outputScale]
+      : [8 * outputScale, 5 * outputScale]);
+
+    outlineObjects.forEach(function (object) {
+      if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
+        target.beginPath();
+        target.moveTo(object.start.x * width, object.start.y * height);
+        target.lineTo(object.end.x * width, object.end.y * height);
+        target.stroke();
+      }
+      if (object.type === 'room' || object.type === 'area') {
+        var startX = object.start.x * width;
+        var startY = object.start.y * height;
+        var endX = object.end.x * width;
+        var endY = object.end.y * height;
+        target.strokeRect(startX, startY, endX - startX, endY - startY);
+      }
+    });
+    target.restore();
+  }
+
+  function drawScene(target, width, height, includeInteraction) {
+    target.fillStyle = PAPER;
+    target.fillRect(0, 0, width, height);
+    drawGrid(target, width, height);
+
+    var refs = activeFloorState().references;
+    var below = adjacentFloor('below');
+    var above = adjacentFloor('above');
+    if (refs.below && below) drawFloorOutline(target, below, width, height, 'below');
+    if (refs.above && above) drawFloorOutline(target, above, width, height, 'above');
+
+    var floor = activeFloorState();
+    floor.layers.forEach(function (layer) {
+      if (!layer.visible || layer.id === floor.activeLayerId) return;
+      target.save();
+      target.globalAlpha = 0.34;
+      layer.objects.forEach(function (object) { drawObject(target, object, width, height); });
+      target.restore();
+    });
+    var activeLayer = activeLayerState();
+    if (activeLayer.visible) {
+      activeLayer.objects.forEach(function (object) { drawObject(target, object, width, height); });
+    }
+
+    if (!includeInteraction) return;
+    if (active) drawObject(target, active, width, height);
+    if (tool === 'edit' && selectedIndex >= 0 && objects[selectedIndex]) {
+      drawSelection(target, objects[selectedIndex]);
+    }
+  }
+
   function render() {
     if (!cssWidth || !cssHeight) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cssWidth, cssHeight);
-    ctx.fillStyle = PAPER;
-    ctx.fillRect(0, 0, cssWidth, cssHeight);
-    drawGrid(ctx, cssWidth, cssHeight);
-    objects.forEach(function (object) { drawObject(ctx, object, cssWidth, cssHeight); });
-    if (active) drawObject(ctx, active, cssWidth, cssHeight);
-    if (tool === 'edit' && selectedIndex >= 0 && objects[selectedIndex]) {
-      drawSelection(ctx, objects[selectedIndex]);
-    }
+    drawScene(ctx, cssWidth, cssHeight, true);
   }
 
   function setHint(message, restore) {
@@ -481,7 +842,7 @@
 
   function wallSegments() {
     var segments = [];
-    objects.forEach(function (object) {
+    visibleObjectsForFloor(activeFloor).forEach(function (object) {
       if (object.type === 'line') segments.push([object.start, object.end]);
       if (object.type === 'room') {
         var a = object.start;
@@ -752,7 +1113,7 @@
     if (!undoStack.length) return;
     selectedIndex = -1;
     redoStack.push(clone(objects));
-    objects = undoStack.pop();
+    setObjects(undoStack.pop());
     scheduleSave();
     updateActions();
     render();
@@ -762,7 +1123,7 @@
     if (!redoStack.length) return;
     selectedIndex = -1;
     undoStack.push(clone(objects));
-    objects = redoStack.pop();
+    setObjects(redoStack.pop());
     scheduleSave();
     updateActions();
     render();
@@ -770,16 +1131,16 @@
 
   function clearDrawing() {
     if (!objects.length) return;
-    if (!window.confirm('Clear the entire sketch?')) return;
+    if (!window.confirm('Clear ' + activeLayerState().name + ' on the ' + FLOOR_LABELS[activeFloor].toLowerCase() + ' floor?')) return;
     var previous = clone(objects);
-    objects = [];
+    setObjects([]);
     selectedIndex = -1;
     remember(previous);
     render();
   }
 
   function saveDrawing() {
-    if (!objects.length) return;
+    if (!FLOOR_ORDER.some(floorHasDrawing)) return;
     persistDrawing();
     persistRuler();
     if (window.suduHaptics) window.suduHaptics.tick(10);
@@ -793,10 +1154,7 @@
     out.width = width;
     out.height = height;
     var outCtx = out.getContext('2d');
-    outCtx.fillStyle = PAPER;
-    outCtx.fillRect(0, 0, width, height);
-    drawGrid(outCtx, width, height);
-    objects.forEach(function (object) { drawObject(outCtx, object, width, height); });
+    drawScene(outCtx, width, height, false);
     out.toBlob(callback, 'image/png', 0.94);
   }
 
@@ -806,7 +1164,7 @@
       var link = document.createElement('a');
       var url = URL.createObjectURL(blob);
       link.href = url;
-      link.download = 'sudu-sketch.png';
+      link.download = 'sudu-' + activeFloor + '-floor-sketch.png';
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -871,7 +1229,7 @@
   }
 
   function openSendPanel() {
-    if (!objects.length) return;
+    if (!currentSceneHasDrawing()) return;
     sendPanel.hidden = false;
     window.requestAnimationFrame(function () {
       sendPanel.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
@@ -885,7 +1243,7 @@
 
   function submitForm(event) {
     event.preventDefault();
-    if (!objects.length) return;
+    if (!currentSceneHasDrawing()) return;
     var submit = form.querySelector('button[type="submit"]');
     if (submit.disabled) return;
     submit.disabled = true;
@@ -898,7 +1256,7 @@
       }
       var data = new FormData(form);
       data.delete('sketch');
-      data.append('sketch', blob, 'sudu-sketch.png');
+      data.append('sketch', blob, 'sudu-' + activeFloor + '-floor-sketch.png');
       fetch('/', { method: 'POST', body: data }).then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         formStatus.textContent = 'Sketch sent. We will reply by email.';
@@ -921,6 +1279,21 @@
       }
       setTool(next);
     });
+  });
+
+  floorButtons.forEach(function (button) {
+    button.addEventListener('click', function () { selectFloor(button.getAttribute('data-floor')); });
+  });
+  actionButtons['add-trace'].addEventListener('click', addTrace);
+  actionButtons['reference-below'].addEventListener('click', function () { toggleReference('below'); });
+  actionButtons['reference-above'].addEventListener('click', function () { toggleReference('above'); });
+  traceLayers.addEventListener('click', function (event) {
+    var select = event.target.closest('[data-layer-select]');
+    var visible = event.target.closest('[data-layer-visible]');
+    var remove = event.target.closest('[data-layer-remove]');
+    if (select) selectLayer(select.getAttribute('data-layer-select'));
+    if (visible) toggleLayerVisibility(visible.getAttribute('data-layer-visible'));
+    if (remove) removeTrace(remove.getAttribute('data-layer-remove'));
   });
 
   canvas.addEventListener('pointerdown', onPointerDown);
@@ -974,6 +1347,8 @@
     }
     var keyTools = { p: 'pen', l: 'line', r: 'room', d: 'door', w: 'window', a: 'area', v: 'edit', n: 'note', e: 'erase' };
     if (keyTools[event.key.toLowerCase()]) setTool(keyTools[event.key.toLowerCase()]);
+    var floorKeys = { '1': 'basement', '2': 'main', '3': 'second' };
+    if (floorKeys[event.key]) selectFloor(floorKeys[event.key]);
   });
 
   window.addEventListener('scroll', function () {
