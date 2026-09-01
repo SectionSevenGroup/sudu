@@ -1,0 +1,62 @@
+name: Control read path without write once
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Keep reads usable when draft fast-forward cannot write
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('lib/github.mjs')
+          s = p.read_text()
+          old = '''    const main = await refSha(base);
+            await call(`${R}/git/refs/heads/${enc(draft)}`, {
+              method: 'PATCH', body: JSON.stringify({ sha: main, force: false }),
+            });
+            return main;'''
+          if old not in s:
+              # Match the real source indentation, independent of YAML display.
+              old = '''    const main = await refSha(base);
+    await call(`${R}/git/refs/heads/${enc(draft)}`, {
+      method: 'PATCH', body: JSON.stringify({ sha: main, force: false }),
+    });
+    return main;'''
+          new = '''    const main = await refSha(base);
+    try {
+      await call(`${R}/git/refs/heads/${enc(draft)}`, {
+        method: 'PATCH', body: JSON.stringify({ sha: main, force: false }),
+      });
+      return main;
+    } catch (e) {
+      // Reading content must not depend on a write succeeding. The sync
+      // workflow normally advances a clean draft; if a PAT problem or a short
+      // race prevents this opportunistic fast-forward, serve the existing
+      // draft and let a later write report its own permission failure.
+      console.error('control: clean draft fast-forward failed; reading existing draft',
+        e && e.status ? e.status : '', redactSecrets(e && e.message, env));
+      return sha;
+    }'''
+          if old not in s:
+              raise SystemExit('resolveDraft block not found')
+          p.write_text(s.replace(old, new, 1))
+          PY
+          git rm .github/workflows/control-read-no-write-once.yml
+          git add lib/github.mjs
+          git commit -m "Keep Control reads independent of draft fast-forward writes"
+          git push origin HEAD:main
