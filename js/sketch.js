@@ -19,7 +19,7 @@
   var formStatus = document.getElementById('formStatus');
   var nav = document.getElementById('suduNav');
   var siteXhair = null;
-  var toolButtons = Array.prototype.slice.call(document.querySelectorAll('[data-tool]'));
+  // The stage also carries data-tool so CSS can style the active cursor.\n  // Only actual toolbar buttons belong in this collection; otherwise pointer\n  // events that bubble from the canvas make the stage run the button handler.\n  var toolButtons = Array.prototype.slice.call(document.querySelectorAll('.tool-button[data-tool]'));
   var actionButtons = {};
   document.querySelectorAll('[data-action]').forEach(function (button) {
     actionButtons[button.getAttribute('data-action')] = button;
