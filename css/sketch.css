@@ -712,37 +712,38 @@ button:disabled { cursor: default !important; opacity: .28; }
    canvas can export what the visitor saw. Do not reintroduce the filter. */
 html.dm body,
 html.dm body * { filter: none !important; }
-html.dm.dmwarm {                    /* Burnt */
-  --paper: #C0431F;
-  --ink: #171613;
-  --muted: rgba(23, 22, 19, .78);
-  --faint: rgba(23, 22, 19, .60);
-  --rule: rgba(23, 22, 19, .24);
-  --rule-strong: rgba(23, 22, 19, .42);
-  /* the site forces section links to ink on this ground; #E17B3E on Burnt is
-     unreadable, so the accent follows the site's rendered result, not its
-     declared value */
-  --accent: #171613;
-  --focus: #171613;
-}
-html.dm:not(.dmwarm) {              /* Charcoal */
-  --paper: #121110;
-  --ink: #F5F3EC;
-  --muted: rgba(245, 243, 236, .72);
-  --faint: rgba(245, 243, 236, .54);
-  --rule: rgba(245, 243, 236, .18);
-  --rule-strong: rgba(245, 243, 236, .38);
-  --accent: #E17B3E;
-  --focus: #E17B3E;
-}
-/* Chrome, on both dark grounds. The site keeps header and footer on one
-   off-white ink here while section content flips, so these are set once for
-   html.dm rather than per ground. */
+/* Both dark grounds carry one off-white ink; only the paper differs. On the
+   rest of the site the inversion filter produces this, which is why the
+   authored values there read as dark ink. This page has no filter, so it
+   states the rendered result directly. */
 html.dm {
+  --ink: #F5F3EC;
+  --muted: #F5F3EC;
+  --faint: rgba(245, 243, 236, .72);
+  --rule: rgba(245, 243, 236, .28);
+  --rule-strong: rgba(245, 243, 236, .48);
+  --accent: #F5F3EC;
+  --focus: #F5F3EC;
   --chrome-ink: #F5F3EC;
   --chrome-ink-quiet: #F5F3EC;
   --chrome-rule: rgba(245, 243, 236, .45);
   --chrome-backdrop: blur(10px);
+}
+
+html.dm.dmwarm       { --paper: #C0431F; }   /* Burnt */
+html.dm:not(.dmwarm) { --paper: #121110; }   /* Charcoal */
+
+/* Charcoal has 16.99:1 of headroom and can afford a real ramp.
+   Burnt has 4.65:1 at full strength and none to spare, so muted stays
+   solid there and hierarchy comes from the existing ::after underline
+   on active buttons, not from colour. */
+html.dm:not(.dmwarm) {
+  --muted: rgba(245, 243, 236, .72);
+  --faint: rgba(245, 243, 236, .54);
+  --rule:  rgba(245, 243, 236, .18);
+  --rule-strong: rgba(245, 243, 236, .38);
+  --accent: #E17B3E;
+  --focus:  #E17B3E;
 }
 html.dm body { background: var(--paper) !important; color: var(--ink) !important; }
 /* --dm-bg is written inline on <html> by js/chrome-bar.js, so taking the
