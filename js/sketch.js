@@ -90,7 +90,7 @@
     stencil: 'Choose a plan template, then click the grid to place it.',
     edit: 'Select a wall, room, area or template. Drag anchors to resize; drag a template to move it.',
     note: 'Select a point on the plan, then type a note.',
-    erase: 'Select a line, room, opening, area or note to remove it.'
+    erase: 'Select a line, room, opening, area, template or note to remove it.'
   };
 
   function clone(value) {
@@ -1091,7 +1091,9 @@
       stencilFilled = filled;
     }
     renderStencilChoices();
-    setHint(filled ? 'Templates will place as solid black.' : 'Templates will place as architectural outlines.', 1600);
+    setHint(selected
+      ? (filled ? 'Template changed to solid black.' : 'Template changed to an architectural outline.')
+      : (filled ? 'Templates will place as solid black.' : 'Templates will place as architectural outlines.'), 1600);
   }
 
   function rotateTemplate() {
