@@ -273,7 +273,7 @@
     var styles = getComputedStyle(document.documentElement);
     PAPER = styles.getPropertyValue('--paper').trim() || '#F3F1EA';
     INK = styles.getPropertyValue('--ink').trim() || '#171613';
-    GRID = document.documentElement.classList.contains('dm') && !document.documentElement.classList.contains('dmwarm')
+    GRID = document.documentElement.classList.contains('dm')
       ? 'rgba(245,243,236,0.26)'
       : 'rgba(23,22,19,0.26)';
     renderStencilChoices();
