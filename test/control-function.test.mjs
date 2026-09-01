@@ -187,8 +187,11 @@ test('invalid input is refused and commits nothing', async () => {
     assert.equal(r.body.ok, false);
     assert.ok(r.body.errors.some((e) => e.field === 'title'));
 
+    // heroSrc has no editor, so it never reaches the model to be validated:
+    // it is dropped at the boundary and the save has nothing left to do
     r = await post({ action: 'saveProject', slug: anySlug, patch: { heroSrc: '../../secret.jpg' } });
-    assert.ok(r.body.errors.some((e) => e.field === 'heroSrc'), 'a hero outside images/');
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, false, 'a hero path changes nothing');
 
     assert.equal(repo.commits.length, 0, 'nothing was written');
   });
@@ -594,5 +597,176 @@ test('the endpoint exposes no mutation the interface does not', async () => {
     assert.equal(r.status, 400);
     assert.equal(r.body.error, 'Unknown action.');
     assert.equal(gh.calls.length, 0, 'nothing was read or written');
+  });
+});
+
+// --- publishing is pinned to the commit whose preview was checked ------
+//
+// The gate is only worth anything if the commit that passed it is the commit
+// that gets merged. Between checking the preview and asking GitHub to merge,
+// another Control tab can save.
+
+test('publish sends exactly the head SHA whose preview was verified', async () => {
+  await withControl({ statuses: [{ context: PREVIEW, state: 'success' }] }, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'The verified edit.' } });
+    const verified = repo.draftSha;
+
+    let r = await post({ action: 'status' });
+    assert.equal(r.body.state.headSha, verified, 'state reports the commit it answered for');
+    assert.equal(r.body.state.canPublish, true);
+
+    r = await post({ action: 'publish' });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.merged, true);
+
+    const merge = gh.made('PUT', /\/merge$/);
+    assert.equal(merge.length, 1);
+    assert.equal(merge[0].body.sha, verified, 'the merge carried the verified commit');
+  });
+});
+
+test('a save between the preview check and the merge stops the publish', async () => {
+  await withControl({ statuses: [{ context: PREVIEW, state: 'success' }] }, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'The verified edit.' } });
+    const shaA = repo.draftSha;
+    // A's preview is green; anything later has not been built yet
+    repo.statusBySha.set(shaA, [{ context: PREVIEW, state: 'success' }]);
+
+    let r = await post({ action: 'status' });
+    assert.equal(r.body.state.headSha, shaA);
+    assert.equal(r.body.state.canPublish, true);
+
+    // another tab saves the instant A's deploy status has been read — after
+    // the preview is verified, before anything is merged
+    let shaB = null;
+    gh.hook(/\/commits\/[^/]+\/status$/, (repoNow) => {
+      if (shaB) return;
+      shaB = gh.pushOutside({ 'project.html': repoNow.draft['project.html'] + '\n<!-- newer, unbuilt -->' });
+      repoNow.statusBySha.set(shaB, [{ context: PREVIEW, state: 'pending' }]);
+    });
+
+    const mainBefore = repo.mainSha;
+    r = await post({ action: 'publish' });
+
+    assert.notEqual(shaB, null, 'the branch really did move');
+    assert.equal(r.status, 409);
+    assert.equal(r.body.error, 'The draft changed after its preview was checked. Review the new preview before publishing.');
+
+    // B was not merged, by either route
+    for (const merge of gh.made('PUT', /\/merge$/)) {
+      assert.notEqual(merge.body.sha, shaB, 'the unverified commit was never offered');
+    }
+    assert.equal(repo.mainSha, mainBefore, 'the site did not move');
+    assert.equal(repo.draftSha, shaB, 'the draft still carries the newer work');
+    assert.equal(repo.snapshots.get(repo.mainSha)['project.html'].includes('<!-- newer, unbuilt -->'), false,
+      'the unbuilt commit did not reach main');
+
+    // and the editor is told to look at the new preview, which is not green
+    r = await post({ action: 'status' });
+    assert.equal(r.body.state.headSha, shaB);
+    assert.equal(r.body.state.deploy.state, 'pending');
+    assert.equal(r.body.state.canPublish, false, 'publishing stays closed until B builds');
+  });
+});
+
+test("GitHub's merge precondition refuses a head that moved at the last moment", async () => {
+  await withControl({ statuses: [{ context: PREVIEW, state: 'success' }] }, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'The verified edit.' } });
+    const shaA = repo.draftSha;
+
+    // move it later than Control can possibly notice: as the merge lands
+    let shaB = null;
+    gh.hook(/\/merge$/, (repoNow) => {
+      if (!shaB) shaB = gh.pushOutside({ 'project.html': repoNow.draft['project.html'] + '\n<!-- last moment -->' });
+    });
+
+    const mainBefore = repo.mainSha;
+    const r = await post({ action: 'publish' });
+
+    const merge = gh.made('PUT', /\/merge$/);
+    assert.equal(merge.length, 1, 'the merge was attempted');
+    assert.equal(merge[0].body.sha, shaA, 'with the verified commit, not the new head');
+    assert.equal(r.status, 409);
+    assert.equal(r.body.error, 'The draft changed after its preview was checked. Review the new preview before publishing.');
+    assert.equal(repo.mainSha, mainBefore, 'nothing was published');
+    assert.equal(repo.snapshots.get(repo.mainSha)['project.html'].includes('<!-- last moment -->'), false);
+  });
+});
+
+// --- the write surface is the seven fields the editor shows -------------
+
+const HIDDEN = {
+  heroSrc: 'images/somewhere-else.jpg',
+  groups: [{ title: 'Rewritten', images: ['images/x.jpg'] }],
+  gallery: ['images/x.jpg'],
+  related: ['not-a-project'],
+  next: 'somewhere',
+  counter: '99 / 99',
+  editorial: { rhythm: 'rewritten', seq: [{ kind: 'full', i: 0 }] },
+  media: [],
+  slug: 'renamed',
+  __proto__hack: 'no',
+};
+
+test('a patch of nothing but hidden fields changes nothing at all', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    await post({ action: 'projects' });
+    const before = repo.snapshots.get(repo.draftSha)['project.html'];
+
+    const r = await post({
+      action: 'saveProject',
+      slug: anySlug,
+      patch: { ...HIDDEN },
+      editorial: HIDDEN.editorial,
+    });
+
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, false, 'there was nothing to write');
+    assert.equal(repo.commits.length, 0, 'no commit was created');
+    assert.equal(repo.snapshots.get(repo.draftSha)['project.html'], before, 'project.html is byte-identical');
+  });
+});
+
+test('a real edit carrying hidden fields writes only the real edit', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const target = r.body.projects.find((p) => p.editorial) || r.body.projects[0];
+    const beforeSrc = repo.snapshots.get(repo.draftSha)['project.html'];
+    const before = model.readSite(beforeSrc, repo.files['work.html']);
+
+    r = await post({
+      action: 'saveProject',
+      slug: target.slug,
+      patch: { lede: 'The only thing that should change.', ...HIDDEN },
+      editorial: HIDDEN.editorial,
+    });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true);
+    assert.deepEqual(r.body.files, ['project.html']);
+
+    const after = model.readSite(repo.snapshots.get(repo.draftSha)['project.html'], repo.files['work.html']);
+    assert.equal(after.DATA[target.slug].lede, 'The only thing that should change.');
+
+    // every other field of this project is exactly as it was
+    for (const key of Object.keys(before.DATA[target.slug])) {
+      if (key === 'lede') continue;
+      assert.deepEqual(after.DATA[target.slug][key], before.DATA[target.slug][key], key + ' changed');
+    }
+    // no field arrived that was not there before
+    assert.deepEqual(Object.keys(after.DATA[target.slug]).sort(), Object.keys(before.DATA[target.slug]).sort());
+
+    // and nothing outside this project moved
+    for (const slug of before.order) {
+      if (slug === target.slug) continue;
+      assert.deepEqual(after.DATA[slug], before.DATA[slug], slug + ' changed');
+    }
+    assert.deepEqual(after.EDITORIAL, before.EDITORIAL, 'EDITORIAL is untouched');
+    assert.deepEqual(after.DIMS, before.DIMS, 'DIMS is untouched');
+    assert.deepEqual(after.order, before.order, 'the index order is untouched');
   });
 });

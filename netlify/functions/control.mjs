@@ -38,6 +38,10 @@ const SIGNATURES = {
   'image/webp': (b) => b.length > 12 && b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP',
 };
 
+// The fields the project editor renders, in the order it renders them.
+// Anything else in a patch is not part of this version of Control.
+const EDITABLE = ['title', 'eyebrow', 'location', 'scope', 'status', 'lede', 'body'];
+
 // A name Control chose, from a name a person typed. Never a path.
 function mediaName(fileName, mime) {
   const ext = UPLOAD_TYPES[mime];
@@ -100,10 +104,19 @@ const actions = {
     const slug = String(body.slug || '');
     const before = await loadSite(gh);
     if (!before.site.DATA[slug]) throw publicError('That project does not exist.', 404);
-    // EDITORIAL is read, displayed and validated, but Control does not edit
-    // reading order in this version, so a sequence in the request is ignored
-    // rather than written. The server's capability matches the interface's.
-    let next = model.applyProject(before.site, slug, body.patch || {});
+    // The seven fields the editor actually shows, and nothing else. The
+    // content model can write a hero, a gallery, groups and related projects
+    // — it has to, for the features that come later — but none of those has
+    // an editor in this version, so none of them is reachable from here.
+    // EDITORIAL and the index order are read, displayed and validated, and
+    // likewise not writable. What the server can change is what the interface
+    // offers, and this is where the two are held together.
+    const incoming = body.patch && typeof body.patch === 'object' ? body.patch : {};
+    const patch = {};
+    for (const key of EDITABLE) {
+      if (Object.prototype.hasOwnProperty.call(incoming, key)) patch[key] = incoming[key];
+    }
+    let next = model.applyProject(before.site, slug, patch);
     const errors = model.validate(next, {
       slug,
       project: next.DATA[slug],

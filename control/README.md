@@ -46,15 +46,31 @@ changed. So it is fast-forwarded onto `main` first — a real fast-forward, with
 never touched this way however far behind it is; that is a conflict, and it
 goes through Reconcile.
 
+## Publishing
+
+Publishing is pinned to one commit. `state()` resolves the draft to a SHA and
+then asks every question of that SHA — how it compares to `main`, which files
+it touches, whether its deploy preview built — and returns it as `headSha`.
+`publish()` merges **that** SHA. It never re-reads the branch for a merge
+target, so the commit GitHub merges is always the commit whose preview was
+verified. If the draft moved in between, Control says so; and the merge request
+carries the verified SHA as GitHub's own precondition, so even a move in the
+last instant is refused by GitHub rather than published.
+
 ## What Control can change
 
-Only what the interface exposes: project copy and metadata, media uploads,
-reconcile and publish. `EDITORIAL` and the work index order are read,
-displayed and validated, but there is no endpoint that writes them — a
-reading order sent to `saveProject` is ignored rather than applied, and there
-is no reorder action. The server's capability and the interface's are the same
-set on purpose; a mutating endpoint with no interface is a way in that nobody
-is looking at.
+Only what the interface exposes. `saveProject` accepts exactly the seven
+fields the editor renders — `title`, `eyebrow`, `location`, `scope`, `status`,
+`lede`, `body` — and drops everything else at the function boundary. The
+content model can also write `heroSrc`, `groups`, `gallery` and `related`,
+because the features that need them are coming, but none of them has an editor
+in this version and so none is reachable through the endpoint. `EDITORIAL` and
+the work index order are read, displayed and validated, and likewise not
+writable: a reading order sent to `saveProject` is ignored, and there is no
+reorder action.
+
+The server's capability and the interface's are the same set on purpose. A
+mutating endpoint with no interface is a way in that nobody is looking at.
 
 ## Configuration
 

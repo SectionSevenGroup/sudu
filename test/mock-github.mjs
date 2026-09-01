@@ -38,6 +38,12 @@ export function mockGitHub(options = {}) {
     merges: 0,
     // an array of {context, state}; the default is the one Control gates on
     statuses: options.statuses || [{ context: PREVIEW, state: options.deploy || 'pending' }],
+    // sha -> its own statuses, for when one commit's preview is green and a
+    // later commit's has not been built yet
+    statusBySha: new Map(),
+    // sha -> how many draft commits exist at it, so a compare against a SHA
+    // answers for that commit rather than for wherever the branch is now
+    aheadAt: new Map(),
     // when set, /merge answers {merged:false} with this wording
     mergeRefusal: options.mergeRefusal || null,
     images: options.images || [{ type: 'file', name: 'existing.jpg', size: 1234 }],
@@ -51,6 +57,7 @@ export function mockGitHub(options = {}) {
     hooks: [],
   };
   repo.snapshots.set(repo.mainSha, { ...repo.files });
+  repo.aheadAt.set(repo.mainSha, 0);
 
   const calls = [];
   const draftFiles = () => {
@@ -117,6 +124,7 @@ export function mockGitHub(options = {}) {
       repo.commits.push({ message: body.message, parents: body.parents, paths: (repo.trees.get(body.tree) || []).map((e) => e.path) });
       const sha = 'c' + repo.commits.length;
       repo.snapshots.set(sha, built);
+      repo.aheadAt.set(sha, repo.commits.length);
       return ok({ sha });
     }
     // moving the branch is what makes a commit the draft's content
@@ -132,13 +140,16 @@ export function mockGitHub(options = {}) {
       return ok(repo.pr);
     }
     if (/\/compare\//.test(path)) {
+      const head = decodeURIComponent(path.split('...')[1] || '');
+      const ahead = repo.aheadAt.has(head) ? repo.aheadAt.get(head) : repo.commits.length;
       const paths = new Set();
-      for (const c of repo.commits) for (const p of c.paths) paths.add(p);
-      return ok({ ahead_by: repo.commits.length, behind_by: repo.behind, files: [...paths].map((filename) => ({ filename })) });
+      for (const c of repo.commits.slice(0, ahead)) for (const p of c.paths) paths.add(p);
+      return ok({ ahead_by: ahead, behind_by: repo.behind, files: [...paths].map((filename) => ({ filename })) });
     }
     if (/\/commits\/[^/]+\/status$/.test(path)) {
+      const sha = path.split('/commits/')[1].split('/')[0];
       return ok({
-        statuses: repo.statuses.map((s) => ({
+        statuses: (repo.statusBySha.get(sha) || repo.statuses).map((s) => ({
           context: s.context,
           state: s.state,
           target_url: 'https://deploy-preview-99--sudustudioarchitecture.netlify.app',
@@ -147,6 +158,10 @@ export function mockGitHub(options = {}) {
       });
     }
     if (/\/pulls\/\d+\/merge$/.test(path)) {
+      // GitHub's own precondition: the head must still be the SHA asked for
+      if (body && body.sha && body.sha !== repo.draftSha) {
+        return ok({ message: 'Head branch was modified. Review and try the merge again.' }, 409);
+      }
       if (repo.mergeRefusal) return ok({ merged: false, message: repo.mergeRefusal });
       repo.files = { ...draftFiles() };
       repo.commits = [];
@@ -154,6 +169,7 @@ export function mockGitHub(options = {}) {
       repo.pr = null;
       repo.mainSha = 'merged' + (++repo.merges);
       repo.snapshots.set(repo.mainSha, { ...repo.files });
+      repo.aheadAt.set(repo.mainSha, 0);
       repo.draftSha = null;         // Control is expected to move it back
       return ok({ merged: true, sha: repo.mainSha });
     }
@@ -179,6 +195,7 @@ export function mockGitHub(options = {}) {
       const built = { ...draftFiles(), ...edits };
       repo.snapshots.set(sha, built);
       repo.commits.push({ message: 'Someone else', parents: [repo.draftSha], paths: Object.keys(edits) });
+      repo.aheadAt.set(sha, repo.commits.length);
       repo.draftSha = sha;
       repo.draft = { ...built };
       return sha;
