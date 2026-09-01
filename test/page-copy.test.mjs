@@ -174,3 +174,33 @@ test('every index row is derived from the project it names', () => {
     assert.equal(row.thumb, p.heroSrc, slug);
   }
 });
+
+test('no copy value carries an HTML entity', () => {
+  // COPY is data, not markup. Its values reach the page as text nodes, so an
+  // entity left in one renders as its own characters — "Financial&rsquo;s"
+  // instead of "Financial’s". The character itself is what belongs here.
+  const found = [];
+  const check = (where, v) => {
+    if (typeof v === 'string' && /&(#\d+|#x[0-9a-f]+|[a-zA-Z]+);/i.test(v)) found.push(where + ': ' + v.slice(0, 70));
+  };
+  for (const [page, spec] of Object.entries(cm.PAGES)) {
+    const copy = cm.readPage(page, read(spec.file));
+    for (const [key, value] of Object.entries(copy)) {
+      if (Array.isArray(value)) {
+        value.forEach((f, i) => { check(`${page}.${key}[${i}].q`, f.q); check(`${page}.${key}[${i}].a`, f.a); });
+      } else check(`${page}.${key}`, value);
+    }
+  }
+  assert.deepEqual(found, []);
+});
+
+test('a translation is keyed to the English the page now holds', () => {
+  // Not a rule about the copy — a check that the two were changed together
+  // where they were changed at all. A key with no translation is fine.
+  const copy = cm.readPage('studio', read('studio.html'));
+  assert.equal(copy.joeRole, 'Designer + Creative Director');
+  assert.equal(KEN['studio.joeRole'], copy.joeRole);
+  for (const lang of ['fr', 'es', 'de', 'ja']) {
+    assert.ok(K[lang]['studio.joeRole'], lang + ' lost the role');
+  }
+});
