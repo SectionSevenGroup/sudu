@@ -172,7 +172,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; ">Work</h1>
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">{{ countLabel }}</span>
     </div>
-    <p style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;">Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.</p>
+    <p style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;" data-i18n="work.attribution">{{ copy.attribution }}</p>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:40px 28px; border-top:1px solid rgba(23,22,19,0.13); padding-top:clamp(28px,3.5vw,44px);">
       <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
@@ -215,6 +215,15 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
+  // The authored copy of this page, in one place, so SuDu Control can edit it
+  // and so each string has a stable identity. The markup binds to these names
+  // and carries the matching data-i18n key, which is what i18n.js translates
+  // against — never the English sentence itself, which is the thing that
+  // changes when someone edits the page.
+  static COPY = {
+    attribution: 'Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.',
+  };
+
   // One label per language i18n.js supports, composed here rather than looked
   // up as a dictionary string. Splitting the node into "19" and " projects"
   // and letting the walker translate the noun does not survive two of the five
@@ -248,7 +257,13 @@ class Component extends DCLogic {
     if (this.__langObs) this.__langObs.disconnect();
   }
   renderVals() {
+    const copy = Component.COPY;
     const order = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','factory-yyc','factory-club','opt','selkirk','enoch','youth-recovery'];
+    // Derived, not authored. Every value here comes from `static DATA` in
+    // project.html: scripts/derive-work-index.mjs regenerates this literal at
+    // build time and SuDu Control regenerates it on every save, so there is
+    // one source of truth for a project's title, category, location and
+    // thumbnail. Do not hand-edit — edit the project, and this follows.
     const names = {
       'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', thumb: 'images/west-vancouver-private-residence.jpg' },
       'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: 'images/wilfreds-hospitality-edmonton.jpg' },
@@ -276,6 +291,7 @@ class Component extends DCLogic {
     // addition.
     const label = Component.COUNT_LABEL[this.state.lang] || Component.COUNT_LABEL.en;
     return {
+      copy,
       countLabel: label(order.length),
       // The first two rows are what a visitor sees when Work opens, so they
       // are fetched with the document instead of after it. Everything below
