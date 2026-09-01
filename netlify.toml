@@ -4,7 +4,7 @@
 # generation; there is no framework runtime or client-side build dependency.
 
 [build]
-  command = "node scripts/audit-hardening.mjs && node scripts/service-shell-inject.mjs && node scripts/regression-fixes.mjs && node scripts/build-projects.mjs && node scripts/post-generate.mjs && node scripts/contact-header-fix.mjs"
+  command = "node scripts/derive-work-index.mjs && node scripts/audit-hardening.mjs && node scripts/service-shell-inject.mjs && node scripts/regression-fixes.mjs && node scripts/build-projects.mjs && node scripts/post-generate.mjs && node scripts/contact-header-fix.mjs"
   publish = "."
 
 [functions]
@@ -15,8 +15,15 @@
 # The private editing interface at /control/. Every privileged action goes
 # through netlify/functions/control.mjs, which reads these from the environment
 # and never returns them:
-#   GITHUB_TOKEN                  fine-grained, this repository only,
-#                                 Contents read/write + Pull requests read/write
+#   GITHUB_TOKEN                  fine-grained, this repository only.
+#                                 BOTH permissions are required and they are
+#                                 separate: Contents read/write lets Control
+#                                 commit, Pull requests read/write lets it open
+#                                 the review pull request Netlify builds the
+#                                 preview from. With only the first, a save
+#                                 lands on the draft and no preview is ever
+#                                 built; Control reports that state rather than
+#                                 claiming the save failed.
 #   SUDU_CONTROL_PASSWORD         the studio's sign-in password
 #   SUDU_CONTROL_SESSION_SECRET   random, at least 32 bytes, signs the session cookie
 # Optional: SUDU_CONTROL_SESSION_EPOCH (bump to sign everyone out),

@@ -78,6 +78,31 @@ async function loadSite(gh) {
   return { parent, projectSrc: p.text, workSrc: w.text, site: model.readSite(p.text, w.text) };
 }
 
+// One page's authored copy, read from the same pinned commit as everything
+// else so a page save is protected by the same expected-parent guard.
+async function loadPage(gh, page) {
+  const spec = model.PAGES[page];
+  if (!spec) throw publicError('That page does not exist.', 404);
+  const parent = await gh.resolveDraft();
+  const f = await gh.getFile(spec.file, parent);
+  return { parent, page, file: spec.file, src: f.text, copy: model.readPage(page, f.text) };
+}
+
+async function savePage(gh, before, copy, message) {
+  const src = model.writePage(before.page, before.src, copy, before.copy);
+  if (src === before.src) return { changed: false };
+  const sha = await gh.commit([{ path: before.file, content: src }], message, before.parent);
+  let review = 'ready';
+  try {
+    await gh.ensurePR();
+  } catch (e) {
+    console.error('control: page committed, review setup failed',
+      e && e.status ? e.status : '', redactSecrets(e && e.message, env()));
+    review = 'failed';
+  }
+  return { changed: true, files: [before.file], sha, review };
+}
+
 async function saveSite(gh, before, after, message) {
   const { project, work } = model.serialise(before.projectSrc, before.workSrc, after, before.site);
   const files = [];
@@ -122,6 +147,27 @@ async function settle(gh, written) {
   return { review: state.unknown ? written.review : state.review, state };
 }
 
+// Every project mutation runs the same way: read the site from one commit,
+// transform it, validate, reindex, and offer it back against that commit. The
+// transform is the only thing that differs, so none of them can accidentally
+// skip validation or the stale-save guard.
+async function editProject(gh, slug, message, transform) {
+  const before = await loadSite(gh);
+  if (!before.site.DATA[slug]) throw publicError('That project does not exist.', 404);
+  let next = transform(before.site);
+  const errors = model.validate(next, {
+    slug,
+    project: next.DATA[slug],
+    editorial: next.EDITORIAL[slug],
+  });
+  if (errors.length) return { ok: false, errors };
+  next = model.reindex(next);
+  const result = await saveSite(gh, before, next, message);
+  return { ok: true, ...result, ...(await settle(gh, result)) };
+}
+
+const num = (v, fallback = 0) => (Number.isFinite(Number(v)) ? Number(v) : fallback);
+
 const actions = {
   async overview(gh) {
     const { site } = await loadSite(gh);
@@ -161,6 +207,108 @@ const actions = {
     return { ok: true, ...result, ...(await settle(gh, result)) };
   },
 
+  // ---------------------------------------------------------------- pages
+
+  async pages(gh) {
+    const parent = await gh.resolveDraft();
+    const out = [];
+    for (const [page, spec] of Object.entries(model.PAGES)) {
+      const f = await gh.getFile(spec.file, parent);
+      const copy = model.readPage(page, f.text);
+      out.push({
+        page,
+        title: spec.title,
+        file: spec.file,
+        fields: spec.fields.map(([field, label, size]) => ({
+          field, label, size,
+          key: model.copyKey(page, field),
+          value: copy[field] || '',
+        })),
+        faqs: spec.faqs
+          ? (copy.faqs || []).map((f2, i) => ({
+              index: i, q: f2.q, a: f2.a,
+              qKey: model.copyKey(page, 'question', i),
+              aKey: model.copyKey(page, 'answer', i),
+            }))
+          : null,
+      });
+    }
+    return { pages: out, state: await gh.state() };
+  },
+
+  async savePage(gh, body) {
+    const page = String(body.page || '');
+    const before = await loadPage(gh, page);
+    const copy = model.applyPage(page, before.copy, body.patch && typeof body.patch === 'object' ? body.patch : {});
+    const errors = model.validatePage(page, copy);
+    if (errors.length) return { ok: false, errors };
+    const result = await savePage(gh, before, copy, `Update the ${model.PAGES[page].title} page`);
+    return { ok: true, ...result, ...(await settle(gh, result)) };
+  },
+
+  // ------------------------------------------------------------- projects
+
+  hero: (gh, b) => editProject(gh, String(b.slug || ''), `Set the hero for ${b.slug}`,
+    (site) => model.setHero(site, String(b.slug || ''), String(b.src || ''), b.dims)),
+
+  addImage: (gh, b) => editProject(gh, String(b.slug || ''), `Add an image to ${b.slug}`,
+    (site) => model.galleryAdd(site, String(b.slug || ''), String(b.src || ''),
+      b.group === undefined ? undefined : num(b.group))),
+
+  removeImage: (gh, b) => editProject(gh, String(b.slug || ''), `Remove an image from ${b.slug}`,
+    (site) => model.galleryRemove(site, String(b.slug || ''), num(b.index),
+      b.group === undefined ? undefined : num(b.group))),
+
+  moveImage: (gh, b) => editProject(gh, String(b.slug || ''), `Reorder images in ${b.slug}`,
+    (site) => model.galleryMove(site, String(b.slug || ''), num(b.from), num(b.to),
+      b.group === undefined ? undefined : num(b.group))),
+
+  saveGroup: (gh, b) => editProject(gh, String(b.slug || ''), `Update a group in ${b.slug}`,
+    (site) => model.groupSet(site, String(b.slug || ''), num(b.index), b.patch || {})),
+
+  addGroup: (gh, b) => editProject(gh, String(b.slug || ''), `Add a group to ${b.slug}`,
+    (site) => model.groupAdd(site, String(b.slug || ''), b.head)),
+
+  removeGroup: (gh, b) => editProject(gh, String(b.slug || ''), `Remove a group from ${b.slug}`,
+    (site) => model.groupRemove(site, String(b.slug || ''), num(b.index))),
+
+  moveGroup: (gh, b) => editProject(gh, String(b.slug || ''), `Reorder groups in ${b.slug}`,
+    (site) => model.groupMove(site, String(b.slug || ''), num(b.from), num(b.to))),
+
+  related: (gh, b) => editProject(gh, String(b.slug || ''), `Update related projects for ${b.slug}`,
+    (site) => model.relatedSet(site, String(b.slug || ''), b.related || [])),
+
+  editorial: (gh, b) => editProject(gh, String(b.slug || ''), `Update the reading order for ${b.slug}`,
+    (site) => model.editorialSet(site, String(b.slug || ''), b.seq || [], b.rhythm)),
+
+  async reorder(gh, body) {
+    const before = await loadSite(gh);
+    const next = model.setOrder(before.site, Array.isArray(body.order) ? body.order : []);
+    const result = await saveSite(gh, before, next, 'Reorder the work index');
+    return { ok: true, ...result, ...(await settle(gh, result)) };
+  },
+
+  async addProject(gh, body) {
+    const before = await loadSite(gh);
+    const fields = body.project && typeof body.project === 'object' ? body.project : {};
+    const slug = model.slugify(fields.slug || fields.title);
+    if (!slug) throw publicError('Give the project a title.', 400);
+    if (before.site.DATA[slug]) throw publicError('A project with that address already exists.', 400);
+    let made;
+    try {
+      made = model.addProject(before.site, fields);
+    } catch (e) {
+      throw publicError('That project could not be created. Check the title and the images.', 400);
+    }
+    const errors = model.validate(made.site, {
+      slug: made.slug,
+      project: made.site.DATA[made.slug],
+    });
+    if (errors.length) return { ok: false, errors };
+    const result = await saveSite(gh, before, made.site, `Add ${made.site.DATA[made.slug].title}`);
+    return { ok: true, slug: made.slug, ...result, ...(await settle(gh, result)) };
+  },
+
   async media(gh) {
     const { site } = await loadSite(gh);
     const files = await gh.listMedia();
@@ -172,11 +320,65 @@ const actions = {
       }
     }
     const known = new Set(files.map((f) => f.path));
+    const heroes = new Set(Object.values(site.DATA).map((p) => p.heroSrc).filter(Boolean));
     return {
-      files: files.map((f) => ({ ...f, usedBy: used.get(f.path) || [] })),
+      files: files.map((f) => ({
+        ...f,
+        usedBy: used.get(f.path) || [],
+        isHero: heroes.has(f.path),
+        dims: site.DIMS[f.path] || null,
+      })),
       missing: [...used.entries()].filter(([src]) => !known.has(src)).map(([src, slugs]) => ({ src, usedBy: slugs })),
+      unused: files.filter((f) => !used.has(f.path)).map((f) => f.path),
+      projects: model.listProjects(site).map((p) => ({ slug: p.slug, title: p.title })),
     };
   },
+
+  // An image is only removed once nothing points at it, or once the editor has
+  // said in as many words that they know what still does. Either way the
+  // references are checked here, against the same commit the delete lands on.
+  async removeMedia(gh, body) {
+    const path = model.safeMediaPath(String(body.path || ''));
+    if (!path) throw publicError('That is not an image this site owns.', 400);
+    const before = await loadSite(gh);
+    const usedBy = model.mediaUsage(before.site).get(path) || [];
+    if (usedBy.length && !body.confirmed) {
+      return { ok: false, blocked: true, usedBy, path };
+    }
+    if (usedBy.length) {
+      throw publicError(
+        path.replace('images/', '') + ' is still used by ' + usedBy.length +
+        ' project' + (usedBy.length === 1 ? '' : 's') + '. Take it out of those projects first.',
+        409);
+    }
+    const written = { changed: true, files: [path], review: 'ready' };
+    written.sha = await gh.deleteFile(path, 'Remove ' + path.split('/').pop(), before.parent);
+    try {
+      await gh.ensurePR();
+    } catch (e) {
+      console.error('control: image removed, review setup failed',
+        e && e.status ? e.status : '', redactSecrets(e && e.message, env()));
+      written.review = 'failed';
+    }
+    return { ok: true, path, ...written, ...(await settle(gh, written)) };
+  },
+
+  // Reference only. Control shows what governs the site so it can be read,
+  // and does not offer to change it: these are design decisions, not settings.
+  design: () => ({
+    design: {
+      grounds: [
+        { name: 'Off-white', value: '#F3F1EA', note: 'The default ground.' },
+        { name: 'Charcoal', value: '#121110', note: 'Inverted, for night reading.' },
+        { name: 'Burnt', value: '#C0431F', note: 'The studio colour.' },
+      ],
+      ink: { name: 'Ink', value: '#171613' },
+      typeface: { name: 'Urbanist', weights: '400 \u00b7 500 \u00b7 600 \u00b7 700 \u00b7 800 \u00b7 900' },
+      rail: { name: 'Rail', value: '1760px' },
+      hairline: { name: 'Hairline', value: '0.5px' },
+      themes: ['Off-white', 'Charcoal', 'Burnt'],
+    },
+  }),
 
   async upload(gh, body) {
     const file = body.file || {};

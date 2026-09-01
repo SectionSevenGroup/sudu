@@ -23,6 +23,16 @@ export function siteFiles() {
   };
 }
 
+// the project source plus the four pages whose copy Control edits
+export function allFiles() {
+  return {
+    ...siteFiles(),
+    'index.html': readFileSync(new URL('../index.html', import.meta.url), 'utf8'),
+    'studio.html': readFileSync(new URL('../studio.html', import.meta.url), 'utf8'),
+    'contact.html': readFileSync(new URL('../contact.html', import.meta.url), 'utf8'),
+  };
+}
+
 export function mockGitHub(options = {}) {
   const repo = {
     files: options.files || siteFiles(),
@@ -93,6 +103,22 @@ export function mockGitHub(options = {}) {
     }
     if (path.endsWith('/git/refs') && method === 'POST') { draftFiles(); return ok({ object: { sha: repo.draftSha } }); }
     if (/\/contents\/images(\?|$)/.test(path)) return ok(repo.images);
+    if (/\/contents\/images\/[^/?]+/.test(path)) {
+      const name = decodeURIComponent(path.split('/contents/images/')[1].split('?')[0]);
+      const have = repo.images.find((f) => f.name === name);
+      if (method === 'DELETE') {
+        if (!have) return ok({ message: 'Not Found' }, 404);
+        repo.images = repo.images.filter((f) => f.name !== name);
+        const sha = 'del' + (++repo.n);
+        repo.commits.push({ message: body.message, paths: ['images/' + name] });
+        repo.aheadAt.set(sha, repo.commits.length);
+        repo.snapshots.set(sha, { ...draftFiles() });
+        repo.draftSha = sha;
+        return ok({ commit: { sha } });
+      }
+      return have ? ok({ name, sha: 'imgblob-' + name, size: have.size })
+                  : ok({ message: 'Not Found' }, 404);
+    }
     if (/\/contents\//.test(path)) {
       const name = decodeURIComponent(path.split('/contents/')[1].split('?')[0]);
       const ref = decodeURIComponent((path.split('?ref=')[1] || '').split('&')[0]);

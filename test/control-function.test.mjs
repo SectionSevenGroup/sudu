@@ -7,7 +7,7 @@
 // that they never appear in anything the browser is sent.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mockGitHub, ENV, PREVIEW, siteFiles } from './mock-github.mjs';
+import { mockGitHub, ENV, PREVIEW, siteFiles, allFiles } from './mock-github.mjs';
 import { publicError, publicPartsOf, redactSecrets } from '../lib/public-error.mjs';
 import * as model from '../lib/content-model.mjs';
 
@@ -588,14 +588,15 @@ test('a reading order sent to saveProject is ignored, not written', async () => 
   });
 });
 
-test('the endpoint exposes no mutation the interface does not', async () => {
+test('the endpoint exposes exactly the actions the interface uses', async () => {
   await withControl({}, async ({ post, signIn, gh }) => {
     await signIn();
-    // work-index reordering has no interface in this version, so it has no
-    // endpoint either
-    const r = await post({ action: 'reorder', order: ['b', 'a'] });
-    assert.equal(r.status, 400);
-    assert.equal(r.body.error, 'Unknown action.');
+    // an action nobody offers is refused before GitHub is touched at all
+    for (const action of ['rm -rf', 'deleteProject', 'setSecret', 'writeFile', 'eval']) {
+      const r = await post({ action });
+      assert.equal(r.status, 400, action);
+      assert.equal(r.body.error, 'Unknown action.', action);
+    }
     assert.equal(gh.calls.length, 0, 'nothing was read or written');
   });
 });
@@ -882,4 +883,414 @@ test('a state read that fails after a good commit still reports the save', async
     assert.equal(r.body.state.unknown, true, 'the state is unknown, not false');
     assert.equal(r.text.includes('INTERNAL_SHOULD_NEVER_REACH_BROWSER'), false);
   });
+});
+
+// --- the whole product, through the real endpoint -----------------------
+
+const pageOf = (body, page) => body.pages.find((p) => p.page === page);
+
+// The site as the draft branch now holds it — both files from the same commit,
+// never one from the draft and one from main.
+const draftSite = (repo) => {
+  const at = repo.snapshots.get(repo.draftSha) || repo.files;
+  return model.readSite(at['project.html'], at['work.html']);
+};
+
+test('every page is readable with its fields and its keys', async () => {
+  await withControl({ files: allFiles() }, async ({ post, signIn }) => {
+    await signIn();
+    const r = await post({ action: 'pages' });
+    assert.equal(r.status, 200);
+    assert.deepEqual(r.body.pages.map((p) => p.page), ['home', 'work', 'studio', 'contact']);
+    for (const p of r.body.pages) {
+      assert.ok(p.fields.length, p.page + ' has no fields');
+      for (const f of p.fields) {
+        assert.equal(f.key, `${p.page}.${f.field}`);
+        assert.ok(f.value.trim(), `${p.page}.${f.field} is empty`);
+        assert.ok(f.label && f.label !== f.field, 'fields have human labels');
+      }
+    }
+    assert.ok(pageOf(r.body, 'contact').faqs.length >= 6);
+    assert.equal(pageOf(r.body, 'home').faqs, null);
+  });
+});
+
+test('a page save commits only that page, and reads back', async () => {
+  await withControl({ files: allFiles() }, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'savePage', page: 'studio', patch: { heroLineOne: 'A different opening.' } });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true);
+    assert.deepEqual(r.body.files, ['studio.html']);
+    assert.equal(repo.commits.length, 1);
+    assert.deepEqual(repo.commits[0].paths, ['studio.html']);
+
+    r = await post({ action: 'pages' });
+    assert.equal(pageOf(r.body, 'studio').fields.find((f) => f.field === 'heroLineOne').value,
+      'A different opening.');
+    // and the key is the same one the translation hangs on
+    assert.equal(pageOf(r.body, 'studio').fields.find((f) => f.field === 'heroLineOne').key,
+      'studio.heroLineOne');
+  });
+});
+
+test('a page save cannot write a field the editor does not show', async () => {
+  await withControl({ files: allFiles() }, async ({ post, signIn, repo }) => {
+    await signIn();
+    const before = repo.files['index.html'];
+    const r = await post({
+      action: 'savePage', page: 'home',
+      patch: { navLabel: 'Injected', __proto: 'no', heroSrc: 'images/x.jpg' },
+    });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, false, 'nothing the editor offers was changed');
+    assert.equal(repo.commits.length, 0);
+    assert.equal(repo.snapshots.get(repo.draftSha)['index.html'], before, 'byte-identical');
+  });
+});
+
+test('a contact FAQ is edited through the endpoint', async () => {
+  await withControl({ files: allFiles() }, async ({ post, signIn }) => {
+    await signIn();
+    let r = await post({ action: 'pages' });
+    const faqs = pageOf(r.body, 'contact').faqs;
+    r = await post({
+      action: 'savePage', page: 'contact',
+      patch: { faqs: faqs.map((f, i) => (i === 1 ? { q: f.q, a: 'A revised answer.' } : { q: f.q, a: f.a })) },
+    });
+    assert.equal(r.body.changed, true);
+    r = await post({ action: 'pages' });
+    const after = pageOf(r.body, 'contact').faqs;
+    assert.equal(after[1].a, 'A revised answer.');
+    assert.equal(after[0].q, faqs[0].q, 'the others are untouched');
+    assert.equal(after[1].aKey, 'contact.faq.1.answer');
+  });
+});
+
+test('an unknown page is refused', async () => {
+  await withControl({ files: allFiles() }, async ({ post, signIn }) => {
+    await signIn();
+    const r = await post({ action: 'savePage', page: 'secrets', patch: {} });
+    assert.equal(r.status, 404);
+    assert.equal(r.body.error, 'That page does not exist.');
+  });
+});
+
+// --- project structure through the endpoint -----------------------------
+
+test('the hero is replaced and its proportions recorded', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const p = r.body.projects.find((x) => x.media.length > 1);
+    const target = p.media[1];
+
+    r = await post({ action: 'hero', slug: p.slug, src: target, dims: { w: 3000, h: 2000 } });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true);
+
+    const site = draftSite(repo);
+    assert.equal(site.DATA[p.slug].heroSrc, target);
+    assert.deepEqual(site.DIMS[target], [3000, 2000]);
+    // the work index thumbnail followed the hero
+    assert.equal(site.names[p.slug].thumb, target);
+  });
+});
+
+test('a hero outside images/ never reaches the source', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    const r = await post({ action: 'hero', slug: anySlug, src: '../../netlify.toml' });
+    assert.equal(r.status, 500, 'refused, and the reason is not repeated');
+    assert.equal(r.body.error, 'That did not work. Nothing was changed.');
+    assert.equal(repo.commits.length, 0);
+  });
+});
+
+test('a flat gallery is reordered, added to and trimmed', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const p = r.body.projects.find((x) => x.shape === 'gallery' && x.media.length > 2);
+    const before = p.media.slice();
+
+    r = await post({ action: 'moveImage', slug: p.slug, from: 0, to: 2 });
+    assert.equal(r.status, 200);
+    let site = draftSite(repo);
+    assert.deepEqual(site.DATA[p.slug].gallery, [before[1], before[2], before[0], ...before.slice(3)]);
+
+    r = await post({ action: 'removeImage', slug: p.slug, index: 0 });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true, JSON.stringify(r.body).slice(0, 160));
+    site = draftSite(repo);
+    assert.equal(site.DATA[p.slug].gallery.length, before.length - 1);
+    assert.equal(site.DATA[p.slug].groups, undefined, 'still flat');
+
+    // a reading order that indexed into that gallery came down with it
+    if (site.EDITORIAL[p.slug]) {
+      const media = model.projectMedia(site.DATA[p.slug]);
+      for (const b of site.EDITORIAL[p.slug].seq) {
+        for (const i of b.i || []) assert.ok(media[i], `sequence still points at image ${i} of ${media.length}`);
+      }
+      assert.equal(model.validate(site, {
+        slug: p.slug, project: site.DATA[p.slug], editorial: site.EDITORIAL[p.slug],
+      }).length, 0);
+    }
+  });
+});
+
+test('a grouped gallery keeps its groups and its headings', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const p = r.body.projects.find((x) => x.shape === 'groups' && x.groups[0].images.length > 1);
+    const heads = p.groups.map((g) => g.head);
+
+    r = await post({ action: 'moveImage', slug: p.slug, group: 0, from: 0, to: 1 });
+    assert.equal(r.status, 200);
+    r = await post({ action: 'saveGroup', slug: p.slug, index: 0, patch: { head: 'Renamed group', sub: 'new sub' } });
+    assert.equal(r.status, 200);
+
+    const site = draftSite(repo);
+    const g = site.DATA[p.slug].groups;
+    assert.equal(g.length, p.groups.length, 'group count held');
+    assert.equal(g[0].head, 'Renamed group');
+    assert.equal(g[0].sub, 'new sub');
+    assert.deepEqual(g[0].images, [p.groups[0].images[1], p.groups[0].images[0], ...p.groups[0].images.slice(2)]);
+    assert.deepEqual(g.slice(1).map((x) => x.head), heads.slice(1), 'other headings untouched');
+    assert.equal(site.DATA[p.slug].gallery, undefined, 'it never flattened');
+  });
+});
+
+test('related projects are edited and always resolve', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const [a, b, c] = r.body.projects;
+
+    r = await post({ action: 'related', slug: a.slug, related: [{ key: c.slug }, { key: b.slug }] });
+    assert.equal(r.status, 200);
+    let site = draftSite(repo);
+    assert.deepEqual(site.DATA[a.slug].related.map((x) => x.key), [c.slug, b.slug]);
+    assert.equal(site.DATA[a.slug].related[0].name, c.title);
+
+    // a reference to nothing is dropped rather than written
+    r = await post({ action: 'related', slug: a.slug, related: [{ key: 'ghost' }, { key: b.slug }] });
+    site = draftSite(repo);
+    assert.deepEqual(site.DATA[a.slug].related.map((x) => x.key), [b.slug]);
+  });
+});
+
+test('a reading order is reordered and re-typed through the endpoint', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const p = r.body.projects.find((x) => x.editorial && x.editorial.seq.length > 2);
+    const seq = p.editorial.seq;
+
+    r = await post({
+      action: 'editorial', slug: p.slug,
+      seq: [{ t: 's', i: seq[1].i.slice(0, 1), w: 64, a: 'r' }, seq[0], ...seq.slice(2)],
+    });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true);
+
+    const site = draftSite(repo);
+    const after = site.EDITORIAL[p.slug];
+    assert.equal(after.seq[0].t, 's');
+    assert.equal(after.seq[0].w, 64);
+    assert.equal(after.seq[0].a, 'r');
+    assert.equal(after.rhythm, p.editorial.rhythm, 'the rhythm is kept');
+    assert.equal(JSON.stringify(after).includes('images/'), false, 'no path leaked into EDITORIAL');
+  });
+});
+
+test('a reading order that points at a missing image is refused', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const p = r.body.projects.find((x) => x.editorial);
+    r = await post({ action: 'editorial', slug: p.slug, seq: [{ t: 'f', i: [p.media.length + 9] }] });
+    assert.equal(r.body.ok, false);
+    assert.ok(r.body.errors.some((e) => e.field === 'editorial'), JSON.stringify(r.body.errors));
+    assert.equal(repo.commits.length, 0, 'nothing was written');
+  });
+});
+
+test('reordering the catalogue regenerates counters and the next chain', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const order = r.body.projects.map((p) => p.slug);
+    const moved = [order[4], ...order.filter((s) => s !== order[4])];
+
+    r = await post({ action: 'reorder', order: moved });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true);
+    assert.deepEqual(r.body.files.sort(), ['project.html', 'work.html']);
+
+    const site = draftSite(repo);
+    assert.deepEqual(site.order, moved);
+    moved.forEach((slug, i) => {
+      assert.equal(site.DATA[slug].counter, `${String(i + 1).padStart(2, '0')} / ${moved.length}`, slug);
+      assert.equal(site.DATA[slug].next, moved[(i + 1) % moved.length], slug);
+    });
+    assert.deepEqual(Object.keys(site.names), moved, 'the index order followed');
+  });
+});
+
+test('a project is created, listed, ordered and given its own page', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const gallery = r.body.projects[0].media.slice(0, 3);
+    const was = r.body.projects.length;
+
+    r = await post({
+      action: 'addProject',
+      project: {
+        title: 'Riverside Pavilion', eyebrow: 'Community', location: 'Edmonton, AB',
+        scope: 'Architecture', status: 'Concept',
+        lede: 'A pavilion on the bank.', body: 'The long description.',
+        heroSrc: gallery[0], gallery, rhythm: 'Linear',
+      },
+    });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.slug, 'riverside-pavilion');
+    assert.equal(r.body.changed, true);
+    assert.deepEqual(r.body.files.sort(), ['project.html', 'work.html']);
+
+    const site = draftSite(repo);
+    assert.equal(site.order.length, was + 1);
+    assert.equal(site.DATA['riverside-pavilion'].title, 'Riverside Pavilion');
+    assert.deepEqual(site.names['riverside-pavilion'].thumb, gallery[0]);
+    assert.equal(site.EDITORIAL['riverside-pavilion'].rhythm, 'Linear');
+    // counters across the whole catalogue were regenerated to the new total
+    for (const slug of site.order) {
+      assert.match(site.DATA[slug].counter, new RegExp(` / ${site.order.length}$`), slug);
+    }
+
+    r = await post({ action: 'projects' });
+    assert.equal(r.body.projects.length, was + 1);
+    assert.ok(r.body.projects.find((p) => p.slug === 'riverside-pavilion'));
+  });
+});
+
+test('a duplicate project address is refused', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    const r0 = await post({ action: 'projects' });
+    const existing = r0.body.projects[0];
+    const r = await post({ action: 'addProject', project: { title: existing.title, eyebrow: 'x', location: 'y' } });
+    assert.equal(r.status, 400);
+    assert.equal(r.body.error, 'A project with that address already exists.');
+    assert.equal(repo.commits.length, 0);
+
+    const blank = await post({ action: 'addProject', project: { title: '   ' } });
+    assert.equal(blank.status, 400);
+    assert.equal(blank.body.error, 'Give the project a title.');
+  });
+});
+
+// --- media --------------------------------------------------------------
+
+test('media reports dimensions, usage, unused files and broken references', async () => {
+  await withControl({}, async ({ post, signIn }) => {
+    await signIn();
+    const r = await post({ action: 'media' });
+    assert.equal(r.status, 200);
+    assert.ok(Array.isArray(r.body.unused));
+    assert.ok(Array.isArray(r.body.missing));
+    assert.ok(r.body.projects.length, 'it can name the projects a file is used by');
+    for (const f of r.body.files) {
+      assert.ok(f.path.startsWith('images/'));
+      assert.ok(Array.isArray(f.usedBy));
+      assert.equal(typeof f.isHero, 'boolean');
+    }
+  });
+});
+
+test('an image still used by a project is not deleted', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    const list = await post({ action: 'projects' });
+    const inUse = list.body.projects[0].heroSrc;
+
+    let r = await post({ action: 'removeMedia', path: inUse });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.blocked, true, 'it stops and names what uses it');
+    assert.ok(r.body.usedBy.length);
+    assert.equal(gh.made('DELETE', /\/contents\//).length, 0, 'nothing was deleted');
+
+    // and confirming does not force it through either
+    r = await post({ action: 'removeMedia', path: inUse, confirmed: true });
+    assert.equal(r.status, 409);
+    assert.match(r.body.error, /still used by/);
+    assert.equal(gh.made('DELETE', /\/contents\//).length, 0);
+    assert.equal(repo.commits.length, 0);
+  });
+});
+
+test('an unused image is removed, and a hostile path is not', async () => {
+  await withControl({ images: [{ type: 'file', name: 'orphan.jpg', size: 900 }] }, async ({ post, signIn, gh }) => {
+    await signIn();
+    const r = await post({ action: 'removeMedia', path: 'images/orphan.jpg' });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true);
+    assert.equal(gh.made('DELETE', /\/contents\//).length, 1);
+
+    for (const bad of ['../../netlify.toml', 'images/../../x.jpg', 'lib/github.mjs']) {
+      const out = await post({ action: 'removeMedia', path: bad });
+      assert.equal(out.status, 400, bad);
+      assert.equal(out.body.error, 'That is not an image this site owns.', bad);
+    }
+    assert.equal(gh.made('DELETE', /\/contents\//).length, 1, 'no extra delete');
+  });
+});
+
+test('the design system is reference only', async () => {
+  await withControl({}, async ({ post, signIn, gh }) => {
+    await signIn();
+    const r = await post({ action: 'design' });
+    assert.equal(r.status, 200);
+    assert.deepEqual(r.body.design.grounds.map((g) => g.value), ['#F3F1EA', '#121110', '#C0431F']);
+    assert.equal(r.body.design.ink.value, '#171613');
+    assert.equal(r.body.design.typeface.name, 'Urbanist');
+    assert.equal(r.body.design.rail.value, '1760px');
+    assert.equal(r.body.design.hairline.value, '0.5px');
+    assert.equal(gh.calls.length, 0, 'it reads nothing and writes nothing');
+    // there is no action that changes any of it
+    const w = await post({ action: 'saveDesign', design: { rail: '900px' } });
+    assert.equal(w.status, 400);
+    assert.equal(w.body.error, 'Unknown action.');
+  });
+});
+
+test('every structural edit obeys the stale-draft guard', async () => {
+  const edits = [
+    { action: 'hero', src: null },
+    { action: 'moveImage', from: 0, to: 1 },
+    { action: 'related', related: [] },
+    { action: 'reorder', order: [] },
+  ];
+  for (const edit of edits) {
+    await withControl({}, async ({ post, signIn, gh, repo }) => {
+      await signIn();
+      const list = await post({ action: 'projects' });
+      const p = list.body.projects.find((x) => x.media.length > 1);
+      const body = { ...edit, slug: p.slug };
+      if (edit.action === 'hero') body.src = p.media[1];
+      if (edit.action === 'reorder') body.order = list.body.projects.map((x) => x.slug).reverse();
+
+      let resolves = 0;
+      gh.hook(/\/git\/ref\/heads\/control%2Fdraft$/, (r) => {
+        resolves += 1;
+        if (resolves === 2) gh.pushOutside({ 'project.html': r.draft['project.html'] + '\n<!-- other -->' });
+      });
+      const r = await post(body);
+      assert.equal(r.status, 409, edit.action);
+      assert.equal(r.body.error, 'The draft moved while you were editing.', edit.action);
+      assert.equal(gh.made('POST', /\/git\/commits$/).length, 0, edit.action + ' wrote something');
+    });
+  }
 });
