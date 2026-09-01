@@ -316,6 +316,86 @@ html.xh * { cursor: none !important; }
 .sketch-toolbar button:first-child.is-active::after { left: 0; }
 button:disabled { cursor: default !important; opacity: .28; }
 
+.stencil-panel {
+  display: flex;
+  align-items: stretch;
+  min-height: 76px;
+  overflow: hidden;
+  border-bottom: .5px solid var(--rule);
+}
+.stencil-panel[hidden] { display: none; }
+.stencil-panel > .context-label {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+.stencil-categories,
+.stencil-choices,
+.stencil-options {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+.stencil-categories {
+  flex: 0 0 auto;
+  border-right: .5px solid var(--rule);
+}
+.stencil-choices {
+  flex: 1 1 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.stencil-choices::-webkit-scrollbar { display: none; }
+.stencil-options {
+  flex: 0 0 auto;
+  margin-left: auto;
+  border-left: .5px solid var(--rule);
+}
+.stencil-panel button {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 62px;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.stencil-panel button + button { border-left: .5px solid var(--rule); }
+.stencil-panel button:hover,
+.stencil-panel button.is-active { color: var(--ink); }
+.stencil-panel button.is-active::after {
+  position: absolute;
+  right: 11px;
+  bottom: 7px;
+  left: 11px;
+  height: 1px;
+  background: currentColor;
+  content: '';
+}
+.stencil-choice {
+  display: grid;
+  grid-template-rows: 42px auto;
+  place-items: center;
+  min-width: 82px !important;
+  padding: 7px 12px 9px !important;
+}
+.stencil-choice canvas {
+  display: block;
+  width: 58px;
+  height: 36px;
+}
+.stencil-options button { min-width: 76px; }
+
+.draw-stage[data-tool='stencil'] .draw-cursor {
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+}
+
 .draw-stage {
   position: relative;
   width: 100%;
@@ -644,6 +724,13 @@ html.dm .sketch-header { background: color-mix(in srgb, var(--paper) 92%, transp
   .sketch-tools, .sketch-actions { overflow-x: auto; }
   .sketch-toolbar button { flex: 0 0 auto; padding-top: 12px; padding-bottom: 12px; }
   .sketch-toolbar button.is-active::after { bottom: 5px; }
+  .stencil-panel { flex-wrap: wrap; min-height: 0; }
+  .stencil-panel > .context-label { display: none; }
+  .stencil-categories { width: 100%; min-height: 40px; border-right: 0; border-bottom: .5px solid var(--rule); }
+  .stencil-categories button { flex: 1 1 0; min-width: 0; }
+  .stencil-choices { order: 2; width: 100%; border-top: .5px solid var(--rule); }
+  .stencil-options { flex: 1 1 auto; border-left: .5px solid var(--rule); }
+  .stencil-panel button { min-height: 42px; }
   .draw-stage { height: 64svh; min-height: 440px; }
   .sketch-ruler { width: min(68vw, 320px); }
   .sketch-workspace-footer { align-items: flex-start; flex-direction: column; gap: 0; padding-top: 12px; }

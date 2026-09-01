@@ -1,0 +1,45 @@
+name: Sync Control draft
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-control-draft
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bring Control draft up to date
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          if git fetch origin control/draft:refs/remotes/origin/control/draft; then
+            git checkout -B control/draft refs/remotes/origin/control/draft
+          else
+            git checkout -b control/draft refs/remotes/origin/main
+          fi
+
+          if git merge-base --is-ancestor refs/remotes/origin/main HEAD; then
+            echo "Control draft already contains current main."
+            exit 0
+          fi
+
+          git merge --no-edit refs/remotes/origin/main
+          git push origin HEAD:control/draft

@@ -244,8 +244,15 @@
      markup, a JS-only reveal would have left the hero permanently blank.
      The animation is the safety net: whatever happens, the drawing ends up
      visible. */
+  /* One owner, one fail-safe. install() below runs the drawing's arrival, on a
+     direct load and on every Turbo arrival alike. This animation is the only
+     other thing that touches its opacity, and it is not a second reveal: 1ms
+     at 3.2s, so if the script never ran the drawing ends up visible and
+     nothing is left animating against it. A class-based reveal used to run
+     here as well, and install() had to re-author opacity 0 over the top of it
+     to take the hero back — two systems arriving at the same pixel by
+     different routes. */
   #heroImg { animation:suduHeroFail 1ms linear 3.2s forwards; }
-  #heroImg.hero-in { opacity:1; transition:opacity 1.7s cubic-bezier(.16,1,.3,1); }
   @keyframes suduHeroFail { to { opacity:1; } }
   /* Under reduced motion the page's global rule strips every animation and
      transition, which would take this file's safety net with it — so there the
@@ -299,15 +306,14 @@ function build(){if(document.getElementById('dmSwatches'))return;if(!document.bo
 build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#F3F1EA');},900);})();
 
 (function(){
-  // Reveal the hero drawing once it has decoded. Separate from the motion
-  // engine on purpose: that engine returns early under reduced motion, and the
-  // drawing is authored at opacity:0.
+  // Not a reveal. install() owns the drawing's arrival on every path; this
+  // only guarantees the end state if the drawing errors outright, which is
+  // the one case install()'s decode wait cannot resolve on its own. The CSS
+  // animation covers the rest. Nothing here starts a transition.
   var lit = function () {
     var im = document.getElementById('heroImg');
     if (!im) return false;
-    if (im.complete && im.naturalWidth > 0) { im.classList.add('hero-in'); return true; }
-    im.addEventListener('load', function () { im.classList.add('hero-in'); }, { once: true });
-    im.addEventListener('error', function () { im.classList.add('hero-in'); }, { once: true });
+    im.addEventListener('error', function () { im.style.opacity = '1'; }, { once: true });
     return true;
   };
   var p = function (n) { if (lit() || n > 120) return; requestAnimationFrame(function () { p(n + 1); }); };
@@ -683,7 +689,10 @@ class Component extends DCLogic {
 
   install() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (window.__sudu) { window.__sudu.refresh(); window.__sudu.run(); return; }
+    // A Turbo arrival re-enters here with the engine already built but with a
+    // brand new drawing in the DOM. The arrival has to run on that path too,
+    // or the hero sits at its authored opacity 0 until the CSS fail-safe.
+    if (window.__sudu) { this.heroArrival(window.__sudu); window.__sudu.refresh(); window.__sudu.run(); return; }
 
     const ease = 'cubic-bezier(.16,1,.3,1)';
     const engine = { intro: false };
@@ -829,7 +838,19 @@ class Component extends DCLogic {
         }
       }, { passive: true });
     }
-    // load choreography: hero settles in, caption rises
+    this.heroArrival(engine);
+    window.addEventListener('scroll', engine.run, { passive: true });
+    window.addEventListener('resize', engine.run, { passive: true });
+    engine.refresh();
+    engine.run();
+  }
+
+  // The drawing's arrival, and the caption that follows it. The single owner:
+  // nothing else starts a transition on #heroImg. Idempotent per element, so
+  // it runs once for each drawing that reaches the page and never twice for
+  // the same one.
+  heroArrival(engine) {
+    const ease = 'cubic-bezier(.16,1,.3,1)';
     const hi = document.getElementById('heroImg');
     const hf = document.getElementById('heroFoot');
     if (hi && !hi._intro) {
@@ -851,7 +872,7 @@ class Component extends DCLogic {
       const start = () => {
         if (started) return; started = true;
         requestAnimationFrame(() => requestAnimationFrame(() => {
-          hi.style.transition = 'opacity 1.7s ' + ease;
+          hi.style.transition = 'opacity 1.9s ' + ease;
           hi.style.opacity = '1';
           if (hf) {
             hf.style.transition = 'opacity 1.4s ' + ease + ', transform 1.6s ' + ease;
@@ -866,10 +887,6 @@ class Component extends DCLogic {
       if (hi.complete && hi.naturalWidth) start();
       else { hi.addEventListener('load', start, { once: true }); setTimeout(start, 8000); }
     }
-    window.addEventListener('scroll', engine.run, { passive: true });
-    window.addEventListener('resize', engine.run, { passive: true });
-    engine.refresh();
-    engine.run();
   }
 
   renderVals() {

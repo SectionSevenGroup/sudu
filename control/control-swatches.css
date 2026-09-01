@@ -1,0 +1,8 @@
+/* Control's CSP deliberately blocks inline styles. The Design System view
+   previously tried to colour these chips with inline background declarations,
+   so every swatch rendered as the off-white page ground. Keep the CSP strict
+   and author the four fixed design tokens here instead. */
+#designPanel > .panel:first-of-type .swatch:nth-child(1) .swatch-chip { background: #F3F1EA !important; }
+#designPanel > .panel:first-of-type .swatch:nth-child(2) .swatch-chip { background: #121110 !important; }
+#designPanel > .panel:first-of-type .swatch:nth-child(3) .swatch-chip { background: #C0431F !important; }
+#designPanel > .panel:first-of-type .swatch:nth-child(4) .swatch-chip { background: #171613 !important; }

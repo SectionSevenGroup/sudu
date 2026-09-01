@@ -16,11 +16,32 @@ test('edit mode exposes grid-snapped resize anchors for walls, rooms and areas',
   const page = await readFile(new URL('../sketch/index.html', import.meta.url), 'utf8');
 
   assert.match(page, /data-tool="edit"[^>]+aria-keyshortcuts="V"/);
-  assert.match(script, /\['line', 'room', 'area'\]\.indexOf\(object\.type\)/);
+  assert.match(script, /\['line', 'room', 'area', 'stencil'\]\.indexOf\(object\.type\)/);
   assert.match(script, /function objectAnchors\(object\)/);
   assert.match(script, /function drawSelection\(target, object\)/);
   assert.match(script, /pointFromEvent\(event, true\)/);
   assert.match(script, /if \(changed\) remember\(previous\);/);
+});
+
+test('architectural templates place, persist, restyle, rotate, move and resize', async () => {
+  const script = await readFile(new URL('../js/sketch.js', import.meta.url), 'utf8');
+  const page = await readFile(new URL('../sketch/index.html', import.meta.url), 'utf8');
+
+  assert.match(page, /data-tool="stencil"[^>]+aria-keyshortcuts="T"/);
+  assert.match(page, /data-stencil-category="cars"/);
+  assert.match(page, /data-stencil-category="trees"/);
+  assert.match(page, /data-stencil-category="furniture"/);
+  assert.match(page, /data-stencil-style="outline"/);
+  assert.match(page, /data-stencil-style="solid"/);
+  assert.match(page, /data-action="rotate-template"/);
+  assert.match(script, /type: 'stencil'/);
+  assert.match(script, /function drawStencilGlyph\(/);
+  assert.match(script, /function drawStencil\(/);
+  assert.match(script, /function stencilBounds\(/);
+  assert.match(script, /function beginMove\(/);
+  assert.match(script, /function moveSelected\(/);
+  assert.match(script, /function rotateTemplate\(/);
+  assert.match(script, /SOLID_BLACK = '#171613'/);
 });
 
 test('the sketch keeps independent layered drawings for three floors', async () => {
