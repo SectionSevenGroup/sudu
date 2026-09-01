@@ -1,11 +1,26 @@
+/* Ground, ink and line, per the site's design tokens.
+   Two families on purpose. Content tokens (--ink, --muted, --faint) follow
+   the ground and flip to dark ink on Burnt, the way section copy does on
+   every other page. Chrome tokens (--chrome-*) belong to the header and
+   footer, which the site keeps on one off-white ink across BOTH dark
+   grounds. Wiring the header to --ink is what made it go dark on Burnt. */
 :root {
   --paper: #F3F1EA;
   --ink: #171613;
   --muted: #67655D;
   --faint: #A6A399;
-  --rule: rgba(23, 22, 19, 0.16);
-  --rule-strong: rgba(23, 22, 19, 0.34);
-  --accent: #C0431F;
+  --rule: rgba(23, 22, 19, .13);
+  --rule-strong: rgba(23, 22, 19, .34);
+  /* hover and selection, matching what the site ships */
+  --accent: #E17B3E;
+  /* the focus ring is held at Burnt: #E17B3E measures 2.62:1 on this ground,
+     under the 3:1 floor for non-text contrast. Burnt measures 4.57:1. */
+  --focus: #C0431F;
+  --chrome-ink: #171613;
+  --chrome-ink-quiet: #A6A399;
+  --chrome-rule: rgba(23, 22, 19, .13);
+  --chrome-backdrop: none;
+  --mark-filter: none;
 }
 
 html {
@@ -30,7 +45,7 @@ a { color: inherit; text-decoration: none; }
 button, input, textarea { font: inherit; color: inherit; }
 button { border: 0; background: none; }
 ::selection { background: var(--accent); color: var(--paper); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 
 html.xh,
 html.xh * { cursor: none !important; }
@@ -79,12 +94,17 @@ html.xh * { cursor: none !important; }
   gap: 16px;
   padding-top: 34px;
   padding-bottom: 30px;
-  background: rgba(243, 241, 234, 0.94);
-  border-bottom: 0.5px solid transparent;
-  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  border-bottom: .5px solid transparent;
+  /* none on the off-white ground, so no compositing layer is created there and
+     the header matches the site's unblurred light header. Not blur(0px): that
+     still forces a backdrop root. */
+  -webkit-backdrop-filter: var(--chrome-backdrop);
+  backdrop-filter: var(--chrome-backdrop);
+  color: var(--chrome-ink);
 }
 
-.sketch-header.is-scrolled { border-bottom-color: var(--rule); }
+.sketch-header.is-scrolled { border-bottom-color: var(--chrome-rule); }
 .sketch-header img { display: block; width: auto; height: 38px; }
 .sketch-header nav { display: flex; align-items: flex-end; gap: clamp(16px, 2.6vw, 30px); }
 .sketch-header nav a {
@@ -95,6 +115,7 @@ html.xh * { cursor: none !important; }
   line-height: 1.4;
   transition: border-color .3s ease, color .3s ease;
 }
+.sketch-header nav a { color: var(--chrome-ink); }
 .sketch-header nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
 .sketch-main {
@@ -678,37 +699,63 @@ button:disabled { cursor: default !important; opacity: .28; }
   gap: 12px 24px;
   padding-top: 20px;
   padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-  border-top: .5px solid var(--rule);
-  color: var(--faint);
+  border-top: .5px solid var(--chrome-rule);
+  color: var(--chrome-ink-quiet);
   font-size: 10.5px;
 }
 .sketch-footer > div { display: flex; align-items: center; gap: 12px; }
 .sketch-footer img { display: block; width: auto; height: 19px; opacity: .85; }
-.footer-rule { width: 1px; height: 14px; background: var(--rule-strong); }
+.footer-rule { width: 1px; height: 14px; background: var(--chrome-rule); }
 
-/* The sketch uses semantic drawing colours rather than the site's legacy
-   body-filter inversion. Geometry, grid and controls therefore remain
-   authored on each ground, and the canvas can export what the visitor saw. */
+/* The sketch uses semantic drawing colours rather than the site's body-filter
+   inversion. Geometry, grid and controls stay authored on each ground, so the
+   canvas can export what the visitor saw. Do not reintroduce the filter. */
 html.dm body,
 html.dm body * { filter: none !important; }
-html.dm.dmwarm {
+html.dm.dmwarm {                    /* Burnt */
   --paper: #C0431F;
   --ink: #171613;
-  --muted: rgba(23, 22, 19, .68);
-  --faint: rgba(23, 22, 19, .48);
-  --rule: rgba(23, 22, 19, .18);
-  --rule-strong: rgba(23, 22, 19, .38);
+  --muted: rgba(23, 22, 19, .78);
+  --faint: rgba(23, 22, 19, .60);
+  --rule: rgba(23, 22, 19, .24);
+  --rule-strong: rgba(23, 22, 19, .42);
+  /* the site forces section links to ink on this ground; #E17B3E on Burnt is
+     unreadable, so the accent follows the site's rendered result, not its
+     declared value */
+  --accent: #171613;
+  --focus: #171613;
 }
-html.dm:not(.dmwarm) {
+html.dm:not(.dmwarm) {              /* Charcoal */
   --paper: #121110;
   --ink: #F5F3EC;
-  --muted: rgba(245, 243, 236, .68);
-  --faint: rgba(245, 243, 236, .48);
+  --muted: rgba(245, 243, 236, .72);
+  --faint: rgba(245, 243, 236, .54);
   --rule: rgba(245, 243, 236, .18);
   --rule-strong: rgba(245, 243, 236, .38);
+  --accent: #E17B3E;
+  --focus: #E17B3E;
+}
+/* Chrome, on both dark grounds. The site keeps header and footer on one
+   off-white ink here while section content flips, so these are set once for
+   html.dm rather than per ground. */
+html.dm {
+  --chrome-ink: #F5F3EC;
+  --chrome-ink-quiet: #F5F3EC;
+  --chrome-rule: rgba(245, 243, 236, .45);
+  --chrome-backdrop: blur(10px);
 }
 html.dm body { background: var(--paper) !important; color: var(--ink) !important; }
-html.dm .sketch-header { background: color-mix(in srgb, var(--paper) 92%, transparent); }
+/* --dm-bg is written inline on <html> by js/chrome-bar.js, so taking the
+   header ground from it guarantees the header and the bottom chrome bar sit
+   on exactly the same hue. --paper is the fallback if the bar never loaded. */
+html.dm .sketch-header {
+  background: color-mix(in srgb, var(--dm-bg, var(--paper)) 90%, transparent);
+}
+/* The mark is dark artwork on transparent and disappears on Charcoal.
+   These need !important at (0,2,2) to beat the blanket `html.dm body *`
+   filter reset above, which is (0,1,2) !important. */
+html.dm .sketch-header img,
+html.dm .sketch-footer img { filter: invert(1) !important; }
 
 @media (max-width: 760px) {
   .sketch-main { padding-top: 120px; }
