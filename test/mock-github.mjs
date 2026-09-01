@@ -81,7 +81,8 @@ export function mockGitHub(options = {}) {
 
     const failure = repo.failures.find((f) => f.match.test(path));
     if (failure) {
-      repo.failures.splice(repo.failures.indexOf(failure), 1);
+      failure.times -= 1;
+      if (failure.times <= 0) repo.failures.splice(repo.failures.indexOf(failure), 1);
       if (failure.thrown) throw new Error(failure.thrown);
       return ok({ message: failure.message }, failure.status || 500);
     }
@@ -185,8 +186,9 @@ export function mockGitHub(options = {}) {
     env: { ...ENV },
     // the requests Control made, filtered
     made: (method, re) => calls.filter((c) => c.method === method && re.test(c.path)),
-    failNext(match, status, message) { repo.failures.push({ match, status, message }); },
-    throwNext(match, message) { repo.failures.push({ match, thrown: message }); },
+    // times: how many matching requests fail before it heals (default one)
+    failNext(match, status, message, times = 1) { repo.failures.push({ match, status, message, times }); },
+    throwNext(match, message) { repo.failures.push({ match, thrown: message, times: 1 }); },
     // run fn before any request whose path matches — the way to move the
     // branch underneath Control while it is part-way through a save
     hook(match, fn) { repo.hooks.push({ match, fn }); },

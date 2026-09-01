@@ -105,10 +105,48 @@ for (const tab of document.querySelectorAll('.tab')) {
   tab.addEventListener('click', () => go(tab.dataset.view));
 }
 
+// The draft has four honest states, and the interface never conflates them:
+// nothing saved, saved but its review could not be opened, saved and building,
+// saved and ready. A save that reached the branch is never described as a
+// save that did not happen.
+function draftStatus(s) {
+  if (!s || s.unknown) return { key: 'unknown', label: 'Draft saved · state unknown' };
+  if (!s.hasChanges) return { key: 'none', label: 'No draft' };
+  if (s.review === 'failed') return { key: 'review', label: 'Draft saved · review needs attention' };
+  const deploy = s.deploy && s.deploy.state;
+  if (deploy === 'success') return { key: 'ready', label: 'Draft saved · preview ready' };
+  if (deploy === 'failure' || deploy === 'error') return { key: 'failed', label: 'Draft saved · preview failed' };
+  return { key: 'building', label: 'Draft saved · preview building' };
+}
+
 function footState(s) {
-  $('#footState').textContent = s.hasChanges
-    ? `Draft · ${s.aheadBy} change${s.aheadBy === 1 ? '' : 's'}`
-    : 'No draft';
+  const status = draftStatus(s);
+  $('#footState').textContent = status.key === 'none'
+    ? 'No draft'
+    : (s.hasChanges && status.key !== 'unknown'
+        ? `${status.label} · ${s.aheadBy} change${s.aheadBy === 1 ? '' : 's'}`
+        : status.label);
+}
+
+// Shown wherever the draft is described, when its review could not be opened.
+const reviewNotice = `
+  <div class="notice">
+    <p class="notice-title">Draft saved. The review pull request could not be opened yet.</p>
+    <p class="hint">Your change is safe on the draft branch — nothing was lost, and nothing was
+       written to the live site. Netlify builds the preview from that pull request, so publishing
+       stays closed until it exists. This usually means the Control GitHub token is missing the
+       <strong>Pull requests: read and write</strong> permission.</p>
+    <div class="actions"><button class="button" data-retry-review>Retry review setup</button></div>
+  </div>`;
+
+function wireRetry(reload) {
+  for (const b of document.querySelectorAll('[data-retry-review]')) {
+    b.addEventListener('click', async () => {
+      b.disabled = true;
+      try { await call('status'); toast('Checked again'); reload(); }
+      catch (e) { toast(e.message); b.disabled = false; }
+    });
+  }
 }
 
 // ------------------------------------------------------------------ overview
@@ -117,19 +155,23 @@ async function loadOverview() {
   $('#overviewDraft').innerHTML = '<p class="hint">Reading the site…</p>';
   const { state: s, projects } = await call('overview');
   footState(s);
+  const status = draftStatus(s);
   $('#overviewFacts').innerHTML = [
     ['Projects', projects],
     ['Draft', s.hasChanges ? `${s.aheadBy} change${s.aheadBy === 1 ? '' : 's'}` : 'None'],
+    ['Review', s.review === 'failed' ? 'Needs attention' : (s.review === 'ready' ? 'Open' : '—')],
     ['Preview', s.deploy ? s.deploy.state : '—'],
     ['Site changed since', s.behindBy > 0 ? `${s.behindBy} behind` : 'Up to date'],
   ].map(([k, v]) => `<div><dt>${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join('');
 
   $('#overviewDraft').innerHTML = s.hasChanges
-    ? `<p>These files are waiting in the draft:</p>
+    ? `${status.key === 'review' ? reviewNotice : ''}
+       <p>These files are waiting in the draft:</p>
        <ul class="hint">${s.files.map((f) => `<li>${escape(f)}</li>`).join('')}</ul>
        <div class="actions"><button class="button" data-goto="publish">Go to publish</button></div>`
     : '<p class="hint">Nothing is waiting. The live site and the draft are the same.</p>';
   wireGotos();
+  wireRetry(loadOverview);
 }
 
 function wireGotos() {
@@ -267,10 +309,26 @@ async function saveProject() {
       return;
     }
     state.dirty = false;
-    $('#projectDirty').textContent = 'Saved to draft';
-    $('#projectDirty').className = 'hint';
     footState(res.state);
-    toast(res.changed ? 'Saved to draft' : 'Nothing changed');
+    if (!res.changed) {
+      $('#projectDirty').textContent = 'Nothing changed';
+      $('#projectDirty').className = 'hint';
+      toast('Nothing changed');
+      return;
+    }
+    // The commit landed. Say so first, then say what did or did not follow it.
+    if (res.review === 'failed') {
+      $('#projectDirty').textContent = 'Draft saved · review needs attention';
+      $('#projectDirty').className = 'hint dirty';
+      err.innerHTML = reviewNotice;
+      err.hidden = false;
+      wireRetry(() => { err.hidden = true; });
+      toast('Draft saved — review setup failed');
+      return;
+    }
+    $('#projectDirty').textContent = draftStatus(res.state).label;
+    $('#projectDirty').className = 'hint';
+    toast('Saved to draft');
   } catch (e) {
     err.textContent = e.message;
     err.hidden = false;
@@ -333,18 +391,23 @@ async function loadPublish() {
   const deploy = s.deploy || { state: 'pending', description: '' };
   const ready = deploy.state === 'success';
   const stale = s.behindBy > 0;
+  const status = draftStatus(s);
   $('#publishPanel').innerHTML = `
+    ${status.key === 'review' ? reviewNotice : ''}
     <p class="field-label">Draft</p>
     <p>${s.aheadBy} change${s.aheadBy === 1 ? '' : 's'} across ${s.files.length} file${s.files.length === 1 ? '' : 's'}.</p>
     <ul class="hint">${s.files.map((f) => `<li>${escape(f)}</li>`).join('')}</ul>
     ${stale ? `<p class="error">The site changed after this draft was started, so publishing would undo that work. Bring the draft up to date first.</p>
                <div class="actions"><button class="button" id="reconcile">Bring the draft up to date</button></div>` : ''}
-    <p class="hint">Preview: ${escape(deploy.description || deploy.state)}</p>
+    <p class="hint">Preview: ${escape(status.key === 'review'
+      ? 'waiting on the review pull request'
+      : (deploy.description || deploy.state))}</p>
     <div class="actions">
       ${ready && deploy.url ? `<a class="button" href="${escape(deploy.url)}" target="_blank" rel="noopener">Open preview</a>` : ''}
       <button class="button button-go" id="publish" ${s.canPublish ? '' : 'disabled'}>Publish</button>
       ${!ready ? '<span class="hint">Publishing stays closed until the preview builds.</span>' : ''}
     </div>`;
+  wireRetry(loadPublish);
   const rec = $('#reconcile');
   if (rec) rec.addEventListener('click', async () => {
     rec.disabled = true;

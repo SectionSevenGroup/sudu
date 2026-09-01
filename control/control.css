@@ -150,3 +150,20 @@ input:hover, textarea:hover { border-bottom-color: var(--ink); }
   .button { width: 100%; justify-content: center; }
   .actions .link { width: 100%; text-align: center; }
 }
+
+/* --- a truthful notice ---------------------------------------------- */
+/* The draft reached the branch but something after it did not. This reads as
+   information, not as an error: the burnt rule marks it, the ground stays. */
+.notice {
+  border-left: 2px solid var(--burnt);
+  padding: 2px 0 2px 18px;
+  margin: 0 0 26px;
+}
+.notice-title {
+  margin: 0 0 6px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.notice .hint { margin: 0 0 14px; max-width: 62ch; }
+.notice .actions { margin: 0; }
+.notice strong { font-weight: 600; color: var(--ink); }

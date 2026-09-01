@@ -13,6 +13,8 @@ import * as model from '../../lib/content-model.mjs';
 import { client } from '../../lib/github.mjs';
 import { publicError, publicPartsOf, redactSecrets } from '../../lib/public-error.mjs';
 
+const env = () => process.env;
+
 const json = (status, body, extra = {}) => new Response(JSON.stringify(body), {
   status,
   headers: {
@@ -84,9 +86,40 @@ async function saveSite(gh, before, after, message) {
   if (!files.length) return { changed: false };
   // If the draft has moved since `before` was read, this refuses rather than
   // writing stale content forward.
-  await gh.commit(files, message, before.parent);
-  await gh.ensurePR();
-  return { changed: true, files: files.map((f) => f.path) };
+  const sha = await gh.commit(files, message, before.parent);
+  // Past this line the edit is on the branch. Opening the review pull request
+  // is a separate step under a separate GitHub permission, and if it fails the
+  // work is still saved — so it is reported, never turned into a failure that
+  // tells the editor nothing happened. state() retries it on every read.
+  let review = 'ready';
+  try {
+    await gh.ensurePR();
+  } catch (e) {
+    console.error('control: draft committed, review setup failed',
+      e && e.status ? e.status : '', redactSecrets(e && e.message, env()));
+    review = 'failed';
+  }
+  return { changed: true, files: files.map((f) => f.path), sha, review };
+}
+
+// Reading state back after a write is a convenience, not the write. If it
+// fails, the editor still has to be told the truth about what was saved, so
+// the missing state is reported as unknown rather than thrown.
+async function stateAfterWrite(gh, written) {
+  try {
+    return await gh.state();
+  } catch (e) {
+    console.error('control: wrote the draft, could not read its state back',
+      e && e.status ? e.status : '', redactSecrets(e && e.message, env()));
+    return { unknown: true, review: written.review, hasChanges: true, canPublish: false };
+  }
+}
+
+// Reading state back also retries the review, so it can heal what the write
+// path could not. Its answer is the later one and therefore the true one.
+async function settle(gh, written) {
+  const state = await stateAfterWrite(gh, written);
+  return { review: state.unknown ? written.review : state.review, state };
 }
 
 const actions = {
@@ -125,7 +158,7 @@ const actions = {
     if (errors.length) return { ok: false, errors };
     next = model.reindex(next);
     const result = await saveSite(gh, before, next, `Update ${next.DATA[slug].title}`);
-    return { ok: true, ...result, state: await gh.state() };
+    return { ok: true, ...result, ...(await settle(gh, result)) };
   },
 
   async media(gh) {
@@ -159,9 +192,16 @@ const actions = {
     // Control uses before anything is written
     if (model.safeMediaPath(path) !== path) throw publicError('That filename cannot be used.');
     const parent = await gh.resolveDraft();
-    await gh.commit([{ path, content: bytes.toString('base64'), encoding: 'base64' }], `Add image ${path.split('/').pop()}`, parent);
-    await gh.ensurePR();
-    return { ok: true, path, state: await gh.state() };
+    const written = { changed: true, files: [path], review: 'ready' };
+    written.sha = await gh.commit([{ path, content: bytes.toString('base64'), encoding: 'base64' }], `Add image ${path.split('/').pop()}`, parent);
+    try {
+      await gh.ensurePR();
+    } catch (e) {
+      console.error('control: image committed, review setup failed',
+        e && e.status ? e.status : '', redactSecrets(e && e.message, env()));
+      written.review = 'failed';
+    }
+    return { ok: true, path, ...written, ...(await settle(gh, written)) };
   },
 
   status: (gh) => gh.state().then((state) => ({ state })),

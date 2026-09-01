@@ -770,3 +770,116 @@ test('a real edit carrying hidden fields writes only the real edit', async () =>
     assert.deepEqual(after.order, before.order, 'the index order is untouched');
   });
 });
+
+// --- a commit that lands and a review that does not --------------------
+//
+// Committing and opening a pull request are two GitHub permissions, so the
+// second can fail with the first already done. The branch really moved, and
+// telling the editor nothing changed is a lie that costs them their work.
+
+// The exact shape of the failure the live site hit: committing is one GitHub
+// permission and opening a pull request is another, so POST /pulls 403s on
+// its own. `times` is how many attempts fail before the permission is there.
+const prForbidden = (gh, times = 99) =>
+  gh.failNext(/\/pulls$/, 403, 'Resource not accessible by personal access token', times);
+
+test('a save whose review cannot be opened is reported as saved', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'projects' });
+    prForbidden(gh);
+
+    const r = await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'Saved even so.' } });
+
+    assert.equal(r.status, 200, 'not an error: the work is on the branch');
+    assert.equal(r.body.changed, true);
+    assert.equal(r.body.review, 'failed');
+    assert.deepEqual(r.body.files, ['project.html']);
+    assert.equal(repo.commits.length, 1, 'the commit is real');
+    assert.equal(repo.draftSha, r.body.sha, 'and the branch points at it');
+
+    // the edit reads back, so nothing was rolled back or destroyed
+    const back = await post({ action: 'projects' });
+    assert.equal(back.body.projects.find((p) => p.slug === anySlug).lede, 'Saved even so.');
+  });
+});
+
+test('the next look at state retries the review and heals the draft', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'projects' });
+    prForbidden(gh, 2);            // the save's attempt and its read-back retry
+    let r = await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'First attempt.' } });
+    assert.equal(r.body.changed, true, 'the commit landed');
+    assert.equal(r.body.review, 'failed');
+    assert.equal(repo.pr, null, 'no pull request yet');
+
+    // the permission is granted, or the outage passes; the next read retries
+    r = await post({ action: 'status' });
+    assert.equal(r.body.state.review, 'ready');
+    assert.equal(r.body.state.pr.number, 99);
+    assert.equal(repo.commits.length, 1, 'and it did not commit anything to do it');
+  });
+});
+
+test('state reports a failed review instead of failing the whole request', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'On the branch.' } });
+    repo.pr = null;                       // the pull request is closed or gone
+    prForbidden(gh);
+
+    const r = await post({ action: 'status' });
+    assert.equal(r.status, 200, 'the editor can still see their draft');
+    assert.equal(r.body.state.review, 'failed');
+    assert.equal(r.body.state.hasChanges, true);
+    assert.equal(r.body.state.aheadBy, 1);
+    assert.equal(r.body.state.canPublish, false, 'publishing stays closed without a review');
+  });
+});
+
+test('an existing draft with no pull request is adopted, not overwritten', async () => {
+  // exactly the state the site is in: a commit on control/draft, no PR
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    const orphan = gh.pushOutside({ 'project.html': repo.files['project.html'].replace('SuDu', 'SuDu') });
+    repo.pr = null;
+
+    const r = await post({ action: 'overview' });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.state.hasChanges, true, 'the existing draft is seen');
+    assert.equal(r.body.state.aheadBy, 1);
+    assert.equal(repo.draftSha, orphan, 'and left exactly where it was');
+    assert.equal(r.body.state.review, 'ready', 'its review was opened for it');
+    assert.equal(r.body.state.pr.number, 99);
+    assert.equal(repo.commits.length, 1, 'nothing was committed to adopt it');
+  });
+});
+
+test('an upload whose review cannot be opened is also reported as saved', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    prForbidden(gh);
+    const r = await post({ action: 'upload', file: { name: 'a.jpg', type: 'image/jpeg', base64: JPEG } });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.review, 'failed');
+    assert.match(r.body.path, /^images\/a-[a-z0-9]+\.jpg$/);
+    assert.equal(repo.commits.length, 1, 'the image is on the branch');
+  });
+});
+
+test('a state read that fails after a good commit still reports the save', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'projects' });
+    // let the commit through, then break every read that follows it
+    gh.hook(/\/git\/commits$/, () => gh.failNext(/\/compare\//, 500, 'INTERNAL_SHOULD_NEVER_REACH_BROWSER', 99));
+
+    const r = await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'Committed fine.' } });
+    assert.equal(r.status, 200, 'the save is not reported as a failure');
+    assert.equal(r.body.changed, true);
+    assert.equal(repo.commits.length, 1);
+    assert.equal(r.body.state.unknown, true, 'the state is unknown, not false');
+    assert.equal(r.text.includes('INTERNAL_SHOULD_NEVER_REACH_BROWSER'), false);
+  });
+});
