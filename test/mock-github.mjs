@@ -43,13 +43,22 @@ export function mockGitHub(options = {}) {
     images: options.images || [{ type: 'file', name: 'existing.jpg', size: 1234 }],
     // [{match, status, message}] or [{match, thrown}] — forces one failure each
     failures: [],
+    // sha -> the whole file set at that commit, so a read by SHA is a real
+    // read of that commit and not of wherever the branch happens to point
+    snapshots: new Map(),
+    // [{match, fn}] — run before the request is handled, so a test can move
+    // the branch underneath the function mid-request
+    hooks: [],
   };
+  repo.snapshots.set(repo.mainSha, { ...repo.files });
 
   const calls = [];
   const draftFiles = () => {
     if (!repo.draft) { repo.draft = { ...repo.files }; repo.draftSha = repo.mainSha; }
     return repo.draft;
   };
+  // what a ref names: a commit SHA reads that commit, a branch name reads its tip
+  const filesAt = (ref) => repo.snapshots.get(ref) || draftFiles();
   const ok = (data, status = 200) => new Response(JSON.stringify(data), {
     status, headers: { 'content-type': 'application/json' },
   });
@@ -61,6 +70,7 @@ export function mockGitHub(options = {}) {
     const method = init.method || 'GET';
     const body = init.body ? JSON.parse(init.body) : null;
     calls.push({ method, path, body, authorization: (init.headers || {}).Authorization });
+    for (const hook of repo.hooks) if (hook.match.test(path)) hook.fn(repo, { method, path, body });
 
     const failure = repo.failures.find((f) => f.match.test(path));
     if (failure) {
@@ -77,7 +87,8 @@ export function mockGitHub(options = {}) {
     if (/\/contents\/images(\?|$)/.test(path)) return ok(repo.images);
     if (/\/contents\//.test(path)) {
       const name = decodeURIComponent(path.split('/contents/')[1].split('?')[0]);
-      const text = draftFiles()[name];
+      const ref = decodeURIComponent((path.split('?ref=')[1] || '').split('&')[0]);
+      const text = filesAt(ref)[name];
       return text === undefined
         ? ok({ message: 'Not Found' }, 404)
         : ok({ content: Buffer.from(text, 'utf8').toString('base64'), sha: 'blob' });
@@ -96,17 +107,25 @@ export function mockGitHub(options = {}) {
       return ok({ sha });
     }
     if (path.endsWith('/git/commits') && method === 'POST') {
-      const d = draftFiles();
+      const built = { ...filesAt((body.parents || [])[0]) };
       for (const entry of repo.trees.get(body.tree) || []) {
         const blob = repo.blobs.get(entry.sha);
         if (!blob) continue;
         if (blob.binary) repo.images.unshift({ type: 'file', name: entry.path.split('/').pop(), size: blob.bytes.length });
-        else d[entry.path] = blob.text;
+        else built[entry.path] = blob.text;
       }
       repo.commits.push({ message: body.message, parents: body.parents, paths: (repo.trees.get(body.tree) || []).map((e) => e.path) });
-      return ok({ sha: 'c' + repo.commits.length });
+      const sha = 'c' + repo.commits.length;
+      repo.snapshots.set(sha, built);
+      return ok({ sha });
     }
-    if (/\/git\/refs\/heads\//.test(path) && method === 'PATCH') { repo.draftSha = body.sha; return ok({}); }
+    // moving the branch is what makes a commit the draft's content
+    if (/\/git\/refs\/heads\//.test(path) && method === 'PATCH') {
+      repo.draftSha = body.sha;
+      repo.draft = { ...filesAt(body.sha) };
+      if (body.sha === repo.mainSha) repo.behind = 0;   // a fast-forward onto main
+      return ok({});
+    }
     if (/\/pulls\?/.test(path)) return ok(repo.pr ? [repo.pr] : []);
     if (path.endsWith('/pulls') && method === 'POST') {
       repo.pr = { number: 99, html_url: 'https://github.com/SectionSevenGroup/sudu/pull/99' };
@@ -134,6 +153,7 @@ export function mockGitHub(options = {}) {
       repo.draft = null;
       repo.pr = null;
       repo.mainSha = 'merged' + (++repo.merges);
+      repo.snapshots.set(repo.mainSha, { ...repo.files });
       repo.draftSha = null;         // Control is expected to move it back
       return ok({ merged: true, sha: repo.mainSha });
     }
@@ -151,6 +171,18 @@ export function mockGitHub(options = {}) {
     made: (method, re) => calls.filter((c) => c.method === method && re.test(c.path)),
     failNext(match, status, message) { repo.failures.push({ match, status, message }); },
     throwNext(match, message) { repo.failures.push({ match, thrown: message }); },
+    // run fn before any request whose path matches — the way to move the
+    // branch underneath Control while it is part-way through a save
+    hook(match, fn) { repo.hooks.push({ match, fn }); },
+    // somebody else commits to control/draft: a new tip, with different content
+    pushOutside(edits, sha = 'outside' + (repo.commits.length + 1)) {
+      const built = { ...draftFiles(), ...edits };
+      repo.snapshots.set(sha, built);
+      repo.commits.push({ message: 'Someone else', parents: [repo.draftSha], paths: Object.keys(edits) });
+      repo.draftSha = sha;
+      repo.draft = { ...built };
+      return sha;
+    },
     install() { saved = globalThis.fetch; globalThis.fetch = fetchImpl; },
     restore() { if (saved) globalThis.fetch = saved; },
   };

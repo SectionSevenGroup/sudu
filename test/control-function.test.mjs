@@ -291,11 +291,13 @@ test('publishing is closed until the preview itself is green, then it resets the
 });
 
 test('a diverged site is reported, refused and then reconciled', async () => {
-  await withControl({ behind: 3, statuses: [{ context: PREVIEW, state: 'success' }] }, async ({ post, signIn }) => {
+  await withControl({ statuses: [{ context: PREVIEW, state: 'success' }] }, async ({ post, signIn, repo }) => {
     await signIn();
-    await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'Written while behind.' } });
+    await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'Written before main moved.' } });
+    repo.behind = 3;              // someone merges three commits to main afterwards
 
     let r = await post({ action: 'status' });
+    assert.equal(r.body.state.aheadBy, 1, 'the draft carries work');
     assert.equal(r.body.state.behindBy, 3);
     assert.equal(r.body.state.canPublish, false);
 
@@ -429,4 +431,168 @@ test('nothing any case sent back carries a secret', async () => {
   for (const secret of SECRETS) assert.equal(all.includes(secret), false, 'a secret appeared in a response');
   assert.equal(/ghp_|github_pat_|Bearer /.test(all), false, 'a credential shape appeared in a response');
   assert.equal(all.includes(INTERNAL), false, 'internal detail appeared in a response');
+});
+
+// --- the draft moving underneath a save --------------------------------
+//
+// The window is inside one request: Control reads the source, builds the new
+// file, then offers it back. If someone else pushes to control/draft in
+// between, replaying the stale text would silently delete their commit.
+
+test('a save is refused when the draft moved after the source was read', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+
+    // establish the draft and note where it is
+    await post({ action: 'projects' });
+    const shaA = repo.draftSha;
+
+    // Control resolves the draft once per request. Let the read happen, then
+    // move the branch before the save offers its commit back.
+    let resolves = 0;
+    let shaB = null;
+    gh.hook(/\/git\/ref\/heads\/control%2Fdraft$/, (r) => {
+      resolves += 1;
+      if (resolves === 2) shaB = gh.pushOutside({ 'project.html': r.draft['project.html'] + '\n<!-- someone else -->' });
+    });
+
+    const r = await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'Written against the old draft.' } });
+
+    assert.equal(r.status, 409);
+    assert.equal(r.body.error, 'The draft moved while you were editing.');
+    assert.notEqual(shaB, null, 'the branch really did move');
+    assert.notEqual(shaA, shaB);
+
+    // nothing of ours was written
+    assert.equal(repo.draftSha, shaB, 'the newer draft is still the tip');
+    assert.equal(gh.made('POST', /\/git\/commits$/).length, 0, 'no commit was created');
+    assert.equal(gh.made('POST', /\/git\/blobs$/).length, 0, 'not even a blob was uploaded');
+
+    // and the other person's commit is intact, with none of our text on it
+    const after = repo.snapshots.get(shaB)['project.html'];
+    assert.match(after, /<!-- someone else -->/, 'their edit survives');
+    assert.equal(after.includes('Written against the old draft.'), false, 'ours did not overwrite it');
+  });
+});
+
+test('the save that is not raced still carries its parent', async () => {
+  await withControl({}, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'projects' });
+    const parent = repo.draftSha;
+
+    const r = await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'An ordinary save.' } });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true);
+
+    const made = gh.made('POST', /\/git\/commits$/);
+    assert.equal(made.length, 1);
+    assert.deepEqual(made[0].body.parents, [parent], 'built on the commit that was read');
+  });
+});
+
+// --- a clean draft is kept level with the site -------------------------
+
+test('a clean draft that is only behind fast-forwards before anything is read', async () => {
+  await withControl({ behind: 3 }, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    // main has moved on since the draft was cut; the draft carries no work
+    const mainNow = repo.mainSha;
+    repo.snapshots.set(mainNow, { ...repo.snapshots.get(mainNow), 'project.html': repo.files['project.html'] });
+
+    const r = await post({ action: 'projects' });
+    assert.equal(r.status, 200);
+
+    assert.equal(repo.draftSha, mainNow, 'the draft was advanced onto main');
+    assert.equal(r.body.state.behindBy, 0);
+    assert.equal(r.body.state.aheadBy, 0);
+    assert.equal(r.body.state.hasChanges, false);
+
+    // and it was an advance, not a rewrite
+    const patches = gh.made('PATCH', /\/git\/refs\/heads\//);
+    assert.equal(patches.length, 1);
+    assert.equal(patches[0].body.sha, mainNow);
+    assert.equal(patches[0].body.force, false);
+
+    // the content the editor sees came from the commit the draft now points at
+    const reads = gh.made('GET', /\/contents\/project\.html/);
+    assert.equal(reads.length, 1);
+    assert.match(reads[0].path, new RegExp(`ref=${mainNow}$`), reads[0].path);
+    assert.ok(r.body.projects.length > 0);
+  });
+});
+
+test('a draft with work on it is never fast-forwarded over', async () => {
+  await withControl({ statuses: [{ context: PREVIEW, state: 'success' }] }, async ({ post, signIn, gh, repo }) => {
+    await signIn();
+    await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'Work worth keeping.' } });
+    const draftWithWork = repo.draftSha;
+    repo.behind = 2;                       // and now main moves
+
+    const patchesBefore = gh.made('PATCH', /\/git\/refs\/heads\//).length;
+    let r = await post({ action: 'projects' });
+
+    assert.equal(repo.draftSha, draftWithWork, 'the draft was left exactly where it was');
+    assert.equal(gh.made('PATCH', /\/git\/refs\/heads\//).length, patchesBefore, 'the ref was not moved at all');
+    assert.equal(r.body.projects.find((p) => p.slug === anySlug).lede, 'Work worth keeping.');
+
+    r = await post({ action: 'status' });
+    assert.equal(r.body.state.aheadBy, 1);
+    assert.equal(r.body.state.behindBy, 2, 'the divergence is still reported');
+    assert.equal(r.body.state.canPublish, false, 'publish stays closed until it is reconciled');
+
+    r = await post({ action: 'publish' });
+    assert.equal(r.status, 409);
+    assert.match(r.body.error, /changed after this draft was started/);
+
+    r = await post({ action: 'reconcile' });
+    assert.equal(r.body.state.behindBy, 0);
+    for (const patch of gh.made('PATCH', /\/git\/refs\/heads\//)) {
+      assert.equal(patch.body.force, false, 'nothing was ever force-pushed');
+    }
+  });
+});
+
+// --- the write surface matches the delivered feature set ---------------
+
+test('a reading order sent to saveProject is ignored, not written', async () => {
+  await withControl({}, async ({ post, signIn, repo }) => {
+    await signIn();
+    let r = await post({ action: 'projects' });
+    const edited = r.body.projects.find((p) => p.editorial);
+    assert.ok(edited, 'at least one project has a reading order');
+    const beforeSrc = repo.snapshots.get(repo.draftSha)['project.html'];
+
+    r = await post({
+      action: 'saveProject',
+      slug: edited.slug,
+      patch: { lede: 'Copy edited while smuggling a sequence.' },
+      editorial: { rhythm: 'rewritten', seq: [{ kind: 'full', i: 0 }] },
+    });
+    assert.equal(r.status, 200);
+    assert.equal(r.body.changed, true, 'the copy edit went through');
+
+    // the copy changed; the reading order did not
+    const afterSrc = repo.snapshots.get(repo.draftSha)['project.html'];
+    assert.notEqual(afterSrc, beforeSrc);
+    const before = model.readSite(beforeSrc, repo.files['work.html']);
+    const after = model.readSite(afterSrc, repo.files['work.html']);
+    assert.deepEqual(after.EDITORIAL, before.EDITORIAL, 'EDITORIAL is value-identical');
+    assert.equal(after.DATA[edited.slug].lede, 'Copy edited while smuggling a sequence.');
+
+    r = await post({ action: 'projects' });
+    assert.deepEqual(r.body.projects.find((p) => p.slug === edited.slug).editorial, edited.editorial);
+  });
+});
+
+test('the endpoint exposes no mutation the interface does not', async () => {
+  await withControl({}, async ({ post, signIn, gh }) => {
+    await signIn();
+    // work-index reordering has no interface in this version, so it has no
+    // endpoint either
+    const r = await post({ action: 'reorder', order: ['b', 'a'] });
+    assert.equal(r.status, 400);
+    assert.equal(r.body.error, 'Unknown action.');
+    assert.equal(gh.calls.length, 0, 'nothing was read or written');
+  });
 });

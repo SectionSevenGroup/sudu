@@ -30,6 +30,32 @@ has built successfully and the draft is not behind `main`; if the site changed
 after the draft was started, Control says so and offers to bring the draft up
 to date by merging `main` into it, never by rewriting the branch.
 
+## The draft branch
+
+Control resolves `control/draft` to one exact commit before it reads anything,
+and offers every save back to GitHub against that same commit. If the branch
+moved in between — someone else pushed, or a second Control tab saved first —
+the save is refused with *The draft moved while you were editing.* and nothing
+is written. Stale source is never replayed over newer work.
+
+One case is resolved automatically. A draft that carries **no** Control commits
+but sits behind `main` is not a conflict: there is nothing on it to preserve,
+and reading from it would show the editor stale copies of files someone else
+changed. So it is fast-forwarded onto `main` first — a real fast-forward, with
+`force` false, since the draft is a strict ancestor. A draft with work on it is
+never touched this way however far behind it is; that is a conflict, and it
+goes through Reconcile.
+
+## What Control can change
+
+Only what the interface exposes: project copy and metadata, media uploads,
+reconcile and publish. `EDITORIAL` and the work index order are read,
+displayed and validated, but there is no endpoint that writes them — a
+reading order sent to `saveProject` is ignored rather than applied, and there
+is no reorder action. The server's capability and the interface's are the same
+set on purpose; a mutating endpoint with no interface is a way in that nobody
+is looking at.
+
 ## Configuration
 
 Set these in Netlify, server-side only. They are read inside the function and
@@ -93,7 +119,7 @@ obvious fakes.
 | `test/content-model.test.mjs` | Reading and rewriting `project.html` and `work.html`: a no-op save is byte-identical, a one-field edit touches one entry. |
 | `test/session.test.mjs` | Password comparison, secret strength, signing, expiry, the cookie's flags. |
 | `test/github-control.test.mjs` | The repository side: branch creation, fast-forward-only writes, one pull request, the exact deploy-preview gate, publish, the draft reset, reconcile. |
-| `test/control-function.test.mjs` | The endpoint end to end: method and header checks, the session, validation, uploads, the publish gate, and error redaction. |
+| `test/control-function.test.mjs` | The endpoint end to end: method and header checks, the session, validation, uploads, the publish gate, error redaction, the expected-parent guard, the clean-draft fast-forward, and the absence of any mutation the interface does not expose. |
 
 The redaction cases plant `INTERNAL_SHOULD_NEVER_REACH_BROWSER` inside errors
 raised below Control — from GitHub, from a failed fetch, from the parser — and

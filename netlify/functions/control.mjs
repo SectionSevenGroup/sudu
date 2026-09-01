@@ -57,9 +57,19 @@ function mediaName(fileName, mime) {
   return `images/${stem}-${Date.now().toString(36)}.${ext}`;
 }
 
+// Read the site from one exact commit, and remember which one.
+//
+// Reading by branch name would mean the source could move between the read and
+// the write, and the save would replay stale text over whatever arrived in
+// between. Everything below is loaded from `parent`, and the save is offered
+// back to GitHub against that same parent.
 async function loadSite(gh) {
-  const [p, w] = await Promise.all([gh.getFile(model.PROJECT_FILE), gh.getFile(model.WORK_FILE)]);
-  return { projectSrc: p.text, workSrc: w.text, site: model.readSite(p.text, w.text) };
+  const parent = await gh.resolveDraft();
+  const [p, w] = await Promise.all([
+    gh.getFile(model.PROJECT_FILE, parent),
+    gh.getFile(model.WORK_FILE, parent),
+  ]);
+  return { parent, projectSrc: p.text, workSrc: w.text, site: model.readSite(p.text, w.text) };
 }
 
 async function saveSite(gh, before, after, message) {
@@ -68,7 +78,9 @@ async function saveSite(gh, before, after, message) {
   if (project !== before.projectSrc) files.push({ path: model.PROJECT_FILE, content: project });
   if (work !== before.workSrc) files.push({ path: model.WORK_FILE, content: work });
   if (!files.length) return { changed: false };
-  await gh.commit(files, message);
+  // If the draft has moved since `before` was read, this refuses rather than
+  // writing stale content forward.
+  await gh.commit(files, message, before.parent);
   await gh.ensurePR();
   return { changed: true, files: files.map((f) => f.path) };
 }
@@ -88,10 +100,10 @@ const actions = {
     const slug = String(body.slug || '');
     const before = await loadSite(gh);
     if (!before.site.DATA[slug]) throw publicError('That project does not exist.', 404);
+    // EDITORIAL is read, displayed and validated, but Control does not edit
+    // reading order in this version, so a sequence in the request is ignored
+    // rather than written. The server's capability matches the interface's.
     let next = model.applyProject(before.site, slug, body.patch || {});
-    if (body.editorial !== undefined && next.EDITORIAL[slug]) {
-      next = { ...next, EDITORIAL: { ...next.EDITORIAL, [slug]: body.editorial } };
-    }
     const errors = model.validate(next, {
       slug,
       project: next.DATA[slug],
@@ -100,15 +112,6 @@ const actions = {
     if (errors.length) return { ok: false, errors };
     next = model.reindex(next);
     const result = await saveSite(gh, before, next, `Update ${next.DATA[slug].title}`);
-    return { ok: true, ...result, state: await gh.state() };
-  },
-
-  async reorder(gh, body) {
-    const before = await loadSite(gh);
-    const wanted = Array.isArray(body.order) ? body.order.filter((s) => before.site.DATA[s]) : [];
-    for (const slug of before.site.order) if (!wanted.includes(slug)) wanted.push(slug);
-    const next = model.reindex({ ...before.site, order: wanted });
-    const result = await saveSite(gh, before, next, 'Reorder the work index');
     return { ok: true, ...result, state: await gh.state() };
   },
 
@@ -142,7 +145,8 @@ const actions = {
     // the name was built here, but check it against the same rule the rest of
     // Control uses before anything is written
     if (model.safeMediaPath(path) !== path) throw publicError('That filename cannot be used.');
-    await gh.commit([{ path, content: bytes.toString('base64'), encoding: 'base64' }], `Add image ${path.split('/').pop()}`);
+    const parent = await gh.resolveDraft();
+    await gh.commit([{ path, content: bytes.toString('base64'), encoding: 'base64' }], `Add image ${path.split('/').pop()}`, parent);
     await gh.ensurePR();
     return { ok: true, path, state: await gh.state() };
   },
