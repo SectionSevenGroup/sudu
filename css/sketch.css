@@ -247,6 +247,12 @@ button:disabled { cursor: default !important; opacity: .28; }
 .draw-stage[data-tool='erase'] .draw-cursor { width: 28px; height: 28px; }
 .draw-stage[data-tool='note'] .draw-cursor { width: 7px; height: 7px; background: var(--ink); }
 .draw-stage[data-tool='area'] .draw-cursor { width: 14px; height: 14px; border-radius: 0; }
+.draw-stage[data-tool='edit'] .draw-cursor {
+  width: 13px;
+  height: 13px;
+  border-radius: 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
 .draw-stage[data-tool='door'] .draw-cursor,
 .draw-stage[data-tool='window'] .draw-cursor { width: 8px; height: 8px; }
 .draw-scale {

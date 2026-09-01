@@ -36,6 +36,8 @@
   var undoStack = [];
   var redoStack = [];
   var active = null;
+  var selectedIndex = -1;
+  var resizeDrag = null;
   var notePoint = null;
   var cssWidth = 0;
   var cssHeight = 0;
@@ -56,6 +58,7 @@
     door: 'Click for a 3′ door or drag a custom opening. Select Door again or hold Shift to reverse the swing.',
     window: 'Click for a 4′ window or drag a custom opening.',
     area: 'Drag a rectangle to shade an area.',
+    edit: 'Select a wall, room or area. Drag an anchor to resize it.',
     note: 'Select a point on the plan, then type a note.',
     erase: 'Select a line, room, opening, area or note to remove it.'
   };
@@ -333,6 +336,79 @@
     target.restore();
   }
 
+  function isResizableObject(object) {
+    return object && ['line', 'room', 'area'].indexOf(object.type) !== -1;
+  }
+
+  function objectAnchors(object) {
+    if (!isResizableObject(object)) return [];
+    if (object.type === 'line') {
+      return [
+        { name: 'start', point: object.start },
+        { name: 'end', point: object.end }
+      ];
+    }
+
+    var left = Math.min(object.start.x, object.end.x);
+    var right = Math.max(object.start.x, object.end.x);
+    var top = Math.min(object.start.y, object.end.y);
+    var bottom = Math.max(object.start.y, object.end.y);
+    return [
+      { name: 'nw', point: { x: left, y: top }, opposite: { x: right, y: bottom } },
+      { name: 'ne', point: { x: right, y: top }, opposite: { x: left, y: bottom } },
+      { name: 'se', point: { x: right, y: bottom }, opposite: { x: left, y: top } },
+      { name: 'sw', point: { x: left, y: bottom }, opposite: { x: right, y: top } }
+    ];
+  }
+
+  function drawSelection(target, object) {
+    if (!isResizableObject(object)) return;
+    var anchors = objectAnchors(object);
+    target.save();
+    target.strokeStyle = INK;
+    target.lineWidth = 0.8;
+    target.globalAlpha = 0.46;
+    target.setLineDash([5, 5]);
+
+    if (object.type === 'line') {
+      var lineStart = px(object.start);
+      var lineEnd = px(object.end);
+      target.beginPath();
+      target.moveTo(lineStart.x, lineStart.y);
+      target.lineTo(lineEnd.x, lineEnd.y);
+      target.stroke();
+    } else {
+      var start = px(object.start);
+      var end = px(object.end);
+      target.strokeRect(
+        Math.min(start.x, end.x),
+        Math.min(start.y, end.y),
+        Math.abs(end.x - start.x),
+        Math.abs(end.y - start.y)
+      );
+    }
+
+    target.setLineDash([]);
+    target.globalAlpha = 1;
+    anchors.forEach(function (anchor) {
+      var point = px(anchor.point);
+      target.save();
+      target.translate(point.x, point.y);
+      target.rotate(Math.PI / 4);
+      target.fillStyle = PAPER;
+      target.strokeStyle = INK;
+      target.lineWidth = 1.5;
+      target.fillRect(-5, -5, 10, 10);
+      target.strokeRect(-5, -5, 10, 10);
+      target.restore();
+      target.fillStyle = INK;
+      target.beginPath();
+      target.arc(point.x, point.y, 1.25, 0, Math.PI * 2);
+      target.fill();
+    });
+    target.restore();
+  }
+
   function render() {
     if (!cssWidth || !cssHeight) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -342,6 +418,9 @@
     drawGrid(ctx, cssWidth, cssHeight);
     objects.forEach(function (object) { drawObject(ctx, object, cssWidth, cssHeight); });
     if (active) drawObject(ctx, active, cssWidth, cssHeight);
+    if (tool === 'edit' && selectedIndex >= 0 && objects[selectedIndex]) {
+      drawSelection(ctx, objects[selectedIndex]);
+    }
   }
 
   function setHint(message, restore) {
@@ -356,6 +435,8 @@
     if (!toolHints[next]) return;
     tool = next;
     active = null;
+    resizeDrag = null;
+    selectedIndex = -1;
     closeNoteComposer();
     stage.setAttribute('data-tool', tool);
     setHint(toolHints[tool]);
@@ -529,6 +610,79 @@
     return false;
   }
 
+  function hitAnchor(object, point) {
+    var anchors = objectAnchors(object);
+    for (var i = 0; i < anchors.length; i++) {
+      if (screenDistance(anchors[i].point, point) <= 20) return anchors[i];
+    }
+    return null;
+  }
+
+  function selectableObjectAt(point) {
+    for (var i = objects.length - 1; i >= 0; i--) {
+      if (isResizableObject(objects[i]) && hitObject(objects[i], point)) return i;
+    }
+    return -1;
+  }
+
+  function beginResize(event, index, anchor) {
+    canvas.setPointerCapture(event.pointerId);
+    resizeDrag = {
+      index: index,
+      handle: anchor.name,
+      opposite: anchor.opposite ? clone(anchor.opposite) : null,
+      previous: clone(objects),
+      changed: false
+    };
+    setHint('Drag the anchor. It snaps to the 2′ dot grid.');
+  }
+
+  function beginEdit(event) {
+    var point = pointFromEvent(event, false);
+    var anchor = selectedIndex >= 0 && objects[selectedIndex]
+      ? hitAnchor(objects[selectedIndex], point)
+      : null;
+    if (anchor) {
+      beginResize(event, selectedIndex, anchor);
+      return;
+    }
+
+    selectedIndex = selectableObjectAt(point);
+    if (selectedIndex >= 0) {
+      anchor = hitAnchor(objects[selectedIndex], point);
+      if (anchor) beginResize(event, selectedIndex, anchor);
+      else setHint('Selected. Drag a diamond anchor to resize.');
+    } else {
+      setHint(toolHints.edit);
+    }
+    render();
+  }
+
+  function moveResize(event) {
+    if (!resizeDrag || !objects[resizeDrag.index]) return;
+    var point = pointFromEvent(event, true);
+    var object = objects[resizeDrag.index];
+    if (object.type === 'line') {
+      object[resizeDrag.handle] = point;
+    } else {
+      object.start = clone(resizeDrag.opposite);
+      object.end = point;
+    }
+    resizeDrag.changed = true;
+    render();
+  }
+
+  function finishResize(event) {
+    if (!resizeDrag) return;
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    var previous = resizeDrag.previous;
+    var changed = resizeDrag.changed && JSON.stringify(previous) !== JSON.stringify(objects);
+    resizeDrag = null;
+    if (changed) remember(previous);
+    setHint(changed ? 'Resized. Drag another anchor or choose a drawing tool.' : toolHints.edit, changed ? 1800 : 0);
+    render();
+  }
+
   function eraseAt(point) {
     for (var i = objects.length - 1; i >= 0; i--) {
       if (hitObject(objects[i], point)) {
@@ -543,6 +697,7 @@
 
   function onPointerDown(event) {
     if (event.button !== undefined && event.button !== 0) return;
+    if (tool === 'edit') { beginEdit(event); return; }
     canvas.setPointerCapture(event.pointerId);
     var snap = ['line', 'room', 'door', 'window', 'area'].indexOf(tool) !== -1;
     var point = pointFromEvent(event, snap);
@@ -558,6 +713,7 @@
   }
 
   function onPointerMove(event) {
+    if (resizeDrag) { moveResize(event); return; }
     if (!active) return;
     var snap = ['line', 'room', 'door', 'window', 'area'].indexOf(active.type) !== -1;
     var point = pointFromEvent(event, snap);
@@ -573,6 +729,7 @@
   }
 
   function onPointerUp(event) {
+    if (resizeDrag) { finishResize(event); return; }
     if (!active) return;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     var openingClick = (active.type === 'door' || active.type === 'window') && screenDistance(active.end, active.start) <= 16;
@@ -593,6 +750,7 @@
 
   function undo() {
     if (!undoStack.length) return;
+    selectedIndex = -1;
     redoStack.push(clone(objects));
     objects = undoStack.pop();
     scheduleSave();
@@ -602,6 +760,7 @@
 
   function redo() {
     if (!redoStack.length) return;
+    selectedIndex = -1;
     undoStack.push(clone(objects));
     objects = redoStack.pop();
     scheduleSave();
@@ -614,6 +773,7 @@
     if (!window.confirm('Clear the entire sketch?')) return;
     var previous = clone(objects);
     objects = [];
+    selectedIndex = -1;
     remember(previous);
     render();
   }
@@ -812,7 +972,7 @@
       toggleRuler();
       return;
     }
-    var keyTools = { p: 'pen', l: 'line', r: 'room', d: 'door', w: 'window', a: 'area', n: 'note', e: 'erase' };
+    var keyTools = { p: 'pen', l: 'line', r: 'room', d: 'door', w: 'window', a: 'area', v: 'edit', n: 'note', e: 'erase' };
     if (keyTools[event.key.toLowerCase()]) setTool(keyTools[event.key.toLowerCase()]);
   });
 
