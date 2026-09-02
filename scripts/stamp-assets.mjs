@@ -1,10 +1,13 @@
-// Stamp every local script and stylesheet reference with a hash of the file it points at.
+// Stamp every local script, stylesheet and icon reference with a hash of the file it points at.
 //
 // Returning visitors once kept running stale shared runtime files after those
 // files had changed. Content-derived ?v= hashes prevent URL reuse; the chrome
 // runtime is additionally marked data-turbo-track="reload" so a changed
 // persistent singleton forces a full document reload instead of surviving a
 // Turbo body swap.
+//
+// Icons are included because browsers keep favicons in a cache of their own that
+// outlives ordinary HTTP revalidation; a changed mark needs a changed URL.
 //
 // Run before build-projects.mjs; generated pages inherit the stamped source.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -22,7 +25,7 @@ const PAGES = [
   'restaurant-hospitality-design-edmonton.html',
   'commercial-retail-design-edmonton.html'
 ];
-const REF = /(<(?:script[^>]*\ssrc|link[^>]*\shref)=")(\.?\/?)([A-Za-z0-9._\/-]+\.(?:js|css))(\?v=[^"]*)?(")/g;
+const REF = /(<(?:script[^>]*\ssrc|link[^>]*\shref)=")(\.?\/?)([A-Za-z0-9._\/-]+\.(?:js|css|png|ico))(\?v=[^"]*)?(")/g;
 const CHROME = /<script([^>]*\bsrc="[^"]*js\/chrome-bar\.js\?v=[^"]+"[^>]*)>/g;
 
 const hashes = new Map();
