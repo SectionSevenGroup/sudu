@@ -12,7 +12,7 @@
 // scripts/stamp-assets.mjs), so a changed script can never keep serving from
 // cache under an unchanged ?v=. Generated pages inherit the stamps.
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -162,9 +162,33 @@ if (undimensioned.length) {
     undimensioned.map((s) => `${s} (${DATA[s].heroSrc})`).join(', '));
 }
 
+const generated = {};
 for (const slug of slugs) {
   const dir = join(root, 'work', slug);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, 'index.html'), generateProjectPage(slug));
+  generated[slug] = generateProjectPage(slug);
+  writeFileSync(join(dir, 'index.html'), generated[slug]);
 }
 console.log(`wrote ${slugs.length} project pages: ${slugs.join(', ')}`);
+
+// ---- every image a generated page references has to exist ------------------
+// A page can point at a photo that was never added to images/ and still build,
+// so the broken picture only shows up in the browser. Check each src under
+// /images/ against the filesystem after generation so it fails here instead.
+const missingImages = [];
+for (const slug of slugs) {
+  const seen = new Set();
+  for (const m of generated[slug].matchAll(/\bsrc="\/images\/([^"?#]+)/g)) {
+    const file = m[1];
+    if (seen.has(file)) continue;
+    seen.add(file);
+    if (!existsSync(join(root, 'images', file))) missingImages.push([slug, file]);
+  }
+}
+// This is meant to fail the build. It is a warning for now only because
+// youth-recovery already references images/frog-lake-interior.jpg, which has
+// not been supplied yet; once that photo lands, make this throw.
+if (missingImages.length) {
+  console.warn('WARNING: generated pages reference images missing from images/:\n' +
+    missingImages.map(([slug, file]) => `  ${slug}: images/${file}`).join('\n'));
+}
