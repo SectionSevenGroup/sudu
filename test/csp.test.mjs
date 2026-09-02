@@ -26,12 +26,12 @@ test('every served page carries no inline script other than JSON-LD', () => {
   }
 });
 
-test('every served script and stylesheet is on this origin or Google Fonts', () => {
+test('every served script and stylesheet is on this origin', () => {
   for (const p of served) {
     const html = read(p);
     for (const [, src] of html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)) assert.doesNotMatch(src, /^(https?:)?\/\//, `${p} loads ${src}`);
-    for (const [, href] of html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)) assert.ok(!/^(https?:)?\/\//.test(href) || href.startsWith('https://fonts.googleapis.com/'), `${p} loads ${href}`);
-    for (const [, href] of html.matchAll(/<link\b[^>]*href="([^"]+)"[^>]*rel="stylesheet"/g)) assert.ok(!/^(https?:)?\/\//.test(href) || href.startsWith('https://fonts.googleapis.com/'), `${p} loads ${href}`);
+    for (const [, href] of html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)) assert.doesNotMatch(href, /^(https?:)?\/\//, `${p} loads ${href}`);
+    for (const [, href] of html.matchAll(/<link\b[^>]*href="([^"]+)"[^>]*rel="stylesheet"/g)) assert.doesNotMatch(href, /^(https?:)?\/\//, `${p} loads ${href}`);
   }
 });
 
@@ -46,8 +46,8 @@ test('_headers sends the public policy with script-src limited to self', () => {
   const directives = Object.fromEntries(csp.slice('Content-Security-Policy:'.length).split(';').map((d) => d.trim().split(/\s+/)).map(([k, ...v]) => [k, v]));
   assert.deepEqual(directives['script-src'], ["'self'"]);
   assert.deepEqual(directives['default-src'], ["'self'"]);
-  assert.deepEqual(directives['style-src'], ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com']);
-  assert.deepEqual(directives['font-src'], ["'self'", 'https://fonts.gstatic.com']);
+  assert.deepEqual(directives['style-src'], ["'self'", "'unsafe-inline'"]);
+  assert.deepEqual(directives['font-src'], ["'self'"]);
   assert.deepEqual(directives['frame-ancestors'], ["'none'"]);
   assert.deepEqual(directives['base-uri'], ["'none'"]);
   assert.deepEqual(directives['object-src'], ["'none'"]);
