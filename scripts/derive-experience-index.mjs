@@ -10,7 +10,7 @@ const esc = (value) => String(value ?? '')
   .replace(/"/g, '&quot;');
 
 const rowStyle = 'padding:9px 0; border-bottom:1px solid var(--rule-13); font-family:\'Urbanist\', sans-serif; font-size:12px; color:var(--muted); transition:color .25s ease, padding-left .25s ease;';
-const hoverStyle = 'color:var(--ink); padding-left:8px;';
+const hoverStyle = 'padding-left:8px;';
 const listStyle = 'list-style:none; margin:0; padding:0; border-top:1px solid var(--rule-13);';
 
 function entryHtml(entry) {
