@@ -10,16 +10,12 @@
   var STAGGER = 90, ROW_TOL = 12;
 
   function cards() {
-    var OPEN = '{' + '{';
-    var root = document.getElementById('page') || document.getElementById('dc-root');
+    var root = document.getElementById('page');
     if (!root) return [];
     var all = root.querySelectorAll('section[data-screen-label="Work Index"] a[href]');
     var out = [];
     for (var i = 0; i < all.length; i++) {
-      var img = all[i].querySelector('img');
-      if (!img) continue;
-      if ((img.getAttribute('src') || '').indexOf(OPEN) !== -1) continue;
-      out.push(all[i]);
+      if (all[i].querySelector('img')) out.push(all[i]);
     }
     return out;
   }

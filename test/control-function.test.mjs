@@ -937,7 +937,7 @@ test('a page save commits only that page, and reads back', async () => {
 test('a page save cannot write a field the editor does not show', async () => {
   await withControl({ files: allFiles() }, async ({ post, signIn, repo }) => {
     await signIn();
-    const before = repo.files['index.html'];
+    const before = repo.files['src/index.html'];
     const r = await post({
       action: 'savePage', page: 'home',
       patch: { navLabel: 'Injected', __proto: 'no', heroSrc: 'images/x.jpg' },
@@ -945,7 +945,7 @@ test('a page save cannot write a field the editor does not show', async () => {
     assert.equal(r.status, 200);
     assert.equal(r.body.changed, false, 'nothing the editor offers was changed');
     assert.equal(repo.commits.length, 0);
-    assert.equal(repo.snapshots.get(repo.draftSha)['index.html'], before, 'byte-identical');
+    assert.equal(repo.snapshots.get(repo.draftSha)['src/index.html'], before, 'byte-identical');
   });
 });
 

@@ -27,9 +27,9 @@ export function siteFiles() {
 export function allFiles() {
   return {
     ...siteFiles(),
-    'index.html': readFileSync(new URL('../index.html', import.meta.url), 'utf8'),
+    'src/index.html': readFileSync(new URL('../src/index.html', import.meta.url), 'utf8'),
     'src/studio.html': readFileSync(new URL('../src/studio.html', import.meta.url), 'utf8'),
-    'contact.html': readFileSync(new URL('../contact.html', import.meta.url), 'utf8'),
+    'src/contact.html': readFileSync(new URL('../src/contact.html', import.meta.url), 'utf8'),
   };
 }
 

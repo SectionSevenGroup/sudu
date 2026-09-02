@@ -20,19 +20,15 @@
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
 <script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 
-<!-- The router and its coordinator are singletons, so they live in the real
-     document head rather than in the template helmet: Turbo re-activates
-     every script in the body it swaps in, and a router tag inside the
-     template therefore started a second Turbo Session on every navigation.
-     Head scripts whose markup is unchanged are carried across a visit
-     untouched and execute exactly once.
-     Nothing above the template may name the template tag literally: the
-     runtime locates it by regex over the raw source, so the first textual
-     match wins even inside a comment.
+<!-- The router and its coordinator are singletons, so they live in the
+     document head rather than in the body: Turbo re-activates every script
+     in the body it swaps in, and a router tag there started a second Turbo
+     Session on every navigation. Head scripts whose markup is unchanged are
+     carried across a visit untouched and execute exactly once.
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="js/turbo-boot.js?v=9a11805c" defer></script>
+<script src="js/turbo-boot.js?v=77513502" defer></script>
 <script src="js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
@@ -127,62 +123,14 @@
 .scp1:hover{color:#E17B3E !important;border-bottom-color:#E17B3E !important}
 html,body{height:100%;margin:0}#page{height:100%}
 </style>
-<script>(function(){
-  // The single owner of the founders portrait's arrival. Keyed on the id, not
-  // on a tag shape, so nothing about the markup can quietly detach it.
-  //
-  // It runs on a direct load and again on every Turbo arrival, and is
-  // idempotent per element: a fresh element gets the reveal, the same one is
-  // never revealed twice. Decode success, decode failure, a cached image, an
-  // uncached image and a missing file all end the same way — visible.
-  var lit = function () {
-    var im = document.getElementById('studioTeamIllustration');
-    if (!im) return false;
-    if (im._suduPortrait) return true;
-    im._suduPortrait = 1;
-    var show = function () { im.classList.add('portrait-in'); };
-    var ready = function () {
-      if (typeof im.decode === 'function') { im.decode().then(show, show); } else show();
-    };
-    if (im.complete && im.naturalWidth) ready();
-    else {
-      im.addEventListener('load', ready, { once: true });
-      im.addEventListener('error', show, { once: true });
-    }
-    // Nothing above may be the only path to visible.
-    setTimeout(show, 3000);
-    return true;
-  };
-  var poll = function (n) { if (lit() || n > 120) return; requestAnimationFrame(function () { poll(n + 1); }); };
-  poll(0);
-  addEventListener('load', function () { poll(0); });
-  document.addEventListener('sudu:navigation-ready', function () { poll(0); });
-})();</script>
-<script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
-[0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
-window.__suduMark=mark;})();
-(function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
-function apply(v){if(window.__suduMark)window.__suduMark();var h=document.documentElement;if(v==='#F3F1EA'){h.classList.remove('dm','dmwarm','dmred','dmlight');h.style.removeProperty('--dm-bg');}else{h.classList.add('dm');h.style.setProperty('--dm-bg',v);h.classList.toggle('dmwarm',v!=='#121110');h.classList.toggle('dmred',v!=='#121110');h.classList.remove('dmlight');}try{localStorage.setItem(P,v);}catch(e){}var sw=document.getElementById('dmSwatches');if(sw)[].forEach.call(sw.children,function(b){b.hidden=b.getAttribute('data-v')===v;});}
-try{var s=localStorage.getItem(P);apply(s==='#D0271F'?'#C0431F':(s||'#F3F1EA'));}catch(e){apply('#F3F1EA');}
-function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});if(window.suduBar)window.suduBar().appendChild(d);else document.documentElement.appendChild(d);}
-build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#F3F1EA');},900);})();
-
-(function(){if(window.__xhInit||!matchMedia('(pointer:fine)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
-function make(){if(!document.body)return;var ex=document.querySelectorAll('#xhair');if(ex.length){for(var i=1;i<ex.length;i++)ex[i].remove();el=ex[0];return;}if(el)return;el=document.createElement('div');el.id='xhair';el.innerHTML='<i></i><i></i><i></i><i></i>';document.documentElement.appendChild(el);document.documentElement.classList.add('xh');}
-make();setTimeout(make,600);
-function draw(){raf=0;if(el)el.style.transform='translate3d('+x+'px,'+y+'px,0)';}
-var lx=0,ly=0,lt=0,len=16,tlen=16,loop=0;
-function tick(){var d=tlen-len;len+=d*0.18;if(el)el.style.setProperty('--len',len.toFixed(1)+'px');tlen+=(16-tlen)*0.06;if(Math.abs(d)>0.3||tlen>16.5){loop=requestAnimationFrame(tick);}else{loop=0;len=16;tlen=16;if(el)el.style.setProperty('--len','16px');}}
-addEventListener('pointermove',function(e){var t=e.timeStamp||performance.now();var dt=Math.max(t-lt,8);var sp=Math.hypot(e.clientX-lx,e.clientY-ly)/dt*16;lx=e.clientX;ly=e.clientY;lt=t;x=e.clientX;y=e.clientY;tlen=Math.min(16+sp*2.4,120);make();if(!loop)loop=requestAnimationFrame(tick);if(!raf)raf=requestAnimationFrame(draw);}, { passive:true});
-addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passive:true});
-addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
-document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
-document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
+<script src="js/studio.js?v=769db2cf" defer></script>
+<script src="js/theme.js?v=8c5991fc" defer></script>
+<script src="js/cursor.js?v=c9446642" defer></script>
 <script src="i18n.js?v=cbd5fce2" defer></script>
-<script src="js/page-arrival.js?v=678090fc" defer></script>
+<script src="js/page-arrival.js?v=a310c113" defer></script>
 <script src="js/reveal.js?v=3c98252b" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
-<script type="module" src="js/haptics.js?v=3c4ba22c"></script>
+<script type="module" src="js/haptics.js?v=c60c698e"></script>
 </head>
 <body>
 <div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">

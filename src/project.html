@@ -17,32 +17,23 @@
 <meta name="robots" content="noindex">
 
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
-<script src="./js/support.js?v=8fe7df74"></script>
 <script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 
-<!-- The router and its coordinator are singletons, so they live in the real
-     document head rather than in the template helmet: Turbo re-activates
-     every script in the body it swaps in, and a router tag inside the
-     template therefore started a second Turbo Session on every navigation.
-     Head scripts whose markup is unchanged are carried across a visit
-     untouched and execute exactly once.
-     Nothing above the template may name the template tag literally: the
-     runtime locates it by regex over the raw source, so the first textual
-     match wins even inside a comment.
+<!-- The router and its coordinator are singletons, so they live in the
+     document head rather than in the body: Turbo re-activates every script
+     in the body it swaps in, and a router tag there started a second Turbo
+     Session on every navigation. Head scripts whose markup is unchanged are
+     carried across a visit untouched and execute exactly once.
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="js/turbo-boot.js?v=9a11805c" defer></script>
+<script src="js/turbo-boot.js?v=77513502" defer></script>
 <script src="js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
-</head>
-<body>
-<x-dc>
-<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -154,33 +145,15 @@
   .project-gallery-grid > .project-gallery-item:first-child { grid-column:1 / -1; aspect-ratio:16/9 !important; }
   @media (max-width:720px) { .project-gallery-grid { grid-template-columns:1fr !important; } .project-gallery-grid > .project-gallery-item { grid-column:auto !important; aspect-ratio:4/3 !important; } }
 </style>
-<script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
-[0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
-window.__suduMark=mark;})();
-(function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
-function apply(v){if(window.__suduMark)window.__suduMark();var h=document.documentElement;if(v==='#F3F1EA'){h.classList.remove('dm','dmwarm','dmred','dmlight');h.style.removeProperty('--dm-bg');}else{h.classList.add('dm');h.style.setProperty('--dm-bg',v);h.classList.toggle('dmwarm',v!=='#121110');h.classList.toggle('dmred',v!=='#121110');h.classList.remove('dmlight');}try{localStorage.setItem(P,v);}catch(e){}var sw=document.getElementById('dmSwatches');if(sw)[].forEach.call(sw.children,function(b){b.hidden=b.getAttribute('data-v')===v;});}
-try{var s=localStorage.getItem(P);apply(s==='#D0271F'?'#C0431F':(s||'#F3F1EA'));}catch(e){apply('#F3F1EA');}
-function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});if(window.suduBar)window.suduBar().appendChild(d);else document.documentElement.appendChild(d);}
-build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#F3F1EA');},900);})();
-
-(function(){if(window.__xhInit||!matchMedia('(pointer:fine)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
-function make(){if(!document.body)return;var ex=document.querySelectorAll('#xhair');if(ex.length){for(var i=1;i<ex.length;i++)ex[i].remove();el=ex[0];return;}if(el)return;el=document.createElement('div');el.id='xhair';el.innerHTML='<i></i><i></i><i></i><i></i>';document.documentElement.appendChild(el);document.documentElement.classList.add('xh');}
-make();setTimeout(make,600);
-function draw(){raf=0;if(el)el.style.transform='translate3d('+x+'px,'+y+'px,0)';}
-var lx=0,ly=0,lt=0,len=16,tlen=16,loop=0;
-function tick(){var d=tlen-len;len+=d*0.18;if(el)el.style.setProperty('--len',len.toFixed(1)+'px');tlen+=(16-tlen)*0.06;if(Math.abs(d)>0.3||tlen>16.5){loop=requestAnimationFrame(tick);}else{loop=0;len=16;tlen=16;if(el)el.style.setProperty('--len','16px');}}
-addEventListener('pointermove',function(e){var t=e.timeStamp||performance.now();var dt=Math.max(t-lt,8);var sp=Math.hypot(e.clientX-lx,e.clientY-ly)/dt*16;lx=e.clientX;ly=e.clientY;lt=t;x=e.clientX;y=e.clientY;tlen=Math.min(16+sp*2.4,120);make();if(!loop)loop=requestAnimationFrame(tick);if(!raf)raf=requestAnimationFrame(draw);}, { passive:true});
-addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passive:true});
-addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
-document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
-document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
+<script src="js/theme.js?v=8c5991fc" defer></script>
+<script src="js/cursor.js?v=c9446642" defer></script>
 <script src="i18n.js?v=cbd5fce2" defer></script>
-<script src="js/page-arrival.js?v=678090fc" defer></script>
+<script src="js/page-arrival.js?v=a310c113" defer></script>
 <script src="js/reveal.js?v=3c98252b" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
-<script type="module" src="js/haptics.js?v=3c4ba22c"></script>
-</helmet>
-
+<script type="module" src="js/haptics.js?v=c60c698e"></script>
+</head>
+<body>
 <div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
@@ -207,7 +180,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   </section>
 
   <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    {{ heroImg }}
+    <sc-if value="{{ heroSrc }}"><img src="{{ heroSrc }}" alt="{{ heroAlt }}" width="{{ heroW }}" height="{{ heroH }}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
@@ -231,25 +204,25 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
 
-  <sc-if value="{{ hasEditorial }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ hasEditorial }}">
     <section data-screen-label="Project Sequence" class="pj-seq">
-      <sc-for list="{{ editorialBlocks }}" as="b" hint-placeholder-count="2">
+      <sc-for list="{{ editorialBlocks }}" as="b">
         <div class="pj-block">
-          <sc-if value="{{ b.hasLabel }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ b.hasLabel }}">
             <div class="pj-label">
               <h2>{{ b.label }}</h2>
               <span>{{ b.note }}</span>
             </div>
           </sc-if>
-          <sc-if value="{{ b.isSingle }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ b.isSingle }}">
             <div data-reveal data-motion="major" class="pj-single" style="{{ b.style }}">
               <img class="pj-img" src="{{ b.a.src }}" srcset="/.netlify/images?url={{ b.a.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.a.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.a.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.a.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.a.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 92vw" alt="{{ b.a.alt }}" width="{{ b.a.w }}" height="{{ b.a.h }}" loading="lazy" decoding="async">
             </div>
           </sc-if>
-          <sc-if value="{{ b.isPair }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ b.isPair }}">
             <div data-reveal data-motion="major" class="pj-pair" style="{{ b.style }}">
               <img class="pj-img" src="{{ b.a.src }}" srcset="/.netlify/images?url={{ b.a.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.a.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.a.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.a.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.a.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 46vw" alt="{{ b.a.alt }}" width="{{ b.a.w }}" height="{{ b.a.h }}" loading="lazy" decoding="async">
-              <sc-if value="{{ b.hasB }}" hint-placeholder-val="{{ false }}">
+              <sc-if value="{{ b.hasB }}">
                 <img class="pj-img" src="{{ b.b.src }}" srcset="/.netlify/images?url={{ b.b.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.b.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.b.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.b.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.b.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 46vw" alt="{{ b.b.alt }}" width="{{ b.b.w }}" height="{{ b.b.h }}" loading="lazy" decoding="async">
               </sc-if>
             </div>
@@ -258,18 +231,18 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       </sc-for>
     </section>
   </sc-if>
-  <sc-if value="{{ hasGallery }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ hasGallery }}">
     <section data-screen-label="Project Gallery" style="padding:clamp(24px,3vw,40px) clamp(20px,4.5vw,64px) 0;">
-      <sc-for list="{{ galleryGroups }}" as="grp" hint-placeholder-count="1">
+      <sc-for list="{{ galleryGroups }}" as="grp">
         <div style="padding-top:clamp(24px,3vw,36px);">
-          <sc-if value="{{ grp.hasHead }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ grp.hasHead }}">
             <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 24px; padding:14px 0 20px; border-top:1px solid rgba(23,22,19,0.13);">
               <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">{{ grp.head }}</h2>
               <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ grp.sub }}</span>
             </div>
           </sc-if>
           <div class="project-gallery-grid" data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,2vw,28px);">
-            <sc-for list="{{ grp.images }}" as="g" hint-placeholder-count="2">
+            <sc-for list="{{ grp.images }}" as="g">
               <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">
                 <img src="{{ g.src }}" srcset="/.netlify/images?url=/{{ g.src }}&w=480&q=82 480w, /.netlify/images?url=/{{ g.src }}&w=768&q=82 768w, /.netlify/images?url=/{{ g.src }}&w=1080&q=82 1080w, /.netlify/images?url=/{{ g.src }}&w=1440&q=82 1440w, /.netlify/images?url=/{{ g.src }}&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
               </div>
@@ -286,10 +259,10 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">From the archive</span>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:28px 24px;">
-      <sc-for list="{{ relatedCards }}" as="r" hint-placeholder-count="3">
+      <sc-for list="{{ relatedCards }}" as="r">
         <a href="{{ r.href }}" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-            <sc-if value="{{ r.hasThumb }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ r.hasThumb }}">
               <img src="{{ r.thumb }}" alt="{{ r.name }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
             </sc-if>
           </div>
@@ -299,9 +272,9 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
         </a>
       </sc-for>
     </div>
-    <sc-if value="{{ hasRelatedText }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ hasRelatedText }}">
       <ul style="list-style:none; margin:24px 0 0; padding:0;">
-        <sc-for list="{{ relatedText }}" as="r" hint-placeholder-count="1">
+        <sc-for list="{{ relatedText }}" as="r">
           <li style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 24px; padding:12px 0; border-bottom:1px solid rgba(23,22,19,0.13);">
             <span style="font-size:14.5px; font-weight:500;">{{ r.name }}</span>
             <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ r.meta }}</span>
@@ -328,9 +301,8 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 
 </div>
 
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
+<script type="text/plain" data-page-script>
+class Component {
   static DATA = {
     'west-vancouver': {
       eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC',
@@ -810,7 +782,10 @@ class Component extends DCLogic {
       nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
       // width/height from DIMS, so the hero reserves its proportion before it
       // decodes; the generator used to bake these onto the served <img>.
-      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, ...(Component.DIMS[d.heroSrc] ? { width: Component.DIMS[d.heroSrc][0], height: Component.DIMS[d.heroSrc][1] } : {}), decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
+      heroSrc: d.heroSrc || '',
+      heroAlt: d.title,
+      heroW: Component.DIMS[d.heroSrc] ? Component.DIMS[d.heroSrc][0] : null,
+      heroH: Component.DIMS[d.heroSrc] ? Component.DIMS[d.heroSrc][1] : null,
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
         href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',

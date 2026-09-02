@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon.png?v=00dd0e29">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=f4f435b6">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=92a9c977">
+
+<title>Contact an Edmonton Architect | SuDu Studio</title>
+<meta name="description" content="Planning a custom home, renovation or commercial project in Edmonton? Start a conversation with SuDu Studio, architecture and interior design in Alberta.">
+<link rel="canonical" href="https://sudu.studio/contact">
+<meta property="og:title" content="Contact an Edmonton Architect | SuDu Studio">
+<meta property="og:description" content="Planning a custom home, renovation or commercial project in Edmonton? Start a conversation with SuDu Studio, architecture and interior design in Alberta.">
+<meta property="og:url" content="https://sudu.studio/contact">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
+<meta name="robots" content="index, follow">
+
+<link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
+<script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "What types of projects do you take on?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question."
+   }
+  }, {
+   "@type": "Question",
+   "name": "Where do you work?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor."
+   }
+  }, {
+   "@type": "Question",
+   "name": "How does a project start?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey."
+   }
+  }, {
+   "@type": "Question",
+   "name": "Do you handle both architecture and interiors?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea."
+   }
+  }, {
+   "@type": "Question",
+   "name": "What does engaging SuDu cost?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing."
+   }
+  }, {
+   "@type": "Question",
+   "name": "Do you work with existing consultants or builders?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled."
+   }
+  }
+ ]
+}
+</script>
+
+<!-- The router and its coordinator are singletons, so they live in the
+     document head rather than in the body: Turbo re-activates every script
+     in the body it swaps in, and a router tag there started a second Turbo
+     Session on every navigation. Head scripts whose markup is unchanged are
+     carried across a visit untouched and execute exactly once.
+     The coordinator is listed first on purpose. Turbo scans for preload
+     links the moment its own script runs, and the coordinator is what
+     withdraws those links on a metered connection. -->
+<script src="js/turbo-boot.js?v=77513502" defer></script>
+<script src="js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
+<!-- One render per application visit. no-preview stops Turbo showing the
+     cached copy of a page before the fresh response arrives, which is what
+     made a revisit play two arrivals. It is deliberately not no-cache:
+     snapshots are still stored, and Back/Forward still restores from them. -->
+<meta name="turbo-cache-control" content="no-preview">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  html { background: #F3F1EA; }
+  body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  * { box-sizing: border-box; }
+  a { color: inherit; text-decoration: none; }
+
+  /* One arrow language across the site. Contact's controls use the same
+     Urbanist single chevron the homepage already uses (U+203A), sized and
+     spaced here rather than coloured inline: the glyph belongs to the text it
+     sits beside, so it inherits that text's colour and follows every theme
+     without an override. Authored here on purpose — an earlier attempt kept
+     the orange inline and tried to beat it from a build-injected stylesheet,
+     which only held as long as that stylesheet reached the page. */
+  .sudu-chevron {
+    flex: none;
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.12em;
+    line-height: 1;
+    color: currentColor;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2em;
+    height: 1.2em;
+  }
+  .sudu-chevron--faq { font-size: 20px; transition: transform .3s ease; }
+  .sudu-chevron--send { font-size: 18px; }
+
+  /* The interest map's selected states. The markup is emitted at rest and
+     js/contact.js toggles these classes; the values are the ones the page's
+     Component used to write into the style attribute, so they carry
+     !important to beat the resting inline value. A branch's position,
+     opacity and stagger are written inline by the script from the data
+     attributes, because they differ per element. The chip's selected ink is
+     #F5F3EC, not #F3F1EA — see the note on the chips in the Component. */
+  /* The resting fill is stated here, not inline: an inline #F3F1EA is the
+     sentinel the build reads to tag cream grounds, and a branch is a control,
+     not a ground. Selected fills are inline-safe values and stay below. */
+  [data-mind-map] [data-node] { background:#F3F1EA; }
+  form[name="contact"] [data-chip].is-active { background:#171613 !important; color:#F5F3EC !important; }
+  [data-mind-map] [data-node="cat"].is-active { border-color:#171613 !important; background:#171613 !important; color:#F3F1EA !important; }
+  [data-mind-map] [data-node="sub"].is-on { border-color:#E17B3E !important; background:#E17B3E !important; color:#F3F1EA !important; }
+  [data-mind-map] line[data-link="cat"].is-active { stroke:rgba(23,22,19,0.55); stroke-width:0.22; }
+  [data-mind-map] line[data-link="sub"] { opacity:0; }
+  [data-mind-map] line[data-link="sub"].is-active { opacity:1; }
+  [data-mind-map] line[data-link="sub"].is-on { stroke:rgba(225,123,62,0.75); stroke-width:0.22; }
+  a:hover { color: #E17B3E; }
+  ::selection { background: #E17B3E; color: #F3F1EA; }
+  :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  input::placeholder, textarea::placeholder { color: #A6A399; opacity: 1; }
+  @keyframes webPulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.06); } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  html.dm, html.dm body { background:var(--dm-bg,#C0431F); }
+  html.dm .dm-wrap { background:var(--dm-bg,#C0431F) !important; }
+  html.dm .dm-flat:not(header):not(footer):not(#suduNav) { background:transparent !important; }
+  /* Ground, blur, border and ink for all three pills now come from the chrome
+     bar (js/chrome-bar.js), which states them once for every theme instead of
+     each pill restating them. What stays here is the swatch buttons. */
+  #dmSwatches { display:flex !important; }
+  #dmSwatches button { box-shadow:none !important; border:0 !important; }
+  html.dm #dmSwatches button { filter:none !important; }
+  html.xh, html.xh * { cursor:none !important; }
+  #xhair { position:fixed; left:0; top:0; width:0; height:0; pointer-events:none; z-index:99998; will-change:transform; }
+  #xhair i { position:absolute; display:block; --xh:#57554E; }
+  html.dm #xhair i { --xh:#F5F3EC; }
+  html.dm.dmlight #xhair i { --xh:#171613; }
+  #xhair { --len:16px; --gap:5px; }
+  #xhair i { opacity:0.72; }
+  #xhair i:nth-child(1), #xhair i:nth-child(2) { width:1px; left:-0.5px; height:var(--len); transform:scaleX(0.75); }
+  #xhair i:nth-child(1) { top:calc(-1 * (var(--len) + var(--gap))); background:linear-gradient(to bottom, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(2) { top:var(--gap); background:linear-gradient(to top, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(3), #xhair i:nth-child(4) { height:1px; top:-0.5px; width:var(--len); transform:scaleY(0.75); }
+  #xhair i:nth-child(3) { left:calc(-1 * (var(--len) + var(--gap))); background:linear-gradient(to right, transparent 0%, var(--xh) 34%); }
+  #xhair i:nth-child(4) { left:var(--gap); background:linear-gradient(to left, transparent 0%, var(--xh) 34%); }
+  html.dm.dmred section p, html.dm.dmred section dt, html.dm.dmred section dd, html.dm.dmred section li, html.dm.dmred section h1, html.dm.dmred section h2, html.dm.dmred section h3, html.dm.dmred section h4, html.dm.dmred section h5, html.dm.dmred section span, html.dm.dmred section a, html.dm.dmred section small, html.dm.dmred section strong, html.dm.dmred section em, html.dm.dmred section label, html.dm.dmred section button, html.dm.dmred section input, html.dm.dmred section textarea, html.dm.dmred section figcaption, html.dm.dmred .dm-wrap > *:not(header):not(footer) p, html.dm.dmred .dm-wrap > *:not(header):not(footer) dt, html.dm.dmred .dm-wrap > *:not(header):not(footer) dd, html.dm.dmred .dm-wrap > *:not(header):not(footer) li, html.dm.dmred .dm-wrap > *:not(header):not(footer) h1, html.dm.dmred .dm-wrap > *:not(header):not(footer) h2, html.dm.dmred .dm-wrap > *:not(header):not(footer) h3, html.dm.dmred .dm-wrap > *:not(header):not(footer) h4, html.dm.dmred .dm-wrap > *:not(header):not(footer) h5, html.dm.dmred .dm-wrap > *:not(header):not(footer) span, html.dm.dmred .dm-wrap > *:not(header):not(footer) a, html.dm.dmred .dm-wrap > *:not(header):not(footer) small, html.dm.dmred .dm-wrap > *:not(header):not(footer) strong, html.dm.dmred .dm-wrap > *:not(header):not(footer) em, html.dm.dmred .dm-wrap > *:not(header):not(footer) label, html.dm.dmred .dm-wrap > *:not(header):not(footer) button, html.dm.dmred .dm-wrap > *:not(header):not(footer) input, html.dm.dmred .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmred .dm-wrap > *:not(header):not(footer) figcaption { color:#171613 !important; }
+  html.dm.dmlight section p, html.dm.dmlight section dt, html.dm.dmlight section dd, html.dm.dmlight section li, html.dm.dmlight section h1, html.dm.dmlight section h2, html.dm.dmlight section h3, html.dm.dmlight section h4, html.dm.dmlight section h5, html.dm.dmlight section span, html.dm.dmlight section a, html.dm.dmlight section small, html.dm.dmlight section strong, html.dm.dmlight section em, html.dm.dmlight section label, html.dm.dmlight section button, html.dm.dmlight section input, html.dm.dmlight section textarea, html.dm.dmlight section figcaption, html.dm.dmlight .dm-wrap > *:not(header):not(footer) p, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dt, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dd, html.dm.dmlight .dm-wrap > *:not(header):not(footer) li, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h1, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h2, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h3, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h4, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h5, html.dm.dmlight .dm-wrap > *:not(header):not(footer) span, html.dm.dmlight .dm-wrap > *:not(header):not(footer) a, html.dm.dmlight .dm-wrap > *:not(header):not(footer) small, html.dm.dmlight .dm-wrap > *:not(header):not(footer) strong, html.dm.dmlight .dm-wrap > *:not(header):not(footer) em, html.dm.dmlight .dm-wrap > *:not(header):not(footer) label, html.dm.dmlight .dm-wrap > *:not(header):not(footer) button, html.dm.dmlight .dm-wrap > *:not(header):not(footer) input, html.dm.dmlight .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmlight .dm-wrap > *:not(header):not(footer) figcaption { color:#F5F3EC !important; }
+  html.dm.dmred [style*="A6A399"], html.dm.dmred [style*="67655D"] { color:#171613 !important; }
+  html.dm.dmlight [style*="A6A399"], html.dm.dmlight [style*="67655D"] { color:#F5F3EC !important; }
+  #langSwitch button { position:relative; }
+  #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
+  html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
+  html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
+  html.dm section { filter: invert(1) hue-rotate(180deg); }
+  html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
+  html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
+  html.dm section img[src*="sudu-mark"], html.dm .dm-wrap > *:not(section):not(header):not(footer) img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
+  
+
+  /* header/footer chrome: declared last, single source of truth */
+  html.dm header, html.dm footer { filter:none !important; }
+  html.dm header { background:color-mix(in srgb, var(--dm-bg,#C0431F) 90%, transparent) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:0 !important; }
+  html.dm footer { background:transparent !important; }
+  /* burnt/charcoal: every footer rule, divider and glyph is off white — no greys */
+  html.dm footer, html.dm footer * { border-color:rgba(245,243,236,.45) !important; }
+  html.dm footer, html.dm footer *:not(img) { color:#F5F3EC !important; }
+  html.dm footer span[style*="background"], html.dm footer div[style*="width:1px"] { background:rgba(245,243,236,.5) !important; }
+  html.dm.dmwarm section, html.dm.dmwarm section * { border-color:rgba(23,22,19,.42) !important; }
+  html.dm.dmwarm section *:not(img):not(video) { color:#171613 !important; }
+  /* placeholders are pseudo-elements, so * never reached them */
+  html.dm input::placeholder, html.dm textarea::placeholder { color:#26241F !important; opacity:1 !important; }
+  /* one hairline weight everywhere: chips, field underlines, dividers, section rules */
+  html.dm section, html.dm section *, html.dm footer, html.dm footer * { border-width:0.5px !important; }
+  section, section *, footer, footer *, header, header * { border-width:0.5px; }
+  html.dm:not(.dmlight) header a, html.dm:not(.dmlight) footer a, html.dm:not(.dmlight) header span, html.dm:not(.dmlight) footer span, html.dm:not(.dmlight) header div, html.dm:not(.dmlight) footer div, html.dm:not(.dmlight) header button, html.dm:not(.dmlight) footer button, html.dm:not(.dmlight) header small, html.dm:not(.dmlight) footer small, html.dm:not(.dmlight) header strong, html.dm:not(.dmlight) footer strong, html.dm:not(.dmlight) header nav a, html.dm:not(.dmlight) footer nav a { color:#F5F3EC !important; }
+  html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
+  html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
+  html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
+
+  /* --- contact form: fills the Burnt inversion turned blank ----------------
+     Burnt sets `html.dm.dmwarm section *:not(img):not(video){color:#171613
+     !important}` and then inverts the whole section. Any control that also
+     paints the dark #171613 fill — a selected interest chip, the submit button
+     under the pointer — took that forced dark ink on top of a dark fill, and
+     invert() turned ground and label into the same near-white: the label
+     vanished. Measured separation was 2 of 255 on a selected chip and 6 on the
+     hovered button. Restate the light ink for exactly those two, specific
+     enough to outrank the blanket rule. (The chip had a second problem too:
+     its fill was being stripped by .dm-flat — see the fg comment in the
+     component.) Charcoal and off-white already resolve correctly and are
+     deliberately left alone. The descendant selectors are load-bearing: the
+     label is rendered into a child span, which the blanket rule targets in its
+     own right, so colouring only the button leaves the glyphs dark. */
+  html.dm.dmwarm form[name="contact"] button[aria-pressed="true"],
+  html.dm.dmwarm form[name="contact"] button[aria-pressed="true"] *,
+  html.dm.dmwarm form[name="contact"] button[type="submit"]:hover:not(:disabled),
+  html.dm.dmwarm form[name="contact"] button[type="submit"]:hover:not(:disabled) * { color:#F5F3EC !important; }
+
+  /* A disabled submit — while sending, and once sent — should not take the
+     hover fill at all. Returning it to the idle pairing keeps the completed
+     label legible on the plain ground in all three themes, including when the
+     pointer is still on the button from the click that sent the form. */
+  form[name="contact"] button[type="submit"]:disabled:hover { background:transparent !important; color:#171613 !important; }
+
+  /* Safari paints an opaque block behind an autofilled field, which on Burnt
+     reads as a black rectangle cutting across the underline fields. Clipping
+     the background to the glyphs keeps the field transparent, so it stays part
+     of the underline system, and letting the ink follow the resolved colour
+     keeps all three grounds coherent. Autofill itself is untouched, and a
+     field that is not autofilled never matches these selectors. */
+  form[name="contact"] input:-webkit-autofill,
+  form[name="contact"] input:-webkit-autofill:hover,
+  form[name="contact"] input:-webkit-autofill:focus,
+  form[name="contact"] input:-webkit-autofill:active {
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:currentColor; caret-color:currentColor;
+    transition:background-color 100000s ease-in-out 0s;
+  }
+</style>
+<script src="js/theme.js?v=8c5991fc" defer></script>
+<script src="js/cursor.js?v=c9446642" defer></script>
+<script src="i18n.js?v=cbd5fce2" defer></script>
+<script src="js/page-arrival.js?v=a310c113" defer></script>
+<script src="js/audio-player.js?v=5e49f639" defer></script>
+<script type="module" src="js/haptics.js?v=c60c698e"></script>
+<script src="js/contact.js?v=a3022a53" defer></script>
+
+<style id="contactCharcoalContrast">
+  html.dm:not(.dmwarm):not(.dmred) section [style*="color:#67655D"] { color:#4B4941 !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="color:#A6A399"] { color:#74726B !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="rgba(23,22,19,0.13)"] { border-color:rgba(23,22,19,.24) !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="rgba(23,22,19,0.22)"] { border-color:rgba(23,22,19,.36) !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="rgba(23,22,19,0.32)"] { border-color:rgba(23,22,19,.44) !important; }
+  html.dm:not(.dmwarm):not(.dmred) section input,
+  html.dm:not(.dmwarm):not(.dmred) section textarea { caret-color:#F5F3EC; }
+</style>
+</head>
+<body>
+<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
+
+  <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
+    <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+    </a>
+    <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent;">Contact</a></nav>
+  </header>
+
+  <section data-screen-label="Contact" style="flex:1; padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
+    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">Start a project</div>
+    <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; max-width:24ch; "><span data-i18n="contact.openingLineOne">{{ copy.openingLineOne }}</span><br><span data-i18n="contact.openingLineTwo">{{ copy.openingLineTwo }}</span></h1>
+
+    <div style="display:flex; flex-wrap:wrap; gap:40px 64px; margin-top:clamp(32px,4vw,48px);">
+
+      <div style="flex:1 1 400px; max-width:560px;">
+        <!-- Netlify reads a form's definition out of the deployed HTML, so every
+             field that gets submitted has to be declared here by name. The two
+             interest selections are chips, not inputs, so they ride along in
+             hidden fields; form-name is written out rather than left to
+             Netlify's injector, so the form Netlify registered at deploy and
+             the one the visitor submits are the same markup.
+             data-turbo="false" keeps Turbo Drive out of the submit path.
+             The honeypot is visually hidden rather than display:none, so a bot
+             reading computed styles still finds a real, fillable field. It is
+             absolutely positioned, so it is not a flex item and adds no gap;
+             tabindex="-1" keeps it out of the tab order and aria-hidden keeps
+             it out of the accessibility tree. -->
+        <form name="contact" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" data-turbo="false" style="display:flex; flex-direction:column; gap:24px;">
+          <input type="hidden" name="form-name" value="contact">
+          <input type="hidden" name="interests" value="">
+          <input type="hidden" name="sub-interests" value="">
+          <p aria-hidden="true" style="position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;"><label>Leave this field empty <input name="bot-field" tabIndex="-1" autoComplete="off"></label></p>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">I'm interested in</span>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <sc-for list="{{ chips }}" as="chip">
+                <button type="button" data-chip="{{ chip.label }}" aria-pressed="false" style="border:1px solid rgba(23,22,19,0.32); background:transparent; color:#171613; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" style-hover="border-color:#171613;">{{ chip.label }}</button>
+              </sc-for>
+            </div>
+            <div data-sub-summary hidden style="font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D; line-height:1.6;"></div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:22px;">
+            <label style="display:flex; flex-direction:column; gap:8px;">
+              <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Name</span>
+              <input type="text" name="name" required="required" autoComplete="name" placeholder="Your name" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
+            </label>
+            <label style="display:flex; flex-direction:column; gap:8px;">
+              <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Email</span>
+              <input type="email" name="email" required="required" autoComplete="email" placeholder="you@email.com" style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; color:#171613; outline-offset:6px;">
+            </label>
+          </div>
+          <label style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
+            <textarea name="body" rows="4" required="required" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
+          </label>
+          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">Send inquiry <span aria-hidden="true" class="sudu-chevron sudu-chevron--send">&#8250;</span></button>
+          <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:none; margin-bottom:5px; color:#171613;"></span><span data-i18n="contact.formNote">{{ copy.formNote }}</span><a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
+        </form>
+      </div>
+
+      <div style="display:none; flex:1 1 380px; max-width:520px; align-self:center; flex-direction:column; gap:12px;">
+        <!-- Every node and every link is in the page from the start, in its
+             inactive state, with the polar geometry it needs on data
+             attributes: a branch's own position (data-x, data-y), the position
+             of the category it folds back into (data-cx, data-cy) and its
+             stagger (data-delay). js/contact.js only toggles classes and
+             copies those values into place; it never recomputes a position. -->
+        <div data-mind-map style="position:relative; width:100%; max-width:460px; margin:0 auto; aspect-ratio:1; min-height:340px;">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
+            <sc-for list="{{ links }}" as="ln">
+              <line data-link="{{ ln.kind }}" data-category="{{ ln.category }}" data-sub="{{ ln.sub }}" x1="{{ ln.x1 }}" y1="{{ ln.y1 }}" x2="{{ ln.x2 }}" y2="{{ ln.y2 }}" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            </sc-for>
+          </svg>
+          <div data-theme-surface="cream" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:68px; height:68px; border-radius:50%; border:1px solid rgba(23,22,19,0.35); display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.01em; background:#F3F1EA; z-index:2; animation:webPulse 5s ease-in-out infinite;">Project</div>
+          <sc-for list="{{ nodes }}" as="nd">
+            <button type="button" data-node="{{ nd.kind }}" data-category="{{ nd.category }}" data-sub="{{ nd.sub }}" data-x="{{ nd.x }}" data-y="{{ nd.y }}" data-cx="{{ nd.cx }}" data-cy="{{ nd.cy }}" data-delay="{{ nd.delay }}" style="position:absolute; left:{{ nd.cx }}%; top:{{ nd.cy }}%; transform:{{ nd.tr }}; opacity:{{ nd.op }}; pointer-events:{{ nd.pe }}; z-index:{{ nd.z }}; border:1px solid {{ nd.border }}; border-radius:999px; color:{{ nd.fg }}; padding:{{ nd.pad }}; font-family:'Urbanist', sans-serif; font-size:{{ nd.fs }}; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" style-hover="transform:translate(-50%,-50%) scale(1.06); transition-delay:0ms;">{{ nd.label }}</button>
+          </sc-for>
+        </div>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; text-align:center;" data-i18n="contact.mindMapNote">{{ copy.mindMapNote }}</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section data-screen-label="FAQ" style="padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px) clamp(56px,7vw,88px); border-top:1px solid rgba(23,22,19,0.13);">
+    <div style="display:flex; flex-direction:column; gap:24px;">
+      <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">Common questions</span>
+      <div style="max-width:760px;">
+        <sc-for list="{{ faqs }}" as="faq">
+          <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
+            <button type="button" aria-expanded="false" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              <span data-i18n="{{ faq.qKey }}">{{ faq.q }}</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:rotate(0deg);">&#8250;</span>
+            </button>
+            <div data-i18n="{{ faq.aKey }}" style="display:none; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">{{ faq.a }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+
+  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
+      <span>&copy; 2026 SuDu Studio Architecture</span>
+    </div><span>Alberta</span>
+  </footer>
+
+</div>
+
+<script type="text/plain" data-page-script>
+class Component {
+  // The authored copy of this page, in one place, so SuDu Control can edit it
+  // and so each string has a stable identity. The markup binds to these names
+  // and carries the matching data-i18n key, which is what i18n.js translates
+  // against — never the English sentence itself, which is the thing that
+  // changes when someone edits the page.
+  static COPY = {
+    faqs: [
+      { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.' }, { q: 'Where do you work?', a: 'The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' }, { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' }, { q: 'Do you handle both architecture and interiors?', a: 'Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' }, { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' }, { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
+    ],
+    openingLineOne: 'Every project begins',
+    openingLineTwo: 'with a conversation.',
+    formNote: 'Sends straight to the studio, or write us directly at ',
+    mindMapNote: 'Select an interest to explore what it can include, then tap the branches that fit.',
+  };
+
+  renderVals() {
+    const copy = Component.COPY;
+    const TREE = [
+      { label: 'Architecture', subs: ['New Build', 'Renovation', 'Addition', 'Feasibility'] }, { label: 'Interiors', subs: ['Full Interiors', 'Millwork', 'Material Direction'] }, { label: 'Branded Environments', subs: ['Brand Integration', 'Naming', 'Signage & Wayfinding'] }, { label: 'Concept Study', subs: ['Massing Study', 'Site Study', 'Visualization'] }, { label: 'Hospitality & Retail', subs: ['Restaurant / Bar', 'Retail Space', 'Guest Experience'] }, { label: 'Advisory', subs: ['Design Direction', 'Developer Advisory', 'Peer Review'] }
+    ];
+    const FAQS = Component.COPY.faqs;
+    const n = TREE.length;
+    const pos = (angleDeg, r) => {
+      const a = (angleDeg - 90) * Math.PI / 180;
+      return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a) };
+    };
+    // The whole map, at rest. Every category and every branch is emitted, a
+    // branch sitting folded on its category (data-cx, data-cy) with its own
+    // position (data-x, data-y) and stagger (data-delay) alongside, so
+    // js/contact.js moves it without doing this arithmetic again. The
+    // selected values live in the page's stylesheet as classes.
+    const nodes = [];
+    const links = [];
+    TREE.forEach((cat, i) => {
+      const ang = i * (360 / n);
+      const p = pos(ang, 30);
+      links.push({ kind: 'cat', category: cat.label, sub: '', x1: 50, y1: 50, x2: p.x.toFixed(2), y2: p.y.toFixed(2) });
+      nodes.push({
+        kind: 'cat', category: cat.label, sub: '', label: cat.label,
+        x: p.x.toFixed(2), y: p.y.toFixed(2), cx: p.x.toFixed(2), cy: p.y.toFixed(2), delay: 0,
+        op: '1', pe: 'auto', z: '3', tr: 'translate(-50%,-50%) scale(1)',
+        border: 'rgba(23,22,19,0.32)', fg: '#171613', pad: '8px 14px', fs: '11px'
+      });
+      cat.subs.forEach((s, j) => {
+        const step = 20;
+        const spread = (cat.subs.length - 1) * step;
+        const sAng = ang - spread / 2 + j * step;
+        const r = j % 2 === 0 ? 43 : 51;
+        const a2 = (sAng - 90) * Math.PI / 180;
+        const sp = { x: 50 + r * Math.cos(a2), y: 50 + r * 0.84 * Math.sin(a2) };
+        links.push({ kind: 'sub', category: cat.label, sub: s, x1: p.x.toFixed(2), y1: p.y.toFixed(2), x2: sp.x.toFixed(2), y2: sp.y.toFixed(2) });
+        nodes.push({
+          kind: 'sub', category: cat.label, sub: s, label: s,
+          x: sp.x.toFixed(2), y: sp.y.toFixed(2), cx: p.x.toFixed(2), cy: p.y.toFixed(2), delay: j * 70,
+          op: '0', pe: 'none', z: '2', tr: 'translate(-50%,-50%) scale(0.4)',
+          border: 'rgba(23,22,19,0.25)', fg: '#67655D', pad: '5px 11px', fs: '10px'
+        });
+      });
+    });
+    return {
+      copy,
+      nodes, links,
+      // The chips are buttons, so their selections reach Netlify through the
+      // two hidden fields declared in the form. Their selected ink is
+      // #F5F3EC, not #F3F1EA: the inline colour is serialised into the style
+      // attribute, and the theme's marker string-matches 243, 241, 234
+      // anywhere in that attribute to tag cream *panels* with .dm-flat —
+      // whose rule then forces background:transparent and wiped this chip's
+      // fill. #F5F3EC is the off-white the dark themes already use for ink,
+      // two values away and invisible to the eye, but not a sentinel. Do not
+      // put #F3F1EA back there.
+      chips: TREE.map(t => ({ label: t.label })),
+      faqs: FAQS.map((f, i) => ({
+        ...f, qKey: 'contact.faq.' + i + '.question', aKey: 'contact.faq.' + i + '.answer'
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

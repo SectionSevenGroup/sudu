@@ -15,7 +15,7 @@ https://www.sudu.studio/*    https://sudu.studio/:splat    301!
 /project         p=:slug    /work/:slug/    301!
 
 # --- authored sources -------------------------------------------------------
-# src/ holds the Design Component sources that scripts/render-static.mjs and
+# src/ holds the authored pages that scripts/render-static.mjs and
 # build-projects.mjs render from. Forced, because the files exist and would
 # otherwise be served as pages.
 /src/*    /index.html    404!

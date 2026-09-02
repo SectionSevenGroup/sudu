@@ -9,12 +9,12 @@ source, in place:
 
 | What | Where it lives |
 | --- | --- |
-| Home, Work, Studio and Contact copy | `static COPY` in each page |
-| Contact's common questions | `COPY.faqs` in `contact.html` |
-| Project title, category, location, scope, status, copy, hero | `static DATA` in `project.html` |
-| Reading order for the five editorial projects | `static EDITORIAL` in `project.html` |
-| Image proportions | `static DIMS` in `project.html` |
-| Index order, and its mirror of name/category/location/thumbnail | `const order` / `const names` in `work.html` |
+| Home, Work, Studio and Contact copy | `static COPY` in each page under `src/` |
+| Contact's common questions | `COPY.faqs` in `src/contact.html` |
+| Project title, category, location, scope, status, copy, hero | `static DATA` in `src/project.html` |
+| Reading order for the five editorial projects | `static EDITORIAL` in `src/project.html` |
+| Image proportions | `static DIMS` in `src/project.html` |
+| Index order, and its mirror of name/category/location/thumbnail | `const order` / `const names` in `src/work.html` |
 | Images | `images/` |
 
 `lib/content-model.mjs` reads and writes those objects. It rewrites only the
