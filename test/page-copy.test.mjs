@@ -32,7 +32,7 @@ test('the markup binds to COPY and carries the matching key', () => {
 });
 
 test('a page save rewrites only the field that changed', () => {
-  const src = read('index.html');
+  const src = read('src/index.html');
   const copy = cm.readPage('home', src);
   const next = cm.applyPage('home', copy, { practiceStatement: 'A different sentence entirely.' });
   const out = cm.writePage('home', src, next, copy);
@@ -58,7 +58,7 @@ test('a save that changes nothing is byte-identical', () => {
 });
 
 test('a page patch cannot write a field the editor does not offer', () => {
-  const copy = cm.readPage('home', read('index.html'));
+  const copy = cm.readPage('home', read('src/index.html'));
   const next = cm.applyPage('home', copy, {
     practiceStatement: 'Allowed.',
     navLabel: 'Injected', __proto__hack: 'no', faqs: [{ q: 'x', a: 'y' }],
@@ -124,7 +124,7 @@ test('the keys match the fields the pages actually expose', () => {
 });
 
 test('editing the English keeps the translation under the same key', () => {
-  const src = read('index.html');
+  const src = read('src/index.html');
   const copy = cm.readPage('home', src);
   const key = cm.copyKey('home', 'heroStatement');
   const frenchBefore = K.fr[key];

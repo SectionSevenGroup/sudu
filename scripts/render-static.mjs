@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { renderPage } from '../lib/render-page.mjs';
 
 export const PAGES = [
+  'index.html',
   'studio.html',
   'work.html',
   'custom-home-design-edmonton.html',

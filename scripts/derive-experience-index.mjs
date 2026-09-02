@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
-const INDEX = new URL('../index.html', import.meta.url);
+const INDEX = new URL('../src/index.html', import.meta.url);
 const DATA = new URL('../content/experience.json', import.meta.url);
 
 const esc = (value) => String(value ?? '')
@@ -43,9 +43,9 @@ for (const category of model.categories) {
 }
 
 const sectionStart = source.indexOf('<section id="experience"');
-if (sectionStart < 0) throw new Error('Could not find the Experience Index section in index.html.');
+if (sectionStart < 0) throw new Error('Could not find the Experience Index section in src/index.html.');
 const sectionEnd = source.indexOf('</section>', sectionStart);
-if (sectionEnd < 0) throw new Error('Could not bound the Experience Index section in index.html.');
+if (sectionEnd < 0) throw new Error('Could not bound the Experience Index section in src/index.html.');
 
 const before = source.slice(0, sectionStart);
 let section = source.slice(sectionStart, sectionEnd + '</section>'.length);
