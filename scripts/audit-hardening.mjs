@@ -165,13 +165,13 @@ const slugs = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravin
 // generated project pages are all produced from project.html.
 const SOURCES = {
   '/': ['index.html', 'content/experience.json'],
-  '/work': ['work.html', 'project.html'],
-  '/studio': ['studio.html'],
+  '/work': ['src/work.html', 'project.html'],
+  '/studio': ['src/studio.html'],
   '/contact': ['contact.html'],
-  '/custom-home-design-edmonton': ['custom-home-design-edmonton.html'],
-  '/renovations-additions-edmonton': ['renovations-additions-edmonton.html'],
-  '/restaurant-hospitality-design-edmonton': ['restaurant-hospitality-design-edmonton.html'],
-  '/commercial-retail-design-edmonton': ['commercial-retail-design-edmonton.html'],
+  '/custom-home-design-edmonton': ['src/custom-home-design-edmonton.html'],
+  '/renovations-additions-edmonton': ['src/renovations-additions-edmonton.html'],
+  '/restaurant-hospitality-design-edmonton': ['src/restaurant-hospitality-design-edmonton.html'],
+  '/commercial-retail-design-edmonton': ['src/commercial-retail-design-edmonton.html'],
   ...Object.fromEntries(slugs.map(s => [`/work/${s}/`, ['project.html']]))
 };
 const today = new Date().toISOString().slice(0,10);

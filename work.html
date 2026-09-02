@@ -18,7 +18,6 @@
 <meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
-<script src="./js/support.js?v=8fe7df74"></script>
 <script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the real
@@ -40,10 +39,6 @@
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
-</head>
-<body>
-<x-dc>
-<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -127,6 +122,10 @@
   @media (prefers-reduced-motion: reduce) {
     .wk-card, .wk-card.wk-on, .wk-late, .wk-late.wk-on { opacity:1; transform:none; transition:none; }
   }
+.scp0:hover{border-bottom-color:#E17B3E !important;color:#E17B3E !important}
+.scp1:hover{transform:scale(1.05) !important}
+.scp2:hover{color:#E17B3E !important;border-bottom-color:#E17B3E !important}
+html,body{height:100%;margin:0}#page{height:100%}
 </style>
 <script src="js/work-reveal.js?v=0197cf8c" defer></script>
 <script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
@@ -151,11 +150,12 @@ document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="i18n.js?v=cbd5fce2" defer></script>
 <script src="js/page-arrival.js?v=084e8a28" defer></script>
+<script src="js/reveal.js?v=4418383b" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
-</helmet>
-
-<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
+</head>
+<body>
+<div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
@@ -163,40 +163,254 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Contact</a></nav>
   </header>
 
   <section data-screen-label="Work Index" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
     <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding-bottom:clamp(24px,3vw,36px);">
       <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; ">Selected works</h1>
     </div>
-    <p style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;" data-i18n="work.attribution">{{ copy.attribution }}</p>
+    <p style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;" data-i18n="work.attribution">Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.</p>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:40px 28px; border-top:1px solid rgba(23,22,19,0.13); padding-top:clamp(28px,3.5vw,44px);">
-      <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
-        <a href="{{ it.href }}" style="display:block;">
+      
+        <a href="/work/west-vancouver/" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-            <img src="{{ it.thumb }}" alt="{{ it.title }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+            <img src="images/west-vancouver-private-residence.jpg" srcset="/.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="West Vancouver" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
           </div>
           <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
-            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ it.eyebrow }}</span>
-            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">{{ it.num }}</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Private Residential</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">01</span>
           </div>
-          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">{{ it.title }}</div>
-          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">{{ it.location }}</div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">West Vancouver</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">West Vancouver, BC</div>
         </a>
-      </sc-for>
+      
+        <a href="/work/wilfreds/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/wilfreds-hospitality-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Wilfreds" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">02</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Wilfreds</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/westshore/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/westshore-estates-house-exterior.jpg" srcset="/.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Westshore Estates" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Private Residential</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">03</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Westshore Estates</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Okanagan, BC</div>
+        </a>
+      
+        <a href="/work/casita/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/casita-costa-rica-hillside.jpg" srcset="/.netlify/images?url=%2Fimages%2Fcasita-costa-rica-hillside.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fcasita-costa-rica-hillside.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fcasita-costa-rica-hillside.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fcasita-costa-rica-hillside.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fcasita-costa-rica-hillside.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Casita" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Private Residential</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">04</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Casita</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Costa Rica</div>
+        </a>
+      
+        <a href="/work/mackenzie-ravine/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/mackenzie-ravine-front-drive-dusk.jpg" srcset="/.netlify/images?url=%2Fimages%2Fmackenzie-ravine-front-drive-dusk.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fmackenzie-ravine-front-drive-dusk.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fmackenzie-ravine-front-drive-dusk.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fmackenzie-ravine-front-drive-dusk.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fmackenzie-ravine-front-drive-dusk.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Mackenzie Ravine" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Private Residential</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">05</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Mackenzie Ravine</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/atb/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/atb-place-reimagined-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fatb-place-reimagined-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fatb-place-reimagined-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fatb-place-reimagined-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fatb-place-reimagined-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fatb-place-reimagined-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="ATB Place Reimagined" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Commercial</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">06</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">ATB Place Reimagined</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/corso32/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/corso-32-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Corso 32" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">07</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Corso 32</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/bar-bricco/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/bar-bricco-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Bar Bricco" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">08</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Bar Bricco</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/uccellino/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/uccellino-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Uccellino" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">09</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Uccellino</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/alder-room-alta/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/alder-room-alta-logo.jpg" srcset="/.netlify/images?url=%2Fimages%2Falder-room-alta-logo.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Falder-room-alta-logo.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Falder-room-alta-logo.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Falder-room-alta-logo.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Falder-room-alta-logo.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Alder Room &amp; Alta" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">10</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Alder Room &amp; Alta</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/the-helm/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/the-helm-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="The Helm" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Retail</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">11</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">The Helm</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/hells-kitchen/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/hells-kitchen-enoch.jpg" srcset="/.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Hell’s Kitchen" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Entertainment</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">12</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Hell’s Kitchen</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Enoch, AB</div>
+        </a>
+      
+        <a href="/work/atb-banking/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/atb-reimagining-banking.jpg" srcset="/.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="ATB Reimagining Banking" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Retail · Banking</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">13</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">ATB Reimagining Banking</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Alberta</div>
+        </a>
+      
+        <a href="/work/factory-yyc/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/factory-yyc-calgary.jpg" srcset="/.netlify/images?url=%2Fimages%2Ffactory-yyc-calgary.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Ffactory-yyc-calgary.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Ffactory-yyc-calgary.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Ffactory-yyc-calgary.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Ffactory-yyc-calgary.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Factory YYC" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Concept</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">14</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Factory YYC</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Calgary, AB</div>
+        </a>
+      
+        <a href="/work/factory-club/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/factory-club-edison-bar-mural.jpg" srcset="/.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Factory Private Club" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Private Club</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">15</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Factory Private Club</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">The Edison, Calgary, AB</div>
+        </a>
+      
+        <a href="/work/opt/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/opt-optometry-eye-chart.jpg" srcset="/.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="OPT" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Retail · Healthcare</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">16</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">OPT</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/selkirk/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/the-selkirk-commercial.jpg" srcset="/.netlify/images?url=%2Fimages%2Fthe-selkirk-commercial.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fthe-selkirk-commercial.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fthe-selkirk-commercial.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fthe-selkirk-commercial.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fthe-selkirk-commercial.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="The Selkirk" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Commercial · Community</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">17</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">The Selkirk</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Alberta</div>
+        </a>
+      
+        <a href="/work/enoch/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/enoch-elders-lodge.jpg" srcset="/.netlify/images?url=%2Fimages%2Fenoch-elders-lodge.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fenoch-elders-lodge.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fenoch-elders-lodge.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fenoch-elders-lodge.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fenoch-elders-lodge.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Enoch Elders Lodge" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Community Housing</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">18</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Enoch Elders Lodge</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Enoch Cree Nation, AB</div>
+        </a>
+      
+        <a href="/work/youth-recovery/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="images/youth-recovery-centre.jpg" srcset="/.netlify/images?url=%2Fimages%2Fyouth-recovery-centre.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fyouth-recovery-centre.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fyouth-recovery-centre.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fyouth-recovery-centre.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fyouth-recovery-centre.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Youth Recovery Centre" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Community · Wellness</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">19</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">Youth Recovery Centre</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Alberta</div>
+        </a>
+      
     </div>
   </section>
 
-  <!-- Page-end CTA, in the homepage's language: the statement and a quiet
-       text link, no detached symbol at the far edge. The field stays full
-       width and its content takes the shared rail. -->
+  
   <section data-screen-label="Start a Project" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) clamp(48px,9vw,120px); border-top:1px solid rgba(23,22,19,0.13);">
     <div data-reveal style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
       <h2 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:900; line-height:0.95; letter-spacing:-0.02em; text-transform:uppercase;">Start a project</h2>
-      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Get in touch</a>
+      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" class="scp2">Get in touch</a>
     </div>
   </section>
 
@@ -207,100 +421,6 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>
-  </footer>
-
-</div>
-
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  // The authored copy of this page, in one place, so SuDu Control can edit it
-  // and so each string has a stable identity. The markup binds to these names
-  // and carries the matching data-i18n key, which is what i18n.js translates
-  // against — never the English sentence itself, which is the thing that
-  // changes when someone edits the page.
-  static COPY = {
-    attribution: 'Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.',
-  };
-
-  // One label per language i18n.js supports, composed here rather than looked
-  // up as a dictionary string. Splitting the node into "19" and " projects"
-  // and letting the walker translate the noun does not survive two of the five
-  // languages: German for projects is "Projekte", the exact string the
-  // dictionary already holds as the German for the "Work" nav label, so a bare
-  // "Projekte" node reverses back through it and reads "19 Work" on the way to
-  // English; and Japanese sets a count with no space before 件. So the count
-  // stays derived from `order` and the site's i18n walker is left untouched.
-  static COUNT_LABEL = {
-    en: (n) => n + ' projects',
-    fr: (n) => n + ' projets',
-    es: (n) => n + ' proyectos',
-    de: (n) => n + ' Projekte',
-    ja: (n) => n + '\u4ef6\u306e\u30d7\u30ed\u30b8\u30a7\u30af\u30c8'
-  };
-  state = { lang: (typeof document !== 'undefined' && document.documentElement.lang) || 'en' };
-  componentDidMount() {
-    // i18n.js stamps <html lang> on every language change and raises no event,
-    // so the label follows that one attribute. Nothing global is touched.
-    this.__root = document.getElementById('dc-root');
-    this.__langObs = new MutationObserver(() => {
-      // A Turbo visit swaps <body> without unmounting React, so retire this
-      // observer once the root it was mounted against has left the document.
-      if (this.__root && !this.__root.isConnected) { this.__langObs.disconnect(); return; }
-      const lang = document.documentElement.lang || 'en';
-      if (lang !== this.state.lang) this.setState({ lang });
-    });
-    this.__langObs.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
-  }
-  componentWillUnmount() {
-    if (this.__langObs) this.__langObs.disconnect();
-  }
-  renderVals() {
-    const copy = Component.COPY;
-    const order = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','factory-yyc','factory-club','opt','selkirk','enoch','youth-recovery'];
-    // Derived, not authored. Every value here comes from `static DATA` in
-    // project.html: scripts/derive-work-index.mjs regenerates this literal at
-    // build time and SuDu Control regenerates it on every save, so there is
-    // one source of truth for a project's title, category, location and
-    // thumbnail. Do not hand-edit — edit the project, and this follows.
-    const names = {
-      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', thumb: 'images/west-vancouver-private-residence.jpg' },
-      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: 'images/wilfreds-hospitality-edmonton.jpg' },
-      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Okanagan, BC', thumb: 'images/westshore-estates-house-exterior.jpg' },
-      'casita': { eyebrow: 'Private Residential', title: 'Casita', location: 'Costa Rica', thumb: 'images/casita-costa-rica-hillside.jpg' },
-      'mackenzie-ravine': { eyebrow: 'Private Residential', title: 'Mackenzie Ravine', location: 'Edmonton, AB', thumb: 'images/mackenzie-ravine-front-drive-dusk.jpg' },
-      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: 'images/atb-place-reimagined-edmonton.jpg' },
-      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: 'images/corso-32-restaurant-edmonton.jpg' },
-      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: 'images/bar-bricco-edmonton.jpg' },
-      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: 'images/uccellino-restaurant-edmonton.jpg' },
-      'alder-room-alta': { eyebrow: 'Hospitality', title: 'Alder Room \u0026 Alta', location: 'Edmonton, AB', thumb: 'images/alder-room-alta-logo.jpg' },
-      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: 'images/the-helm-edmonton.jpg' },
-      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: 'images/hells-kitchen-enoch.jpg' },
-      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: 'images/atb-reimagining-banking.jpg' },
-      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', thumb: 'images/factory-yyc-calgary.jpg' },
-      'factory-club': { eyebrow: 'Hospitality \u00b7 Private Club', title: 'Factory Private Club', location: 'The Edison, Calgary, AB', thumb: 'images/factory-club-edison-bar-mural.jpg' },
-      'opt': { eyebrow: 'Retail \u00b7 Healthcare', title: 'OPT', location: 'Edmonton, AB', thumb: 'images/opt-optometry-eye-chart.jpg' },
-      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', thumb: 'images/the-selkirk-commercial.jpg' },
-      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', thumb: 'images/enoch-elders-lodge.jpg' },
-      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: 'images/youth-recovery-centre.jpg' }
-    };
-    // The total is read off `order`, never typed out. It said "14 projects"
-    // against nineteen cards for as long as the list grew without anyone
-    // remembering the header, and a literal would drift again on the next
-    // addition.
-    const label = Component.COUNT_LABEL[this.state.lang] || Component.COUNT_LABEL.en;
-    return {
-      copy,
-      countLabel: label(order.length),
-      // The first two rows are what a visitor sees when Work opens, so they
-      // are fetched with the document instead of after it. Everything below
-      // the fold stays lazy: 19 full-resolution thumbs is not a payload to
-      // pull eagerly, and the aspect-ratio box already holds each slot's
-      // geometry so nothing reflows as they land.
-      items: order.map((k, i) => ({ ...names[k], href: '/work/' + k + '/', num: String(i + 1).padStart(2, '0') }))
-    };
-  }
-}
-</script>
+  </footer></div></div>
 </body>
 </html>

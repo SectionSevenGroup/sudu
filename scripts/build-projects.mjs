@@ -139,7 +139,7 @@ function generateProjectPage(slug) {
 // and the "NN / total" counters are a third. Check all three here, where a
 // regeneration is unavoidable after any project is added or removed, so a
 // mismatch fails loudly instead of shipping.
-const workSrc = read('work.html');
+const workSrc = read('src/work.html');
 const orderMatch = /const order = \[([\s\S]*?)\];/.exec(workSrc);
 if (!orderMatch) throw new Error('could not locate the project `order` array in work.html');
 const order = eval('([' + orderMatch[1] + '])');

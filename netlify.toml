@@ -4,7 +4,7 @@
 # generation; there is no framework runtime or client-side build dependency.
 
 [build]
-  command = "node scripts/derive-work-index.mjs && node scripts/derive-experience-index.mjs && node scripts/audit-hardening.mjs && node scripts/build-projects.mjs && node scripts/post-generate.mjs"
+  command = "node scripts/derive-work-index.mjs && node scripts/derive-experience-index.mjs && node scripts/render-static.mjs && node scripts/audit-hardening.mjs && node scripts/build-projects.mjs && node scripts/post-generate.mjs"
   publish = "."
 
 [functions]

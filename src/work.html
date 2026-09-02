@@ -7,17 +7,18 @@
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=f4f435b6">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=92a9c977">
 
-<title>SuDu Studio Architecture | Registered Architecture Firm in Alberta</title>
-<meta name="description" content="Meet SuDu Studio Architecture, a registered Alberta architecture firm working across architecture, interiors and design direction.">
-<link rel="canonical" href="https://sudu.studio/studio">
-<meta property="og:title" content="SuDu Studio Architecture | Registered Architecture Firm in Alberta">
-<meta property="og:description" content="Meet SuDu Studio Architecture, a registered Alberta architecture firm working across architecture, interiors and design direction.">
-<meta property="og:url" content="https://sudu.studio/studio">
+<title>Architecture + Design Projects in Edmonton | SuDu Studio</title>
+<meta name="description" content="Selected work by SuDu Studio: custom residential architecture, restaurant and retail interiors, and commercial design in Edmonton, Calgary and Western Canada.">
+<link rel="canonical" href="https://sudu.studio/work">
+<meta property="og:title" content="Architecture + Design Projects in Edmonton | SuDu Studio">
+<meta property="og:description" content="Selected work by SuDu Studio: custom residential architecture, restaurant and retail interiors, and commercial design in Edmonton, Calgary and Western Canada.">
+<meta property="og:url" content="https://sudu.studio/work">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
+<script src="./js/support.js?v=8fe7df74"></script>
 <script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the real
@@ -39,6 +40,10 @@
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
+</head>
+<body>
+<x-dc>
+<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -51,22 +56,6 @@
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-
-  /* The founders portrait resolves rather than appears. Two rules, with one
-     job each: .portrait-in is the normal reveal and is added by script once
-     the file has decoded, and the animation below is a fail-safe that snaps
-     the image visible at 3.2s if the script never got the chance. The
-     fail-safe is 1ms on purpose — it ends the wait, it does not compete with
-     the reveal. The image must never be left at opacity 0, so nothing
-     authors that except this rule, which always has a way out of it. */
-  #studioTeamIllustration { opacity:0; animation:suduPortraitFail 1ms linear 3.2s forwards; }
-  #studioTeamIllustration.portrait-in { opacity:1; transition:opacity 1.6s cubic-bezier(.16,1,.3,1); }
-  @keyframes suduPortraitFail { to { opacity:1; } }
-  /* Reduced motion strips every animation and transition on this page, which
-     would take the fail-safe with it, so there the portrait is simply there. */
-  @media (prefers-reduced-motion: reduce) {
-    #studioTeamIllustration { opacity:1 !important; animation:none !important; transition:none !important; }
-  }
 
   html.dm, html.dm body { background:var(--dm-bg,#C0431F); }
   html.dm .dm-wrap { background:var(--dm-bg,#C0431F) !important; }
@@ -123,41 +112,23 @@
   html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
-.scp0:hover{border-bottom-color:#E17B3E !important;color:#E17B3E !important}
-.scp1:hover{color:#E17B3E !important;border-bottom-color:#E17B3E !important}
-html,body{height:100%;margin:0}#page{height:100%}
 </style>
-<script>(function(){
-  // The single owner of the founders portrait's arrival. Keyed on the id, not
-  // on a tag shape, so nothing about the markup can quietly detach it.
-  //
-  // It runs on a direct load and again on every Turbo arrival, and is
-  // idempotent per element: a fresh element gets the reveal, the same one is
-  // never revealed twice. Decode success, decode failure, a cached image, an
-  // uncached image and a missing file all end the same way — visible.
-  var lit = function () {
-    var im = document.getElementById('studioTeamIllustration');
-    if (!im) return false;
-    if (im._suduPortrait) return true;
-    im._suduPortrait = 1;
-    var show = function () { im.classList.add('portrait-in'); };
-    var ready = function () {
-      if (typeof im.decode === 'function') { im.decode().then(show, show); } else show();
-    };
-    if (im.complete && im.naturalWidth) ready();
-    else {
-      im.addEventListener('load', ready, { once: true });
-      im.addEventListener('error', show, { once: true });
-    }
-    // Nothing above may be the only path to visible.
-    setTimeout(show, 3000);
-    return true;
-  };
-  var poll = function (n) { if (lit() || n > 120) return; requestAnimationFrame(function () { poll(n + 1); }); };
-  poll(0);
-  addEventListener('load', function () { poll(0); });
-  document.addEventListener('sudu:navigation-ready', function () { poll(0); });
-})();</script>
+<style>
+  /* The card is the unit that reveals: image, eyebrow, number, title and
+     location move as one object. A thumb that is already decoded simply
+     paints with its card; one that lands late arrives on the same easing
+     rather than snapping in. No placeholder — the aspect-ratio box and the
+     field are already holding the slot. */
+  .wk-card { opacity:0; transform:translateY(8px); }
+  .wk-card.wk-on { opacity:1; transform:none;
+    transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1); }
+  .wk-late { opacity:0; }
+  .wk-late.wk-on { opacity:1; transition:opacity .7s cubic-bezier(.16,1,.3,1); }
+  @media (prefers-reduced-motion: reduce) {
+    .wk-card, .wk-card.wk-on, .wk-late, .wk-late.wk-on { opacity:1; transform:none; transition:none; }
+  }
+</style>
+<script src="js/work-reveal.js?v=0197cf8c" defer></script>
 <script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 window.__suduMark=mark;})();
@@ -183,67 +154,50 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 <script src="js/reveal.js?v=4418383b" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
-</head>
-<body>
-<div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
+</helmet>
+
+<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Studio</a>
-      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Contact</a></nav>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
   </header>
 
-  <section data-screen-label="Studio Intro" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) 0;">
-    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">The Studio</div>
-    <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:24px 64px; padding-bottom:clamp(20px,2.5vw,32px);">
-      <div style="flex:0 1 auto; min-width:0;"><h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; "><span data-i18n="studio.heroLineOne">The work changes with the context.</span><br><span data-i18n="studio.heroLineTwo">The approach does not.</span></h1></div>
-      <p style="flex:0 1 44ch; min-width:min(340px,100%); max-width:44ch; padding-top:8px; margin-left:auto; margin:0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.practiceIntro">SuDu works across architecture, interiors and design direction. Each project begins with its particular conditions: place, use, material, budget and people. We develop the work from the overall idea through to the smallest detail, looking for what is necessary, what belongs, and what can be removed.</p>
+  <section data-screen-label="Work Index" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
+    <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding-bottom:clamp(24px,3vw,36px);">
+      <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; ">Selected works</h1>
     </div>
-    
-    <img id="studioTeamIllustration" src="images/team-illustration-alpha.png" srcset="/.netlify/images?url=/images/team-illustration-alpha.png&amp;w=480&amp;q=88 480w, /.netlify/images?url=/images/team-illustration-alpha.png&amp;w=680&amp;q=88 680w, /.netlify/images?url=/images/team-illustration-alpha.png&amp;w=1024&amp;q=88 1024w, /.netlify/images?url=/images/team-illustration-alpha.png&amp;w=1360&amp;q=88 1360w" sizes="(max-width:720px) 92vw, 680px" width="2048" height="2048" alt="Line portrait of the three SuDu Studio founders" loading="eager" fetchpriority="high" decoding="async" style="width:min(680px,92%); height:auto; aspect-ratio:1/1; display:block; margin:0 0 clamp(12px,1.5vw,20px);">
+    <p style="margin:-10px 0 clamp(24px,3vw,36px); max-width:58ch; font-size:13px; line-height:1.7; color:#67655D;" data-i18n="work.attribution">{{ copy.attribution }}</p>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:40px 28px; border-top:1px solid rgba(23,22,19,0.13); padding-top:clamp(28px,3.5vw,44px);">
+      <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+        <a href="{{ it.href }}" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            <img src="{{ it.thumb }}" alt="{{ it.title }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:14px;">
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ it.eyebrow }}</span>
+            <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; color:#A6A399;">{{ it.num }}</span>
+          </div>
+          <div style="margin-top:6px; font-size:17px; font-weight:600; letter-spacing:-0.015em; line-height:1.1;">{{ it.title }}</div>
+          <div style="margin-top:5px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">{{ it.location }}</div>
+        </a>
+      </sc-for>
+    </div>
   </section>
 
-  <section data-screen-label="Founders" style="padding:0 clamp(20px,4.5vw,64px) 0;">
-    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-bottom:18px;">
-      <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Founders</h2>
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">01 / 03</span>
-    </div>
-
-    <div style="display:flex; flex-wrap:wrap; gap:40px clamp(28px,3.5vw,56px); padding:32px 0 clamp(40px,5vw,56px); border-top:1px solid rgba(23,22,19,0.13);">
-      <div data-reveal data-motion="pair" style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
-        <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Michael Sczesny</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;" data-i18n="studio.mikeRole">Partner + Principal Architect</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.mikeBioOne">With over 40 years of architectural experience, Mike is a pillar of the profession, known for his measured leadership and depth of expertise across project types. His portfolio spans institutional, educational, civic, residential, and commercial work throughout Western Canada.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.mikeBioTwo">Over the course of his career, Mike has led complex multi-stakeholder projects, shepherded heritage-sensitive renovations, and designed award-winning public spaces. He is equally comfortable navigating municipal processes as he is resolving construction details.</p>
-      </div>
-      <div data-reveal data-motion="pair" style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
-        <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Jennifer von Berendt</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;" data-i18n="studio.jenniferRole">Designer + Project Director</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.jenniferBioOne">Jennifer is in her 18th year of consulting across the built environment, with a focus on interiors, project strategy, stakeholder alignment and integrated design. She works with multi-disciplinary teams across North and Central America, bringing together clients, developers, builders, and registered consultants around a shared vision.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.jenniferBioTwo">Her work has included wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta.</p>
-      </div>
-      <div data-reveal data-motion="pair" style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
-        <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Joe Johnson</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;" data-i18n="studio.joeRole">Designer + Creative Director</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.joeBioOne">Joe is a designer with 25 years of experience across the built environment, interiors, retail, hospitality, and residential design. Known for clarity of vision and cross-sector versatility, his work ranges from custom residences and multifamily housing to high-profile hospitality and retail interiors.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.joeBioTwo">Notably, Joe led the strategic planning, concept development, and design direction for ATB Financial’s “Branches of the Future”, a multi-year initiative to reimagine the bank’s flagship and neighbourhood locations across Alberta. His portfolio includes restaurants for award-winning chefs, branded commercial spaces, and design systems that balance atmosphere with operational function. He provides senior design leadership from early concepts through refined execution, working with the studio’s registered professionals where regulated services are required.</p>
-      </div>
-    </div>
-  
-  </section>
-
-  
+  <!-- Page-end CTA, in the homepage's language: the statement and a quiet
+       text link, no detached symbol at the far edge. The field stays full
+       width and its content takes the shared rail. -->
   <section data-screen-label="Start a Project" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) clamp(48px,9vw,120px); border-top:1px solid rgba(23,22,19,0.13);">
-    <div data-reveal data-motion="detail" style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
+    <div data-reveal style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
       <h2 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:900; line-height:0.95; letter-spacing:-0.02em; text-transform:uppercase;">Start a project</h2>
-      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" class="scp1">Get in touch</a>
+      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Get in touch</a>
     </div>
   </section>
 
@@ -254,6 +208,62 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>
-  </footer></div></div>
+  </footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  // The authored copy of this page, in one place, so SuDu Control can edit it
+  // and so each string has a stable identity. The markup binds to these names
+  // and carries the matching data-i18n key, which is what i18n.js translates
+  // against — never the English sentence itself, which is the thing that
+  // changes when someone edits the page.
+  static COPY = {
+    attribution: 'Selected projects were led by members of our team while at previous practices, and are shown here as part of their portfolio of work.',
+  };
+
+  renderVals() {
+    const copy = Component.COPY;
+    const order = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','factory-yyc','factory-club','opt','selkirk','enoch','youth-recovery'];
+    // Derived, not authored. Every value here comes from `static DATA` in
+    // project.html: scripts/derive-work-index.mjs regenerates this literal at
+    // build time and SuDu Control regenerates it on every save, so there is
+    // one source of truth for a project's title, category, location and
+    // thumbnail. Do not hand-edit — edit the project, and this follows.
+    const names = {
+      'west-vancouver': { eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC', thumb: 'images/west-vancouver-private-residence.jpg' },
+      'wilfreds': { eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB', thumb: 'images/wilfreds-hospitality-edmonton.jpg' },
+      'westshore': { eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Okanagan, BC', thumb: 'images/westshore-estates-house-exterior.jpg' },
+      'casita': { eyebrow: 'Private Residential', title: 'Casita', location: 'Costa Rica', thumb: 'images/casita-costa-rica-hillside.jpg' },
+      'mackenzie-ravine': { eyebrow: 'Private Residential', title: 'Mackenzie Ravine', location: 'Edmonton, AB', thumb: 'images/mackenzie-ravine-front-drive-dusk.jpg' },
+      'atb': { eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB', thumb: 'images/atb-place-reimagined-edmonton.jpg' },
+      'corso32': { eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB', thumb: 'images/corso-32-restaurant-edmonton.jpg' },
+      'bar-bricco': { eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB', thumb: 'images/bar-bricco-edmonton.jpg' },
+      'uccellino': { eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB', thumb: 'images/uccellino-restaurant-edmonton.jpg' },
+      'alder-room-alta': { eyebrow: 'Hospitality', title: 'Alder Room \u0026 Alta', location: 'Edmonton, AB', thumb: 'images/alder-room-alta-logo.jpg' },
+      'the-helm': { eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB', thumb: 'images/the-helm-edmonton.jpg' },
+      'hells-kitchen': { eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB', thumb: 'images/hells-kitchen-enoch.jpg' },
+      'atb-banking': { eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta', thumb: 'images/atb-reimagining-banking.jpg' },
+      'factory-yyc': { eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB', thumb: 'images/factory-yyc-calgary.jpg' },
+      'factory-club': { eyebrow: 'Hospitality \u00b7 Private Club', title: 'Factory Private Club', location: 'The Edison, Calgary, AB', thumb: 'images/factory-club-edison-bar-mural.jpg' },
+      'opt': { eyebrow: 'Retail \u00b7 Healthcare', title: 'OPT', location: 'Edmonton, AB', thumb: 'images/opt-optometry-eye-chart.jpg' },
+      'selkirk': { eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta', thumb: 'images/the-selkirk-commercial.jpg' },
+      'enoch': { eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB', thumb: 'images/enoch-elders-lodge.jpg' },
+      'youth-recovery': { eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta', thumb: 'images/youth-recovery-centre.jpg' }
+    };
+    return {
+      copy,
+      // The first two rows are what a visitor sees when Work opens, so they
+      // are fetched with the document instead of after it. Everything below
+      // the fold stays lazy: 19 full-resolution thumbs is not a payload to
+      // pull eagerly, and the aspect-ratio box already holds each slot's
+      // geometry so nothing reflows as they land.
+      items: order.map((k, i) => ({ ...names[k], href: '/work/' + k + '/', num: String(i + 1).padStart(2, '0') }))
+    };
+  }
+}
+</script>
 </body>
 </html>
