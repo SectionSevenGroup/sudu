@@ -30,7 +30,7 @@
   var RISE = 6;            // opacity is the dominant effect
 
   function firstSection() {
-    var root = document.getElementById('dc-root');
+    var root = document.getElementById('page') || document.getElementById('dc-root');
     if (!root) return null;
     var secs = root.querySelectorAll('section[data-screen-label]');
     for (var i = 0; i < secs.length; i++) {
@@ -105,5 +105,7 @@
   // executes in the middle of the visit. __suduVisited is the difference
   // between "nothing else is bringing this page in" and "the coordinator
   // already is".
-  if (!window.__suduVisited) pump(0);
+  // A rendered page is complete when this deferred script runs; only a page
+  // the DC runtime still mounts has to be waited for.
+  if (!window.__suduVisited) { if (document.getElementById('page')) run(); else pump(0); }
 })();

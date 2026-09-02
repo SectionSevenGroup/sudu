@@ -44,6 +44,12 @@
   var root = document.documentElement;
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  // The content field: #page on a statically rendered page, #dc-root where
+  // the DC runtime still mounts one. The fallback goes with the runtime.
+  function field() {
+    return document.getElementById('page') || document.getElementById('dc-root');
+  }
+
   // The rhythm is deliberately asymmetric. Leaving is brisk; arriving is slow
   // enough to be watched. What must not happen is a gap between the two — a
   // blank hold followed by a quick appearance reads as a stall, not as a
@@ -72,17 +78,17 @@
     // follows is the same rule without a transition, which is what keeps a
     // half-assembled page off the screen — the incoming root is already at 0
     // before it can paint, so it never goes 1 to 0 to 1.
-    'html[data-nav] #dc-root{opacity:0;}' +
-    'html[data-nav="out"] #dc-root{transition:opacity ' + OUT_MS + 'ms ' + EASE + ';}' +
+    'html[data-nav] #page,html[data-nav] #dc-root{opacity:0;}' +
+    'html[data-nav="out"] #page,html[data-nav="out"] #dc-root{transition:opacity ' + OUT_MS + 'ms ' + EASE + ';}' +
     // Reduced motion keeps the ordering and drops the animation: the incoming
     // page is still assembled out of sight, it simply arrives without a fade.
-    '@media (prefers-reduced-motion: reduce){html[data-nav] #dc-root{transition:none;}}' +
+    '@media (prefers-reduced-motion: reduce){html[data-nav] #page,html[data-nav] #dc-root{transition:none;}}' +
     // The first arrival. The class is only ever added by script, after the
     // page has committed, so a browser that never runs it simply shows the
     // page — there is no authored opacity:0 for anything to get stuck behind.
-    'html.sudu-arrive #dc-root{animation:suduArrive ' + ARRIVE_MS + 'ms ' + EASE + ' forwards;}' +
+    'html.sudu-arrive #page,html.sudu-arrive #dc-root{animation:suduArrive ' + ARRIVE_MS + 'ms ' + EASE + ' forwards;}' +
     '@keyframes suduArrive{from{opacity:0;}to{opacity:1;}}' +
-    '@media (prefers-reduced-motion: reduce){html.sudu-arrive #dc-root{animation:none;}}';
+    '@media (prefers-reduced-motion: reduce){html.sudu-arrive #page,html.sudu-arrive #dc-root{animation:none;}}';
   document.head.appendChild(css);
 
   // ---------------------------------------------------------------- helpers
@@ -117,7 +123,7 @@
     var tries = 0;
     return new Promise(function (res) {
       (function look() {
-        var host = document.getElementById('dc-root');
+        var host = field();
         if ((host && host.firstChild) || ++tries > COMMIT_TRIES) { res(); return; }
         requestAnimationFrame(look);
       })();
@@ -138,7 +144,7 @@
   // scroller). Running that decision inside the gate means the page is captured
   // in its settled state instead of being captured visible and then hidden.
   function prepareReveals() {
-    var engines = [window.__sudu, window.__suduStudioIO, window.__suduProjIO];
+    var engines = [window.suduReveal, window.__sudu, window.__suduStudioIO, window.__suduProjIO];
     for (var i = 0; i < engines.length; i++) {
       if (engines[i] && typeof engines[i].refresh === 'function') {
         try { engines[i].refresh(); } catch (e) {}
@@ -157,7 +163,7 @@
   // never waited for. The homepage drawing is excluded by name — it is authored
   // at opacity 0 and runs its own reveal, and navigation does not own it.
   function criticalImages() {
-    var host = document.getElementById('dc-root');
+    var host = field();
     if (!host) return [];
     var all = host.querySelectorAll('img');
     var vh = window.innerHeight || 1;
@@ -239,6 +245,8 @@
   document.addEventListener('turbo:before-visit', beginExit);
 
   document.addEventListener('turbo:render', function () {
+    // A rendered page has nothing to boot: its content is already in the body.
+    if (!document.querySelector('x-dc')) { if (pending) pending.resolve(); return; }
     var booted = false;
     if (typeof window.__dcBoot === 'function') {
       try { window.__dcBoot(); booted = true; } catch (e) { booted = false; }
@@ -276,7 +284,7 @@
   // The incoming page is ready. Fade it in from where it already is — zero —
   // rather than setting zero again.
   function reveal() {
-    var host = document.getElementById('dc-root');
+    var host = field();
     if (!host || REDUCED.matches) { navigationReady(); return; }
     host.style.transition = 'none';
     host.style.opacity = '0';
@@ -343,7 +351,7 @@
   document.addEventListener('turbo:before-cache', function () {
     root.removeAttribute('data-nav');
 
-    var host = document.getElementById('dc-root');
+    var host = field();
     if (host) { host.style.transition = ''; host.style.opacity = ''; }
 
     var touched = document.querySelectorAll('[data-arrived]');
