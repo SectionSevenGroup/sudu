@@ -11,10 +11,10 @@
   --faint: #A6A399;
   --rule: rgba(23, 22, 19, .13);
   --rule-strong: rgba(23, 22, 19, .34);
-  /* hover, selection and the focus ring, matching what the site ships:
-     Burnt measures 4.57:1 on this ground, over the 3:1 floor for non-text
-     contrast. */
-  --accent: #C0431F;
+  /* hover and selection, matching what the site ships */
+  --accent: #E17B3E;
+  /* the focus ring is held at Burnt: #E17B3E measures 2.62:1 on this ground,
+     under the 3:1 floor for non-text contrast. Burnt measures 4.57:1. */
   --focus: #C0431F;
   --chrome-ink: #171613;
   --chrome-ink-quiet: #A6A399;
@@ -707,9 +707,15 @@ button:disabled { cursor: default !important; opacity: .28; }
 .sketch-footer img { display: block; width: auto; height: 19px; opacity: .85; }
 .footer-rule { width: 1px; height: 14px; background: var(--chrome-rule); }
 
-/* The sketch uses semantic drawing colours. Geometry, grid and controls stay
-   authored on each ground, so the canvas can export what the visitor saw.
-   Both dark grounds carry one off-white ink; only the paper differs. */
+/* The sketch uses semantic drawing colours rather than the site's body-filter
+   inversion. Geometry, grid and controls stay authored on each ground, so the
+   canvas can export what the visitor saw. Do not reintroduce the filter. */
+html.dm body,
+html.dm body * { filter: none !important; }
+/* Both dark grounds carry one off-white ink; only the paper differs. On the
+   rest of the site the inversion filter produces this, which is why the
+   authored values there read as dark ink. This page has no filter, so it
+   states the rendered result directly. */
 html.dm {
   --ink: #F5F3EC;
   --muted: #F5F3EC;
@@ -736,6 +742,8 @@ html.dm:not(.dmwarm) {
   --faint: rgba(245, 243, 236, .54);
   --rule:  rgba(245, 243, 236, .18);
   --rule-strong: rgba(245, 243, 236, .38);
+  --accent: #E17B3E;
+  --focus:  #E17B3E;
 }
 html.dm body { background: var(--paper) !important; color: var(--ink) !important; }
 /* --dm-bg is written inline on <html> by js/chrome-bar.js, so taking the
@@ -744,6 +752,12 @@ html.dm body { background: var(--paper) !important; color: var(--ink) !important
 html.dm .sketch-header {
   background: color-mix(in srgb, var(--dm-bg, var(--paper)) 90%, transparent);
 }
+/* The mark is dark artwork on transparent and disappears on Charcoal.
+   These need !important at (0,2,2) to beat the blanket `html.dm body *`
+   filter reset above, which is (0,1,2) !important. */
+html.dm .sketch-header img,
+html.dm .sketch-footer img { filter: invert(1) !important; }
+
 @media (max-width: 760px) {
   .sketch-main { padding-top: 120px; }
   .sketch-intro-grid { grid-template-columns: 1fr; gap: 24px; }
