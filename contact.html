@@ -176,6 +176,12 @@
      label legible on the plain ground in all three themes, including when the
      pointer is still on the button from the click that sent the form. */
   form[name="contact"] button[type="submit"]:disabled:hover { background:transparent !important; color:var(--ink) !important; }
+  /* The native resize grip is drawn by the browser in its own colour and read
+     dark on the dark grounds. It is hidden and the textarea draws its own, in
+     the ink of each ground. Resizing still works from the corner. */
+  form[name="contact"] textarea { resize:vertical; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M9 1 1 9M9 5 5 9' stroke='%23171613' stroke-width='1' fill='none'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 6px bottom 6px; background-size:10px 10px; }
+  form[name="contact"] textarea::-webkit-resizer { display:none; }
+  html.dm form[name="contact"] textarea { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M9 1 1 9M9 5 5 9' stroke='%23EAE9E6' stroke-width='1' fill='none'/%3E%3C/svg%3E"); }
 
   /* Safari paints an opaque block behind an autofilled field, which on Burnt
      reads as a black rectangle cutting across the underline fields. Clipping
