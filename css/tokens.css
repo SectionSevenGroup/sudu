@@ -71,3 +71,11 @@ html.dm header { background:color-mix(in srgb, var(--ground) 90%, transparent) !
 html.dm footer { background:transparent !important; color:var(--chrome-ink); --ink:var(--chrome-ink); --muted:var(--chrome-ink); --faint:var(--chrome-ink); --rule-13:rgba(245,243,236,0.45); --rule-22:rgba(245,243,236,0.45); --rule-32:rgba(245,243,236,0.5); }
 html.dm input::placeholder, html.dm textarea::placeholder { color:#DDDBD6 !important; opacity:1 !important; }
 html.dm section, html.dm section *, html.dm footer, html.dm footer * { border-width:0.5px !important; }
+/* Dark artwork on transparent, inverted the way the old section filter did,
+   until light variants of these three files exist. The header and footer mark
+   kept its own invert(1)-only rule; that is matched here too. */
+html.dm img[src*="hero-drawing"],
+html.dm img[src*="team-illustration"],
+html.dm img[src*="sudu-mark"] { filter: invert(1) hue-rotate(180deg); }
+html.dm header img[src*="sudu-mark"],
+html.dm footer img[src*="sudu-mark"] { filter: invert(1); }
