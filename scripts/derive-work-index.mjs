@@ -11,13 +11,13 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import * as model from '../lib/content-model.mjs';
 
 const projectSrc = readFileSync('project.html', 'utf8');
-const workSrc = readFileSync('work.html', 'utf8');
+const workSrc = readFileSync(model.WORK_FILE, 'utf8');
 const site = model.readSite(projectSrc, workSrc);
 const { work } = model.serialise(projectSrc, workSrc, model.reindex(site), site);
 
 if (work === workSrc) {
   console.log('derive-work-index: work.html already matches project.html');
 } else {
-  writeFileSync('work.html', work);
+  writeFileSync(model.WORK_FILE, work);
   console.log('derive-work-index: regenerated the work index from project.html');
 }

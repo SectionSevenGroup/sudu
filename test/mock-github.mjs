@@ -19,7 +19,7 @@ export const PREVIEW = 'netlify/sudustudioarchitecture/deploy-preview';
 export function siteFiles() {
   return {
     'project.html': readFileSync(new URL('../project.html', import.meta.url), 'utf8'),
-    'work.html': readFileSync(new URL('../work.html', import.meta.url), 'utf8'),
+    'src/work.html': readFileSync(new URL('../src/work.html', import.meta.url), 'utf8'),
   };
 }
 
@@ -28,7 +28,7 @@ export function allFiles() {
   return {
     ...siteFiles(),
     'index.html': readFileSync(new URL('../index.html', import.meta.url), 'utf8'),
-    'studio.html': readFileSync(new URL('../studio.html', import.meta.url), 'utf8'),
+    'src/studio.html': readFileSync(new URL('../src/studio.html', import.meta.url), 'utf8'),
     'contact.html': readFileSync(new URL('../contact.html', import.meta.url), 'utf8'),
   };
 }

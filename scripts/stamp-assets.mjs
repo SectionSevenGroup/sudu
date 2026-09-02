@@ -23,7 +23,13 @@ const PAGES = [
   'custom-home-design-edmonton.html',
   'renovations-additions-edmonton.html',
   'restaurant-hospitality-design-edmonton.html',
-  'commercial-retail-design-edmonton.html'
+  'commercial-retail-design-edmonton.html',
+  'src/studio.html',
+  'src/work.html',
+  'src/custom-home-design-edmonton.html',
+  'src/renovations-additions-edmonton.html',
+  'src/restaurant-hospitality-design-edmonton.html',
+  'src/commercial-retail-design-edmonton.html'
 ];
 const REF = /(<(?:script[^>]*\ssrc|link[^>]*\shref)=")(\.?\/?)([A-Za-z0-9._\/-]+\.(?:js|css|png|ico))(\?v=[^"]*)?(")/g;
 const CHROME = /<script([^>]*\bsrc="[^"]*js\/chrome-bar\.js\?v=[^"]+"[^>]*)>/g;

@@ -73,7 +73,7 @@ async function withControl(options, fn) {
 // studio adds or renames work.
 const anySlug = (() => {
   const f = siteFiles();
-  return model.readSite(f['project.html'], f['work.html']).order[0];
+  return model.readSite(f['project.html'], f['src/work.html']).order[0];
 })();
 
 test('only POST reaches the endpoint', async () => {
@@ -379,7 +379,7 @@ test('a network failure never reaches the browser', async () => {
 });
 
 test("the content model's own diagnostics never reach the browser", async () => {
-  const broken = { 'project.html': `<html>${INTERNAL}</html>`, 'work.html': '<html></html>' };
+  const broken = { 'project.html': `<html>${INTERNAL}</html>`, 'src/work.html': '<html></html>' };
   await withControl({ files: broken }, async ({ post, signIn }) => {
     await signIn();
     const r = await post({ action: 'projects' });
@@ -578,8 +578,8 @@ test('a reading order sent to saveProject is ignored, not written', async () => 
     // the copy changed; the reading order did not
     const afterSrc = repo.snapshots.get(repo.draftSha)['project.html'];
     assert.notEqual(afterSrc, beforeSrc);
-    const before = model.readSite(beforeSrc, repo.files['work.html']);
-    const after = model.readSite(afterSrc, repo.files['work.html']);
+    const before = model.readSite(beforeSrc, repo.files['src/work.html']);
+    const after = model.readSite(afterSrc, repo.files['src/work.html']);
     assert.deepEqual(after.EDITORIAL, before.EDITORIAL, 'EDITORIAL is value-identical');
     assert.equal(after.DATA[edited.slug].lede, 'Copy edited while smuggling a sequence.');
 
@@ -738,7 +738,7 @@ test('a real edit carrying hidden fields writes only the real edit', async () =>
     let r = await post({ action: 'projects' });
     const target = r.body.projects.find((p) => p.editorial) || r.body.projects[0];
     const beforeSrc = repo.snapshots.get(repo.draftSha)['project.html'];
-    const before = model.readSite(beforeSrc, repo.files['work.html']);
+    const before = model.readSite(beforeSrc, repo.files['src/work.html']);
 
     r = await post({
       action: 'saveProject',
@@ -750,7 +750,7 @@ test('a real edit carrying hidden fields writes only the real edit', async () =>
     assert.equal(r.body.changed, true);
     assert.deepEqual(r.body.files, ['project.html']);
 
-    const after = model.readSite(repo.snapshots.get(repo.draftSha)['project.html'], repo.files['work.html']);
+    const after = model.readSite(repo.snapshots.get(repo.draftSha)['project.html'], repo.files['src/work.html']);
     assert.equal(after.DATA[target.slug].lede, 'The only thing that should change.');
 
     // every other field of this project is exactly as it was
@@ -893,7 +893,7 @@ const pageOf = (body, page) => body.pages.find((p) => p.page === page);
 // never one from the draft and one from main.
 const draftSite = (repo) => {
   const at = repo.snapshots.get(repo.draftSha) || repo.files;
-  return model.readSite(at['project.html'], at['work.html']);
+  return model.readSite(at['project.html'], at['src/work.html']);
 };
 
 test('every page is readable with its fields and its keys', async () => {
@@ -921,9 +921,9 @@ test('a page save commits only that page, and reads back', async () => {
     let r = await post({ action: 'savePage', page: 'studio', patch: { heroLineOne: 'A different opening.' } });
     assert.equal(r.status, 200);
     assert.equal(r.body.changed, true);
-    assert.deepEqual(r.body.files, ['studio.html']);
+    assert.deepEqual(r.body.files, ['src/studio.html']);
     assert.equal(repo.commits.length, 1);
-    assert.deepEqual(repo.commits[0].paths, ['studio.html']);
+    assert.deepEqual(repo.commits[0].paths, ['src/studio.html']);
 
     r = await post({ action: 'pages' });
     assert.equal(pageOf(r.body, 'studio').fields.find((f) => f.field === 'heroLineOne').value,
@@ -1127,7 +1127,7 @@ test('reordering the catalogue regenerates counters and the next chain', async (
     r = await post({ action: 'reorder', order: moved });
     assert.equal(r.status, 200);
     assert.equal(r.body.changed, true);
-    assert.deepEqual(r.body.files.sort(), ['project.html', 'work.html']);
+    assert.deepEqual(r.body.files.sort(), ['project.html', 'src/work.html']);
 
     const site = draftSite(repo);
     assert.deepEqual(site.order, moved);
@@ -1158,7 +1158,7 @@ test('a project is created, listed, ordered and given its own page', async () =>
     assert.equal(r.status, 200);
     assert.equal(r.body.slug, 'riverside-pavilion');
     assert.equal(r.body.changed, true);
-    assert.deepEqual(r.body.files.sort(), ['project.html', 'work.html']);
+    assert.deepEqual(r.body.files.sort(), ['project.html', 'src/work.html']);
 
     const site = draftSite(repo);
     assert.equal(site.order.length, was + 1);

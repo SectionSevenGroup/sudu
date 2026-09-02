@@ -11,7 +11,7 @@
 
   function cards() {
     var OPEN = '{' + '{';
-    var root = document.getElementById('dc-root');
+    var root = document.getElementById('page') || document.getElementById('dc-root');
     if (!root) return [];
     var all = root.querySelectorAll('section[data-screen-label="Work Index"] a[href]');
     var out = [];

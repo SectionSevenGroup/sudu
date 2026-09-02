@@ -85,7 +85,7 @@ test('Contact FAQ questions and answers are editable and keyed', () => {
 });
 
 test('empty copy is refused', () => {
-  const copy = cm.readPage('studio', read('studio.html'));
+  const copy = cm.readPage('studio', read('src/studio.html'));
   const errors = cm.validatePage('studio', cm.applyPage('studio', copy, { heroLineOne: '   ' }));
   assert.ok(errors.some((e) => e.field === 'heroLineOne'));
   assert.equal(cm.validatePage('studio', copy).length, 0);
@@ -155,7 +155,7 @@ test('i18n translates a keyed node by its key, not by its text', () => {
 
 test('the work index matches the project source exactly', () => {
   const projectSrc = read('project.html');
-  const workSrc = read('work.html');
+  const workSrc = read('src/work.html');
   const site = cm.readSite(projectSrc, workSrc);
   const { work } = cm.serialise(projectSrc, workSrc, cm.reindex(site), site);
   assert.equal(work, workSrc,
@@ -163,7 +163,7 @@ test('the work index matches the project source exactly', () => {
 });
 
 test('every index row is derived from the project it names', () => {
-  const site = cm.readSite(read('project.html'), read('work.html'));
+  const site = cm.readSite(read('project.html'), read('src/work.html'));
   for (const slug of site.order) {
     const p = site.DATA[slug];
     const row = site.names[slug];
@@ -197,7 +197,7 @@ test('no copy value carries an HTML entity', () => {
 test('a translation is keyed to the English the page now holds', () => {
   // Not a rule about the copy — a check that the two were changed together
   // where they were changed at all. A key with no translation is fine.
-  const copy = cm.readPage('studio', read('studio.html'));
+  const copy = cm.readPage('studio', read('src/studio.html'));
   assert.equal(copy.joeRole, 'Designer + Creative Director');
   assert.equal(KEN['studio.joeRole'], copy.joeRole);
   for (const lang of ['fr', 'es', 'de', 'ja']) {

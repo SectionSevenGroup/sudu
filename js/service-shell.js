@@ -11,7 +11,7 @@
   st.textContent = [
     'html.dm,html.dm body{background:var(--dm-bg,#C0431F)!important;}',
     'html.dm [data-theme-surface="cream"],html.dm [data-theme-surface="content"]{background:transparent!important;}',
-    'html.dm body #dc-root>div{background:var(--dm-bg,#C0431F)!important;}',
+    'html.dm body #page>div,html.dm body #dc-root>div{background:var(--dm-bg,#C0431F)!important;}',
     'html.dm section{filter:invert(1) hue-rotate(180deg);}',
     'html.dm section img{filter:invert(1) hue-rotate(180deg)!important;}',
     'html.dm header,html.dm footer{filter:none!important;background:transparent!important;}',
