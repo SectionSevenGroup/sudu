@@ -19,9 +19,9 @@
 
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="/css/tokens.css?v=a2b1c6df">
+<link rel="stylesheet" href="/css/tokens.css?v=a4c4ae1a">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-<script src="/js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
+<script src="/js/chrome-bar.js?v=e45217c9" data-turbo-track="reload"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the
      document head rather than in the body: Turbo re-activates every script
@@ -41,8 +41,8 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <style>
-  html { background: #F3F1EA; }
-  body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  html { background: var(--ground); }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
 
@@ -62,7 +62,7 @@
   .pj-label {
     display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
     gap: 8px 24px; padding: 14px 0 clamp(22px,2.6vw,34px);
-    border-top: 0.5px solid rgba(23,22,19,0.13);
+    border-top: 0.5px solid var(--rule-13);
   }
   .pj-label h2 {
     margin: 0; font-size: 13px; font-weight: 900; line-height: 1;
@@ -70,7 +70,7 @@
   }
   .pj-label span {
     font-family: 'Urbanist', sans-serif; font-size: 10.5px; font-weight: 500;
-    letter-spacing: 0.08em; text-transform: uppercase; color: #A6A399;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint);
   }
   .pj-single { width: var(--pj-w, 100%); margin-left: var(--pj-ml, 0); }
   /* A pair reads as one composition: shared bottom datum, unequal heights allowed. */
@@ -84,9 +84,9 @@
     .pj-single { width: 100%; margin-left: 0; }
     .pj-pair { grid-template-columns: 1fr; gap: clamp(24px,6vw,40px); }
   }
-  a:hover { color: #E17B3E; }
-  ::selection { background: #E17B3E; color: #F3F1EA; }
-  :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  a:hover { color: var(--accent); }
+  ::selection { background: var(--accent); color: var(--ground); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
   html.dm, html.dm body { background:var(--dm-bg,#C0431F); }
@@ -113,8 +113,8 @@
   #xhair i:nth-child(4) { left:var(--gap); background:linear-gradient(to left, transparent 0%, var(--xh) 34%); }
   html.dm.dmred section p, html.dm.dmred section dt, html.dm.dmred section dd, html.dm.dmred section li, html.dm.dmred section h1, html.dm.dmred section h2, html.dm.dmred section h3, html.dm.dmred section h4, html.dm.dmred section h5, html.dm.dmred section span, html.dm.dmred section a, html.dm.dmred section small, html.dm.dmred section strong, html.dm.dmred section em, html.dm.dmred section label, html.dm.dmred section button, html.dm.dmred section input, html.dm.dmred section textarea, html.dm.dmred section figcaption, html.dm.dmred .dm-wrap > *:not(header):not(footer) p, html.dm.dmred .dm-wrap > *:not(header):not(footer) dt, html.dm.dmred .dm-wrap > *:not(header):not(footer) dd, html.dm.dmred .dm-wrap > *:not(header):not(footer) li, html.dm.dmred .dm-wrap > *:not(header):not(footer) h1, html.dm.dmred .dm-wrap > *:not(header):not(footer) h2, html.dm.dmred .dm-wrap > *:not(header):not(footer) h3, html.dm.dmred .dm-wrap > *:not(header):not(footer) h4, html.dm.dmred .dm-wrap > *:not(header):not(footer) h5, html.dm.dmred .dm-wrap > *:not(header):not(footer) span, html.dm.dmred .dm-wrap > *:not(header):not(footer) a, html.dm.dmred .dm-wrap > *:not(header):not(footer) small, html.dm.dmred .dm-wrap > *:not(header):not(footer) strong, html.dm.dmred .dm-wrap > *:not(header):not(footer) em, html.dm.dmred .dm-wrap > *:not(header):not(footer) label, html.dm.dmred .dm-wrap > *:not(header):not(footer) button, html.dm.dmred .dm-wrap > *:not(header):not(footer) input, html.dm.dmred .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmred .dm-wrap > *:not(header):not(footer) figcaption { color:#171613 !important; }
   html.dm.dmlight section p, html.dm.dmlight section dt, html.dm.dmlight section dd, html.dm.dmlight section li, html.dm.dmlight section h1, html.dm.dmlight section h2, html.dm.dmlight section h3, html.dm.dmlight section h4, html.dm.dmlight section h5, html.dm.dmlight section span, html.dm.dmlight section a, html.dm.dmlight section small, html.dm.dmlight section strong, html.dm.dmlight section em, html.dm.dmlight section label, html.dm.dmlight section button, html.dm.dmlight section input, html.dm.dmlight section textarea, html.dm.dmlight section figcaption, html.dm.dmlight .dm-wrap > *:not(header):not(footer) p, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dt, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dd, html.dm.dmlight .dm-wrap > *:not(header):not(footer) li, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h1, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h2, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h3, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h4, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h5, html.dm.dmlight .dm-wrap > *:not(header):not(footer) span, html.dm.dmlight .dm-wrap > *:not(header):not(footer) a, html.dm.dmlight .dm-wrap > *:not(header):not(footer) small, html.dm.dmlight .dm-wrap > *:not(header):not(footer) strong, html.dm.dmlight .dm-wrap > *:not(header):not(footer) em, html.dm.dmlight .dm-wrap > *:not(header):not(footer) label, html.dm.dmlight .dm-wrap > *:not(header):not(footer) button, html.dm.dmlight .dm-wrap > *:not(header):not(footer) input, html.dm.dmlight .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmlight .dm-wrap > *:not(header):not(footer) figcaption { color:#F5F3EC !important; }
-  html.dm.dmred [style*="A6A399"], html.dm.dmred [style*="67655D"] { color:#171613 !important; }
-  html.dm.dmlight [style*="A6A399"], html.dm.dmlight [style*="67655D"] { color:#F5F3EC !important; }
+  html.dm.dmred [style*="var(--faint)"], html.dm.dmred [style*="var(--muted)"] { color:#171613 !important; }
+  html.dm.dmlight [style*="var(--faint)"], html.dm.dmlight [style*="var(--muted)"] { color:#F5F3EC !important; }
   #langSwitch button { position:relative; }
   #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
   html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
@@ -147,10 +147,10 @@
 
   .project-gallery-grid > .project-gallery-item:first-child { grid-column:1 / -1; aspect-ratio:16/9 !important; }
   @media (max-width:720px) { .project-gallery-grid { grid-template-columns:1fr !important; } .project-gallery-grid > .project-gallery-item { grid-column:auto !important; aspect-ratio:4/3 !important; } }
-.scp0:hover{border-bottom-color:#E17B3E !important;color:#E17B3E !important}
+.scp0:hover{border-bottom-color:var(--accent) !important;color:var(--accent) !important}
 .scp1:hover{transform:scale(1.04) !important}
 .scp2:hover{transform:scale(1.05) !important}
-.scp3:hover{background:#E8E5DC !important}
+.scp3:hover{background:var(--plate) !important}
 html,body{height:100%;margin:0}#page{height:100%}
 </style>
 <script src="/js/theme.js?v=8c5991fc" defer></script>
@@ -163,7 +163,7 @@ html,body{height:100%;margin:0}#page{height:100%}
 <link rel="preload" as="image" href="/images/opt-optometry-eye-chart.jpg" imagesrcset="/.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1920&q=82 1920w" imagesizes="100vw">
 </head>
 <body>
-<div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
+<div id="page"><div data-theme-surface="cream" style="background:var(--ground); color:var(--ink); font-family:'Urbanist', sans-serif;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
@@ -176,40 +176,40 @@ html,body{height:100%;margin:0}#page{height:100%}
   </header>
 
   <section data-screen-label="Project Hero" style="padding:clamp(96px,12vh,128px) clamp(20px,4.5vw,64px) 0;">
-    <a href="/work" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
+    <a href="/work" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);">
       <span style="display:inline-block;">&#8592;</span> All work
     </a>
     <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 40px; margin-top:20px; padding-bottom:28px;">
       <div>
-        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D; margin-bottom:8px;">Retail · Healthcare</div>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Retail · Healthcare</div>
         <h1 style="margin:0; font-size:clamp(24px,3vw,38px); font-weight:900; letter-spacing:-0.03em; line-height:1; text-transform:uppercase;">OPT</h1>
       </div>
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399; padding-bottom:8px;">16 / 19</span>
+      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:var(--faint); padding-bottom:8px;">16 / 19</span>
     </div>
   </section>
 
-  <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
+  <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:var(--plate);">
     <img src="/images/opt-optometry-eye-chart.jpg" srcset="/.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fopt-optometry-eye-chart.jpg&w=1920&q=82 1920w" sizes="100vw" alt="OPT" width="2400" height="1227" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
   </div>
 
-  <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
+  <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid var(--rule-13);">
     <dl style="flex:0 1 240px; margin:0; display:flex; flex-direction:column; gap:18px;">
-      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Location</dt>
+      <div style="border-top:1px solid var(--rule-13); padding-top:12px;">
+        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--faint);">Location</dt>
         <dd style="margin:0; font-size:14px; font-weight:500;">Edmonton, AB</dd>
       </div>
-      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Scope</dt>
+      <div style="border-top:1px solid var(--rule-13); padding-top:12px;">
+        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--faint);">Scope</dt>
         <dd style="margin:0; font-size:14px; font-weight:500;">Interiors, Retail Environment</dd>
       </div>
-      <div style="border-top:1px solid rgba(23,22,19,0.13); padding-top:12px;">
-        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Status</dt>
+      <div style="border-top:1px solid var(--rule-13); padding-top:12px;">
+        <dt style="margin-bottom:6px; font-family:'Urbanist', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--faint);">Status</dt>
         <dd style="margin:0; font-size:14px; font-weight:500;">Completed</dd>
       </div>
     </dl>
     <div data-reveal data-motion="detail" style="flex:1 1 400px; max-width:640px;">
       <p style="margin:0; font-size:clamp(16.5px,1.6vw,19px); font-weight:600; line-height:1.35; letter-spacing:-0.02em; text-wrap:pretty;">An optometry clinic and eyewear retail environment.</p>
-      <p style="margin:22px 0 0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;">Clinic and retail resolved as one room: an ash display wall doubling as the exam-room screen, a supergraphic eye chart marking the threshold between the two, and white casework with framed mirror ledges carrying the frame collection down the length of the space.</p>
+      <p style="margin:22px 0 0; font-size:15px; line-height:1.85; color:var(--muted); text-wrap:pretty;">Clinic and retail resolved as one room: an ash display wall doubling as the exam-room screen, a supergraphic eye chart marking the threshold between the two, and white casework with framed mirror ledges carrying the frame collection down the length of the space.</p>
     </div>
   </section>
 
@@ -219,18 +219,18 @@ html,body{height:100%;margin:0}#page{height:100%}
       
         <div style="padding-top:clamp(24px,3vw,36px);">
           
-            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 24px; padding:14px 0 20px; border-top:1px solid rgba(23,22,19,0.13);">
+            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 24px; padding:14px 0 20px; border-top:1px solid var(--rule-13);">
               <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Clinic &amp; Dispensary</h2>
-              <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Photography</span>
+              <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--faint);">Photography</span>
             </div>
           
           <div class="project-gallery-grid" data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,2vw,28px);">
             
-              <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+              <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:var(--plate);">
                 <img src="/images/opt-optometry-retail-floor.jpg" srcset="/.netlify/images?url=/images/opt-optometry-retail-floor.jpg&w=480&q=82 480w, /.netlify/images?url=/images/opt-optometry-retail-floor.jpg&w=768&q=82 768w, /.netlify/images?url=/images/opt-optometry-retail-floor.jpg&w=1080&q=82 1080w, /.netlify/images?url=/images/opt-optometry-retail-floor.jpg&w=1440&q=82 1440w, /.netlify/images?url=/images/opt-optometry-retail-floor.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="OPT — Clinic &amp; Dispensary" width="2400" height="1227" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
               </div>
             
-              <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+              <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:var(--plate);">
                 <img src="/images/opt-optometry-dispensary.jpg" srcset="/.netlify/images?url=/images/opt-optometry-dispensary.jpg&w=480&q=82 480w, /.netlify/images?url=/images/opt-optometry-dispensary.jpg&w=768&q=82 768w, /.netlify/images?url=/images/opt-optometry-dispensary.jpg&w=1080&q=82 1080w, /.netlify/images?url=/images/opt-optometry-dispensary.jpg&w=1440&q=82 1440w, /.netlify/images?url=/images/opt-optometry-dispensary.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="OPT — Clinic &amp; Dispensary" width="2400" height="1227" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
               </div>
             
@@ -241,49 +241,49 @@ html,body{height:100%;margin:0}#page{height:100%}
   
 
   <section data-screen-label="Related Work" style="padding:0 clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
-    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(32px,4vw,48px) 0 18px; border-top:1px solid rgba(23,22,19,0.13);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(32px,4vw,48px) 0 18px; border-top:1px solid var(--rule-13);">
       <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Related Work</h2>
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">From the archive</span>
+      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:var(--faint);">From the archive</span>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:28px 24px;">
       
         <a href="/work/atb-banking/" style="display:block;">
-          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:var(--plate);">
             
               <img src="/images/atb-reimagining-banking.jpg" srcset="/.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fatb-reimagining-banking.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="ATB Reimagining Banking" width="1858" height="1398" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp2">
             
           </div>
-          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Retail · Banking</div>
+          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--faint);">Retail · Banking</div>
           <div style="margin-top:5px; font-size:15px; font-weight:600; letter-spacing:-0.01em; line-height:1.15;">ATB Reimagining Banking</div>
-          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Alberta</div>
+          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:var(--muted);">Alberta</div>
         </a>
       
         <a href="/work/factory-club/" style="display:block;">
-          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:var(--plate);">
             
               <img src="/images/factory-club-edison-bar-mural.jpg" srcset="/.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Ffactory-club-edison-bar-mural.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Factory Private Club" width="2400" height="1123" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp2">
             
           </div>
-          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Private Club</div>
+          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--faint);">Hospitality · Private Club</div>
           <div style="margin-top:5px; font-size:15px; font-weight:600; letter-spacing:-0.01em; line-height:1.15;">Factory Private Club</div>
-          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">The Edison, Calgary, AB</div>
+          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:var(--muted);">The Edison, Calgary, AB</div>
         </a>
       
     </div>
     
   </section>
 
-  <a href="/work/selkirk/" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" class="scp3">
+  <a href="/work/selkirk/" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13); transition:background .35s ease;" class="scp3">
     <div>
-      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:8px;">Next project</div>
+      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Next project</div>
       <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">The Selkirk</div>
     </div>
   </a>
 
-  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">
+  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid var(--rule-13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:var(--faint);; padding-bottom:64px">
     <div style="display:flex; align-items:center; gap:12px;">
       <img src="/images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
-      <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
+      <span style="width:1px; height:14px; background:var(--rule-22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>
   </footer></div></div>

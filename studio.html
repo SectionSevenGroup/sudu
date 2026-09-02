@@ -17,9 +17,9 @@
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="css/tokens.css?v=a2b1c6df">
+<link rel="stylesheet" href="css/tokens.css?v=a4c4ae1a">
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
-<script src="/js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
+<script src="/js/chrome-bar.js?v=e45217c9" data-turbo-track="reload"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the
      document head rather than in the body: Turbo re-activates every script
@@ -39,13 +39,13 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <style>
-  html { background: #F3F1EA; }
-  body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  html { background: var(--ground); }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
-  a:hover { color: #E17B3E; }
-  ::selection { background: #E17B3E; color: #F3F1EA; }
-  :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  a:hover { color: var(--accent); }
+  ::selection { background: var(--accent); color: var(--ground); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
   /* The founders portrait resolves rather than appears. Two rules, with one
@@ -88,8 +88,8 @@
   #xhair i:nth-child(4) { left:var(--gap); background:linear-gradient(to left, transparent 0%, var(--xh) 34%); }
   html.dm.dmred section p, html.dm.dmred section dt, html.dm.dmred section dd, html.dm.dmred section li, html.dm.dmred section h1, html.dm.dmred section h2, html.dm.dmred section h3, html.dm.dmred section h4, html.dm.dmred section h5, html.dm.dmred section span, html.dm.dmred section a, html.dm.dmred section small, html.dm.dmred section strong, html.dm.dmred section em, html.dm.dmred section label, html.dm.dmred section button, html.dm.dmred section input, html.dm.dmred section textarea, html.dm.dmred section figcaption, html.dm.dmred .dm-wrap > *:not(header):not(footer) p, html.dm.dmred .dm-wrap > *:not(header):not(footer) dt, html.dm.dmred .dm-wrap > *:not(header):not(footer) dd, html.dm.dmred .dm-wrap > *:not(header):not(footer) li, html.dm.dmred .dm-wrap > *:not(header):not(footer) h1, html.dm.dmred .dm-wrap > *:not(header):not(footer) h2, html.dm.dmred .dm-wrap > *:not(header):not(footer) h3, html.dm.dmred .dm-wrap > *:not(header):not(footer) h4, html.dm.dmred .dm-wrap > *:not(header):not(footer) h5, html.dm.dmred .dm-wrap > *:not(header):not(footer) span, html.dm.dmred .dm-wrap > *:not(header):not(footer) a, html.dm.dmred .dm-wrap > *:not(header):not(footer) small, html.dm.dmred .dm-wrap > *:not(header):not(footer) strong, html.dm.dmred .dm-wrap > *:not(header):not(footer) em, html.dm.dmred .dm-wrap > *:not(header):not(footer) label, html.dm.dmred .dm-wrap > *:not(header):not(footer) button, html.dm.dmred .dm-wrap > *:not(header):not(footer) input, html.dm.dmred .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmred .dm-wrap > *:not(header):not(footer) figcaption { color:#171613 !important; }
   html.dm.dmlight section p, html.dm.dmlight section dt, html.dm.dmlight section dd, html.dm.dmlight section li, html.dm.dmlight section h1, html.dm.dmlight section h2, html.dm.dmlight section h3, html.dm.dmlight section h4, html.dm.dmlight section h5, html.dm.dmlight section span, html.dm.dmlight section a, html.dm.dmlight section small, html.dm.dmlight section strong, html.dm.dmlight section em, html.dm.dmlight section label, html.dm.dmlight section button, html.dm.dmlight section input, html.dm.dmlight section textarea, html.dm.dmlight section figcaption, html.dm.dmlight .dm-wrap > *:not(header):not(footer) p, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dt, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dd, html.dm.dmlight .dm-wrap > *:not(header):not(footer) li, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h1, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h2, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h3, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h4, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h5, html.dm.dmlight .dm-wrap > *:not(header):not(footer) span, html.dm.dmlight .dm-wrap > *:not(header):not(footer) a, html.dm.dmlight .dm-wrap > *:not(header):not(footer) small, html.dm.dmlight .dm-wrap > *:not(header):not(footer) strong, html.dm.dmlight .dm-wrap > *:not(header):not(footer) em, html.dm.dmlight .dm-wrap > *:not(header):not(footer) label, html.dm.dmlight .dm-wrap > *:not(header):not(footer) button, html.dm.dmlight .dm-wrap > *:not(header):not(footer) input, html.dm.dmlight .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmlight .dm-wrap > *:not(header):not(footer) figcaption { color:#F5F3EC !important; }
-  html.dm.dmred [style*="A6A399"], html.dm.dmred [style*="67655D"] { color:#171613 !important; }
-  html.dm.dmlight [style*="A6A399"], html.dm.dmlight [style*="67655D"] { color:#F5F3EC !important; }
+  html.dm.dmred [style*="var(--faint)"], html.dm.dmred [style*="var(--muted)"] { color:#171613 !important; }
+  html.dm.dmlight [style*="var(--faint)"], html.dm.dmlight [style*="var(--muted)"] { color:#F5F3EC !important; }
   #langSwitch button { position:relative; }
   #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
   html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
@@ -119,8 +119,8 @@
   html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
-.scp0:hover{border-bottom-color:#E17B3E !important;color:#E17B3E !important}
-.scp1:hover{color:#E17B3E !important;border-bottom-color:#E17B3E !important}
+.scp0:hover{border-bottom-color:var(--accent) !important;color:var(--accent) !important}
+.scp1:hover{color:var(--accent) !important;border-bottom-color:var(--accent) !important}
 html,body{height:100%;margin:0}#page{height:100%}
 </style>
 <script src="js/studio.js?v=769db2cf" defer></script>
@@ -133,7 +133,7 @@ html,body{height:100%;margin:0}#page{height:100%}
 <script type="module" src="js/haptics.js?v=c60c698e"></script>
 </head>
 <body>
-<div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
+<div id="page"><div data-theme-surface="cream" style="background:var(--ground); color:var(--ink); font-family:'Urbanist', sans-serif;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
@@ -141,15 +141,15 @@ html,body{height:100%;margin:0}#page{height:100%}
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Studio</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid var(--ink);">Studio</a>
       <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Contact</a></nav>
   </header>
 
   <section data-screen-label="Studio Intro" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) 0;">
-    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">The Studio</div>
+    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:20px;">The Studio</div>
     <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:24px 64px; padding-bottom:clamp(20px,2.5vw,32px);">
       <div style="flex:0 1 auto; min-width:0;"><h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; "><span data-i18n="studio.heroLineOne">The work changes with the context.</span><br><span data-i18n="studio.heroLineTwo">The approach does not.</span></h1></div>
-      <p style="flex:0 1 44ch; min-width:min(340px,100%); max-width:44ch; padding-top:8px; margin-left:auto; margin:0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.practiceIntro">SuDu works across architecture, interiors and design direction. Each project begins with its particular conditions: place, use, material, budget and people. We develop the work from the overall idea through to the smallest detail, looking for what is necessary, what belongs, and what can be removed.</p>
+      <p style="flex:0 1 44ch; min-width:min(340px,100%); max-width:44ch; padding-top:8px; margin-left:auto; margin:0; font-size:15px; line-height:1.85; color:var(--muted); text-wrap:pretty;" data-i18n="studio.practiceIntro">SuDu works across architecture, interiors and design direction. Each project begins with its particular conditions: place, use, material, budget and people. We develop the work from the overall idea through to the smallest detail, looking for what is necessary, what belongs, and what can be removed.</p>
     </div>
     
     <img id="studioTeamIllustration" src="images/team-illustration-alpha.png" srcset="/.netlify/images?url=/images/team-illustration-alpha.png&amp;w=480&amp;q=88 480w, /.netlify/images?url=/images/team-illustration-alpha.png&amp;w=680&amp;q=88 680w, /.netlify/images?url=/images/team-illustration-alpha.png&amp;w=1024&amp;q=88 1024w, /.netlify/images?url=/images/team-illustration-alpha.png&amp;w=1360&amp;q=88 1360w" sizes="(max-width:720px) 92vw, 680px" width="2048" height="2048" alt="Line portrait of the three SuDu Studio founders" loading="eager" fetchpriority="high" decoding="async" style="width:min(680px,92%); height:auto; aspect-ratio:1/1; display:block; margin:0 0 clamp(12px,1.5vw,20px);">
@@ -158,48 +158,48 @@ html,body{height:100%;margin:0}#page{height:100%}
   <section data-screen-label="Founders" style="padding:0 clamp(20px,4.5vw,64px) 0;">
     <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-bottom:18px;">
       <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">Founders</h2>
-      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">01 / 03</span>
+      <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:var(--faint);">01 / 03</span>
     </div>
 
-    <div style="display:flex; flex-wrap:wrap; gap:40px clamp(28px,3.5vw,56px); padding:32px 0 clamp(40px,5vw,56px); border-top:1px solid rgba(23,22,19,0.13);">
+    <div style="display:flex; flex-wrap:wrap; gap:40px clamp(28px,3.5vw,56px); padding:32px 0 clamp(40px,5vw,56px); border-top:1px solid var(--rule-13);">
       <div data-reveal data-motion="pair" style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
+        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:var(--faint);">01</span>
         <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Michael Sczesny</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;" data-i18n="studio.mikeRole">Partner + Principal Architect</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.mikeBioOne">With over 40 years of architectural experience, Mike is a pillar of the profession, known for his measured leadership and depth of expertise across project types. His portfolio spans institutional, educational, civic, residential, and commercial work throughout Western Canada.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.mikeBioTwo">Over the course of his career, Mike has led complex multi-stakeholder projects, shepherded heritage-sensitive renovations, and designed award-winning public spaces. He is equally comfortable navigating municipal processes as he is resolving construction details.</p>
+        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);" data-i18n="studio.mikeRole">Partner + Principal Architect</div>
+        <p style="margin:0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;" data-i18n="studio.mikeBioOne">With over 40 years of architectural experience, Mike is a pillar of the profession, known for his measured leadership and depth of expertise across project types. His portfolio spans institutional, educational, civic, residential, and commercial work throughout Western Canada.</p>
+        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;" data-i18n="studio.mikeBioTwo">Over the course of his career, Mike has led complex multi-stakeholder projects, shepherded heritage-sensitive renovations, and designed award-winning public spaces. He is equally comfortable navigating municipal processes as he is resolving construction details.</p>
       </div>
       <div data-reveal data-motion="pair" style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
+        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:var(--faint);">02</span>
         <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Jennifer von Berendt</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;" data-i18n="studio.jenniferRole">Designer + Project Director</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.jenniferBioOne">Jennifer is in her 18th year of consulting across the built environment, with a focus on interiors, project strategy, stakeholder alignment and integrated design. She works with multi-disciplinary teams across North and Central America, bringing together clients, developers, builders, and registered consultants around a shared vision.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.jenniferBioTwo">Her work has included wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta.</p>
+        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);" data-i18n="studio.jenniferRole">Designer + Project Director</div>
+        <p style="margin:0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;" data-i18n="studio.jenniferBioOne">Jennifer is in her 18th year of consulting across the built environment, with a focus on interiors, project strategy, stakeholder alignment and integrated design. She works with multi-disciplinary teams across North and Central America, bringing together clients, developers, builders, and registered consultants around a shared vision.</p>
+        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;" data-i18n="studio.jenniferBioTwo">Her work has included wellness and community facilities, affordable housing, and culturally significant projects with Indigenous Nations in Alberta.</p>
       </div>
       <div data-reveal data-motion="pair" style="flex:1 1 280px; min-width:260px;">
-        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
+        <span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:var(--faint);">03</span>
         <h3 style="margin:0 0 8px; font-size:clamp(20px,2.2vw,26px); font-weight:900; letter-spacing:-0.02em; line-height:1.05; text-transform:uppercase;">Joe Johnson</h3>
-        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#67655D;" data-i18n="studio.joeRole">Designer + Creative Director</div>
-        <p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.joeBioOne">Joe is a designer with 25 years of experience across the built environment, interiors, retail, hospitality, and residential design. Known for clarity of vision and cross-sector versatility, his work ranges from custom residences and multifamily housing to high-profile hospitality and retail interiors.</p>
-        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;" data-i18n="studio.joeBioTwo">Notably, Joe led the strategic planning, concept development, and design direction for ATB Financial’s “Branches of the Future”, a multi-year initiative to reimagine the bank’s flagship and neighbourhood locations across Alberta. His portfolio includes restaurants for award-winning chefs, branded commercial spaces, and design systems that balance atmosphere with operational function. He provides senior design leadership from early concepts through refined execution, working with the studio’s registered professionals where regulated services are required.</p>
+        <div style="margin-bottom:20px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);" data-i18n="studio.joeRole">Designer + Creative Director</div>
+        <p style="margin:0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;" data-i18n="studio.joeBioOne">Joe is a designer with 25 years of experience across the built environment, interiors, retail, hospitality, and residential design. Known for clarity of vision and cross-sector versatility, his work ranges from custom residences and multifamily housing to high-profile hospitality and retail interiors.</p>
+        <p style="margin:16px 0 0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;" data-i18n="studio.joeBioTwo">Notably, Joe led the strategic planning, concept development, and design direction for ATB Financial’s “Branches of the Future”, a multi-year initiative to reimagine the bank’s flagship and neighbourhood locations across Alberta. His portfolio includes restaurants for award-winning chefs, branded commercial spaces, and design systems that balance atmosphere with operational function. He provides senior design leadership from early concepts through refined execution, working with the studio’s registered professionals where regulated services are required.</p>
       </div>
     </div>
   
   </section>
 
   
-  <section data-screen-label="Start a Project" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) clamp(48px,9vw,120px); border-top:1px solid rgba(23,22,19,0.13);">
+  <section data-screen-label="Start a Project" style="padding:clamp(48px,9vw,120px) clamp(20px,4.5vw,64px) clamp(48px,9vw,120px); border-top:1px solid var(--rule-13);">
     <div data-reveal data-motion="detail" style="display:flex; flex-direction:column; align-items:flex-start; gap:20px;">
       <h2 style="margin:0; font-size:clamp(28px,3.8vw,46px); font-weight:900; line-height:0.95; letter-spacing:-0.02em; text-transform:uppercase;">Start a project</h2>
-      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid rgba(23,22,19,0.4); transition:color .35s ease, border-color .35s ease;" class="scp1">Get in touch</a>
+      <a href="/contact" style="display:inline-flex; align-items:center; gap:0.3em; margin-top:6px; font-size:15px; font-weight:700; letter-spacing:0.02em; padding-bottom:4px; border-bottom:1px solid var(--rule-40); transition:color .35s ease, border-color .35s ease;" class="scp1">Get in touch</a>
     </div>
   </section>
 
 
-  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">
+  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid var(--rule-13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:var(--faint);; padding-bottom:64px">
     <div style="display:flex; align-items:center; gap:12px;">
       <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
-      <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
+      <span style="width:1px; height:14px; background:var(--rule-22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>
   </footer></div></div>

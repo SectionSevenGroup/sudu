@@ -9,9 +9,9 @@ const esc = (value) => String(value ?? '')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;');
 
-const rowStyle = 'padding:9px 0; border-bottom:1px solid rgba(23,22,19,0.13); font-family:\'Urbanist\', sans-serif; font-size:12px; color:#67655D; transition:color .25s ease, padding-left .25s ease;';
-const hoverStyle = 'color:#171613; padding-left:8px;';
-const listStyle = 'list-style:none; margin:0; padding:0; border-top:1px solid rgba(23,22,19,0.13);';
+const rowStyle = 'padding:9px 0; border-bottom:1px solid var(--rule-13); font-family:\'Urbanist\', sans-serif; font-size:12px; color:var(--muted); transition:color .25s ease, padding-left .25s ease;';
+const hoverStyle = 'color:var(--ink); padding-left:8px;';
+const listStyle = 'list-style:none; margin:0; padding:0; border-top:1px solid var(--rule-13);';
 
 function entryHtml(entry) {
   const name = esc(entry.name);
@@ -52,7 +52,7 @@ let section = source.slice(sectionStart, sectionEnd + '</section>'.length);
 // Consume the whitespace in front of <ul> as well: listHtml() writes its own
 // fixed indent, and matching from "<ul" onward left the old indent in place,
 // so every build pushed the three lists eight spaces further right.
-const listRe = /[ \t]*<ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba\(23,22,19,0\.13\);">[\s\S]*?<\/ul>/g;
+const listRe = /[ \t]*<ul style="list-style:none; margin:0; padding:0; border-top:1px solid var\(--rule-13\);">[\s\S]*?<\/ul>/g;
 const matches = [...section.matchAll(listRe)];
 if (matches.length !== 3) {
   throw new Error(`Expected 3 Experience Index lists, found ${matches.length}.`);
