@@ -66,7 +66,7 @@
 
   var css = document.createElement('style');
   css.textContent =
-    '.turbo-progress-bar{height:2px;background:#E17B3E;}' +
+    '.turbo-progress-bar{height:2px;}' +
     // Only #page moves. The ground on <html>, the chrome bar, the theme and
     // the language, music and colour controls are all outside it and hold
     // still: content leaves the field, content arrives into it.
@@ -88,6 +88,15 @@
     '@keyframes suduArrive{from{opacity:0;}to{opacity:1;}}' +
     '@media (prefers-reduced-motion: reduce){html.sudu-arrive #page{animation:none;}}';
   document.head.appendChild(css);
+
+  // The progress bar takes the accent of the ground it is shown on, read from
+  // the tokens at the moment the visit starts rather than fixed here.
+  var bar = document.createElement('style');
+  document.addEventListener('turbo:visit', function () {
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    bar.textContent = '.turbo-progress-bar{background:' + (accent || 'currentColor') + ';}';
+  });
+  document.head.appendChild(bar);
 
   // ---------------------------------------------------------------- helpers
 
@@ -111,15 +120,6 @@
       promise,
       new Promise(function (res) { setTimeout(res, ms); })
     ]);
-  }
-
-  // The theme marker classifies which incoming elements carry the cream ground.
-  // It has to run before anything is shown, or html.dm's inversion lands on
-  // sections that were never marked.
-  function markTheme() {
-    if (typeof window.__suduMark === 'function') {
-      try { window.__suduMark(); } catch (e) {}
-    }
   }
 
   // The scroll-reveal engines decide, per element, whether it is part of the
@@ -203,7 +203,7 @@
   // runs while that page is held at opacity 0, over the permanent field.
   function gate(rendered) {
     return rendered
-      .then(function () { markTheme(); prepareReveals(); })
+      .then(function () { prepareReveals(); })
       .then(afterFrame)
       .then(decodeCritical);
   }

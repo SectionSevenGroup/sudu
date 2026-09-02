@@ -6,12 +6,10 @@
 // reuse it under an older asset URL; stamp-assets.mjs gives this file a new
 // content-derived ?v= and marks it as Turbo reload-tracked.
 //
-// It is appended to <html> rather than <body> for two reasons. Turbo replaces
-// the body on every visit, which would orphan the bar and everything mounted
-// in it; and dark mode applies `filter: invert(1) hue-rotate(180deg)` to
-// header/section/footer, which would both invert the bar and — because a
-// filtered ancestor becomes the containing block for fixed descendants —
-// break its positioning. Outside the body it is immune to both.
+// It is appended to <html> rather than <body>: Turbo replaces the body on
+// every visit, which would orphan the bar and everything mounted in it. Its
+// ground and ink are the page's tokens (css/tokens.css), so the class on
+// <html> that selects the ground recolours the bar with everything else.
 (function () {
   if (window.suduBar) return;
 
@@ -20,9 +18,8 @@
     'display:flex;align-items:center;justify-content:space-between;',
     'gap:12px;padding:0 max(clamp(20px,4.5vw,64px),calc((100% - var(--sudu-rail,1760px)) / 2)) env(safe-area-inset-bottom,0px);',
     'font-family:\'Urbanist\',sans-serif;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);',
-    'background:color-mix(in srgb,#F3F1EA 72%,transparent);color:#171613;transition:background .45s ease,color .45s ease;}',
-    'html.dm #suduBar{background:color-mix(in srgb,var(--dm-bg,#C0431F) 72%,transparent);color:#F5F3EC;}',
-    'html.dm #suduBar,html.dm #suduBar *{filter:none !important;}',
+    'background:color-mix(in srgb,var(--ground,var(--paper,#F3F1EA)) 72%,transparent);color:var(--ink,#171613);transition:background .45s ease,color .45s ease;}',
+    'html.dm #suduBar{color:var(--chrome-ink,#F5F3EC);}',
 
     '#suduBar #langSwitch,#suduBar #dmSwatches,#suduBar #musicPill{position:static !important;',
     'background:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;',
@@ -41,30 +38,6 @@
     '#suduBar #musicPill{position:static !important;transform:none;}',
     '#suduBar #langSwitch,#suduBar #dmSwatches,#suduBar #musicPill{gap:13px;}}',
     '#suduBar button{font-family:inherit;color:inherit;cursor:none;background:none;border:0;padding:0;}',
-
-    // Charcoal keeps the existing inversion architecture, but the original
-    // source greys invert to values that are too dark against #121110. These
-    // overrides change only the pre-filter source values, so the visible result
-    // is a clearer secondary/tertiary hierarchy without touching Off-white or
-    // Burnt. Primary ink remains exactly as authored.
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color:var(--muted)"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color: var(--muted)"]{color:#55534D !important;}',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color:var(--faint)"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color: var(--faint)"]{color:#747168 !important;}',
-
-    // Structural hairlines need more source alpha on Charcoal because the
-    // section filter is applied after compositing. Major section/card/FAQ rules
-    // are raised modestly; form fields and outlined controls remain stronger.
-    'html.dm:not(.dmwarm):not(.dmred) body section[style*="border-"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="border-top"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="border-bottom"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="border-left"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="border-right"]{border-color:rgba(23,22,19,.30) !important;}',
-    'html.dm:not(.dmwarm):not(.dmred) body section input,',
-    'html.dm:not(.dmwarm):not(.dmred) body section textarea,',
-    'html.dm:not(.dmwarm):not(.dmred) body section button[style*="border:1px"]{border-color:rgba(23,22,19,.48) !important;}',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="background:var(--rule-22)"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="background: var(--rule-22)"]{background:rgba(23,22,19,.38) !important;}'
   ].join('');
 
   // The theme picker lives inside page templates and therefore does not always
@@ -76,15 +49,14 @@
     if (v === '#D0271F') v = '#C0431F';
     var h = document.documentElement;
     if (v === '#F3F1EA') {
-      h.classList.remove('dm','dmwarm','dmred','dmlight');
+      h.classList.remove('dm','dmwarm','dmred');
       h.style.removeProperty('--dm-bg');
     } else if (v === '#C0431F') {
       h.classList.add('dm','dmwarm','dmred');
-      h.classList.remove('dmlight');
       h.style.setProperty('--dm-bg','#C0431F');
     } else {
       h.classList.add('dm');
-      h.classList.remove('dmwarm','dmred','dmlight');
+      h.classList.remove('dmwarm','dmred');
       h.style.setProperty('--dm-bg','#121110');
     }
   }

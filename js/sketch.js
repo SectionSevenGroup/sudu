@@ -1813,15 +1813,14 @@
         var value = choice[1];
         var html = document.documentElement;
         if (value === '#F3F1EA') {
-          html.classList.remove('dm', 'dmwarm', 'dmred', 'dmlight');
+          html.classList.remove('dm', 'dmwarm', 'dmred');
           html.style.removeProperty('--dm-bg');
         } else if (value === '#C0431F') {
           html.classList.add('dm', 'dmwarm', 'dmred');
-          html.classList.remove('dmlight');
           html.style.setProperty('--dm-bg', value);
         } else {
           html.classList.add('dm');
-          html.classList.remove('dmwarm', 'dmred', 'dmlight');
+          html.classList.remove('dmwarm', 'dmred');
           html.style.setProperty('--dm-bg', value);
         }
         try { localStorage.setItem('sudu-dm-bg', value); } catch (error) {}

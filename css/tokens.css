@@ -1,17 +1,20 @@
-/* Colour tokens. Off-white authored values only: every dark-ground look is
-   produced by the html.dm override rules and filters, which keep their own
-   literal colours and never read these. Changing a value here changes the
-   off-white ground everywhere the name is used. */
+/* Colour tokens. The :root block is the off-white ground. The two blocks after
+   it are the dark grounds: Charcoal is html.dm alone, Burnt is
+   html.dm.dmwarm.dmred. Their values are the rendered ones — the class on
+   <html> (set by js/chrome-bar.js and js/theme.js) selects the block, and
+   nothing is inverted or filtered any more. Rules on the dark grounds are
+   off-white ink over the ground at the alpha each ground renders. */
 :root {
   --ink:#171613;
   --ground:#F3F1EA;
   --plate:#E8E5DC;
   --muted:#67655D;
   --faint:#A6A399;
-  --accent:#E17B3E;
+  --accent:#C0431F;
   --chrome-ink:#F5F3EC;
   --charcoal:#121110;
   --burnt:#C0431F;
+  --xh:#57554E;
   --rule-05:rgba(23,22,19,0.05);
   --rule-13:rgba(23,22,19,0.13);
   --rule-22:rgba(23,22,19,0.22);
@@ -22,3 +25,57 @@
   --rule-40:rgba(23,22,19,0.4);
   --rule-55:rgba(23,22,19,0.55);
 }
+/* Charcoal */
+html.dm {
+  --ground:#121110;
+  --plate:#1D1A11;
+  --ink:#EAE9E6;
+  --muted:#AEACA6;
+  --faint:#918E85;
+  --accent:#F5F3EC;
+  --chrome-ink:#F5F3EC;
+  --xh:#F5F3EC;
+  --rule-05:rgba(232,233,236,0.05);
+  --rule-13:rgba(232,233,236,0.3);
+  --rule-22:rgba(232,233,236,0.38);
+  --rule-25:rgba(232,233,236,0.25);
+  --rule-30:rgba(232,233,236,0.3);
+  --rule-32:rgba(232,233,236,0.48);
+  --rule-35:rgba(232,233,236,0.35);
+  --rule-40:rgba(232,233,236,0.3);
+  --rule-55:rgba(232,233,236,0.55);
+}
+/* Burnt */
+html.dm.dmwarm.dmred {
+  --ground:#C0431F;
+  --plate:#1D1A11;
+  --ink:#EAE9E6;
+  --muted:#EAE9E6;
+  --faint:#EAE9E6;
+  --accent:#F5F3EC;
+  --chrome-ink:#F5F3EC;
+  --xh:#F5F3EC;
+  --rule-05:rgba(232,233,236,0.05);
+  --rule-13:rgba(232,233,236,0.42);
+  --rule-22:rgba(232,233,236,0.22);
+  --rule-25:rgba(232,233,236,0.25);
+  --rule-30:rgba(232,233,236,0.42);
+  --rule-32:rgba(232,233,236,0.42);
+  --rule-35:rgba(232,233,236,0.35);
+  --rule-40:rgba(232,233,236,0.42);
+  --rule-55:rgba(232,233,236,0.55);
+}
+/* What the dark grounds render besides token values. */
+html.dm, html.dm body { background:var(--ground); }
+html.dm header { background:color-mix(in srgb, var(--ground) 90%, transparent) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:0 !important; color:var(--chrome-ink); --ink:var(--chrome-ink); --muted:var(--chrome-ink); --faint:var(--chrome-ink); }
+html.dm footer { background:transparent !important; color:var(--chrome-ink); --ink:var(--chrome-ink); --muted:var(--chrome-ink); --faint:var(--chrome-ink); --rule-13:rgba(245,243,236,0.45); --rule-22:rgba(245,243,236,0.45); --rule-32:rgba(245,243,236,0.5); }
+html.dm input::placeholder, html.dm textarea::placeholder { color:#DDDBD6 !important; opacity:1 !important; }
+html.dm section, html.dm section *, html.dm footer, html.dm footer * { border-width:0.5px !important; }
+/* Dark artwork on transparent, inverted the way the old section filter did,
+   until light variants of these three files exist. The header and footer mark
+   kept its own invert(1)-only rule; that is matched here too. */
+html.dm img[src*="hero-drawing"],
+html.dm img[src*="team-illustration"],
+html.dm img[src*="sudu-mark"] { filter: invert(1) hue-rotate(180deg); }
+html.dm header img[src*="sudu-mark"],
+html.dm footer img[src*="sudu-mark"] { filter: invert(1); }
