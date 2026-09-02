@@ -19,7 +19,7 @@ function entryHtml(entry) {
   if (entry.preview) attrs.push(`data-preview="${esc(entry.preview)}"`);
   if (entry.info) attrs.push(`data-info="${esc(entry.info)}"`);
   const content = entry.project
-    ? `<a href="project.html?p=${encodeURIComponent(String(entry.project))}" style="color:inherit; text-decoration:none; display:block;">${name}</a>`
+    ? `<a href="/work/${encodeURIComponent(String(entry.project))}/" style="color:inherit; text-decoration:none; display:block;">${name}</a>`
     : name;
   return `          <li style="${rowStyle}" style-hover="${hoverStyle}"${attrs.length ? ' ' + attrs.join(' ') : ''}>${content}</li>`;
 }

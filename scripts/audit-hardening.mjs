@@ -29,6 +29,9 @@ const HTML = [...CORE, ...SERVICES];
 
 function extensionless(html) {
   return html
+    // The query-param project route is retired; /work/<slug>/ is the page.
+    // _redirects still 301s the old form, but nothing authored should emit it.
+    .replace(/href="(?:\.\/|\/)?project\.html\?p=([A-Za-z0-9_-]+)"/g, 'href="/work/$1/"')
     .replaceAll('href="index.html"', 'href="/"')
     .replaceAll('href="./"', 'href="/"')
     .replaceAll('href="work.html"', 'href="/work"')

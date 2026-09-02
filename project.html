@@ -826,10 +826,10 @@ class Component extends DCLogic {
       }),
       hasGallery: !ed && !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
       showSlots: false,
-      nextTitle: nd.title, nextHref: 'project.html?p=' + d.next,
+      nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
       heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
-        href: 'project.html?p=' + r.key,
+        href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',
         hasThumb: !!projects[r.key].heroSrc,
         name: r.name,
