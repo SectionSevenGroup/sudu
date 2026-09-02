@@ -66,7 +66,7 @@ function architectureIdentity(html, page) {
 
 function addCoreShell(html) {
   if (!html.includes('css/rail.css')) {
-    html = html.replace('</head>', '<link rel="stylesheet" href="css/rail.css">\n<script src="js/chrome-bar.js"></script>\n<script src="js/turbo-boot.js" defer></script>\n<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>\n<meta name="turbo-cache-control" content="no-preview">\n</head>');
+    html = html.replace('</head>', '<link rel="stylesheet" href="css/rail.css">\n<script src="js/chrome-bar.js"></script>\n<script src="js/turbo-boot.js" defer></script>\n<script src="js/vendor/turbo.es2017-umd.js" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>\n<meta name="turbo-cache-control" content="no-preview">\n</head>');
   }
   html = html.replace(/<header style=/g, '<header id="suduNav" style=');
   html = html.replace(/<a href="\/work"(?![^>]*data-turbo-preload)/g, '<a href="/work" data-turbo-preload');
