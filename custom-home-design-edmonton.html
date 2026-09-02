@@ -26,9 +26,8 @@
 <script src="js/turbo-boot.js?v=77513502" defer></script>
 <script src="js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
 <meta name="turbo-cache-control" content="no-preview">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -49,7 +48,7 @@ html,body{height:100%;margin:0}#page{height:100%}
 
   <header id="suduNav" data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+      <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Work</a>
@@ -65,8 +64,8 @@ html,body{height:100%;margin:0}#page{height:100%}
       <p style="flex:1 1 380px; max-width:56ch; margin:0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;">A custom home is the most personal project in architecture. SuDu Studio designs new residences across Edmonton, Alberta and Western Canada, carrying one disciplined process from the first site walk to the day you move in.</p>
     </div>
     <div style="display:flex; flex-wrap:wrap; gap:clamp(14px,1.8vw,24px); padding-bottom:clamp(28px,3.5vw,44px);">
-      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/westshore-estates-house-exterior.jpg" srcset="/.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Custom home design: Westshore Estates residence exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
-      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/westshore-estates-hillside-elevation.jpg" srcset="/.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Westshore Estates hillside elevation, custom residence" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
+      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/westshore-estates-house-exterior.jpg" width="1448" height="1086" srcset="/.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-house-exterior.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Custom home design: Westshore Estates residence exterior" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
+      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/westshore-estates-hillside-elevation.jpg" width="1448" height="1086" srcset="/.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwestshore-estates-hillside-elevation.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Westshore Estates hillside elevation, custom residence" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
     </div>
   </section>
 
@@ -103,7 +102,7 @@ html,body{height:100%;margin:0}#page{height:100%}
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>

@@ -2,11 +2,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { heroPreload } from './hero-preload.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const slugs = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','opt','factory-club','factory-yyc','selkirk','enoch','youth-recovery'];
 
 function imageCdn(html) {
-  return html.replace(/<img([^>]*?)src="(\/images\/(?!sudu-mark|hero-drawing|team-illustration|red-)[^"]+\.(?:jpg|jpeg|png))"([^>]*?)>/gi,
+  return html.replace(/<img([^>]*?)src="(\/images\/(?!sudu-mark|team-illustration|red-)[^"]+\.(?:jpg|jpeg|png))"([^>]*?)>/gi,
     (m,before,src,after) => {
       if (/srcset=/.test(m)) return m;
       const u = encodeURIComponent(src);
@@ -26,6 +27,7 @@ for (const slug of slugs) {
     .replaceAll('href="/studio.html"','href="/studio"')
     .replaceAll('href="/contact.html"','href="/contact"');
   s = imageCdn(s);
+  s = heroPreload(s);
   writeFileSync(path,s);
 }
 

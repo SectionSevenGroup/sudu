@@ -37,9 +37,8 @@
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -159,13 +158,14 @@ html,body{height:100%;margin:0}#page{height:100%}
 <script src="/js/reveal.js?v=3c98252b" defer></script>
 <script src="/js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="/js/haptics.js?v=c60c698e"></script>
+<link rel="preload" as="image" href="/images/wilfreds-hospitality-edmonton.jpg" imagesrcset="/.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1920&q=82 1920w" imagesizes="100vw">
 </head>
 <body>
 <div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+      <img src="/images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Work</a>
@@ -187,7 +187,7 @@ html,body{height:100%;margin:0}#page{height:100%}
   </section>
 
   <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <img src="/images/wilfreds-hospitality-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1920&q=82 1920w" sizes="100vw" alt="Wilfreds" width="1400" height="1867" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+    <img src="/images/wilfreds-hospitality-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwilfreds-hospitality-edmonton.jpg&w=1920&q=82 1920w" sizes="100vw" alt="Wilfreds" width="1400" height="1867" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
@@ -271,7 +271,7 @@ html,body{height:100%;margin:0}#page{height:100%}
         <a href="/work/corso32/" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             
-              <img src="/images/corso-32-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Corso 32" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+              <img src="/images/corso-32-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Corso 32" width="1500" height="998" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
             
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</div>
@@ -282,7 +282,7 @@ html,body{height:100%;margin:0}#page{height:100%}
         <a href="/work/bar-bricco/" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             
-              <img src="/images/bar-bricco-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Bar Bricco" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+              <img src="/images/bar-bricco-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Bar Bricco" width="1500" height="997" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
             
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</div>
@@ -293,7 +293,7 @@ html,body{height:100%;margin:0}#page{height:100%}
         <a href="/work/uccellino/" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             
-              <img src="/images/uccellino-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Uccellino" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+              <img src="/images/uccellino-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Uccellino" width="1500" height="991" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
             
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</div>
@@ -304,7 +304,7 @@ html,body{height:100%;margin:0}#page{height:100%}
         <a href="/work/the-helm/" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             
-              <img src="/images/the-helm-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="The Helm" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+              <img src="/images/the-helm-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="The Helm" width="1500" height="2250" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
             
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Retail</div>
@@ -315,7 +315,7 @@ html,body{height:100%;margin:0}#page{height:100%}
         <a href="/work/hells-kitchen/" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             
-              <img src="/images/hells-kitchen-enoch.jpg" srcset="/.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Hell’s Kitchen at Enoch Casino" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+              <img src="/images/hells-kitchen-enoch.jpg" srcset="/.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fhells-kitchen-enoch.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Hell’s Kitchen at Enoch Casino" width="1500" height="1000" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
             
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Entertainment</div>
@@ -336,7 +336,7 @@ html,body{height:100%;margin:0}#page{height:100%}
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="/images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>

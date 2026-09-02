@@ -1,5 +1,5 @@
-# Every public page loads scripts and styles from its own origin and Google
-# Fonts, and nothing else: the pages carry no inline script (JSON-LD is data,
+# Every public page loads scripts, styles and fonts from its own origin and
+# nothing else: the pages carry no inline script (JSON-LD is data,
 # not executed), inline styles are the site's architecture and are allowed,
 # images come from /images and /.netlify/images on this origin, the music from
 # /audio, and the contact form and the sketch page POST to "/". The four
@@ -10,7 +10,7 @@
 # /control/* keeps its own, stricter policy and its no-referrer below, whether
 # Netlify replaces the earlier value or sends both.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 

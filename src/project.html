@@ -34,9 +34,8 @@
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -158,7 +157,7 @@
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
+      <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
       <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
@@ -180,7 +179,7 @@
   </section>
 
   <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <sc-if value="{{ heroSrc }}"><img src="{{ heroSrc }}" alt="{{ heroAlt }}" width="{{ heroW }}" height="{{ heroH }}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+    <sc-if value="{{ heroSrc }}"><img src="{{ heroSrc }}" alt="{{ heroAlt }}" width="{{ heroW }}" height="{{ heroH }}" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
@@ -244,7 +243,7 @@
           <div class="project-gallery-grid" data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,2vw,28px);">
             <sc-for list="{{ grp.images }}" as="g">
               <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">
-                <img src="{{ g.src }}" srcset="/.netlify/images?url=/{{ g.src }}&w=480&q=82 480w, /.netlify/images?url=/{{ g.src }}&w=768&q=82 768w, /.netlify/images?url=/{{ g.src }}&w=1080&q=82 1080w, /.netlify/images?url=/{{ g.src }}&w=1440&q=82 1440w, /.netlify/images?url=/{{ g.src }}&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
+                <img src="{{ g.src }}" srcset="/.netlify/images?url=/{{ g.src }}&w=480&q=82 480w, /.netlify/images?url=/{{ g.src }}&w=768&q=82 768w, /.netlify/images?url=/{{ g.src }}&w=1080&q=82 1080w, /.netlify/images?url=/{{ g.src }}&w=1440&q=82 1440w, /.netlify/images?url=/{{ g.src }}&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="{{ g.alt }}" width="{{ g.w }}" height="{{ g.h }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
               </div>
             </sc-for>
           </div>
@@ -263,7 +262,7 @@
         <a href="{{ r.href }}" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
             <sc-if value="{{ r.hasThumb }}">
-              <img src="{{ r.thumb }}" alt="{{ r.name }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
+              <img src="{{ r.thumb }}" alt="{{ r.name }}" width="{{ r.w }}" height="{{ r.h }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
             </sc-if>
           </div>
           <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ r.eyebrow }}</div>
@@ -293,7 +292,7 @@
 
   <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">
     <div style="display:flex; align-items:center; gap:12px;">
-      <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
+      <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>
@@ -739,11 +738,14 @@ class Component {
       : (d.gallery || []);
     const nd = Component.DATA[d.next];
     const projects = Component.DATA;
+    // Gallery, related and hero images write their pixel size from DIMS onto
+    // the <img> so the browser knows each proportion before it loads.
+    const size = (src) => (Component.DIMS[src] ? { w: Component.DIMS[src][0], h: Component.DIMS[src][1] } : { w: 4, h: 3 });
     return {
       ...d,
       galleryGroups: (d.groups
-        ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', minW: grp.small ? 300 : 560, bg: grp.small ? 'transparent' : '#E8E5DC', fit: grp.small ? 'contain' : 'cover', images: grp.images.map((src) => ({ src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
-        : [{ hasHead: false, head: '', sub: '', minW: 560, bg: '#E8E5DC', fit: 'cover', images: (d.gallery || []).map((src) => ({ src, alt: d.title })) }]),
+        ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', minW: grp.small ? 300 : 560, bg: grp.small ? 'transparent' : '#E8E5DC', fit: grp.small ? 'contain' : 'cover', images: grp.images.map((src) => ({ src, ...size(src), alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
+        : [{ hasHead: false, head: '', sub: '', minW: 560, bg: '#E8E5DC', fit: 'cover', images: (d.gallery || []).map((src) => ({ src, ...size(src), alt: d.title })) }]),
       hasEditorial: !!ed,
       editorialBlocks: (ed ? ed.seq : []).map((b) => {
         const m = b.i.map((k) => {
@@ -789,6 +791,7 @@ class Component {
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
         href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',
+        ...size(projects[r.key].heroSrc),
         hasThumb: !!projects[r.key].heroSrc,
         name: r.name,
         eyebrow: projects[r.key].eyebrow,

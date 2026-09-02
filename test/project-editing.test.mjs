@@ -243,9 +243,9 @@ test('a new project arrives complete, in the order, with its index row', () => {
   assert.equal(next.DATA[slug].counter, `${String(i + 1).padStart(2, '0')} / ${next.order.length}`);
   assert.equal(next.DATA[slug].next, next.order[(i + 1) % next.order.length]);
 
-  // the work index knows about it
+  // the work index knows about it, and carries the thumb's own pixel size
   assert.deepEqual(next.names[slug],
-    { eyebrow: 'Commercial', title: 'The New Building', location: 'Edmonton, AB', thumb: gallery[0] });
+    { eyebrow: 'Commercial', title: 'The New Building', location: 'Edmonton, AB', thumb: gallery[0], w: 1500, h: 1000 });
 
   // every other project's counter was rewritten to the new total
   for (const other of s.order) {
