@@ -61,7 +61,7 @@
     };
     // Reduced motion: no arrival at all, straight to the settled state.
     if (REDUCED.matches) { settle(); return; }
-    hi.style.opacity = '0';
+    hi.style.opacity = '0.01';
     if (hf) { hf.style.opacity = '0'; hf.style.transform = 'translateY(26px)'; }
     var started = false;
     var start = function () {
