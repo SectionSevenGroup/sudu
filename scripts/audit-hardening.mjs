@@ -98,8 +98,9 @@ function studioReveal(html) {
 }
 
 function projectSource(html) {
-  html = html.replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">');
-  html = html.replace('<link rel="canonical" href="https://sudu.studio/project.html">', '<link rel="canonical" href="https://sudu.studio/work">');
+  // project.html is the generator template: it is authored noindex with no
+  // canonical of its own, and build-projects.mjs writes each generated page's
+  // real canonical and robots directive.
   html = html.replace('<meta property="og:url" content="https://sudu.studio/project.html">', '<meta property="og:url" content="https://sudu.studio/work">');
   html = html.replace(
     '<div data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min({{ grp.minW }}px,100%), 1fr)); gap:clamp(16px,2vw,28px);">',

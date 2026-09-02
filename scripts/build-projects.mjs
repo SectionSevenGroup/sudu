@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Generates the static per-project pages under /work/<slug>/index.html from
-// project.html (which stays the source of truth for markup and project data),
-// plus /work/index.html as a path-adjusted mirror of work.html so that the
-// /work/ directory URL keeps serving the Work index on GitHub Pages.
+// project.html (which stays the source of truth for markup and project data).
+// It no longer writes a /work/index.html mirror of work.html: Netlify serves
+// /work from work.html and normalises /work/ to it, so the mirror was a second
+// URL for the same page.
 //
 // Run from the repo root after editing project.html or work.html:
 //   node scripts/build-projects.mjs
@@ -102,8 +103,8 @@ function generateProjectPage(slug) {
   for (const [k, v] of Object.entries(scalars)) {
     html = html.replaceAll(`{{ ${k} }}`, v);
   }
-  // strip the template-only redirect + noindex (generated pages are the real URLs)
-  html = html.replace(/<meta name="robots" content="noindex">\n/, '');
+  // the template is noindex; generated pages are the real, indexable URLs
+  html = html.replace(/<meta name="robots" content="noindex">\n/, '<meta name="robots" content="index, follow">\n');
   html = html.replace(/<script data-strip-on-generate>[\s\S]*?<\/script>\n/, '');
   // pin the project instead of reading ?p=
   html = html.replace(
@@ -129,12 +130,6 @@ function generateProjectPage(slug) {
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' + headBlock(slug)
   );
   return html;
-}
-
-function generateWorkMirror() {
-  // /work/ resolves to this directory on GitHub Pages once it exists, so it
-  // must serve the same page as /work (work.html) with root-absolute paths.
-  return absolutePaths(read('work.html'));
 }
 
 // ---- work.html has to agree with project.html ------------------------------
@@ -185,5 +180,4 @@ for (const slug of slugs) {
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'index.html'), generateProjectPage(slug));
 }
-writeFileSync(join(root, 'work', 'index.html'), generateWorkMirror());
-console.log(`wrote work/index.html and ${slugs.length} project pages: ${slugs.join(', ')}`);
+console.log(`wrote ${slugs.length} project pages: ${slugs.join(', ')}`);
