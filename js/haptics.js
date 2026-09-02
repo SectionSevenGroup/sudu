@@ -29,8 +29,8 @@ export function tick(ms = 10) {
 // directly on submit, which is the one interaction not delegated below.
 window.suduHaptics = { tick: tick };
 
-// One delegated listener rather than per-control binding, so the controls the
-// DC runtime rebuilds on every Turbo visit stay covered without rebinding.
+// One delegated listener rather than per-control binding, so the controls a
+// Turbo visit swaps in stay covered without rebinding.
 // Most specific match wins and returns, so a single tap never ticks twice.
 var TARGETS = [
   ['#trackNext', 8],                       // next track

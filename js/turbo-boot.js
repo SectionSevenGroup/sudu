@@ -3,10 +3,10 @@
 // Turbo swaps page content in place instead of doing full reloads, so the
 // background music keeps playing between screens. The problem this file exists
 // to solve is not speed but atomicity: the SuDu page is not finished when Turbo
-// hands over the new body. The DC runtime still has to render it through React,
-// the theme marker still has to classify the incoming sections, and the opening
-// image still has to decode. Anything that paints in between is an intermediate
-// state the visitor was never meant to see.
+// hands over the new body. The theme marker still has to classify the incoming
+// sections, the reveal engines still have to settle the opening composition,
+// and the opening image still has to decode. Anything that paints in between
+// is an intermediate state the visitor was never meant to see.
 //
 // The shape of the answer is two independent halves rather than one held frame:
 //
@@ -44,10 +44,9 @@
   var root = document.documentElement;
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // The content field: #page on a statically rendered page, #dc-root where
-  // the DC runtime still mounts one. The fallback goes with the runtime.
+  // The content field: the #page the build wraps every page's body in.
   function field() {
-    return document.getElementById('page') || document.getElementById('dc-root');
+    return document.getElementById('page');
   }
 
   // The rhythm is deliberately asymmetric. Leaving is brisk; arriving is slow
@@ -64,31 +63,30 @@
   // on its own and cannot strand at zero if anything else goes wrong.
   var ARRIVE_MS = 1500;
   var GATE_CAP = 1400;   // absolute cap: navigation never hangs on this file
-  var COMMIT_TRIES = 30; // bounded wait for React to commit
 
   var css = document.createElement('style');
   css.textContent =
     '.turbo-progress-bar{height:2px;background:#E17B3E;}' +
-    // Only #dc-root moves. The ground on <html>, the chrome bar, the theme and
+    // Only #page moves. The ground on <html>, the chrome bar, the theme and
     // the language, music and colour controls are all outside it and hold
     // still: content leaves the field, content arrives into it.
     //
     // The exit is a plain class change on <html>, so it starts on the next
     // paint after the click with no JavaScript in the way. The hold that
     // follows is the same rule without a transition, which is what keeps a
-    // half-assembled page off the screen — the incoming root is already at 0
+    // half-assembled page off the screen — the incoming field is already at 0
     // before it can paint, so it never goes 1 to 0 to 1.
-    'html[data-nav] #page,html[data-nav] #dc-root{opacity:0;}' +
-    'html[data-nav="out"] #page,html[data-nav="out"] #dc-root{transition:opacity ' + OUT_MS + 'ms ' + EASE + ';}' +
+    'html[data-nav] #page{opacity:0;}' +
+    'html[data-nav="out"] #page{transition:opacity ' + OUT_MS + 'ms ' + EASE + ';}' +
     // Reduced motion keeps the ordering and drops the animation: the incoming
     // page is still assembled out of sight, it simply arrives without a fade.
-    '@media (prefers-reduced-motion: reduce){html[data-nav] #page,html[data-nav] #dc-root{transition:none;}}' +
-    // The first arrival. The class is only ever added by script, after the
-    // page has committed, so a browser that never runs it simply shows the
-    // page — there is no authored opacity:0 for anything to get stuck behind.
-    'html.sudu-arrive #page,html.sudu-arrive #dc-root{animation:suduArrive ' + ARRIVE_MS + 'ms ' + EASE + ' forwards;}' +
+    '@media (prefers-reduced-motion: reduce){html[data-nav] #page{transition:none;}}' +
+    // The first arrival. The class is only ever added by script, so a browser
+    // that never runs it simply shows the page — there is no authored
+    // opacity:0 for anything to get stuck behind.
+    'html.sudu-arrive #page{animation:suduArrive ' + ARRIVE_MS + 'ms ' + EASE + ' forwards;}' +
     '@keyframes suduArrive{from{opacity:0;}to{opacity:1;}}' +
-    '@media (prefers-reduced-motion: reduce){html.sudu-arrive #page,html.sudu-arrive #dc-root{animation:none;}}';
+    '@media (prefers-reduced-motion: reduce){html.sudu-arrive #page{animation:none;}}';
   document.head.appendChild(css);
 
   // ---------------------------------------------------------------- helpers
@@ -115,24 +113,9 @@
     ]);
   }
 
-  // React renders through createRoot, which commits asynchronously — the host
-  // is still empty in the turn that calls __dcBoot. Wait for the commit rather
-  // than assuming it, and give up after a bounded number of frames so a page
-  // that genuinely renders nothing is still shown.
-  function committed() {
-    var tries = 0;
-    return new Promise(function (res) {
-      (function look() {
-        var host = field();
-        if ((host && host.firstChild) || ++tries > COMMIT_TRIES) { res(); return; }
-        requestAnimationFrame(look);
-      })();
-    });
-  }
-
   // The theme marker classifies which incoming elements carry the cream ground.
-  // It has to run against the committed DOM and before anything is shown, or
-  // html.dm's inversion lands on sections that were never marked.
+  // It has to run before anything is shown, or html.dm's inversion lands on
+  // sections that were never marked.
   function markTheme() {
     if (typeof window.__suduMark === 'function') {
       try { window.__suduMark(); } catch (e) {}
@@ -144,11 +127,8 @@
   // scroller). Running that decision inside the gate means the page is captured
   // in its settled state instead of being captured visible and then hidden.
   function prepareReveals() {
-    var engines = [window.suduReveal, window.__sudu, window.__suduStudioIO, window.__suduProjIO];
-    for (var i = 0; i < engines.length; i++) {
-      if (engines[i] && typeof engines[i].refresh === 'function') {
-        try { engines[i].refresh(); } catch (e) {}
-      }
+    if (window.suduReveal && typeof window.suduReveal.refresh === 'function') {
+      try { window.suduReveal.refresh(); } catch (e) {}
     }
     if (typeof window.__suduWorkPrepare === 'function') {
       try { window.__suduWorkPrepare(); } catch (e) {}
@@ -160,8 +140,7 @@
 
   // Only the images the opening composition actually depends on: large enough
   // to read as imagery, and inside the first viewport. Below-fold galleries are
-  // never waited for. The homepage drawing is excluded by name — it is authored
-  // at opacity 0 and runs its own reveal, and navigation does not own it.
+  // never waited for.
   function criticalImages() {
     var host = field();
     if (!host) return [];
@@ -177,8 +156,7 @@
       // pause this rhythm is meant to remove. It fades in on its own once it
       // is ready, inside a page that is already there.
       if (im.id === 'heroImg' || im.id === 'studioTeamIllustration') continue;
-      var src = im.getAttribute('src') || '';
-      if (!src || src.indexOf('{' + '{') !== -1) continue;
+      if (!im.getAttribute('src')) continue;
       var b = im.getBoundingClientRect();
       if (b.width < 120 || b.height < 90) continue;
       if (b.top >= vh || b.bottom <= 0) continue;
@@ -225,7 +203,6 @@
   // runs while that page is held at opacity 0, over the permanent field.
   function gate(rendered) {
     return rendered
-      .then(committed)
       .then(function () { markTheme(); prepareReveals(); })
       .then(afterFrame)
       .then(decodeCritical);
@@ -244,21 +221,9 @@
 
   document.addEventListener('turbo:before-visit', beginExit);
 
+  // The new body is in place. The page is complete as served, so this is the
+  // whole of "rendered".
   document.addEventListener('turbo:render', function () {
-    // A rendered page has nothing to boot: its content is already in the body.
-    if (!document.querySelector('x-dc')) { if (pending) pending.resolve(); return; }
-    var booted = false;
-    if (typeof window.__dcBoot === 'function') {
-      try { window.__dcBoot(); booted = true; } catch (e) { booted = false; }
-    }
-    if (!booted) {
-      var sc = document.createElement('script');
-      sc.src = '/js/support.js';
-      sc.onload = function () { if (pending) pending.resolve(); };
-      sc.onerror = function () { if (pending) pending.resolve(); };
-      document.body.appendChild(sc);
-      return;
-    }
     if (pending) pending.resolve();
   });
 
@@ -309,15 +274,12 @@
   // Only a genuine direct load, and only once. Every later view is a Turbo
   // navigation, which has its own rhythm above. Opacity only: nothing moves,
   // nothing scales, and there is no splash — the ground, the chrome bar and
-  // the controls are all outside #dc-root and are painted before this starts.
+  // the controls are all outside #page and are painted before this starts.
   (function () {
     if (REDUCED.matches) return;
-    // The class goes on straight away, before #dc-root exists. Waiting for the
-    // element meant it painted at full opacity for the frame before the class
-    // landed — the page appearing, dropping out, and fading back in. The rule
-    // only ever addresses #dc-root, so arming it early costs nothing: if that
-    // element is never created there is nothing for it to act on, and if it is
-    // created the animation begins from the frame it exists.
+    // The class goes on the moment this runs. Any wait before it meant the
+    // page painted at full opacity for a frame before the class landed — the
+    // page appearing, dropping out, and fading back in.
     root.classList.add('sudu-arrive');
     var done = function () { root.classList.remove('sudu-arrive'); };
     // Detached the moment the arrival finishes, so nothing carries into a

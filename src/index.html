@@ -18,7 +18,6 @@
 <meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
-<script src="./js/support.js?v=8fe7df74"></script>
 <script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 <script type="application/ld+json">
 {
@@ -76,29 +75,21 @@
 }
 </script>
 
-<!-- The router and its coordinator are singletons, so they live in the real
-     document head rather than in the template helmet: Turbo re-activates
-     every script in the body it swaps in, and a router tag inside the
-     template therefore started a second Turbo Session on every navigation.
-     Head scripts whose markup is unchanged are carried across a visit
-     untouched and execute exactly once.
-     Nothing above the template may name the template tag literally: the
-     runtime locates it by regex over the raw source, so the first textual
-     match wins even inside a comment.
+<!-- The router and its coordinator are singletons, so they live in the
+     document head rather than in the body: Turbo re-activates every script
+     in the body it swaps in, and a router tag there started a second Turbo
+     Session on every navigation. Head scripts whose markup is unchanged are
+     carried across a visit untouched and execute exactly once.
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="js/turbo-boot.js?v=9a11805c" defer></script>
+<script src="js/turbo-boot.js?v=77513502" defer></script>
 <script src="js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
-</head>
-<body>
-<x-dc>
-<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -367,11 +358,11 @@ document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="i18n.js?v=cbd5fce2" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
-<script type="module" src="js/haptics.js?v=3c4ba22c"></script>
+<script type="module" src="js/haptics.js?v=c60c698e"></script>
 <script src="js/reveal.js?v=3c98252b" defer></script>
 <script src="js/home.js?v=30180fd8" defer></script>
-</helmet>
-
+</head>
+<body>
 <div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
   <a href="#work" data-theme-surface="cream" style="position:absolute; left:-9999px; top:0; z-index:200; background:#171613; color:#F3F1EA; padding:10px 16px; font-size:13px;" style-focus="left:8px; top:8px;">Skip to work</a>
@@ -664,9 +655,8 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
 
 </div>
 
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
+<script type="text/plain" data-page-script>
+class Component {
   // The authored copy of this page, in one place, so SuDu Control can edit it
   // and so each string has a stable identity. The markup binds to these names
   // and carries the matching data-i18n key, which is what i18n.js translates

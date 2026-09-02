@@ -331,8 +331,7 @@ Follow the site's own hand when you write data: single quotes, two-space steps, 
 
 ### Don't
 
-- Name the template tag literally above the template. The runtime finds it by regex over raw source, so the first textual match wins, even inside a comment.
-- Put a Turbo router tag inside the template body. It starts a second Turbo session on every navigation.
+- Put a Turbo router tag in the body. Turbo re-activates body scripts on every visit, so it starts a second Turbo session on every navigation.
 - Add a second script that owns an element another script already owns. The founders portrait broke exactly this way.
 
 ---

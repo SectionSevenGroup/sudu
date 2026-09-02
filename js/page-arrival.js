@@ -15,10 +15,6 @@
 // Two groups only. Labels, metadata and fields are never animated individually
 // — related information moves together, and the fixed frame (header, nav,
 // language, music, colour) never moves at all.
-//
-// In its own file rather than inline in a page template: the DC runtime
-// re-creates helmet scripts when it renders, and a script does not reliably
-// survive that round trip.
 (function () {
   if (window.__suduArrival) return;
 
@@ -30,7 +26,7 @@
   var RISE = 6;            // opacity is the dominant effect
 
   function firstSection() {
-    var root = document.getElementById('page') || document.getElementById('dc-root');
+    var root = document.getElementById('page');
     if (!root) return null;
     var secs = root.querySelectorAll('section[data-screen-label]');
     for (var i = 0; i < secs.length; i++) {
@@ -94,18 +90,12 @@
     return true;
   }
 
-  var pump = function (tries) {
-    if (run() || tries > 20) return;
-    requestAnimationFrame(function () { pump(tries + 1); });
-  };
   // Exposed for the direct-load path only; the coordinator does not call it
   // during a visit, and there is no turbo:load listener for the same reason.
-  window.__suduArrival = function () { pump(0); };
+  window.__suduArrival = run;
   // This file is loaded by the page it belongs to, so on a navigation it first
   // executes in the middle of the visit. __suduVisited is the difference
   // between "nothing else is bringing this page in" and "the coordinator
-  // already is".
-  // A rendered page is complete when this deferred script runs; only a page
-  // the DC runtime still mounts has to be waited for.
-  if (!window.__suduVisited) { if (document.getElementById('page')) run(); else pump(0); }
+  // already is". The page is complete when this deferred script runs.
+  if (!window.__suduVisited) run();
 })();

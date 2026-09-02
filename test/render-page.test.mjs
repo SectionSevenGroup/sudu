@@ -4,23 +4,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderPage, evaluateComponent } from '../lib/render-page.mjs';
 
-const page = (template, script = 'class Component extends DCLogic { renderVals() { return {}; } }', helmet = '') => `<!DOCTYPE html>
+const page = (template, script = 'class Component { renderVals() { return {}; } }', head = '') => `<!DOCTYPE html>
 <html lang="en">
 <head>
 <title>Fixture</title>
-<script src="./js/support.js?v=abc"></script>
 <link rel="stylesheet" href="css/rail.css">
-</head>
-<body>
-<x-dc>
-<helmet>
-${helmet}<style>
+${head}<style>
   body { margin: 0; }
 </style>
-</helmet>
+</head>
+<body>
 ${template}
-</x-dc>
-<script type="text/x-dc" data-dc-script>
+<script type="text/plain" data-page-script>
 ${script}
 </script>
 </body>
@@ -28,7 +23,7 @@ ${script}
 `;
 
 test('a text binding is substituted from renderVals', () => {
-  const out = renderPage(page('<p data-i18n="x.a">{{ copy.a }}</p>', `class Component extends DCLogic {
+  const out = renderPage(page('<p data-i18n="x.a">{{ copy.a }}</p>', `class Component {
   static COPY = { a: 'Hello there' };
   renderVals() { return { copy: Component.COPY }; }
 }`));
@@ -45,7 +40,7 @@ test('a loop expands with the loop variable and $index', () => {
 });
 
 test('a conditional renders its children only when truthy', () => {
-  const src = page('<div><sc-if value="{{ show }}" hint-placeholder-val="{{ false }}"><b>shown</b></sc-if><sc-if value="{{ !show }}"><i>hidden</i></sc-if></div>');
+  const src = page('<div><sc-if value="{{ show }}"><b>shown</b></sc-if><sc-if value="{{ !show }}"><i>hidden</i></sc-if></div>');
   assert.match(renderPage(src, { vals: { show: true } }), /<div><b>shown<\/b><\/div>/);
   assert.match(renderPage(src, { vals: { show: false } }), /<div><i>hidden<\/i><\/div>/);
 });
@@ -70,15 +65,22 @@ test('a mixed attribute keeps the template text and escapes only the bound value
   assert.match(out, /<img srcset="\/.netlify\/images\?url=\/a&amp;b.jpg&amp;w=480 480w" alt="x &amp; co">/);
 });
 
-test('the helmet moves into the head and the runtime is gone', () => {
+test('the head is kept, the body is wrapped in #page and the page script is gone', () => {
   const out = renderPage(page('<div>body</div>', undefined, '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<script src="js/x.js" defer></script>\n'), { vals: {} });
   const head = out.slice(0, out.indexOf('</head>'));
   assert.match(head, /<link rel="preconnect" href="https:\/\/fonts.gstatic.com" crossorigin>/);
   assert.match(head, /<script src="js\/x.js" defer><\/script>/);
   assert.match(head, /body \{ margin: 0; \}/);
   assert.match(head, /html,body\{height:100%;margin:0\}#page\{height:100%\}/);
-  assert.doesNotMatch(out, /support\.js|<x-dc|<\/x-dc>|<helmet|data-dc-script|dc-root/);
+  assert.doesNotMatch(out, /data-page-script|class Component/);
   assert.match(out, /<body>\n<div id="page"><div>body<\/div><\/div>\n<\/body>/);
+});
+
+test('a head without a style block gets one for the pseudo sheet', () => {
+  const src = '<!DOCTYPE html>\n<html><head><title>x</title></head>\n<body>\n<a style-hover="color:#000;">A</a>\n</body>\n</html>\n';
+  const out = renderPage(src, { vals: {} });
+  assert.match(out, /<head><title>x<\/title><style>\n\.scp0:hover\{color:#000 !important\}\nhtml,body\{height:100%;margin:0\}#page\{height:100%\}\n<\/style>\n<\/head>/);
+  assert.match(out, /<body>\n<div id="page"><a class="scp0">A<\/a><\/div>\n<\/body>/);
 });
 
 test('an unresolved binding or a function value fails the build', () => {
@@ -86,24 +88,19 @@ test('an unresolved binding or a function value fails the build', () => {
   assert.throws(() => renderPage(page('<button onClick="{{ go }}">x</button>'), { vals: { go: () => {} } }), /cannot be rendered statically/);
 });
 
-test('evaluateComponent sees the stub document and data-props defaults', () => {
-  const src = page('<p>{{ lang }} {{ accent }}</p>', `class Component extends DCLogic {
-  state = { lang: (typeof document !== 'undefined' && document.documentElement.lang) || 'en' };
-  renderVals() { return { lang: this.state.lang, accent: this.props.accent }; }
-}`).replace('data-dc-script>', 'data-dc-script data-props="{&quot;accent&quot;:{&quot;default&quot;:&quot;#E17B3E&quot;}}">');
-  assert.deepEqual(evaluateComponent(src, { lang: 'fr' }), { accent: '#E17B3E', lang: 'fr' });
-  assert.match(renderPage(src), /<p>en #E17B3E<\/p>/);
+test('evaluateComponent runs the page script with nothing of the browser in scope', () => {
+  const src = page('<p>{{ a }}</p>', `class Component {
+  static COPY = { a: 'from the class' };
+  renderVals() { return { a: Component.COPY.a, hasWindow: typeof window !== 'undefined' }; }
+}`);
+  assert.deepEqual(evaluateComponent(src), { a: 'from the class', hasWindow: false });
+  assert.match(renderPage(src), /<p>from the class<\/p>/);
+  assert.throws(() => evaluateComponent(page('<p></p>', 'var Component = 1;')), /does not define class Component/);
+  assert.throws(() => evaluateComponent('<html><body></body></html>'), /no <script data-page-script>/);
 });
 
-test('a React.createElement node from renderVals is written as its element', () => {
-  const out = renderPage(page('<div class="hero">{{ heroImg }}</div><p>{{ none }}</p>', `class Component extends DCLogic {
-  renderVals() {
-    return {
-      heroImg: React.createElement('img', { src: 'images/a "b".jpg', alt: 'A & B', decoding: 'async', hidden: false, style: { width: '100%', objectFit: 'cover', '--x': '1' } }),
-      none: null,
-    };
-  }
-}`));
-  assert.match(out, /<div class="hero"><img src="images\/a &quot;b&quot;.jpg" alt="A &amp; B" decoding="async" style="width:100%;object-fit:cover;--x:1"><\/div><p><\/p>/);
-  assert.throws(() => renderPage(page('<i>{{ x }}</i>'), { vals: { x: { type: () => {}, props: {} } } }), /neither text nor an element/);
+test('null and false bind to nothing; an object bound as text fails the build', () => {
+  const out = renderPage(page('<img src="{{ src }}" width="{{ w }}"><p>{{ none }}</p>'), { vals: { src: 'a.jpg', w: null, none: null } });
+  assert.match(out, /<img src="a.jpg"><p><\/p>/);
+  assert.throws(() => renderPage(page('<i>{{ x }}</i>'), { vals: { x: { type: () => {} } } }), /is not text/);
 });

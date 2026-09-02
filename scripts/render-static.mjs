@@ -1,4 +1,4 @@
-// Renders the pages that no longer need the DC runtime. The authored file
+// Renders the site's pages at build time. The authored file
 // stays under src/; the plain HTML it produces is written to the root path
 // the site serves, the way build-projects.mjs generates work/<slug>/.
 import { readFileSync, writeFileSync } from 'node:fs';
