@@ -19,7 +19,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (p) => readFileSync(join(root, p), 'utf8');
 const write = (p, s) => writeFileSync(join(root, p), s);
 
-const CORE = ['index.html','work.html','studio.html','contact.html','project.html'];
+const CORE = ['index.html','work.html','studio.html','contact.html'];
 const SERVICES = [
   'custom-home-design-edmonton.html',
   'renovations-additions-edmonton.html',
@@ -87,29 +87,6 @@ function addCoreShell(html) {
   return html;
 }
 
-function projectSource(html) {
-  // project.html is the generator template: it is authored noindex with no
-  // canonical of its own, and build-projects.mjs writes each generated page's
-  // real canonical and robots directive.
-  html = html.replace('<meta property="og:url" content="https://sudu.studio/project.html">', '<meta property="og:url" content="https://sudu.studio/work">');
-  html = html.replace(
-    '<div data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min({{ grp.minW }}px,100%), 1fr)); gap:clamp(16px,2vw,28px);">',
-    '<div class="project-gallery-grid" data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,2vw,28px);">'
-  );
-  html = html.replace(
-    '<div style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">',
-    '<div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">'
-  );
-  html = html.replace(
-    '<img src="{{ g.src }}" alt="{{ g.alt }}" loading="lazy" decoding="async"',
-    '<img src="{{ g.src }}" srcset="/.netlify/images?url=/{{ g.src }}&w=480&q=82 480w, /.netlify/images?url=/{{ g.src }}&w=768&q=82 768w, /.netlify/images?url=/{{ g.src }}&w=1080&q=82 1080w, /.netlify/images?url=/{{ g.src }}&w=1440&q=82 1440w, /.netlify/images?url=/{{ g.src }}&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="{{ g.alt }}" loading="lazy" decoding="async"'
-  );
-  if (!html.includes('.project-gallery-grid > .project-gallery-item:first-child')) {
-    html = html.replace('</style>', `\n  .project-gallery-grid > .project-gallery-item:first-child { grid-column:1 / -1; aspect-ratio:16/9 !important; }\n  @media (max-width:720px) { .project-gallery-grid { grid-template-columns:1fr !important; } .project-gallery-grid > .project-gallery-item { grid-column:auto !important; aspect-ratio:4/3 !important; } }\n</style>`);
-  }
-  return html;
-}
-
 function semanticTheme(html) {
   html = html.replace(/<([a-z][a-z0-9-]*)([^>]*?)style="([^"]*(?:#F3F1EA|243,241,234|243, 241, 234)[^"]*)"/gi,
     (m, tag, attrs, style) => attrs.includes('data-theme-surface=')
@@ -139,7 +116,6 @@ for (const p of HTML) {
   html = extensionless(html);
   html = architectureIdentity(html, p);
   if (SERVICES.includes(p)) html = addCoreShell(html);
-  if (p === 'project.html') html = projectSource(html);
   html = semanticTheme(html);
   html = responsiveImages(html);
   write(p, html);
