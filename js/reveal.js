@@ -1,6 +1,7 @@
 // The one scroll-reveal engine, replacing the copies each page's Component
 // used to carry. It reveals [data-reveal] elements as they enter the
-// viewport, in the motion vocabulary the pages already speak:
+// viewport, in the four motion roles docs/design-manifesto.md defines under
+// its motion section:
 //   major   full-width imagery: opacity only, nothing moves
 //   pair    adjacent members of one row, staggered left to right
 //   detail  ordinary editorial content and grouped galleries

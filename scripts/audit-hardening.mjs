@@ -87,16 +87,6 @@ function addCoreShell(html) {
   return html;
 }
 
-function studioReveal(html) {
-  const old = '<img data-reveal data-motion="major" src="images/team-illustration-alpha.png" alt="Line portrait of the three SuDu Studio founders" decoding="async" style="width:min(680px,92%); height:auto; display:block; margin:0 0 clamp(12px,1.5vw,20px);">';
-  const next = '<img id="studioTeamIllustration" src="images/team-illustration-alpha.png" srcset="/.netlify/images?url=/images/team-illustration-alpha.png&w=480&q=88 480w, /.netlify/images?url=/images/team-illustration-alpha.png&w=768&q=88 768w, /.netlify/images?url=/images/team-illustration-alpha.png&w=1080&q=88 1080w" sizes="(max-width:720px) 92vw, 680px" width="2048" height="2048" alt="Line portrait of the three SuDu Studio founders" loading="eager" fetchpriority="high" decoding="async" style="width:min(680px,92%); height:auto; aspect-ratio:1/1; display:block; margin:0 0 clamp(12px,1.5vw,20px); opacity:0; transition:opacity 1.9s cubic-bezier(.16,1,.3,1);">';
-  html = html.replace(old, next);
-  if (!html.includes('studioTeamIllustration.dataset.suduRevealOwned')) {
-    html = html.replace('class Component extends DCLogic {\n  componentDidMount() {', `class Component extends DCLogic {\n  componentDidMount() {\n    const studioTeamIllustration = document.getElementById('studioTeamIllustration');\n    if (studioTeamIllustration && !studioTeamIllustration.dataset.suduRevealOwned) {\n      studioTeamIllustration.dataset.suduRevealOwned = '1';\n      let teamShown = false;\n      const showTeam = () => {\n        if (teamShown) return;\n        teamShown = true;\n        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) studioTeamIllustration.style.transition = 'none';\n        requestAnimationFrame(() => setTimeout(() => { studioTeamIllustration.style.opacity = '1'; }, 180));\n      };\n      const readyTeam = () => {\n        if (typeof studioTeamIllustration.decode === 'function') {\n          studioTeamIllustration.decode().then(showTeam).catch(showTeam);\n        } else showTeam();\n      };\n      if (studioTeamIllustration.complete && studioTeamIllustration.naturalWidth) readyTeam();\n      else {\n        studioTeamIllustration.addEventListener('load', readyTeam, { once:true });\n        studioTeamIllustration.addEventListener('error', showTeam, { once:true });\n      }\n    }`);
-  }
-  return html;
-}
-
 function projectSource(html) {
   // project.html is the generator template: it is authored noindex with no
   // canonical of its own, and build-projects.mjs writes each generated page's
@@ -149,7 +139,6 @@ for (const p of HTML) {
   html = extensionless(html);
   html = architectureIdentity(html, p);
   if (SERVICES.includes(p)) html = addCoreShell(html);
-  if (p === 'studio.html') html = studioReveal(html);
   if (p === 'project.html') html = projectSource(html);
   html = semanticTheme(html);
   html = responsiveImages(html);
