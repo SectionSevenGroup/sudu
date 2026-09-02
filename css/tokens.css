@@ -70,6 +70,8 @@ html.dm, html.dm body { background:var(--ground); }
 html.dm header { background:color-mix(in srgb, var(--ground) 90%, transparent) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:0 !important; color:var(--chrome-ink); --ink:var(--chrome-ink); --muted:var(--chrome-ink); --faint:var(--chrome-ink); }
 html.dm footer { background:transparent !important; color:var(--chrome-ink); --ink:var(--chrome-ink); --muted:var(--chrome-ink); --faint:var(--chrome-ink); --rule-13:rgba(245,243,236,0.45); --rule-22:rgba(245,243,236,0.45); --rule-32:rgba(245,243,236,0.5); }
 html.dm input::placeholder, html.dm textarea::placeholder { color:#DDDBD6 !important; opacity:1 !important; }
+/* The browser draws the resize grip, the caret and the rest of a field's native chrome from color-scheme, not color. */
+html.dm textarea, html.dm input { color-scheme: dark; }
 html.dm section, html.dm section *, html.dm footer, html.dm footer * { border-width:0.5px !important; }
 /* Line art on the dark grounds, until light variants of these files exist.
    Before the token grounds, the section filter inverted everything and these
