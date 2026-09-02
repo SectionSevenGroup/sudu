@@ -101,7 +101,7 @@ function semanticTheme(html) {
 }
 
 function responsiveImages(html) {
-  return html.replace(/<img([^>]*?)src="(images\/(?!sudu-mark|team-illustration|red-)[^"]+\.(?:jpg|jpeg|png))"([^>]*?)>/gi,
+  return html.replace(/<img([^>]*?)src="(images\/(?!sudu-mark|team-illustration|red-|hero-drawing)[^"]+\.(?:jpg|jpeg|png))"([^>]*?)>/gi,
     (m, before, src, after) => {
       if (/srcset=/.test(m)) return m;
       const u = encodeURIComponent('/' + src);

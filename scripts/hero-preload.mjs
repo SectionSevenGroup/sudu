@@ -9,7 +9,9 @@ export function heroPreload(html) {
   const attr = (n) => (img[0].match(new RegExp(`\\b${n}="([^"]*)"`)) || [])[1];
   const src = attr('src'); if (!src) return html;
   const href = src.startsWith('/') ? src : '/' + src;
-  const srcset = attr('srcset'), sizes = attr('sizes');
+  // The home hero drawing is served as its plain file, so its preload names
+  // that one URL and nothing else; project heroes keep their srcset.
+  const srcset = /hero-drawing/.test(src) ? null : attr('srcset'), sizes = attr('sizes');
   const link = `<link rel="preload" as="image" href="${href}"` +
     (srcset ? ` imagesrcset="${srcset}" imagesizes="${sizes || '100vw'}"` : '') + '>';
   return html.replace('</head>', `${link}\n</head>`);

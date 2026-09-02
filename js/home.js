@@ -83,7 +83,8 @@
     };
     // The fade begins only once the drawing is decoded, so a slow mobile load
     // fades instead of popping; 8s is the cap on waiting for it.
-    if (hi.complete && hi.naturalWidth) start();
+    // Already decoded at bind time (cached, or preloaded from the head): go now.
+    if (hi.complete && hi.naturalWidth > 0) start();
     else { hi.addEventListener('load', start, { once: true }); v.timers.push(setTimeout(start, 8000)); }
   }
 
