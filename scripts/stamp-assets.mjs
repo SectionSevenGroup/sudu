@@ -49,8 +49,10 @@ let changed = 0;
 for (const page of PAGES) {
   if (!existsSync(page)) continue;
   const before = readFileSync(page, 'utf8');
+  // An image preload must name exactly the URL its <img> will request, and
+  // image srcs are not stamped, so the preload's href is left alone too.
   let after = before.replace(REF, (m, open, prefix, file, _old, close) =>
-    open + prefix + file + '?v=' + stamp(file) + close);
+    /\bas="image"/.test(open) ? m : open + prefix + file + '?v=' + stamp(file) + close);
 
   // chrome-bar.js is a persistent singleton outside Turbo's replaceable body.
   // If its content hash changes, Turbo must reload the whole document so an

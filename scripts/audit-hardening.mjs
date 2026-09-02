@@ -14,6 +14,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { heroPreload } from './hero-preload.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -100,7 +101,7 @@ function semanticTheme(html) {
 }
 
 function responsiveImages(html) {
-  return html.replace(/<img([^>]*?)src="(images\/(?!sudu-mark|hero-drawing|team-illustration|red-)[^"]+\.(?:jpg|jpeg|png))"([^>]*?)>/gi,
+  return html.replace(/<img([^>]*?)src="(images\/(?!sudu-mark|team-illustration|red-)[^"]+\.(?:jpg|jpeg|png))"([^>]*?)>/gi,
     (m, before, src, after) => {
       if (/srcset=/.test(m)) return m;
       const u = encodeURIComponent('/' + src);
@@ -118,6 +119,7 @@ for (const p of HTML) {
   if (SERVICES.includes(p)) html = addCoreShell(html);
   html = semanticTheme(html);
   html = responsiveImages(html);
+  if (p === 'index.html') html = heroPreload(html);
   write(p, html);
 }
 

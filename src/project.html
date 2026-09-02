@@ -179,7 +179,7 @@
   </section>
 
   <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <sc-if value="{{ heroSrc }}"><img src="{{ heroSrc }}" alt="{{ heroAlt }}" width="{{ heroW }}" height="{{ heroH }}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+    <sc-if value="{{ heroSrc }}"><img src="{{ heroSrc }}" alt="{{ heroAlt }}" width="{{ heroW }}" height="{{ heroH }}" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
