@@ -1,7 +1,8 @@
 // Shared compatibility shell for the four evergreen SEO/service pages.
 // These pages predate the current persistent chrome/theme architecture. This
-// file gives them the same ground control without changing their authored copy
-// or turning them into a second design system.
+// file gives them the same ground picker without changing their authored copy
+// or turning them into a second design system; the grounds themselves are the
+// token blocks in css/tokens.css, selected by the classes set on <html> here.
 (function () {
   if (window.__suduServiceShell) return;
   window.__suduServiceShell = true;
@@ -9,15 +10,6 @@
   var st = document.createElement('style');
   st.id = 'suduServiceThemeCss';
   st.textContent = [
-    'html.dm,html.dm body{background:var(--dm-bg,#C0431F)!important;}',
-    'html.dm [data-theme-surface="cream"],html.dm [data-theme-surface="content"]{background:transparent!important;}',
-    'html.dm body #page>div{background:var(--dm-bg,#C0431F)!important;}',
-    'html.dm section{filter:invert(1) hue-rotate(180deg);}',
-    'html.dm section img{filter:invert(1) hue-rotate(180deg)!important;}',
-    'html.dm header,html.dm footer{filter:none!important;background:transparent!important;}',
-    'html.dm header a,html.dm footer,html.dm footer *{color:#F5F3EC!important;}',
-    'html.dm header img,html.dm footer img{filter:invert(1)!important;}',
-    'html.dm #suduNav{background:color-mix(in srgb,var(--dm-bg,#C0431F) 90%,transparent)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);}',
     '#dmSwatches{display:flex!important;}',
     '#dmSwatches button{box-shadow:none!important;border:0!important;}'
   ].join('');
