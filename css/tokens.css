@@ -71,11 +71,21 @@ html.dm header { background:color-mix(in srgb, var(--ground) 90%, transparent) !
 html.dm footer { background:transparent !important; color:var(--chrome-ink); --ink:var(--chrome-ink); --muted:var(--chrome-ink); --faint:var(--chrome-ink); --rule-13:rgba(245,243,236,0.45); --rule-22:rgba(245,243,236,0.45); --rule-32:rgba(245,243,236,0.5); }
 html.dm input::placeholder, html.dm textarea::placeholder { color:#DDDBD6 !important; opacity:1 !important; }
 html.dm section, html.dm section *, html.dm footer, html.dm footer * { border-width:0.5px !important; }
-/* Dark artwork on transparent, inverted the way the old section filter did,
-   until light variants of these three files exist. The header and footer mark
-   kept its own invert(1)-only rule; that is matched here too. */
+/* Line art on the dark grounds, until light variants of these files exist.
+   Before the token grounds, the section filter inverted everything and these
+   images were exempted from the re-inversion, so they showed light on dark.
+   The same selectors as then, so exactly the same images invert:
+     html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"]
+     html.dm section img[src*="sudu-mark"], html.dm .dm-wrap > *:not(section):not(header):not(footer) img[src*="sudu-mark"]
+       (.dm-wrap was the [data-theme-surface] wrapper under #page)
+     html.dm.dmwarm [data-reveal-clip] img.red-art
+     html.dm header img[src*="sudu-mark"], html.dm footer img[src*="sudu-mark"]  (invert(1) only)
+   Photos are not listed and are not touched. */
+html.dm img#heroImg,
 html.dm img[src*="hero-drawing"],
 html.dm img[src*="team-illustration"],
-html.dm img[src*="sudu-mark"] { filter: invert(1) hue-rotate(180deg); }
+html.dm section img[src*="sudu-mark"],
+html.dm [data-theme-surface] > *:not(section):not(header):not(footer) img[src*="sudu-mark"],
+html.dm.dmwarm [data-reveal-clip] img.red-art { filter: invert(1) hue-rotate(180deg); }
 html.dm header img[src*="sudu-mark"],
 html.dm footer img[src*="sudu-mark"] { filter: invert(1); }
