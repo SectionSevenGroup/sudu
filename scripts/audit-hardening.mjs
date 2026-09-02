@@ -89,7 +89,7 @@ function addCoreShell(html) {
 }
 
 function semanticTheme(html) {
-  html = html.replace(/<([a-z][a-z0-9-]*)([^>]*?)style="([^"]*(?:#F3F1EA|243,241,234|243, 241, 234)[^"]*)"/gi,
+  html = html.replace(/<([a-z][a-z0-9-]*)([^>]*?)style="([^"]*(?:#F3F1EA|var\(--ground\)|243,241,234|243, 241, 234)[^"]*)"/gi,
     (m, tag, attrs, style) => attrs.includes('data-theme-surface=')
       ? m
       : `<${tag}${attrs}data-theme-surface="cream" style="${style}"`);

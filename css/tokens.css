@@ -1,0 +1,24 @@
+/* Colour tokens. Off-white authored values only: every dark-ground look is
+   produced by the html.dm override rules and filters, which keep their own
+   literal colours and never read these. Changing a value here changes the
+   off-white ground everywhere the name is used. */
+:root {
+  --ink:#171613;
+  --ground:#F3F1EA;
+  --plate:#E8E5DC;
+  --muted:#67655D;
+  --faint:#A6A399;
+  --accent:#E17B3E;
+  --chrome-ink:#F5F3EC;
+  --charcoal:#121110;
+  --burnt:#C0431F;
+  --rule-05:rgba(23,22,19,0.05);
+  --rule-13:rgba(23,22,19,0.13);
+  --rule-22:rgba(23,22,19,0.22);
+  --rule-25:rgba(23,22,19,0.25);
+  --rule-30:rgba(23,22,19,0.3);
+  --rule-32:rgba(23,22,19,0.32);
+  --rule-35:rgba(23,22,19,0.35);
+  --rule-40:rgba(23,22,19,0.4);
+  --rule-55:rgba(23,22,19,0.55);
+}

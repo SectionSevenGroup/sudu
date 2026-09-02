@@ -47,10 +47,10 @@
     // overrides change only the pre-filter source values, so the visible result
     // is a clearer secondary/tertiary hierarchy without touching Off-white or
     // Burnt. Primary ink remains exactly as authored.
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color:#67655D"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color: #67655D"]{color:#55534D !important;}',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color:#A6A399"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color: #A6A399"]{color:#747168 !important;}',
+    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color:var(--muted)"],',
+    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color: var(--muted)"]{color:#55534D !important;}',
+    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color:var(--faint)"],',
+    'html.dm:not(.dmwarm):not(.dmred) body section [style*="color: var(--faint)"]{color:#747168 !important;}',
 
     // Structural hairlines need more source alpha on Charcoal because the
     // section filter is applied after compositing. Major section/card/FAQ rules
@@ -63,8 +63,8 @@
     'html.dm:not(.dmwarm):not(.dmred) body section input,',
     'html.dm:not(.dmwarm):not(.dmred) body section textarea,',
     'html.dm:not(.dmwarm):not(.dmred) body section button[style*="border:1px"]{border-color:rgba(23,22,19,.48) !important;}',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="background:rgba(23,22,19,0.22)"],',
-    'html.dm:not(.dmwarm):not(.dmred) body section [style*="background: rgba(23,22,19,0.22)"]{background:rgba(23,22,19,.38) !important;}'
+    'html.dm:not(.dmwarm):not(.dmred) body section [style*="background:var(--rule-22)"],',
+    'html.dm:not(.dmwarm):not(.dmred) body section [style*="background: var(--rule-22)"]{background:rgba(23,22,19,.38) !important;}'
   ].join('');
 
   // The theme picker lives inside page templates and therefore does not always

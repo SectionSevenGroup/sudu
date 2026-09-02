@@ -16,8 +16,9 @@
 <meta property="og:image" content="https://sudu.studio/images/west-vancouver-private-residence.jpg">
 <meta name="robots" content="index, follow">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Renovations + Additions in Edmonton","provider":{"@id":"https://sudu.studio/#org"},"areaServed":[{"@type":"City","name":"Edmonton"},{"@type":"State","name":"Alberta"}],"url":"https://sudu.studio/renovations-additions-edmonton","description":"Architect-led renovations and additions in Edmonton. SuDu Studio reworks existing homes with the same care as new builds: planning, permits, and construction."}</script>
+<link rel="stylesheet" href="css/tokens.css?v=a4c4ae1a">
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
-<script src="/js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
+<script src="/js/chrome-bar.js?v=e45217c9" data-turbo-track="reload"></script>
 <script src="/js/theme.js?v=8c5991fc" defer></script>
 <script src="js/service-shell.js?v=c60bac5e" defer></script>
 <script src="js/reveal.js?v=3c98252b" defer></script>
@@ -29,77 +30,77 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <style>
-  html { background: #F3F1EA; }
-  body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  html { background: var(--ground); }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
-  a:hover { color: #E17B3E; }
-  ::selection { background: #E17B3E; color: #F3F1EA; }
-  :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
+  a:hover { color: var(--accent); }
+  ::selection { background: var(--accent); color: var(--ground); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
+<div data-theme-surface="cream" style="background:var(--ground); color:var(--ink); font-family:'Urbanist', sans-serif;">
 
-  <header id="suduNav" data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid rgba(23,22,19,0.13);">
+  <header id="suduNav" data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94); border-bottom:1px solid var(--rule-13);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Contact</a>
     </nav>
   </header>
 
   <section data-screen-label="Service Intro" data-theme-surface="cream" style="padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) 0;">
-    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">Services — Residential</div>
+    <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:20px;">Services — Residential</div>
     <h1 style="margin:0; max-width:20ch; font-size:clamp(28px,3.8vw,46px); font-weight:700; letter-spacing:-0.035em; line-height:1.0; text-wrap:pretty;">Renovations + Additions in Edmonton</h1>
     <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:24px 48px; margin-top:22px; padding-bottom:clamp(28px,3.5vw,44px);">
-      <p style="flex:1 1 380px; max-width:56ch; margin:0; font-size:15px; line-height:1.85; color:#67655D; text-wrap:pretty;">The best house is often the one you already own. SuDu Studio designs renovations and additions across Edmonton and Alberta that rework existing homes with the same discipline as a new build.</p>
+      <p style="flex:1 1 380px; max-width:56ch; margin:0; font-size:15px; line-height:1.85; color:var(--muted); text-wrap:pretty;">The best house is often the one you already own. SuDu Studio designs renovations and additions across Edmonton and Alberta that rework existing homes with the same discipline as a new build.</p>
     </div>
     <div style="display:flex; flex-wrap:wrap; gap:clamp(14px,1.8vw,24px); padding-bottom:clamp(28px,3.5vw,44px);">
-      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/west-vancouver-private-residence.jpg" width="1500" height="844" srcset="/.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Renovated private residence and gallery, West Vancouver" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
-      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;"><img src="images/wv-interior.jpg" width="1500" height="844" srcset="/.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Interior of renovated residence with gallery walls" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
+      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:var(--plate);"><img src="images/west-vancouver-private-residence.jpg" width="1500" height="844" srcset="/.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwest-vancouver-private-residence.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Renovated private residence and gallery, West Vancouver" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
+      <div data-reveal data-motion="detail" style="flex:1 1 340px; aspect-ratio:4/3; overflow:hidden; background:var(--plate);"><img src="images/wv-interior.jpg" width="1500" height="844" srcset="/.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fwv-interior.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Interior of renovated residence with gallery walls" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
     </div>
   </section>
 
   <section data-screen-label="Service Detail" data-theme-surface="content" style="padding:0 clamp(20px,4.5vw,64px);">
-    <article data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; gap:16px 48px; padding:32px 0; border-top:1px solid rgba(23,22,19,0.13);">
-      <div style="flex:0 1 300px;"><span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">01</span>
+    <article data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; gap:16px 48px; padding:32px 0; border-top:1px solid var(--rule-13);">
+      <div style="flex:0 1 300px;"><span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:var(--faint);">01</span>
       <h2 style="margin:0; font-size:clamp(19px,2.1vw,24px); font-weight:600; letter-spacing:-0.02em; line-height:1.1; max-width:16ch;">Working with what exists</h2></div>
-      <div style="flex:1 1 400px; max-width:62ch;"><p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Renovation rewards judgment: knowing what to keep, what to remove, and where a small structural move unlocks a whole floor. We start by understanding the existing building, its structure, and its bylaw envelope, so the design pushes exactly as far as the site allows and no further than the budget should.</p></div>
+      <div style="flex:1 1 400px; max-width:62ch;"><p style="margin:0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;">Renovation rewards judgment: knowing what to keep, what to remove, and where a small structural move unlocks a whole floor. We start by understanding the existing building, its structure, and its bylaw envelope, so the design pushes exactly as far as the site allows and no further than the budget should.</p></div>
     </article>
-    <article data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; gap:16px 48px; padding:32px 0; border-top:1px solid rgba(23,22,19,0.13);">
-      <div style="flex:0 1 300px;"><span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">02</span>
+    <article data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; gap:16px 48px; padding:32px 0; border-top:1px solid var(--rule-13);">
+      <div style="flex:0 1 300px;"><span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:var(--faint);">02</span>
       <h2 style="margin:0; font-size:clamp(19px,2.1vw,24px); font-weight:600; letter-spacing:-0.02em; line-height:1.1; max-width:16ch;">Additions and major reworks</h2></div>
-      <div style="flex:1 1 400px; max-width:62ch;"><p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Second-storey additions, rear extensions, garage and laneway suites, and full interior reconfigurations. We handle development and building permits, heritage-sensitive work, and the documentation builders need to price accurately. Interiors are resolved together with the architecture, so the new and the old read as one house.</p></div>
+      <div style="flex:1 1 400px; max-width:62ch;"><p style="margin:0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;">Second-storey additions, rear extensions, garage and laneway suites, and full interior reconfigurations. We handle development and building permits, heritage-sensitive work, and the documentation builders need to price accurately. Interiors are resolved together with the architecture, so the new and the old read as one house.</p></div>
     </article>
-    <article data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; gap:16px 48px; padding:32px 0; border-top:1px solid rgba(23,22,19,0.13);">
-      <div style="flex:0 1 300px;"><span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:#A6A399;">03</span>
+    <article data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; gap:16px 48px; padding:32px 0; border-top:1px solid var(--rule-13);">
+      <div style="flex:0 1 300px;"><span style="display:block; margin-bottom:16px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; color:var(--faint);">03</span>
       <h2 style="margin:0; font-size:clamp(19px,2.1vw,24px); font-weight:600; letter-spacing:-0.02em; line-height:1.1; max-width:16ch;">Why an architect for a renovation</h2></div>
-      <div style="flex:1 1 400px; max-width:62ch;"><p style="margin:0; font-size:14.5px; line-height:1.85; color:#67655D; text-wrap:pretty;">Renovations carry more unknowns than new construction. Drawings that anticipate those unknowns, and a designer who has walked the building, are the difference between a contingency and a crisis.</p></div>
+      <div style="flex:1 1 400px; max-width:62ch;"><p style="margin:0; font-size:14.5px; line-height:1.85; color:var(--muted); text-wrap:pretty;">Renovations carry more unknowns than new construction. Drawings that anticipate those unknowns, and a designer who has walked the building, are the difference between a contingency and a crisis.</p></div>
     </article>
   </section>
 
-  <section data-reveal data-motion="detail" data-screen-label="Related" data-theme-surface="content" style="display:flex; flex-wrap:wrap; align-items:baseline; gap:14px 28px; padding:clamp(32px,4vw,48px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13);">
-    <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">Also from the studio</span>
-    <a href="/custom-home-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.3); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Custom Home Design</a>
-      <a href="/commercial-retail-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid rgba(23,22,19,0.3); transition:color .3s ease, border-color .3s ease;" style-hover="color:#E17B3E; border-bottom-color:#E17B3E;">Commercial + Retail Design</a>
+  <section data-reveal data-motion="detail" data-screen-label="Related" data-theme-surface="content" style="display:flex; flex-wrap:wrap; align-items:baseline; gap:14px 28px; padding:clamp(32px,4vw,48px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13);">
+    <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);">Also from the studio</span>
+    <a href="/custom-home-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" style-hover="color:var(--accent); border-bottom-color:var(--accent);">Custom Home Design</a>
+      <a href="/commercial-retail-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" style-hover="color:var(--accent); border-bottom-color:var(--accent);">Commercial + Retail Design</a>
   </section>
 
-  <a href="/contact" data-turbo-preload data-screen-label="Start a Project" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
+  <a href="/contact" data-turbo-preload data-screen-label="Start a Project" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13); transition:background .35s ease;" style-hover="background:var(--plate);">
     <div>
-      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:14px;">Start a project</div>
+      <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px;">Start a project</div>
       <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Get in touch</div>
     </div>
   </a>
 
-  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid rgba(23,22,19,0.13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;; padding-bottom:64px">
+  <footer style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; padding:20px clamp(20px,4.5vw,64px) 28px; border-top:1px solid var(--rule-13); font-family:'Urbanist', sans-serif; font-size:10.5px; color:var(--faint);; padding-bottom:64px">
     <div style="display:flex; align-items:center; gap:12px;">
       <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:19px; width:auto; display:block; opacity:0.85;">
-      <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
+      <span style="width:1px; height:14px; background:var(--rule-22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div>
     <span>Alberta</span>
