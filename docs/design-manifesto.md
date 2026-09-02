@@ -74,12 +74,12 @@ There is no grey ramp beyond these four. Do not introduce `#888`, `#ccc`, or any
 
 | Token | Value | Use |
 |---|---|---|
-| Hairline weight | `1px` | Every rule, divider, field underline and chip edge. |
+| Hairline weight | `1px` on off-white; `0.5px` on Charcoal and Burnt | Every rule, divider, field underline and chip edge. Authored at `1px` in the element's own style attribute; the dark-ground stylesheets then set `border-width:0.5px !important` on everything inside `section` and `footer`, so the same rule renders at half weight on the dark grounds. |
 | Rule colour | `rgba(23,22,19,0.13)` | Section rules and dividers on off-white. |
 | Rule on dark | `rgba(245,243,236,0.45)` | The same rules on Charcoal and Burnt. |
 | Hover wash | `rgba(23,22,19,0.05)` | Whole-row and whole-card hover ground. |
 
-One weight everywhere. A 0.5px border next to a 1px border reads as a mistake at any zoom level.
+One weight per ground. Author every rule at `1px`; the dark grounds take it to `0.5px` themselves, and that is what ships. What reads as a mistake is two weights side by side on the same ground: a rule authored at `0.5px` on off-white next to a `1px` one, or a border set from a stylesheet with `!important` that escapes the dark-ground rule.
 
 ### Rail and gutter
 
@@ -190,6 +190,8 @@ There are no cards on this site, even where a grid of rectangles might look like
 | `background` on content blocks | transparent, until hover |
 | Hover ground | `rgba(23,22,19,0.05)` on the whole row |
 | Focus | `2px` solid accent outline, `3px` offset |
+
+An edge, where one is drawn, is the hairline from section 4: `1px` on off-white, rendered at `0.5px` on Charcoal and Burnt by the dark-ground stylesheets. There is no second edge weight.
 
 Hover changes the ground, not the type. When a row lights up, nothing inside it changes colour. Set `color: inherit` on the hover state if a global rule would otherwise turn the label orange.
 

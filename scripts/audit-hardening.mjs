@@ -125,14 +125,15 @@ const slugs = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravin
 
 // Each URL's lastmod is the commit date of the source that produces it, so two
 // builds of the same commit write the same sitemap and a page's date only
-// moves when the page does. The home page also depends on the Experience
-// Index data; /work is derived from project.html as well as its own file; the
+// moves when the page does. Every page's source is its authored file under
+// src/, never the rendered root file, which the build rewrites on every run.
+// The home page also depends on the Experience Index data; /work is derived from project.html as well as its own file; the
 // generated project pages are all produced from project.html.
 const SOURCES = {
-  '/': ['index.html', 'content/experience.json'],
+  '/': ['src/index.html', 'content/experience.json'],
   '/work': ['src/work.html', 'src/project.html'],
   '/studio': ['src/studio.html'],
-  '/contact': ['contact.html'],
+  '/contact': ['src/contact.html'],
   '/custom-home-design-edmonton': ['src/custom-home-design-edmonton.html'],
   '/renovations-additions-edmonton': ['src/renovations-additions-edmonton.html'],
   '/restaurant-hospitality-design-edmonton': ['src/restaurant-hospitality-design-edmonton.html'],
