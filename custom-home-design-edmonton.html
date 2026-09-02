@@ -34,11 +34,13 @@
   body { margin: 0; background: var(--ground); color: var(--ink); font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--accent); }
   ::selection { background: var(--accent); color: var(--ground); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-.scp0:hover{border-bottom-color:var(--ink) !important}
-.scp1:hover{background:var(--plate) !important}
+.scp0:hover{border-bottom-color:var(--accent) !important;color:var(--accent) !important}
+.scp1:hover{color:var(--accent) !important;border-bottom-color:var(--accent) !important}
+.scp2:hover{background:var(--plate) !important}
 html,body{height:100%;margin:0}#page{height:100%}
 </style>
 </head>
@@ -88,11 +90,11 @@ html,body{height:100%;margin:0}#page{height:100%}
 
   <section data-reveal data-motion="detail" data-screen-label="Related" data-theme-surface="content" style="display:flex; flex-wrap:wrap; align-items:baseline; gap:14px 28px; padding:clamp(32px,4vw,48px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13);">
     <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);">Also from the studio</span>
-    <a href="/renovations-additions-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" class="scp0">Renovations + Additions</a>
-      <a href="/restaurant-hospitality-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" class="scp0">Restaurant + Hospitality Design</a>
+    <a href="/renovations-additions-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" class="scp1">Renovations + Additions</a>
+      <a href="/restaurant-hospitality-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" class="scp1">Restaurant + Hospitality Design</a>
   </section>
 
-  <a href="/contact" data-turbo-preload data-screen-label="Start a Project" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13); transition:background .35s ease;" class="scp1">
+  <a href="/contact" data-turbo-preload data-screen-label="Start a Project" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13); transition:background .35s ease;" class="scp2">
     <div>
       <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px;">Start a project</div>
       <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Get in touch</div>

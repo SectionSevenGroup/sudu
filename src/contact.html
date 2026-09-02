@@ -136,6 +136,7 @@
   [data-mind-map] line[data-link="sub"] { opacity:0; }
   [data-mind-map] line[data-link="sub"].is-active { opacity:1; }
   [data-mind-map] line[data-link="sub"].is-on { stroke:rgba(225,123,62,0.75); stroke-width:0.22; }
+  a:hover { color: var(--accent); }
   ::selection { background: var(--accent); color: var(--ground); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   input::placeholder, textarea::placeholder { color: var(--faint); opacity: 1; }
@@ -207,8 +208,8 @@
       <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--ink);">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--ink);">Studio</a>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Studio</a>
       <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent;">Contact</a></nav>
   </header>
 

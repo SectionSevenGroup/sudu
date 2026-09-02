@@ -136,6 +136,7 @@
   [data-mind-map] line[data-link="sub"] { opacity:0; }
   [data-mind-map] line[data-link="sub"].is-active { opacity:1; }
   [data-mind-map] line[data-link="sub"].is-on { stroke:rgba(225,123,62,0.75); stroke-width:0.22; }
+  a:hover { color: var(--accent); }
   ::selection { background: var(--accent); color: var(--ground); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   input::placeholder, textarea::placeholder { color: var(--faint); opacity: 1; }
@@ -189,7 +190,7 @@
     -webkit-text-fill-color:currentColor; caret-color:currentColor;
     transition:background-color 100000s ease-in-out 0s;
   }
-.scp0:hover{border-bottom-color:var(--ink) !important}
+.scp0:hover{border-bottom-color:var(--accent) !important;color:var(--accent) !important}
 .scp1:hover{border-color:var(--ink) !important}
 .scp2:hover{background:var(--ink) !important;color:var(--ground) !important}
 .scp3:hover{transform:translate(-50%,-50%) scale(1.06) !important;transition-delay:0ms !important}

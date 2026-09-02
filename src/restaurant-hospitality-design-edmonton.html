@@ -34,6 +34,7 @@
   body { margin: 0; background: var(--ground); color: var(--ink); font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   * { box-sizing: border-box; }
   a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--accent); }
   ::selection { background: var(--accent); color: var(--ground); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -47,9 +48,9 @@
       <img src="images/sudu-mark.png" width="1856" height="660" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--ink);">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--ink);">Studio</a>
-      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--ink);">Contact</a>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:var(--accent); color:var(--accent);">Contact</a>
     </nav>
   </header>
 
@@ -86,8 +87,8 @@
 
   <section data-reveal data-motion="detail" data-screen-label="Related" data-theme-surface="content" style="display:flex; flex-wrap:wrap; align-items:baseline; gap:14px 28px; padding:clamp(32px,4vw,48px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13);">
     <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);">Also from the studio</span>
-    <a href="/custom-home-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" style-hover="border-bottom-color:var(--ink);">Custom Home Design</a>
-      <a href="/commercial-retail-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" style-hover="border-bottom-color:var(--ink);">Commercial + Retail Design</a>
+    <a href="/custom-home-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" style-hover="color:var(--accent); border-bottom-color:var(--accent);">Custom Home Design</a>
+      <a href="/commercial-retail-design-edmonton" style="font-size:14px; font-weight:600; padding-bottom:2px; border-bottom:1px solid var(--rule-30); transition:color .3s ease, border-color .3s ease;" style-hover="color:var(--accent); border-bottom-color:var(--accent);">Commercial + Retail Design</a>
   </section>
 
   <a href="/contact" data-turbo-preload data-screen-label="Start a Project" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(40px,5vw,64px) clamp(20px,4.5vw,64px); border-top:1px solid var(--rule-13); transition:background .35s ease;" style-hover="background:var(--plate);">
