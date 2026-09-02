@@ -19,7 +19,7 @@ function entryHtml(entry) {
   if (entry.preview) attrs.push(`data-preview="${esc(entry.preview)}"`);
   if (entry.info) attrs.push(`data-info="${esc(entry.info)}"`);
   const content = entry.project
-    ? `<a href="project.html?p=${encodeURIComponent(String(entry.project))}" style="color:inherit; text-decoration:none; display:block;">${name}</a>`
+    ? `<a href="/work/${encodeURIComponent(String(entry.project))}/" style="color:inherit; text-decoration:none; display:block;">${name}</a>`
     : name;
   return `          <li style="${rowStyle}" style-hover="${hoverStyle}"${attrs.length ? ' ' + attrs.join(' ') : ''}>${content}</li>`;
 }
@@ -49,7 +49,10 @@ if (sectionEnd < 0) throw new Error('Could not bound the Experience Index sectio
 
 const before = source.slice(0, sectionStart);
 let section = source.slice(sectionStart, sectionEnd + '</section>'.length);
-const listRe = /<ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba\(23,22,19,0\.13\);">[\s\S]*?<\/ul>/g;
+// Consume the whitespace in front of <ul> as well: listHtml() writes its own
+// fixed indent, and matching from "<ul" onward left the old indent in place,
+// so every build pushed the three lists eight spaces further right.
+const listRe = /[ \t]*<ul style="list-style:none; margin:0; padding:0; border-top:1px solid rgba\(23,22,19,0\.13\);">[\s\S]*?<\/ul>/g;
 const matches = [...section.matchAll(listRe)];
 if (matches.length !== 3) {
   throw new Error(`Expected 3 Experience Index lists, found ${matches.length}.`);

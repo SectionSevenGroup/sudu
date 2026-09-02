@@ -24,18 +24,9 @@ for (const slug of slugs) {
   s = s
     .replaceAll('href="/work.html"','href="/work"')
     .replaceAll('href="/studio.html"','href="/studio"')
-    .replaceAll('href="/contact.html"','href="/contact"')
-    .replace('<meta name="robots" content="noindex, follow">','<meta name="robots" content="index, follow">');
+    .replaceAll('href="/contact.html"','href="/contact"');
   s = imageCdn(s);
   writeFileSync(path,s);
 }
 
-// /work/index.html is a generated mirror; keep its metadata/navigation canonical.
-const workPath = join(root,'work','index.html');
-let work = readFileSync(workPath,'utf8')
-  .replaceAll('href="/work.html"','href="/work"')
-  .replaceAll('href="/studio.html"','href="/studio"')
-  .replaceAll('href="/contact.html"','href="/contact"')
-  .replaceAll('https://sudu.studio/work.html','https://sudu.studio/work');
-writeFileSync(workPath,imageCdn(work));
 console.log('Generated project pages hardened.');

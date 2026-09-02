@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon.png?v=00dd0e29">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=f4f435b6">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=92a9c977">
 
 <title>Contact an Edmonton Architect | SuDu Studio</title>
 <meta name="description" content="Planning a custom home, renovation or commercial project in Edmonton? Start a conversation with SuDu Studio, architecture and interior design in Alberta.">
-<link rel="canonical" href="https://sudu.studio/contact.html">
+<link rel="canonical" href="https://sudu.studio/contact">
 <meta property="og:title" content="Contact an Edmonton Architect | SuDu Studio">
 <meta property="og:description" content="Planning a custom home, renovation or commercial project in Edmonton? Start a conversation with SuDu Studio, architecture and interior design in Alberta.">
-<meta property="og:url" content="https://sudu.studio/contact.html">
+<meta property="og:url" content="https://sudu.studio/contact">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
@@ -85,7 +85,7 @@
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
 <script src="js/turbo-boot.js?v=9bcf41fb" defer></script>
-<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
+<script src="js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
      made a revisit play two arrivals. It is deliberately not no-cache:
@@ -229,7 +229,7 @@
     transition:background-color 100000s ease-in-out 0s;
   }
 </style>
-<script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
+<script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 window.__suduMark=mark;})();
 (function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
@@ -249,22 +249,32 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="i18n.js?v=fe854de7" defer></script>
+<script src="i18n.js?v=cbd5fce2" defer></script>
 <script src="js/page-arrival.js?v=084e8a28" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
+
+<style id="contactCharcoalContrast">
+  html.dm:not(.dmwarm):not(.dmred) section [style*="color:#67655D"] { color:#4B4941 !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="color:#A6A399"] { color:#74726B !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="rgba(23,22,19,0.13)"] { border-color:rgba(23,22,19,.24) !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="rgba(23,22,19,0.22)"] { border-color:rgba(23,22,19,.36) !important; }
+  html.dm:not(.dmwarm):not(.dmred) section [style*="rgba(23,22,19,0.32)"] { border-color:rgba(23,22,19,.44) !important; }
+  html.dm:not(.dmwarm):not(.dmred) section input,
+  html.dm:not(.dmwarm):not(.dmred) section textarea { caret-color:#F5F3EC; }
+</style>
 </helmet>
 
-<div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
+<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
-    <a href="./" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
+  <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
+    <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="work.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="studio.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="contact.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid #171613;">Contact</a></nav>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent;">Contact</a></nav>
   </header>
 
   <section data-screen-label="Contact" style="flex:1; padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
@@ -330,7 +340,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
               <line x1="{{ ln.x1 }}" y1="{{ ln.y1 }}" x2="{{ ln.x2 }}" y2="{{ ln.y2 }}" stroke="{{ ln.stroke }}" stroke-width="{{ ln.w }}" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
             </sc-for>
           </svg>
-          <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:68px; height:68px; border-radius:50%; border:1px solid rgba(23,22,19,0.35); display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.01em; background:#F3F1EA; z-index:2; animation:webPulse 5s ease-in-out infinite;">Project</div>
+          <div data-theme-surface="cream" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:68px; height:68px; border-radius:50%; border:1px solid rgba(23,22,19,0.35); display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.01em; background:#F3F1EA; z-index:2; animation:webPulse 5s ease-in-out infinite;">Project</div>
           <sc-for list="{{ nodes }}" as="nd" hint-placeholder-count="6">
             <button type="button" onClick="{{ nd.click }}" style="position:absolute; left:{{ nd.x }}; top:{{ nd.y }}; transform:{{ nd.tr }}; opacity:{{ nd.op }}; pointer-events:{{ nd.pe }}; z-index:{{ nd.z }}; border:1px solid {{ nd.border }}; border-radius:999px; background:{{ nd.bg }}; color:{{ nd.fg }}; padding:{{ nd.pad }}; font-family:'Urbanist', sans-serif; font-size:{{ nd.fs }}; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:{{ nd.delay }};" style-hover="transform:translate(-50%,-50%) scale(1.06); transition-delay:0ms;">{{ nd.label }}</button>
           </sc-for>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,9 +13,9 @@
 <meta property="og:url" content="https://sudu.studio/work/uccellino/">
 <meta property="og:image" content="https://sudu.studio/images/uccellino-restaurant-edmonton.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=00dd0e29">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=f4f435b6">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=92a9c977">
 
 <meta name="robots" content="index, follow">
 
@@ -35,8 +35,8 @@
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="/js/turbo-boot.js?v=113aaca3" defer></script>
-<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>
+<script src="/js/turbo-boot.js?v=9bcf41fb" defer></script>
+<script src="/js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
      made a revisit play two arrivals. It is deliberately not no-cache:
@@ -154,8 +154,11 @@
   html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
+
+  .project-gallery-grid > .project-gallery-item:first-child { grid-column:1 / -1; aspect-ratio:16/9 !important; }
+  @media (max-width:720px) { .project-gallery-grid { grid-template-columns:1fr !important; } .project-gallery-grid > .project-gallery-item { grid-column:auto !important; aspect-ratio:4/3 !important; } }
 </style>
-<script>(function(){var mark=function(){document.querySelectorAll('[style]').forEach(function(el){if(el.closest('#suduBar'))return;var bg=el.getAttribute('style')||'';if(bg.indexOf('F3F1EA')>-1||bg.indexOf('243, 241, 234')>-1||bg.indexOf('243,241,234')>-1){if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');}});};
+<script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
 window.__suduMark=mark;})();
 (function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
@@ -175,26 +178,26 @@ addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passi
 addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
 document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
-<script src="/i18n.js?v=6006c1b9" defer></script>
+<script src="/i18n.js?v=cbd5fce2" defer></script>
 <script src="/js/page-arrival.js?v=084e8a28" defer></script>
 <script src="/js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="/js/haptics.js?v=3c4ba22c"></script>
 </helmet>
 
-<div style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
+<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
-  <header style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
+  <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="/studio.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact.html" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
   </header>
 
   <section data-screen-label="Project Hero" style="padding:clamp(96px,12vh,128px) clamp(20px,4.5vw,64px) 0;">
-    <a href="/work.html" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
+    <a href="/work" style="display:inline-flex; align-items:center; gap:10px; font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">
       <span style="display:inline-block;">&#8592;</span> All work
     </a>
     <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 40px; margin-top:20px; padding-bottom:28px;">
@@ -207,7 +210,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   </section>
 
   <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <img src="/images/uccellino-restaurant-edmonton.jpg" alt="Uccellino" width="1500" height="991" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
+    <img src="/images/uccellino-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="100vw" alt="Uccellino" width="1500" height="991" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
@@ -268,10 +271,10 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
               <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ grp.sub }}</span>
             </div>
           </sc-if>
-          <div data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min({{ grp.minW }}px,100%), 1fr)); gap:clamp(16px,2vw,28px);">
+          <div class="project-gallery-grid" data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,2vw,28px);">
             <sc-for list="{{ grp.images }}" as="g" hint-placeholder-count="2">
-              <div style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">
-                <img src="{{ g.src }}" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
+              <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">
+                <img src="{{ g.src }}" srcset="/.netlify/images?url=/{{ g.src }}&w=480&q=82 480w, /.netlify/images?url=/{{ g.src }}&w=768&q=82 768w, /.netlify/images?url=/{{ g.src }}&w=1080&q=82 1080w, /.netlify/images?url=/{{ g.src }}&w=1440&q=82 1440w, /.netlify/images?url=/{{ g.src }}&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
               </div>
             </sc-for>
           </div>
@@ -825,10 +828,10 @@ class Component extends DCLogic {
       }),
       hasGallery: !ed && !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
       showSlots: false,
-      nextTitle: nd.title, nextHref: 'project.html?p=' + d.next,
+      nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
       heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
-        href: 'project.html?p=' + r.key,
+        href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',
         hasThumb: !!projects[r.key].heroSrc,
         name: r.name,

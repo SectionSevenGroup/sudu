@@ -13,6 +13,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -29,6 +30,9 @@ const HTML = [...CORE, ...SERVICES];
 
 function extensionless(html) {
   return html
+    // The query-param project route is retired; /work/<slug>/ is the page.
+    // _redirects still 301s the old form, but nothing authored should emit it.
+    .replace(/href="(?:\.\/|\/)?project\.html\?p=([A-Za-z0-9_-]+)"/g, 'href="/work/$1/"')
     .replaceAll('href="index.html"', 'href="/"')
     .replaceAll('href="./"', 'href="/"')
     .replaceAll('href="work.html"', 'href="/work"')
@@ -63,7 +67,7 @@ function architectureIdentity(html, page) {
 
 function addCoreShell(html) {
   if (!html.includes('css/rail.css')) {
-    html = html.replace('</head>', '<link rel="stylesheet" href="css/rail.css">\n<script src="js/chrome-bar.js"></script>\n<script src="js/turbo-boot.js" defer></script>\n<script src="https://unpkg.com/@hotwired/turbo@8.0.23/dist/turbo.es2017-umd.js" defer></script>\n<meta name="turbo-cache-control" content="no-preview">\n</head>');
+    html = html.replace('</head>', '<link rel="stylesheet" href="css/rail.css">\n<script src="js/chrome-bar.js"></script>\n<script src="js/turbo-boot.js" defer></script>\n<script src="js/vendor/turbo.es2017-umd.js" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>\n<meta name="turbo-cache-control" content="no-preview">\n</head>');
   }
   html = html.replace(/<header style=/g, '<header id="suduNav" style=');
   html = html.replace(/<a href="\/work"(?![^>]*data-turbo-preload)/g, '<a href="/work" data-turbo-preload');
@@ -94,8 +98,9 @@ function studioReveal(html) {
 }
 
 function projectSource(html) {
-  html = html.replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">');
-  html = html.replace('<link rel="canonical" href="https://sudu.studio/project.html">', '<link rel="canonical" href="https://sudu.studio/work">');
+  // project.html is the generator template: it is authored noindex with no
+  // canonical of its own, and build-projects.mjs writes each generated page's
+  // real canonical and robots directive.
   html = html.replace('<meta property="og:url" content="https://sudu.studio/project.html">', '<meta property="og:url" content="https://sudu.studio/work">');
   html = html.replace(
     '<div data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min({{ grp.minW }}px,100%), 1fr)); gap:clamp(16px,2vw,28px);">',
@@ -152,13 +157,43 @@ for (const p of HTML) {
 }
 
 const slugs = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','opt','factory-club','factory-yyc','selkirk','enoch','youth-recovery'];
-const urls = [
-  '/', '/work', '/studio', '/contact',
-  '/custom-home-design-edmonton', '/renovations-additions-edmonton',
-  '/restaurant-hospitality-design-edmonton', '/commercial-retail-design-edmonton',
-  ...slugs.map(s => `/work/${s}/`)
-];
+
+// Each URL's lastmod is the commit date of the source that produces it, so two
+// builds of the same commit write the same sitemap and a page's date only
+// moves when the page does. The home page also depends on the Experience
+// Index data; /work is derived from project.html as well as its own file; the
+// generated project pages are all produced from project.html.
+const SOURCES = {
+  '/': ['index.html', 'content/experience.json'],
+  '/work': ['work.html', 'project.html'],
+  '/studio': ['studio.html'],
+  '/contact': ['contact.html'],
+  '/custom-home-design-edmonton': ['custom-home-design-edmonton.html'],
+  '/renovations-additions-edmonton': ['renovations-additions-edmonton.html'],
+  '/restaurant-hospitality-design-edmonton': ['restaurant-hospitality-design-edmonton.html'],
+  '/commercial-retail-design-edmonton': ['commercial-retail-design-edmonton.html'],
+  ...Object.fromEntries(slugs.map(s => [`/work/${s}/`, ['project.html']]))
+};
 const today = new Date().toISOString().slice(0,10);
-write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>https://sudu.studio${u}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+let gitAvailable = true;
+function commitDate(file) {
+  if (!gitAvailable) return '';
+  try {
+    return execFileSync('git', ['log', '-1', '--format=%cs', '--', file],
+      { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    gitAvailable = false;
+    console.warn('sitemap: git is unavailable, falling back to today for lastmod');
+    return '';
+  }
+}
+function lastmod(url) {
+  const dates = SOURCES[url].map(commitDate).filter(Boolean);
+  if (dates.length) return dates.sort().at(-1);
+  if (gitAvailable) console.warn(`sitemap: no commit history for ${SOURCES[url].join(', ')}, using today for ${url}`);
+  return today;
+}
+const urls = Object.keys(SOURCES);
+write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>https://sudu.studio${u}</loc><lastmod>${lastmod(u)}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 
 console.log('SuDu audit hardening applied to source pages and sitemap.');
