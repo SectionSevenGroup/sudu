@@ -43,7 +43,8 @@
   }
 
   try { saved = localStorage.getItem(P) || saved; } catch(e) {}
-  apply(saved === '#D0271F' ? '#C0431F' : saved);
+  // Build first, so apply() can withdraw the current ground's swatch.
   build();
-  document.addEventListener('turbo:render', function () { apply(saved); build(); });
+  apply(saved === '#D0271F' ? '#C0431F' : saved);
+  document.addEventListener('turbo:render', function () { build(); apply(saved); });
 })();

@@ -64,8 +64,11 @@
   }
 
   function bind() {
-    apply(saved());
+    // Build first: apply() withdraws the current ground's swatch, and can only
+    // do that once the swatches exist. Every click and every turbo:render
+    // comes back through here, so the withdrawn dot is always the live ground.
     build();
+    apply(saved());
   }
 
   window.suduTheme = { bind: bind, apply: apply };
