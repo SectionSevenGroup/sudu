@@ -293,74 +293,13 @@
   html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
   html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
 </style>
-<script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
-[0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
-window.__suduMark=mark;})();
-(function(){if(window.__dmPicker)return;window.__dmPicker=1;var P='sudu-dm-bg';var opts=[['Charcoal','#121110'],['Off white','#F3F1EA'],['Burnt','#C0431F']];
-function apply(v){if(window.__suduMark)window.__suduMark();var h=document.documentElement;if(v==='#F3F1EA'){h.classList.remove('dm','dmwarm','dmred','dmlight');h.style.removeProperty('--dm-bg');}else{h.classList.add('dm');h.style.setProperty('--dm-bg',v);h.classList.toggle('dmwarm',v!=='#121110');h.classList.toggle('dmred',v!=='#121110');h.classList.remove('dmlight');}try{localStorage.setItem(P,v);}catch(e){}var sw=document.getElementById('dmSwatches');if(sw)[].forEach.call(sw.children,function(b){b.hidden=b.getAttribute('data-v')===v;});}
-try{var s=localStorage.getItem(P);apply(s==='#D0271F'?'#C0431F':(s||'#F3F1EA'));}catch(e){apply('#F3F1EA');}
-function build(){if(document.getElementById('dmSwatches'))return;if(!document.body)return;var d=document.createElement('div');d.id='dmSwatches';opts.forEach(function(o){var b=document.createElement('button');b.title=o[0];b.setAttribute('data-v',o[1]);b.setAttribute('aria-label','Background: '+o[0]);b.style.cssText='width:13px;height:13px;border-radius:50%;border:0;cursor:none;padding:0;background:'+o[1];b.onclick=function(){apply(o[1]);};d.appendChild(b);});if(window.suduBar)window.suduBar().appendChild(d);else document.documentElement.appendChild(d);}
-build();setTimeout(build,800);setTimeout(function(){var v;try{v=localStorage.getItem(P);}catch(e){}apply(v||'#F3F1EA');},900);})();
-
-(function(){
-  // Not a reveal. js/home.js owns the drawing's arrival on every path; this
-  // only guarantees the end state if the drawing errors outright, which is
-  // the one case its decode wait cannot resolve on its own. The CSS
-  // animation covers the rest. Nothing here starts a transition.
-  var lit = function () {
-    var im = document.getElementById('heroImg');
-    if (!im) return false;
-    im.addEventListener('error', function () { im.style.opacity = '1'; }, { once: true });
-    return true;
-  };
-  var p = function (n) { if (lit() || n > 120) return; requestAnimationFrame(function () { p(n + 1); }); };
-  p(0);
-  addEventListener('load', function () { p(0); });
-  document.addEventListener('turbo:load', function () { p(0); });
-})();
-
-(function(){
-  // The hero's reserved zone needs the metadata row's real height: it changes
-  // with wrapping and with language, and a guessed value is what let the
-  // statement and the row meet on a small phone. Published as a custom
-  // property so the CSS above stays the single place the geometry is written.
-  var sync = function () {
-    var foot = document.getElementById('heroFoot');
-    if (!foot) return false;
-    var pad = parseFloat(getComputedStyle(foot).paddingBottom) || 0;
-    var h = Math.round(foot.getBoundingClientRect().height - pad);
-    if (h > 0) document.documentElement.style.setProperty('--sudu-hero-foot', h + 'px');
-    return true;
-  };
-  var pump = function (n) { if (sync() || n > 20) return; requestAnimationFrame(function () { pump(n + 1); }); };
-  window.__suduHeroZone = function () { pump(0); };
-  pump(0);
-  addEventListener('resize', function () { pump(0); }, { passive: true });
-  addEventListener('orientationchange', function () { pump(0); }, { passive: true });
-  document.addEventListener('turbo:load', function () { pump(0); });
-})();
-
-(function(){
-// A touch device gets no crosshair and keeps its native cursor: hover:hover
-// rules out the hybrids that claim a fine pointer but are driven by touch.
-if(window.__xhInit||!matchMedia('(pointer:fine)').matches||!matchMedia('(hover:hover)').matches)return;window.__xhInit=1;var el,x=0,y=0,raf=0;
-function make(){if(!document.body)return;var ex=document.querySelectorAll('#xhair');if(ex.length){for(var i=1;i<ex.length;i++)ex[i].remove();el=ex[0];return;}if(el)return;el=document.createElement('div');el.id='xhair';el.innerHTML='<i></i><i></i><i></i><i></i>';document.documentElement.appendChild(el);document.documentElement.classList.add('xh');}
-// Built on the first genuine pointer movement, not on load — created up
-// front it sat stranded at 0,0 until the pointer happened to move.
-
-function draw(){raf=0;if(el)el.style.transform='translate3d('+x+'px,'+y+'px,0)';}
-var lx=0,ly=0,lt=0,len=16,tlen=16,loop=0;
-function tick(){var d=tlen-len;len+=d*0.18;if(el)el.style.setProperty('--len',len.toFixed(1)+'px');tlen+=(16-tlen)*0.06;if(Math.abs(d)>0.3||tlen>16.5){loop=requestAnimationFrame(tick);}else{loop=0;len=16;tlen=16;if(el)el.style.setProperty('--len','16px');}}
-addEventListener('pointermove',function(e){var t=e.timeStamp||performance.now();var dt=Math.max(t-lt,8);var sp=Math.hypot(e.clientX-lx,e.clientY-ly)/dt*16;lx=e.clientX;ly=e.clientY;lt=t;x=e.clientX;y=e.clientY;tlen=Math.min(16+sp*2.4,120);make();if(!loop)loop=requestAnimationFrame(tick);if(!raf)raf=requestAnimationFrame(draw);}, { passive:true});
-addEventListener('pointerdown',function(){if(el)el.style.opacity='.5';}, { passive:true});
-addEventListener('pointerup',function(){if(el)el.style.opacity='1';}, { passive:true});
-document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
-document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
+<script src="js/theme.js?v=8c5991fc" defer></script>
+<script src="js/cursor.js?v=c9446642" defer></script>
 <script src="i18n.js?v=cbd5fce2" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=c60c698e"></script>
 <script src="js/reveal.js?v=3c98252b" defer></script>
-<script src="js/home.js?v=30180fd8" defer></script>
+<script src="js/home.js?v=7a147031" defer></script>
 </head>
 <body>
 <div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">

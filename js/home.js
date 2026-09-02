@@ -1,10 +1,11 @@
 // The home page's own behaviour, in plain script.
 //
-// Four things, each of which the page's Component used to carry: the
-// Experience Index disclosure, the hero drawing's arrival, the scroll frame
-// (the statement and caption fading out, the drawing's parallax, the header's
-// ground past 40px) and the hover preview over the index rows. Reveal is not
-// here: js/reveal.js owns [data-reveal] on this page as on every other.
+// Six things the page used to carry in script of its own: the Experience
+// Index disclosure, the hero drawing's arrival, the scroll frame (the
+// statement and caption fading out, the drawing's parallax, the header's
+// ground past 40px), the hover preview over the index rows, the drawing's end
+// state if it errors, and the hero's reserved zone. Reveal is not here:
+// js/reveal.js owns [data-reveal] on this page as on every other.
 //
 // One singleton, reachable as window.suduHome. The script is loaded once and
 // every later visit to the home page re-enters through bind(); everything a
@@ -188,14 +189,54 @@
     }, { passive: true });
   }
 
+  // e) The drawing's end state if it errors outright ------------------------
+  // Not a reveal. heroArrival() owns the drawing's arrival on every path; this
+  // only guarantees the end state if the drawing errors outright, which is
+  // the one case its decode wait cannot resolve on its own. The CSS animation
+  // covers the rest. Nothing here starts a transition.
+  function heroGuard(v) {
+    var im = document.getElementById('heroImg');
+    if (!im) return;
+    var lit = function () { im.style.opacity = '1'; };
+    im.addEventListener('error', lit, { once: true });
+    v.offs.push(function () { im.removeEventListener('error', lit); });
+  }
+
+  // f) The hero's reserved zone -----------------------------------------------
+  // The zone needs the metadata row's real height: it changes with wrapping
+  // and with language, and a guessed value is what let the statement and the
+  // row meet on a small phone. Published as a custom property so the page's
+  // CSS stays the single place the geometry is written. The coordinator runs
+  // it again inside its gate, through window.__suduHeroZone, once the
+  // incoming page has laid out.
+  function heroZone(v) {
+    var sync = function () {
+      var foot = document.getElementById('heroFoot');
+      if (!foot) return;
+      var pad = parseFloat(getComputedStyle(foot).paddingBottom) || 0;
+      var h = Math.round(foot.getBoundingClientRect().height - pad);
+      if (h > 0) document.documentElement.style.setProperty('--sudu-hero-foot', h + 'px');
+    };
+    v.zone = sync;
+    sync();
+    window.addEventListener('resize', sync, { passive: true });
+    window.addEventListener('orientationchange', sync, { passive: true });
+    v.offs.push(function () {
+      window.removeEventListener('resize', sync);
+      window.removeEventListener('orientationchange', sync);
+    });
+  }
+
   // ------------------------------------------------------------- lifecycle
   function bind() {
     if (!document.getElementById('heroImg')) return;            // not the home page
     if (live && live.body === document.body) return;             // this body is bound
     unbind();
-    var v = live = { body: document.body, intro: false, jsPar: false, navPast: null, queued: false, timers: [], offs: [] };
+    var v = live = { body: document.body, intro: false, jsPar: false, navPast: null, queued: false, timers: [], offs: [], zone: null };
     wireIndex(v);
     previewCard();
+    heroGuard(v);
+    heroZone(v);
     heroArrival(v);
     var onScroll = function () { run(v); };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -216,6 +257,7 @@
   }
 
   window.suduHome = { bind: bind, unbind: unbind };
+  window.__suduHeroZone = function () { if (live && live.zone) live.zone(); };
   document.addEventListener('turbo:before-render', unbind);
   document.addEventListener('turbo:render', bind);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);

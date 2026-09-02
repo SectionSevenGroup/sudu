@@ -288,7 +288,7 @@ A fixed 52px strip across the bottom, plus `env(safe-area-inset-bottom)`. It hol
 
 ### Cursor
 
-The site hides the native cursor (`cursor: none`) and draws a crosshair that stretches with pointer velocity. It is the one piece of pure atmosphere on the site.
+The site hides the native cursor (`cursor: none`) and draws a crosshair that stretches with pointer velocity. It is the one piece of pure atmosphere on the site. `js/cursor.js` draws it, for mouse users only: a coarse pointer, a hybrid driven by touch, and a `prefers-reduced-motion: reduce` preference all keep the native cursor, and the script watches those queries live, so the cursor comes back the moment a preference changes.
 
 Keep it working for keyboard users: every interactive element needs a visible `:focus-visible` outline, since focus is the only affordance a keyboard visitor gets. If accessibility work ever removes the crosshair, restore the native cursor in the same change.
 
@@ -387,7 +387,7 @@ Three things in the code disagree with themselves. None should be settled by a c
 
 1. **The accent colour.** Burnt `#C0431F` is declared; `#E17B3E` ships on the public pages for hover, selection and focus. Pick one, state it once, inherit it everywhere.
 2. **Rule opacity.** `css/sketch.css` declares `--rule` at `rgba(23,22,19,.13)` and `--rule-strong` at `rgba(23,22,19,.34)`. The pages use `0.13` for most rules, and also `0.22`, `0.3`, `0.32` and `0.4` for heavier lines, with `0.05` as the hover wash. On the dark grounds the rule opacity ranges from `0.18` to `0.72`, with `0.45` and `0.5` the most common. Decide which of these are roles and which are drift.
-3. **Hidden cursor and accessibility.** `cursor: none` is atmospheric and load-bearing for the site's character. Confirm the focus-visible coverage is complete enough to carry keyboard users on its own, or add a preference to restore the native cursor.
+3. **Hidden cursor and accessibility.** `cursor: none` is atmospheric and load-bearing for the site's character. Reduced motion and coarse pointers already restore the native cursor (`js/cursor.js`); the open question is a keyboard user on a mouse device. Confirm the focus-visible coverage is complete enough to carry them on its own, or add a preference of the site's own.
 
 ---
 
