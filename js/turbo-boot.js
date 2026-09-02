@@ -113,15 +113,6 @@
     ]);
   }
 
-  // The theme marker classifies which incoming elements carry the cream ground.
-  // It has to run before anything is shown, or html.dm's inversion lands on
-  // sections that were never marked.
-  function markTheme() {
-    if (typeof window.__suduMark === 'function') {
-      try { window.__suduMark(); } catch (e) {}
-    }
-  }
-
   // The scroll-reveal engines decide, per element, whether it is part of the
   // opening composition (shown outright) or below it (hidden, awaiting the
   // scroller). Running that decision inside the gate means the page is captured
@@ -203,7 +194,7 @@
   // runs while that page is held at opacity 0, over the permanent field.
   function gate(rendered) {
     return rendered
-      .then(function () { markTheme(); prepareReveals(); })
+      .then(function () { prepareReveals(); })
       .then(afterFrame)
       .then(decodeCritical);
   }

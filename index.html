@@ -17,9 +17,9 @@
 <meta property="og:image" content="https://sudu.studio/images/og-sudu-logo.jpg">
 <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="css/tokens.css?v=a4c4ae1a">
+<link rel="stylesheet" href="css/tokens.css?v=9c5a4dd2">
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
-<script src="/js/chrome-bar.js?v=e45217c9" data-turbo-track="reload"></script>
+<script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -84,7 +84,7 @@
      The coordinator is listed first on purpose. Turbo scans for preload
      links the moment its own script runs, and the coordinator is what
      withdraws those links on a metered connection. -->
-<script src="js/turbo-boot.js?v=77513502" defer></script>
+<script src="js/turbo-boot.js?v=142b3cda" defer></script>
 <script src="js/vendor/turbo.es2017-umd.js?v=f9e09e3a" integrity="sha384-2ePXINFSJiSCWUJkjFJGYdr2kyM132s7uBi9k+JISp4P+AjN9DXn4H/1enWEHu36" defer></script>
 <!-- One render per application visit. no-preview stops Turbo showing the
      cached copy of a page before the fresh response arrives, which is what
@@ -105,23 +105,15 @@
   @keyframes suduDraw { 0%,100% { transform: scaleX(0.3); opacity: .45; } 50% { transform: scaleX(1); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 
-  html.dm, html.dm body { background:var(--dm-bg,#C0431F); }
-  html.dm .dm-wrap { background:var(--dm-bg,#C0431F) !important; }
-  html.dm .dm-flat:not(header):not(footer):not(#suduNav) { background:transparent !important; }
   /* The ground, blur, border and ink for all three pills now come from the
      chrome bar (js/chrome-bar.js), which carries them once for every theme
      instead of each pill restating them. What stays here is the swatch
-     buttons themselves and the preview card's inversion exemption. */
+     buttons themselves. */
   #dmSwatches { display:flex !important; }
   #dmSwatches button { box-shadow:none !important; border:0 !important; }
-  html.dm #dmSwatches button { filter:none !important; }
-  /* preview card */
-  html.dm body > div[style*="position:fixed"][style*="z-index:90"] { filter:none !important; }
   html.xh, html.xh * { cursor:none !important; }
   #xhair { position:fixed; left:0; top:0; width:0; height:0; pointer-events:none; z-index:99998; will-change:transform; }
-  #xhair i { position:absolute; display:block; --xh:#57554E; }
-  html.dm #xhair i { --xh:#F5F3EC; }
-  html.dm.dmlight #xhair i { --xh:#171613; }
+  #xhair i { position:absolute; display:block; }
   #xhair { --len:16px; --gap:5px; }
   #xhair i { opacity:0.72; }
   #xhair i:nth-child(1), #xhair i:nth-child(2) { width:1px; left:-0.5px; height:var(--len); transform:scaleX(0.75); }
@@ -130,11 +122,7 @@
   #xhair i:nth-child(3), #xhair i:nth-child(4) { height:1px; top:-0.5px; width:var(--len); transform:scaleY(0.75); }
   #xhair i:nth-child(3) { left:calc(-1 * (var(--len) + var(--gap))); background:linear-gradient(to right, transparent 0%, var(--xh) 34%); }
   #xhair i:nth-child(4) { left:var(--gap); background:linear-gradient(to left, transparent 0%, var(--xh) 34%); }
-  html.dm.dmred section p, html.dm.dmred section dt, html.dm.dmred section dd, html.dm.dmred section li, html.dm.dmred section h1, html.dm.dmred section h2, html.dm.dmred section h3, html.dm.dmred section h4, html.dm.dmred section h5, html.dm.dmred section span, html.dm.dmred section a, html.dm.dmred section small, html.dm.dmred section strong, html.dm.dmred section em, html.dm.dmred section label, html.dm.dmred section button, html.dm.dmred section input, html.dm.dmred section textarea, html.dm.dmred section figcaption, html.dm.dmred .dm-wrap > *:not(header):not(footer) p, html.dm.dmred .dm-wrap > *:not(header):not(footer) dt, html.dm.dmred .dm-wrap > *:not(header):not(footer) dd, html.dm.dmred .dm-wrap > *:not(header):not(footer) li, html.dm.dmred .dm-wrap > *:not(header):not(footer) h1, html.dm.dmred .dm-wrap > *:not(header):not(footer) h2, html.dm.dmred .dm-wrap > *:not(header):not(footer) h3, html.dm.dmred .dm-wrap > *:not(header):not(footer) h4, html.dm.dmred .dm-wrap > *:not(header):not(footer) h5, html.dm.dmred .dm-wrap > *:not(header):not(footer) span, html.dm.dmred .dm-wrap > *:not(header):not(footer) a, html.dm.dmred .dm-wrap > *:not(header):not(footer) small, html.dm.dmred .dm-wrap > *:not(header):not(footer) strong, html.dm.dmred .dm-wrap > *:not(header):not(footer) em, html.dm.dmred .dm-wrap > *:not(header):not(footer) label, html.dm.dmred .dm-wrap > *:not(header):not(footer) button, html.dm.dmred .dm-wrap > *:not(header):not(footer) input, html.dm.dmred .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmred .dm-wrap > *:not(header):not(footer) figcaption { color:#171613 !important; }
-  html.dm.dmlight section p, html.dm.dmlight section dt, html.dm.dmlight section dd, html.dm.dmlight section li, html.dm.dmlight section h1, html.dm.dmlight section h2, html.dm.dmlight section h3, html.dm.dmlight section h4, html.dm.dmlight section h5, html.dm.dmlight section span, html.dm.dmlight section a, html.dm.dmlight section small, html.dm.dmlight section strong, html.dm.dmlight section em, html.dm.dmlight section label, html.dm.dmlight section button, html.dm.dmlight section input, html.dm.dmlight section textarea, html.dm.dmlight section figcaption, html.dm.dmlight .dm-wrap > *:not(header):not(footer) p, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dt, html.dm.dmlight .dm-wrap > *:not(header):not(footer) dd, html.dm.dmlight .dm-wrap > *:not(header):not(footer) li, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h1, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h2, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h3, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h4, html.dm.dmlight .dm-wrap > *:not(header):not(footer) h5, html.dm.dmlight .dm-wrap > *:not(header):not(footer) span, html.dm.dmlight .dm-wrap > *:not(header):not(footer) a, html.dm.dmlight .dm-wrap > *:not(header):not(footer) small, html.dm.dmlight .dm-wrap > *:not(header):not(footer) strong, html.dm.dmlight .dm-wrap > *:not(header):not(footer) em, html.dm.dmlight .dm-wrap > *:not(header):not(footer) label, html.dm.dmlight .dm-wrap > *:not(header):not(footer) button, html.dm.dmlight .dm-wrap > *:not(header):not(footer) input, html.dm.dmlight .dm-wrap > *:not(header):not(footer) textarea, html.dm.dmlight .dm-wrap > *:not(header):not(footer) figcaption { color:#F5F3EC !important; }
-  html.dm.dmred [style*="var(--faint)"], html.dm.dmred [style*="var(--muted)"] { color:#171613 !important; }
-  html.dm.dmlight [style*="var(--faint)"], html.dm.dmlight [style*="var(--muted)"] { color:#F5F3EC !important; }
-  html.dm.dmwarm [data-reveal-clip] img.red-art { display:block !important; filter:none !important; object-fit:contain !important; width:100%; max-width:820px; max-height:520px; margin:0 auto; }
+  html.dm.dmwarm [data-reveal-clip] img.red-art { display:block !important; object-fit:contain !important; width:100%; max-width:820px; max-height:520px; margin:0 auto; }
   html.dm.dmwarm [data-reveal-clip] { display:flex; align-items:center; justify-content:center; aspect-ratio:auto !important; height:auto !important; min-height:0 !important; }
   html.dm.dmwarm [data-reveal-clip] a > img:not(.red-art) { display:none !important; }
   html.dm.dmwarm [data-reveal-clip] { background:transparent !important; }
@@ -149,9 +137,7 @@
      toward the viewport edges. A third, narrower editorial layer existed while
      the founder bridge did; the practice block that replaced it is ordinary
      page content and sits on the same rail as everything else, so that layer
-     is not carried as dead weight. No colour is stated
-     in any of these rules, so the dm-flat marker cannot mistake them for a
-     cream panel. Purely horizontal: no rule below touches a vertical value. */
+     is not carried as dead weight. Purely horizontal: no rule below touches a vertical value. */
   :root {
     --sudu-gutter:clamp(20px,4.5vw,64px);
     --sudu-rail:1760px;
@@ -264,34 +250,13 @@
   .rowrev-txt dl { justify-content:flex-end !important; }
   #langSwitch button { position:relative; }
   #langSwitch button::after { content:""; position:absolute; inset:-12px -6px; }
-  html.dm .dm-wrap > *:not(section):not(header):not(footer):not(.dm-wrap) { filter: invert(1) hue-rotate(180deg); }
-  html.dm section#hero, html.dm section[data-screen-label="Hero"], html.dm section[data-screen-label="Project Hero"] { background:transparent !important; }
-  html.dm section { filter: invert(1) hue-rotate(180deg); }
-  html.dm img, html.dm video { filter: invert(1) hue-rotate(180deg) !important; }
-  html.dm #suduPreview, html.dm #suduPreview img { filter:none !important; }
-  html.dm img#heroImg, html.dm img[src*="hero-drawing"], html.dm img[src*="team-illustration"] { filter: none !important; mix-blend-mode:normal !important; }
-  html.dm section img[src*="sudu-mark"], html.dm .dm-wrap > *:not(section):not(header):not(footer) img[src*="sudu-mark"] { filter: none !important; mix-blend-mode:normal !important; }
   
 
   /* header/footer chrome: declared last, single source of truth */
-  html.dm header, html.dm footer { filter:none !important; }
-  html.dm header { background:color-mix(in srgb, var(--dm-bg,#C0431F) 90%, transparent) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:0 !important; }
-  html.dm footer { background:transparent !important; }
   /* burnt/charcoal: every footer rule, divider and glyph is off white — no greys */
-  html.dm footer, html.dm footer * { border-color:rgba(245,243,236,.45) !important; }
-  html.dm footer, html.dm footer *:not(img) { color:#F5F3EC !important; }
-  html.dm footer span[style*="background"], html.dm footer div[style*="width:1px"] { background:rgba(245,243,236,.5) !important; }
-  html.dm.dmwarm section, html.dm.dmwarm section * { border-color:rgba(23,22,19,.42) !important; }
-  html.dm.dmwarm section *:not(img):not(video) { color:#171613 !important; }
   /* placeholders are pseudo-elements, so * never reached them */
-  html.dm input::placeholder, html.dm textarea::placeholder { color:#26241F !important; opacity:1 !important; }
   /* one hairline weight everywhere: chips, field underlines, dividers, section rules */
-  html.dm section, html.dm section *, html.dm footer, html.dm footer * { border-width:0.5px !important; }
   section, section *, footer, footer *, header, header * { border-width:0.5px; }
-  html.dm:not(.dmlight) header a, html.dm:not(.dmlight) footer a, html.dm:not(.dmlight) header span, html.dm:not(.dmlight) footer span, html.dm:not(.dmlight) header div, html.dm:not(.dmlight) footer div, html.dm:not(.dmlight) header button, html.dm:not(.dmlight) footer button, html.dm:not(.dmlight) header small, html.dm:not(.dmlight) footer small, html.dm:not(.dmlight) header strong, html.dm:not(.dmlight) footer strong, html.dm:not(.dmlight) header nav a, html.dm:not(.dmlight) footer nav a { color:#F5F3EC !important; }
-  html.dm.dmlight header a, html.dm.dmlight footer a, html.dm.dmlight header span, html.dm.dmlight footer span, html.dm.dmlight header div, html.dm.dmlight footer div, html.dm.dmlight header button, html.dm.dmlight footer button, html.dm.dmlight header small, html.dm.dmlight footer small, html.dm.dmlight header strong, html.dm.dmlight footer strong, html.dm.dmlight header nav a, html.dm.dmlight footer nav a { color:#171613 !important; }
-  html.dm:not(.dmlight) header img[src*="sudu-mark"], html.dm:not(.dmlight) footer img[src*="sudu-mark"] { filter:invert(1) !important; }
-  html.dm.dmlight header img[src*="sudu-mark"], html.dm.dmlight footer img[src*="sudu-mark"] { filter:none !important; }
 .scp0:focus{left:8px !important;top:8px !important}
 .scp1:hover{border-bottom-color:var(--accent) !important;color:var(--accent) !important}
 .scp2:hover{background:var(--rule-05) !important}
@@ -300,7 +265,7 @@
 .scp5:hover{color:var(--accent) !important;border-bottom-color:var(--accent) !important}
 html,body{height:100%;margin:0}#page{height:100%}
 </style>
-<script src="js/theme.js?v=8c5991fc" defer></script>
+<script src="js/theme.js?v=9a20d26f" defer></script>
 <script src="js/cursor.js?v=c9446642" defer></script>
 <script src="i18n.js?v=cbd5fce2" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
