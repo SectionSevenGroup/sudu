@@ -808,7 +808,9 @@ class Component extends DCLogic {
       }),
       hasGallery: !ed && !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
       nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
-      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
+      // width/height from DIMS, so the hero reserves its proportion before it
+      // decodes; the generator used to bake these onto the served <img>.
+      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, ...(Component.DIMS[d.heroSrc] ? { width: Component.DIMS[d.heroSrc][0], height: Component.DIMS[d.heroSrc][1] } : {}), decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
       relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
         href: '/work/' + r.key + '/',
         thumb: projects[r.key].heroSrc || '',
