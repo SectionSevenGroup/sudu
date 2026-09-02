@@ -25,6 +25,7 @@ const PAGES = [
   'restaurant-hospitality-design-edmonton.html',
   'commercial-retail-design-edmonton.html',
   'src/index.html',
+  'src/contact.html',
   'src/studio.html',
   'src/work.html',
   'src/custom-home-design-edmonton.html',

@@ -18,7 +18,6 @@
 <meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="css/rail.css?v=da9bb6fd">
-<script src="./js/support.js?v=8fe7df74"></script>
 <script src="js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 <script type="application/ld+json">
 {
@@ -91,10 +90,6 @@
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
-</head>
-<body>
-<x-dc>
-<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -126,6 +121,25 @@
   }
   .sudu-chevron--faq { font-size: 20px; transition: transform .3s ease; }
   .sudu-chevron--send { font-size: 18px; }
+
+  /* The interest map's selected states. The markup is emitted at rest and
+     js/contact.js toggles these classes; the values are the ones the page's
+     Component used to write into the style attribute, so they carry
+     !important to beat the resting inline value. A branch's position,
+     opacity and stagger are written inline by the script from the data
+     attributes, because they differ per element. The chip's selected ink is
+     #F5F3EC, not #F3F1EA — see the note on the chips in the Component. */
+  /* The resting fill is stated here, not inline: an inline #F3F1EA is the
+     sentinel the build reads to tag cream grounds, and a branch is a control,
+     not a ground. Selected fills are inline-safe values and stay below. */
+  [data-mind-map] [data-node] { background:#F3F1EA; }
+  form[name="contact"] [data-chip].is-active { background:#171613 !important; color:#F5F3EC !important; }
+  [data-mind-map] [data-node="cat"].is-active { border-color:#171613 !important; background:#171613 !important; color:#F3F1EA !important; }
+  [data-mind-map] [data-node="sub"].is-on { border-color:#E17B3E !important; background:#E17B3E !important; color:#F3F1EA !important; }
+  [data-mind-map] line[data-link="cat"].is-active { stroke:rgba(23,22,19,0.55); stroke-width:0.22; }
+  [data-mind-map] line[data-link="sub"] { opacity:0; }
+  [data-mind-map] line[data-link="sub"].is-active { opacity:1; }
+  [data-mind-map] line[data-link="sub"].is-on { stroke:rgba(225,123,62,0.75); stroke-width:0.22; }
   a:hover { color: #E17B3E; }
   ::selection { background: #E17B3E; color: #F3F1EA; }
   :focus-visible { outline: 2px solid #E17B3E; outline-offset: 3px; }
@@ -262,56 +276,58 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   html.dm:not(.dmwarm):not(.dmred) section [style*="rgba(23,22,19,0.32)"] { border-color:rgba(23,22,19,.44) !important; }
   html.dm:not(.dmwarm):not(.dmred) section input,
   html.dm:not(.dmwarm):not(.dmred) section textarea { caret-color:#F5F3EC; }
+.scp0:hover{border-bottom-color:#E17B3E !important;color:#E17B3E !important}
+.scp1:hover{border-color:#171613 !important}
+.scp2:hover{background:#171613 !important;color:#F3F1EA !important}
+.scp3:hover{transform:translate(-50%,-50%) scale(1.06) !important;transition-delay:0ms !important}
+html,body{height:100%;margin:0}#page{height:100%}
 </style>
-</helmet>
-
-<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
+</head>
+<body>
+<div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif; min-height:100svh; display:flex; flex-direction:column;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Studio</a>
       <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent;">Contact</a></nav>
   </header>
 
   <section data-screen-label="Contact" style="flex:1; padding:clamp(104px,13vh,140px) clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
     <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:20px;">Start a project</div>
-    <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; max-width:24ch; "><span data-i18n="contact.openingLineOne">{{ copy.openingLineOne }}</span><br><span data-i18n="contact.openingLineTwo">{{ copy.openingLineTwo }}</span></h1>
+    <h1 style="font-size:clamp(26px,3.4vw,44px); font-weight:900; letter-spacing:-0.03em; line-height:1.05; margin:0; max-width:24ch; "><span data-i18n="contact.openingLineOne">Every project begins</span><br><span data-i18n="contact.openingLineTwo">with a conversation.</span></h1>
 
     <div style="display:flex; flex-wrap:wrap; gap:40px 64px; margin-top:clamp(32px,4vw,48px);">
 
       <div style="flex:1 1 400px; max-width:560px;">
-        <!-- Netlify reads a form's definition out of the deployed HTML, so every
-             field that gets submitted has to be declared here by name. The two
-             interest selections are chips, not inputs, so they ride along in
-             hidden fields; form-name is written out rather than left to
-             Netlify's injector, because the DC runtime re-renders this form
-             from the template and only what the template declares survives.
-             data-turbo="false" keeps Turbo Drive out of the submit path.
-             The honeypot is visually hidden rather than display:none, so a bot
-             reading computed styles still finds a real, fillable field. It is
-             absolutely positioned, so it is not a flex item and adds no gap;
-             tabindex="-1" keeps it out of the tab order and aria-hidden keeps
-             it out of the accessibility tree. -->
-        <form name="contact" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" data-turbo="false" onSubmit="{{ submit }}" style="display:flex; flex-direction:column; gap:24px;">
+        
+        <form name="contact" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" data-turbo="false" style="display:flex; flex-direction:column; gap:24px;">
           <input type="hidden" name="form-name" value="contact">
-          <input type="hidden" name="interests" value="{{ interests }}">
-          <input type="hidden" name="sub-interests" value="{{ subInterests }}">
+          <input type="hidden" name="interests" value="">
+          <input type="hidden" name="sub-interests" value="">
           <p aria-hidden="true" style="position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;"><label>Leave this field empty <input name="bot-field" tabIndex="-1" autoComplete="off"></label></p>
 
           <div style="display:flex; flex-direction:column; gap:10px;">
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">I'm interested in</span>
             <div style="display:flex; flex-wrap:wrap; gap:8px;">
-              <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="6">
-                <button type="button" onClick="{{ chip.toggle }}" aria-pressed="{{ chip.pressed }}" style="border:1px solid rgba(23,22,19,0.32); background:{{ chip.bg }}; color:{{ chip.fg }}; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" style-hover="border-color:#171613;">{{ chip.label }}</button>
-              </sc-for>
+              
+                <button type="button" data-chip="Architecture" aria-pressed="false" style="border:1px solid rgba(23,22,19,0.32); background:transparent; color:#171613; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" class="scp1">Architecture</button>
+              
+                <button type="button" data-chip="Interiors" aria-pressed="false" style="border:1px solid rgba(23,22,19,0.32); background:transparent; color:#171613; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" class="scp1">Interiors</button>
+              
+                <button type="button" data-chip="Branded Environments" aria-pressed="false" style="border:1px solid rgba(23,22,19,0.32); background:transparent; color:#171613; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" class="scp1">Branded Environments</button>
+              
+                <button type="button" data-chip="Concept Study" aria-pressed="false" style="border:1px solid rgba(23,22,19,0.32); background:transparent; color:#171613; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" class="scp1">Concept Study</button>
+              
+                <button type="button" data-chip="Hospitality &amp; Retail" aria-pressed="false" style="border:1px solid rgba(23,22,19,0.32); background:transparent; color:#171613; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" class="scp1">Hospitality &amp; Retail</button>
+              
+                <button type="button" data-chip="Advisory" aria-pressed="false" style="border:1px solid rgba(23,22,19,0.32); background:transparent; color:#171613; padding:9px 16px; font-family:'Urbanist', sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:background .25s ease, color .25s ease, border-color .25s ease;" class="scp1">Advisory</button>
+              
             </div>
-            <sc-if value="{{ hasSubs }}" hint-placeholder-val="">
-              <div style="font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D; line-height:1.6;">{{ subSummary }}</div>
-            </sc-if>
+            <div data-sub-summary hidden style="font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D; line-height:1.6;"></div>
           </div>
 
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:22px;">
@@ -328,24 +344,121 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
             <span style="font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">About the project</span>
             <textarea name="body" rows="4" required="required" placeholder="Site, scope, timeline, budget range, and what you are hoping to build." style="border:0; border-bottom:1px solid rgba(23,22,19,0.32); background:transparent; padding:8px 0; font-family:'Urbanist', sans-serif; font-size:15px; line-height:1.7; color:#171613; resize:vertical; outline-offset:6px;"></textarea>
           </label>
-          <button type="submit" disabled="{{ busy }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" style-hover="background:#171613; color:#F3F1EA;">{{ sendLabel }} <span aria-hidden="true" class="sudu-chevron sudu-chevron--send">{{ sendGlyph }}</span></button>
-          <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:{{ statusDisp }}; margin-bottom:5px; color:#171613;">{{ statusMsg }}</span><span data-i18n="contact.formNote">{{ copy.formNote }}</span><a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
+          <button type="submit" style="align-self:flex-start; display:inline-flex; align-items:center; gap:12px; border:1px solid #171613; background:transparent; padding:13px 26px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#171613; cursor:pointer; transition:background .3s ease, color .3s ease, border-color .3s ease;" class="scp2">Send inquiry <span aria-hidden="true" class="sudu-chevron sudu-chevron--send">&#8250;</span></button>
+          <p role="status" aria-live="polite" style="margin:0; font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399;"><span style="display:none; margin-bottom:5px; color:#171613;"></span><span data-i18n="contact.formNote">Sends straight to the studio, or write us directly at </span><a href="mailto:joe@sudu.studio" style="color:#67655D; border-bottom:1px solid rgba(23,22,19,0.22);">joe@sudu.studio</a></p>
         </form>
       </div>
 
       <div style="display:none; flex:1 1 380px; max-width:520px; align-self:center; flex-direction:column; gap:12px;">
-        <div style="position:relative; width:100%; max-width:460px; margin:0 auto; aspect-ratio:1; min-height:340px;">
+        
+        <div data-mind-map style="position:relative; width:100%; max-width:460px; margin:0 auto; aspect-ratio:1; min-height:340px;">
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
-            <sc-for list="{{ links }}" as="ln" hint-placeholder-count="6">
-              <line x1="{{ ln.x1 }}" y1="{{ ln.y1 }}" x2="{{ ln.x2 }}" y2="{{ ln.y2 }}" stroke="{{ ln.stroke }}" stroke-width="{{ ln.w }}" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
-            </sc-for>
+            
+              <line data-link="cat" data-category="Architecture" data-sub="" x1="50" y1="50" x2="50.00" y2="20.00" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Architecture" data-sub="New Build" x1="50.00" y1="20.00" x2="28.50" y2="18.72" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Architecture" data-sub="Renovation" x1="50.00" y1="20.00" x2="41.14" y2="7.81" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Architecture" data-sub="Addition" x1="50.00" y1="20.00" x2="57.47" y2="14.43" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Architecture" data-sub="Feasibility" x1="50.00" y1="20.00" x2="75.50" y2="12.90" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="cat" data-category="Interiors" data-sub="" x1="50" y1="50" x2="75.98" y2="35.00" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Interiors" data-sub="Full Interiors" x1="75.98" y1="35.00" x2="77.64" y2="22.33" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Interiors" data-sub="Millwork" x1="75.98" y1="35.00" x2="94.17" y2="28.58" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Interiors" data-sub="Material Direction" x1="75.98" y1="35.00" x2="92.35" y2="43.73" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="cat" data-category="Branded Environments" data-sub="" x1="50" y1="50" x2="75.98" y2="65.00" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Branded Environments" data-sub="Brand Integration" x1="75.98" y1="65.00" x2="92.35" y2="56.27" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Branded Environments" data-sub="Naming" x1="75.98" y1="65.00" x2="94.17" y2="71.42" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Branded Environments" data-sub="Signage &amp; Wayfinding" x1="75.98" y1="65.00" x2="77.64" y2="77.67" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="cat" data-category="Concept Study" data-sub="" x1="50" y1="50" x2="50.00" y2="80.00" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Concept Study" data-sub="Massing Study" x1="50.00" y1="80.00" x2="64.71" y2="83.94" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Concept Study" data-sub="Site Study" x1="50.00" y1="80.00" x2="50.00" y2="92.84" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Concept Study" data-sub="Visualization" x1="50.00" y1="80.00" x2="35.29" y2="83.94" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="cat" data-category="Hospitality &amp; Retail" data-sub="" x1="50" y1="50" x2="24.02" y2="65.00" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Hospitality &amp; Retail" data-sub="Restaurant / Bar" x1="24.02" y1="65.00" x2="22.36" y2="77.67" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Hospitality &amp; Retail" data-sub="Retail Space" x1="24.02" y1="65.00" x2="5.83" y2="71.42" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Hospitality &amp; Retail" data-sub="Guest Experience" x1="24.02" y1="65.00" x2="7.65" y2="56.27" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="cat" data-category="Advisory" data-sub="" x1="50" y1="50" x2="24.02" y2="35.00" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Advisory" data-sub="Design Direction" x1="24.02" y1="35.00" x2="7.65" y2="43.73" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Advisory" data-sub="Developer Advisory" x1="24.02" y1="35.00" x2="5.83" y2="28.58" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
+              <line data-link="sub" data-category="Advisory" data-sub="Peer Review" x1="24.02" y1="35.00" x2="22.36" y2="22.33" stroke="rgba(23,22,19,0.16)" stroke-width="0.16" style="transition:all .7s cubic-bezier(.16,1,.3,1);"></line>
+            
           </svg>
           <div data-theme-surface="cream" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:68px; height:68px; border-radius:50%; border:1px solid rgba(23,22,19,0.35); display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.01em; background:#F3F1EA; z-index:2; animation:webPulse 5s ease-in-out infinite;">Project</div>
-          <sc-for list="{{ nodes }}" as="nd" hint-placeholder-count="6">
-            <button type="button" onClick="{{ nd.click }}" style="position:absolute; left:{{ nd.x }}; top:{{ nd.y }}; transform:{{ nd.tr }}; opacity:{{ nd.op }}; pointer-events:{{ nd.pe }}; z-index:{{ nd.z }}; border:1px solid {{ nd.border }}; border-radius:999px; background:{{ nd.bg }}; color:{{ nd.fg }}; padding:{{ nd.pad }}; font-family:'Urbanist', sans-serif; font-size:{{ nd.fs }}; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:{{ nd.delay }};" style-hover="transform:translate(-50%,-50%) scale(1.06); transition-delay:0ms;">{{ nd.label }}</button>
-          </sc-for>
+          
+            <button type="button" data-node="cat" data-category="Architecture" data-sub="" data-x="50.00" data-y="20.00" data-cx="50.00" data-cy="20.00" data-delay="0" style="position:absolute; left:50.00%; top:20.00%; transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; z-index:3; border:1px solid rgba(23,22,19,0.32); border-radius:999px; color:#171613; padding:8px 14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Architecture</button>
+          
+            <button type="button" data-node="sub" data-category="Architecture" data-sub="New Build" data-x="28.50" data-y="18.72" data-cx="50.00" data-cy="20.00" data-delay="0" style="position:absolute; left:50.00%; top:20.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">New Build</button>
+          
+            <button type="button" data-node="sub" data-category="Architecture" data-sub="Renovation" data-x="41.14" data-y="7.81" data-cx="50.00" data-cy="20.00" data-delay="70" style="position:absolute; left:50.00%; top:20.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Renovation</button>
+          
+            <button type="button" data-node="sub" data-category="Architecture" data-sub="Addition" data-x="57.47" data-y="14.43" data-cx="50.00" data-cy="20.00" data-delay="140" style="position:absolute; left:50.00%; top:20.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Addition</button>
+          
+            <button type="button" data-node="sub" data-category="Architecture" data-sub="Feasibility" data-x="75.50" data-y="12.90" data-cx="50.00" data-cy="20.00" data-delay="210" style="position:absolute; left:50.00%; top:20.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Feasibility</button>
+          
+            <button type="button" data-node="cat" data-category="Interiors" data-sub="" data-x="75.98" data-y="35.00" data-cx="75.98" data-cy="35.00" data-delay="0" style="position:absolute; left:75.98%; top:35.00%; transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; z-index:3; border:1px solid rgba(23,22,19,0.32); border-radius:999px; color:#171613; padding:8px 14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Interiors</button>
+          
+            <button type="button" data-node="sub" data-category="Interiors" data-sub="Full Interiors" data-x="77.64" data-y="22.33" data-cx="75.98" data-cy="35.00" data-delay="0" style="position:absolute; left:75.98%; top:35.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Full Interiors</button>
+          
+            <button type="button" data-node="sub" data-category="Interiors" data-sub="Millwork" data-x="94.17" data-y="28.58" data-cx="75.98" data-cy="35.00" data-delay="70" style="position:absolute; left:75.98%; top:35.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Millwork</button>
+          
+            <button type="button" data-node="sub" data-category="Interiors" data-sub="Material Direction" data-x="92.35" data-y="43.73" data-cx="75.98" data-cy="35.00" data-delay="140" style="position:absolute; left:75.98%; top:35.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Material Direction</button>
+          
+            <button type="button" data-node="cat" data-category="Branded Environments" data-sub="" data-x="75.98" data-y="65.00" data-cx="75.98" data-cy="65.00" data-delay="0" style="position:absolute; left:75.98%; top:65.00%; transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; z-index:3; border:1px solid rgba(23,22,19,0.32); border-radius:999px; color:#171613; padding:8px 14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Branded Environments</button>
+          
+            <button type="button" data-node="sub" data-category="Branded Environments" data-sub="Brand Integration" data-x="92.35" data-y="56.27" data-cx="75.98" data-cy="65.00" data-delay="0" style="position:absolute; left:75.98%; top:65.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Brand Integration</button>
+          
+            <button type="button" data-node="sub" data-category="Branded Environments" data-sub="Naming" data-x="94.17" data-y="71.42" data-cx="75.98" data-cy="65.00" data-delay="70" style="position:absolute; left:75.98%; top:65.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Naming</button>
+          
+            <button type="button" data-node="sub" data-category="Branded Environments" data-sub="Signage &amp; Wayfinding" data-x="77.64" data-y="77.67" data-cx="75.98" data-cy="65.00" data-delay="140" style="position:absolute; left:75.98%; top:65.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Signage &amp; Wayfinding</button>
+          
+            <button type="button" data-node="cat" data-category="Concept Study" data-sub="" data-x="50.00" data-y="80.00" data-cx="50.00" data-cy="80.00" data-delay="0" style="position:absolute; left:50.00%; top:80.00%; transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; z-index:3; border:1px solid rgba(23,22,19,0.32); border-radius:999px; color:#171613; padding:8px 14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Concept Study</button>
+          
+            <button type="button" data-node="sub" data-category="Concept Study" data-sub="Massing Study" data-x="64.71" data-y="83.94" data-cx="50.00" data-cy="80.00" data-delay="0" style="position:absolute; left:50.00%; top:80.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Massing Study</button>
+          
+            <button type="button" data-node="sub" data-category="Concept Study" data-sub="Site Study" data-x="50.00" data-y="92.84" data-cx="50.00" data-cy="80.00" data-delay="70" style="position:absolute; left:50.00%; top:80.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Site Study</button>
+          
+            <button type="button" data-node="sub" data-category="Concept Study" data-sub="Visualization" data-x="35.29" data-y="83.94" data-cx="50.00" data-cy="80.00" data-delay="140" style="position:absolute; left:50.00%; top:80.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Visualization</button>
+          
+            <button type="button" data-node="cat" data-category="Hospitality &amp; Retail" data-sub="" data-x="24.02" data-y="65.00" data-cx="24.02" data-cy="65.00" data-delay="0" style="position:absolute; left:24.02%; top:65.00%; transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; z-index:3; border:1px solid rgba(23,22,19,0.32); border-radius:999px; color:#171613; padding:8px 14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Hospitality &amp; Retail</button>
+          
+            <button type="button" data-node="sub" data-category="Hospitality &amp; Retail" data-sub="Restaurant / Bar" data-x="22.36" data-y="77.67" data-cx="24.02" data-cy="65.00" data-delay="0" style="position:absolute; left:24.02%; top:65.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Restaurant / Bar</button>
+          
+            <button type="button" data-node="sub" data-category="Hospitality &amp; Retail" data-sub="Retail Space" data-x="5.83" data-y="71.42" data-cx="24.02" data-cy="65.00" data-delay="70" style="position:absolute; left:24.02%; top:65.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Retail Space</button>
+          
+            <button type="button" data-node="sub" data-category="Hospitality &amp; Retail" data-sub="Guest Experience" data-x="7.65" data-y="56.27" data-cx="24.02" data-cy="65.00" data-delay="140" style="position:absolute; left:24.02%; top:65.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Guest Experience</button>
+          
+            <button type="button" data-node="cat" data-category="Advisory" data-sub="" data-x="24.02" data-y="35.00" data-cx="24.02" data-cy="35.00" data-delay="0" style="position:absolute; left:24.02%; top:35.00%; transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; z-index:3; border:1px solid rgba(23,22,19,0.32); border-radius:999px; color:#171613; padding:8px 14px; font-family:'Urbanist', sans-serif; font-size:11px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Advisory</button>
+          
+            <button type="button" data-node="sub" data-category="Advisory" data-sub="Design Direction" data-x="7.65" data-y="43.73" data-cx="24.02" data-cy="35.00" data-delay="0" style="position:absolute; left:24.02%; top:35.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Design Direction</button>
+          
+            <button type="button" data-node="sub" data-category="Advisory" data-sub="Developer Advisory" data-x="5.83" data-y="28.58" data-cx="24.02" data-cy="35.00" data-delay="70" style="position:absolute; left:24.02%; top:35.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Developer Advisory</button>
+          
+            <button type="button" data-node="sub" data-category="Advisory" data-sub="Peer Review" data-x="22.36" data-y="22.33" data-cx="24.02" data-cy="35.00" data-delay="140" style="position:absolute; left:24.02%; top:35.00%; transform:translate(-50%,-50%) scale(0.4); opacity:0; pointer-events:none; z-index:2; border:1px solid rgba(23,22,19,0.25); border-radius:999px; color:#67655D; padding:5px 11px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; transition:left .8s cubic-bezier(.34,1.4,.44,1), top .8s cubic-bezier(.34,1.4,.44,1), transform .5s cubic-bezier(.34,1.4,.44,1), opacity .45s ease, background .25s ease, color .25s ease, border-color .25s ease; transition-delay:0ms;" class="scp3">Peer Review</button>
+          
         </div>
-        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; text-align:center;" data-i18n="contact.mindMapNote">{{ copy.mindMapNote }}</div>
+        <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; color:#A6A399; text-align:center;" data-i18n="contact.mindMapNote">Select an interest to explore what it can include, then tap the branches that fit.</div>
       </div>
 
     </div>
@@ -355,15 +468,55 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     <div style="display:flex; flex-direction:column; gap:24px;">
       <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D;">Common questions</span>
       <div style="max-width:760px;">
-        <sc-for list="{{ faqs }}" as="faq" hint-placeholder-count="6">
+        
           <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
-            <button type="button" onClick="{{ faq.toggle }}" aria-expanded="{{ faq.pressed }}" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
-              <span data-i18n="{{ faq.qKey }}">{{ faq.q }}</span>
-              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:{{ faq.rot }};">&#8250;</span>
+            <button type="button" aria-expanded="false" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              <span data-i18n="contact.faq.0.question">What types of projects do you take on?</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:rotate(0deg);">&#8250;</span>
             </button>
-            <div data-i18n="{{ faq.aKey }}" style="display:{{ faq.disp }}; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">{{ faq.a }}</div>
+            <div data-i18n="contact.faq.0.answer" style="display:none; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.</div>
           </div>
-        </sc-for>
+        
+          <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
+            <button type="button" aria-expanded="false" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              <span data-i18n="contact.faq.1.question">Where do you work?</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:rotate(0deg);">&#8250;</span>
+            </button>
+            <div data-i18n="contact.faq.1.answer" style="display:none; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.</div>
+          </div>
+        
+          <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
+            <button type="button" aria-expanded="false" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              <span data-i18n="contact.faq.2.question">How does a project start?</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:rotate(0deg);">&#8250;</span>
+            </button>
+            <div data-i18n="contact.faq.2.answer" style="display:none; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.</div>
+          </div>
+        
+          <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
+            <button type="button" aria-expanded="false" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              <span data-i18n="contact.faq.3.question">Do you handle both architecture and interiors?</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:rotate(0deg);">&#8250;</span>
+            </button>
+            <div data-i18n="contact.faq.3.answer" style="display:none; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.</div>
+          </div>
+        
+          <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
+            <button type="button" aria-expanded="false" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              <span data-i18n="contact.faq.4.question">What does engaging SuDu cost?</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:rotate(0deg);">&#8250;</span>
+            </button>
+            <div data-i18n="contact.faq.4.answer" style="display:none; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.</div>
+          </div>
+        
+          <div style="border-bottom:1px solid rgba(23,22,19,0.13);">
+            <button type="button" aria-expanded="false" style="width:100%; display:flex; align-items:baseline; justify-content:space-between; gap:20px; border:0; background:transparent; padding:18px 0; font-family:'Urbanist', sans-serif; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#171613; text-align:left; cursor:pointer;">
+              <span data-i18n="contact.faq.5.question">Do you work with existing consultants or builders?</span>
+              <span aria-hidden="true" class="sudu-chevron sudu-chevron--faq" style="transform:rotate(0deg);">&#8250;</span>
+            </button>
+            <div data-i18n="contact.faq.5.answer" style="display:none; padding:0 0 20px; max-width:62ch; font-size:14px; line-height:1.7; color:#67655D;">Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.</div>
+          </div>
+        
       </div>
     </div>
   </section>
@@ -375,175 +528,6 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>
-  </footer>
-
-</div>
-
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  // The authored copy of this page, in one place, so SuDu Control can edit it
-  // and so each string has a stable identity. The markup binds to these names
-  // and carries the matching data-i18n key, which is what i18n.js translates
-  // against — never the English sentence itself, which is the thing that
-  // changes when someone edits the page.
-  static COPY = {
-    faqs: [
-      { q: 'What types of projects do you take on?', a: 'Residential, hospitality, retail, commercial, and community work, from concept studies to full architectural services. No project is too early: some of our best work starts as a feasibility question.' }, { q: 'Where do you work?', a: 'The studio is based in Alberta, with projects across Western Canada and select work beyond. Distance has never been the deciding factor.' }, { q: 'How does a project start?', a: 'With a conversation. We then scope a concept phase first, so you can see a direction, a budget picture, and how we work together before committing to the full journey.' }, { q: 'Do you handle both architecture and interiors?', a: 'Yes, and branded environments too. The work is strongest when one team holds the building, the interior, and the brand as a single idea.' }, { q: 'What does engaging SuDu cost?', a: 'Fees are scoped per project: fixed for defined phases, transparent throughout. An initial conversation costs nothing.' }, { q: 'Do you work with existing consultants or builders?', a: 'Regularly. We collaborate with allied practices, including MES Architecture and DIALOG, and we are comfortable joining teams a client has already assembled.' }
-    ],
-    openingLineOne: 'Every project begins',
-    openingLineTwo: 'with a conversation.',
-    formNote: 'Sends straight to the studio, or write us directly at ',
-    mindMapNote: 'Select an interest to explore what it can include, then tap the branches that fit.',
-  };
-
-  state = { sel: [], sub: [], open: -1, sending: false, sent: false, status: '' };
-  renderVals() {
-    const copy = Component.COPY;
-    // The inline status line. Kept short on purpose: it sits under the button
-    // in the same 10.5px grey as the fallback address and is the only thing
-    // this form says back to the visitor.
-    const MSG = {
-      blank: 'Please fill in your name, your email, and a note about the project.',
-      badEmail: 'That email address does not look complete.',
-      sent: 'Inquiry sent. We\u2019ll reply by email.',
-      failed: 'That did not send. Please try again, or email us directly.'
-    };
-    const TREE = [
-      { label: 'Architecture', subs: ['New Build', 'Renovation', 'Addition', 'Feasibility'] }, { label: 'Interiors', subs: ['Full Interiors', 'Millwork', 'Material Direction'] }, { label: 'Branded Environments', subs: ['Brand Integration', 'Naming', 'Signage & Wayfinding'] }, { label: 'Concept Study', subs: ['Massing Study', 'Site Study', 'Visualization'] }, { label: 'Hospitality & Retail', subs: ['Restaurant / Bar', 'Retail Space', 'Guest Experience'] }, { label: 'Advisory', subs: ['Design Direction', 'Developer Advisory', 'Peer Review'] }
-    ];
-    const FAQS = Component.COPY.faqs;
-    const { sel, sub, open, sending, sent, status } = this.state;
-    const n = TREE.length;
-    const pos = (angleDeg, r) => {
-      const a = (angleDeg - 90) * Math.PI / 180;
-      return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a) };
-    };
-    const toggleCat = (label) => this.setState(s => {
-      const on = s.sel.includes(label);
-      const cat = TREE.find(t => t.label === label);
-      return {
-        sel: on ? s.sel.filter(x => x !== label) : [...s.sel, label],
-        sub: on ? s.sub.filter(x => !cat.subs.includes(x)) : s.sub
-      };
-    });
-    const nodes = [];
-    const links = [];
-    TREE.forEach((cat, i) => {
-      const ang = i * (360 / n);
-      const p = pos(ang, 30);
-      const active = sel.includes(cat.label);
-      links.push({ x1: 50, y1: 50, x2: p.x.toFixed(2), y2: p.y.toFixed(2), stroke: active ? 'rgba(23,22,19,0.55)' : 'rgba(23,22,19,0.16)', w: active ? '0.22' : '0.16' });
-      nodes.push({
-        label: cat.label,
-        x: p.x.toFixed(2) + '%', y: p.y.toFixed(2) + '%',
-        op: '1', pe: 'auto', z: '3', tr: 'translate(-50%,-50%) scale(1)', delay: '0ms',
-        border: active ? '#171613' : 'rgba(23,22,19,0.32)',
-        bg: active ? '#171613' : '#F3F1EA',
-        fg: active ? '#F3F1EA' : '#171613',
-        pad: '8px 14px', fs: '11px',
-        click: () => toggleCat(cat.label)
-      });
-      cat.subs.forEach((s, j) => {
-        const step = 20;
-        const spread = (cat.subs.length - 1) * step;
-        const sAng = ang - spread / 2 + j * step;
-        const r = j % 2 === 0 ? 43 : 51;
-        const a2 = (sAng - 90) * Math.PI / 180;
-        const sp = { x: 50 + r * Math.cos(a2), y: 50 + r * 0.84 * Math.sin(a2) };
-        const on = sub.includes(s);
-        if (active) links.push({ x1: p.x.toFixed(2), y1: p.y.toFixed(2), x2: sp.x.toFixed(2), y2: sp.y.toFixed(2), stroke: on ? 'rgba(225,123,62,0.75)' : 'rgba(23,22,19,0.16)', w: on ? '0.22' : '0.16' });
-        nodes.push({
-          label: s,
-          x: (active ? sp.x : p.x).toFixed(2) + '%', y: (active ? sp.y : p.y).toFixed(2) + '%',
-          op: active ? '1' : '0', pe: active ? 'auto' : 'none', z: '2',
-          tr: 'translate(-50%,-50%) scale(' + (active ? 1 : 0.4) + ')',
-          delay: (active ? j * 70 : 0) + 'ms',
-          border: on ? '#E17B3E' : 'rgba(23,22,19,0.25)',
-          bg: on ? '#E17B3E' : '#F3F1EA',
-          fg: on ? '#F3F1EA' : '#67655D',
-          pad: '5px 11px', fs: '10px',
-          click: () => this.setState(st => ({ sub: st.sub.includes(s) ? st.sub.filter(x => x !== s) : [...st.sub, s] }))
-        });
-      });
-    });
-    return {
-      copy,
-      nodes, links,
-      chips: TREE.map(t => {
-        const on = sel.includes(t.label);
-        // fg is #F5F3EC, not #F3F1EA. The inline colour is serialised into the
-        // style attribute, and the theme's marker script string-matches
-        // 243, 241, 234 anywhere in that attribute to tag cream *panels* with
-        // .dm-flat — whose rule then forces background:transparent and wiped
-        // this chip's fill. #F5F3EC is the off-white the dark themes already
-        // use for ink, two values away and invisible to the eye, but not a
-        // sentinel. Do not put #F3F1EA back here.
-        return { label: t.label, pressed: on ? 'true' : 'false', bg: on ? '#171613' : 'transparent', fg: on ? '#F5F3EC' : '#171613', toggle: () => toggleCat(t.label) };
-      }),
-      hasSubs: sub.length > 0,
-      subSummary: sub.length ? 'Including: ' + sub.join(', ') : '',
-      // The chips are buttons, so their selections reach Netlify through the
-      // two hidden fields declared in the form.
-      interests: sel.join(', '),
-      subInterests: sub.join(', '),
-      busy: sending || sent,
-      // Send inquiry > / Sending... / Inquiry sent (check). The button is the
-      // thing the visitor is looking at when they press it, so completion is
-      // said there rather than only in the line underneath.
-      sendLabel: sending ? 'Sending\u2026' : (sent ? 'Inquiry sent' : 'Send inquiry'),
-      sendGlyph: sending ? '' : (sent ? '\u2713' : '\u203A'),
-      statusMsg: status,
-      statusDisp: status ? 'block' : 'none',
-      faqs: FAQS.map((f, i) => ({
-        ...f, qKey: 'contact.faq.' + i + '.question', aKey: 'contact.faq.' + i + '.answer',
-        pressed: open === i ? 'true' : 'false', disp: open === i ? 'block' : 'none', rot: open === i ? 'rotate(90deg)' : 'rotate(0deg)',
-        toggle: () => this.setState(s => ({ open: s.open === i ? -1 : i }))
-      })),
-      // Posted to Netlify's form handler in the background, so the visitor
-      // never leaves the page. This used to hand the enquiry to mailto:, which
-      // needed a configured mail client, dropped the enquiry outright when
-      // there wasn't one, and left nothing behind on the site either way.
-      submit: (e) => {
-        e.preventDefault();
-        // Read the live state, not the render-time copy: a double click can
-        // fire twice before React has handed us a fresh closure.
-        if (this.state.sending || this.state.sent) return;
-        const form = e.target;
-        const data = new FormData(form);
-        const val = (k) => String(data.get(k) || '').trim();
-        // required and type=email are enforced by the browser before submit
-        // fires. What survives that is a field holding only spaces, and an
-        // address the email type accepts but no mail server would ('a@gmail').
-        const blank = ['name', 'email', 'body'].find((k) => !val(k));
-        const bad = !blank && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(val('email')) ? 'email' : null;
-        if (blank || bad) {
-          const el = form.querySelector('[name="' + (blank || bad) + '"]');
-          if (el) el.focus();
-          this.setState({ status: blank ? MSG.blank : MSG.badEmail });
-          return;
-        }
-        if (window.suduHaptics) window.suduHaptics.tick(14);
-        this.setState({ sending: true, status: '' });
-        const body = new URLSearchParams();
-        data.forEach((v, k) => body.append(k, String(v)));
-        // Netlify accepts a urlencoded POST carrying form-name at any path on
-        // the site. '/' is used rather than this page's own URL because
-        // pretty_urls 301s /contact.html, and a redirected POST becomes a GET.
-        fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: body.toString()
-        }).then((r) => {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          this.setState({ sending: false, sent: true, status: MSG.sent });
-        }).catch(() => {
-          this.setState({ sending: false, status: MSG.failed });
-        });
-      }
-    };
-  }
-}
-</script>
+  </footer></div></div>
 </body>
 </html>

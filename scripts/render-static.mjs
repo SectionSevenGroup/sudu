@@ -8,6 +8,7 @@ export const PAGES = [
   'index.html',
   'studio.html',
   'work.html',
+  'contact.html',
   'custom-home-design-edmonton.html',
   'renovations-additions-edmonton.html',
   'restaurant-hospitality-design-edmonton.html',

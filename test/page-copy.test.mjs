@@ -70,7 +70,7 @@ test('a page patch cannot write a field the editor does not offer', () => {
 });
 
 test('Contact FAQ questions and answers are editable and keyed', () => {
-  const src = read('contact.html');
+  const src = read('src/contact.html');
   const copy = cm.readPage('contact', src);
   assert.ok(copy.faqs.length >= 6);
   const next = cm.applyPage('contact', copy, {
