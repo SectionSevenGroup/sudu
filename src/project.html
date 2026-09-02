@@ -177,6 +177,7 @@ document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="i18n.js?v=cbd5fce2" defer></script>
 <script src="js/page-arrival.js?v=678090fc" defer></script>
+<script src="js/reveal.js?v=3c98252b" defer></script>
 <script src="js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="js/haptics.js?v=3c4ba22c"></script>
 </helmet>
@@ -839,82 +840,6 @@ class Component extends DCLogic {
       hasRelatedText: (d.related || []).some((r) => !r.key || !projects[r.key])
     };
   }
-  componentDidMount() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ease = 'cubic-bezier(.16,1,.3,1)';
-    if (window.__suduProjIO) { window.__suduProjIO.refresh(); return; }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        const el = en.target;
-        if (!en.isIntersecting) return;
-        const clip = el.hasAttribute('data-reveal-clip');
-        el.style.opacity = '1';
-        if (clip) el.style.clipPath = 'inset(0 0 0 0)'; else el.style.transform = 'none';
-        io.unobserve(el);
-      });
-    }, { rootMargin: '0px 0px -8% 0px' });
-    const refresh = () => {
-      const vh = window.innerHeight || 1;
-      document.querySelectorAll('[data-reveal]').forEach((el) => {
-        if (el._prepped) {
-          // swept past (anchor jump / fast scroll): IO may never have fired — force-reveal
-          if (el.style.opacity === '0' && el.getBoundingClientRect().bottom <= 0) {
-            el.style.opacity = '1';
-            if (el.hasAttribute('data-reveal-clip')) el.style.clipPath = 'inset(0 0 0 0)';
-            else el.style.transform = 'none';
-          }
-          return;
-        }
-        el._prepped = true;
-        const clip = el.hasAttribute('data-reveal-clip');
-        // already in view (or above) at prep time: reveal synchronously, never hide it
-        if (el.getBoundingClientRect().top < vh * 0.92) { el.style.opacity = '1'; return; }
-        if (clip) {
-          el.style.opacity = '0';
-          el.style.clipPath = 'inset(0 0 92% 0)';
-          el.style.transition = 'opacity 1.2s ' + ease + ', clip-path 1.5s ' + ease;
-          io.observe(el);
-          return;
-        }
-        // A small editorial vocabulary. Which one an element gets is decided by
-        // its place in the composition (data-motion), not by its index or by
-        // what kind of asset it holds. Opacity is the dominant effect
-        // throughout; movement is small enough to be felt rather than seen.
-        //   major  — full-width imagery: opacity only, nothing moves
-        //   pair   — adjacent members of one row, staggered left to right
-        //   detail — ordinary editorial content and grouped galleries
-        // Anything without data-motion keeps the quiet default.
-        const MOTION = {
-          major:  { rise: 0, op: 1.15, tr: 1.15 },
-          pair:   { rise: 6, op: 0.95, tr: 1.05 },
-          detail: { rise: 7, op: 1.0,  tr: 1.1 },
-          '':     { rise: 8, op: 1.0,  tr: 1.1 }
-        };
-        const kind = el.getAttribute('data-motion') || '';
-        const m = MOTION[kind] || MOTION[''];
-        // a pair takes its stagger from its own order within its row, so the
-        // sequence reads left to right without anything being hard-coded
-        let delay = 0;
-        if (kind === 'pair' && el.parentElement) {
-          const sibs = [...el.parentElement.querySelectorAll('[data-motion="pair"]')]
-            .sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
-          delay = Math.max(0, sibs.indexOf(el)) * 0.1;
-        }
-        el.style.opacity = '0';
-        el.style.transform = m.rise ? 'translateY(' + m.rise + 'px)' : 'none';
-        el.style.transition = 'opacity ' + m.op + 's ' + ease + ' ' + delay + 's, transform '
-          + m.tr + 's ' + ease + ' ' + delay + 's';
-        io.observe(el);
-      });
-    };
-    window.__suduProjIO = { refresh };
-    refresh();
-    // catch nodes swapped in by late re-renders
-    setTimeout(refresh, 400);
-    setTimeout(refresh, 1500);
-    window.addEventListener('scroll', () => { if (!window.__spq) { window.__spq = 1; requestAnimationFrame(() => { window.__spq = 0; refresh(); }); } }, { passive: true });
-  }
-  componentDidUpdate() { if (window.__suduProjIO) window.__suduProjIO.refresh(); }
 }
 </script>
 </body>
