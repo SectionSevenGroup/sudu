@@ -13,6 +13,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -155,13 +156,43 @@ for (const p of HTML) {
 }
 
 const slugs = ['west-vancouver','wilfreds','westshore','casita','mackenzie-ravine','atb','corso32','bar-bricco','uccellino','alder-room-alta','the-helm','hells-kitchen','atb-banking','opt','factory-club','factory-yyc','selkirk','enoch','youth-recovery'];
-const urls = [
-  '/', '/work', '/studio', '/contact',
-  '/custom-home-design-edmonton', '/renovations-additions-edmonton',
-  '/restaurant-hospitality-design-edmonton', '/commercial-retail-design-edmonton',
-  ...slugs.map(s => `/work/${s}/`)
-];
+
+// Each URL's lastmod is the commit date of the source that produces it, so two
+// builds of the same commit write the same sitemap and a page's date only
+// moves when the page does. The home page also depends on the Experience
+// Index data; /work is derived from project.html as well as its own file; the
+// generated project pages are all produced from project.html.
+const SOURCES = {
+  '/': ['index.html', 'content/experience.json'],
+  '/work': ['work.html', 'project.html'],
+  '/studio': ['studio.html'],
+  '/contact': ['contact.html'],
+  '/custom-home-design-edmonton': ['custom-home-design-edmonton.html'],
+  '/renovations-additions-edmonton': ['renovations-additions-edmonton.html'],
+  '/restaurant-hospitality-design-edmonton': ['restaurant-hospitality-design-edmonton.html'],
+  '/commercial-retail-design-edmonton': ['commercial-retail-design-edmonton.html'],
+  ...Object.fromEntries(slugs.map(s => [`/work/${s}/`, ['project.html']]))
+};
 const today = new Date().toISOString().slice(0,10);
-write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>https://sudu.studio${u}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+let gitAvailable = true;
+function commitDate(file) {
+  if (!gitAvailable) return '';
+  try {
+    return execFileSync('git', ['log', '-1', '--format=%cs', '--', file],
+      { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    gitAvailable = false;
+    console.warn('sitemap: git is unavailable, falling back to today for lastmod');
+    return '';
+  }
+}
+function lastmod(url) {
+  const dates = SOURCES[url].map(commitDate).filter(Boolean);
+  if (dates.length) return dates.sort().at(-1);
+  if (gitAvailable) console.warn(`sitemap: no commit history for ${SOURCES[url].join(', ')}, using today for ${url}`);
+  return today;
+}
+const urls = Object.keys(SOURCES);
+write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>https://sudu.studio${u}</loc><lastmod>${lastmod(u)}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 
 console.log('SuDu audit hardening applied to source pages and sitemap.');
