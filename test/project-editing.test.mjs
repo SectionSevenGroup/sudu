@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import * as cm from '../lib/content-model.mjs';
 
 const read = (f) => readFileSync(new URL('../' + f, import.meta.url), 'utf8');
-const projectSrc = read('project.html');
+const projectSrc = read('src/project.html');
 const workSrc = read('src/work.html');
 const base = () => cm.readSite(projectSrc, workSrc);
 

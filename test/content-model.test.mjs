@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import * as cm from '../lib/content-model.mjs';
 
 // resolved against this file, so the suite runs from any directory
-const projectSrc = readFileSync(new URL('../project.html', import.meta.url), 'utf8');
+const projectSrc = readFileSync(new URL('../src/project.html', import.meta.url), 'utf8');
 const workSrc = readFileSync(new URL('../src/work.html', import.meta.url), 'utf8');
 const site = cm.readSite(projectSrc, workSrc);
 

@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import * as model from '../lib/content-model.mjs';
 
-const projectSrc = readFileSync('project.html', 'utf8');
+const projectSrc = readFileSync(model.PROJECT_FILE, 'utf8');
 const workSrc = readFileSync(model.WORK_FILE, 'utf8');
 const site = model.readSite(projectSrc, workSrc);
 const { work } = model.serialise(projectSrc, workSrc, model.reindex(site), site);

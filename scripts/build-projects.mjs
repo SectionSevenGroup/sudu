@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { renderPage, evaluateComponent } from '../lib/render-page.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(join(root, f), 'utf8');
@@ -24,7 +25,7 @@ const read = (f) => readFileSync(join(root, f), 'utf8');
 // tags verbatim, so the hashes have to be current when we read them.
 execFileSync(process.execPath, [join(root, 'scripts/stamp-assets.mjs')], { cwd: root, stdio: 'inherit' });
 
-const projectSrc = read('project.html');
+const projectSrc = read('src/project.html');
 
 // ---- pull the DATA object out of project.html -------------------------------
 const dataStart = projectSrc.indexOf('static DATA = {');
@@ -87,30 +88,16 @@ function absolutePaths(html) {
 }
 
 function generateProjectPage(slug) {
-  const d = DATA[slug];
-  let html = projectSrc;
-  // Bake the scalar placeholders into the static markup so crawlers and no-JS
-  // visitors see real content. The runtime re-renders the same values on boot.
-  const scalars = {
-    eyebrow: esc(d.eyebrow), title: esc(d.title), counter: esc(d.counter),
-    location: esc(d.location), scope: esc(d.scope), status: esc(d.status),
-    lede: esc(d.lede), body: esc(d.body),
-    nextTitle: esc(DATA[d.next].title), nextHref: `/work/${d.next}/`,
-    heroImg: d.heroSrc
-      ? `<img src="/${d.heroSrc}" alt="${esc(d.title)}"${DIMS[d.heroSrc] ? ` width="${DIMS[d.heroSrc][0]}" height="${DIMS[d.heroSrc][1]}"` : ''} decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">`
-      : '',
-  };
-  for (const [k, v] of Object.entries(scalars)) {
-    html = html.replaceAll(`{{ ${k} }}`, v);
-  }
-  // the template is noindex; generated pages are the real, indexable URLs
-  html = html.replace(/<meta name="robots" content="noindex">\n/, '<meta name="robots" content="index, follow">\n');
-  html = html.replace(/<script data-strip-on-generate>[\s\S]*?<\/script>\n/, '');
-  // pin the project instead of reading ?p=
-  html = html.replace(
+  // Pin the project the way the runtime page would have read it from ?p=, so
+  // renderVals() is unchanged, then render the whole page for that project.
+  const pinned = projectSrc.replace(
     /const key = new URLSearchParams\(location\.search\)\.get\('p'\) \|\| 'west-vancouver';/,
     `const key = '${slug}';`
   );
+  if (pinned === projectSrc) throw new Error('could not pin the project key in src/project.html');
+  let html = renderPage(pinned, { vals: evaluateComponent(pinned) });
+  // the template is noindex; generated pages are the real, indexable URLs
+  html = html.replace(/<meta name="robots" content="noindex">\n/, '<meta name="robots" content="index, follow">\n');
   html = absolutePaths(html);
   // Drop the template's own head metadata. headBlock() emits a per-project
   // replacement for each of these, and leaving both in place gave every
