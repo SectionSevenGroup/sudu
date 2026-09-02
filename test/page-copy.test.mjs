@@ -154,7 +154,7 @@ test('i18n translates a keyed node by its key, not by its text', () => {
 // --- the work index is derived -----------------------------------------
 
 test('the work index matches the project source exactly', () => {
-  const projectSrc = read('project.html');
+  const projectSrc = read('src/project.html');
   const workSrc = read('src/work.html');
   const site = cm.readSite(projectSrc, workSrc);
   const { work } = cm.serialise(projectSrc, workSrc, cm.reindex(site), site);
@@ -163,7 +163,7 @@ test('the work index matches the project source exactly', () => {
 });
 
 test('every index row is derived from the project it names', () => {
-  const site = cm.readSite(read('project.html'), read('src/work.html'));
+  const site = cm.readSite(read('src/project.html'), read('src/work.html'));
   for (const slug of site.order) {
     const p = site.DATA[slug];
     const row = site.names[slug];

@@ -65,6 +65,11 @@ test('bound text and attributes are escaped, template markup is not', () => {
   assert.match(out, /<p title="&lt;b&gt;&quot;x&quot; &amp; y&lt;\/b&gt;">&lt;b&gt;"x" &amp; y&lt;\/b&gt; &amp; <em>kept<\/em><\/p>/);
 });
 
+test('a mixed attribute keeps the template text and escapes only the bound value', () => {
+  const out = renderPage(page('<img srcset="/.netlify/images?url=/{{ src }}&amp;w=480 480w" alt="{{ alt }} &amp; co">'), { vals: { src: 'a&b.jpg', alt: 'x' } });
+  assert.match(out, /<img srcset="\/.netlify\/images\?url=\/a&amp;b.jpg&amp;w=480 480w" alt="x &amp; co">/);
+});
+
 test('the helmet moves into the head and the runtime is gone', () => {
   const out = renderPage(page('<div>body</div>', undefined, '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<script src="js/x.js" defer></script>\n'), { vals: {} });
   const head = out.slice(0, out.indexOf('</head>'));
@@ -88,4 +93,17 @@ test('evaluateComponent sees the stub document and data-props defaults', () => {
 }`).replace('data-dc-script>', 'data-dc-script data-props="{&quot;accent&quot;:{&quot;default&quot;:&quot;#E17B3E&quot;}}">');
   assert.deepEqual(evaluateComponent(src, { lang: 'fr' }), { accent: '#E17B3E', lang: 'fr' });
   assert.match(renderPage(src), /<p>en #E17B3E<\/p>/);
+});
+
+test('a React.createElement node from renderVals is written as its element', () => {
+  const out = renderPage(page('<div class="hero">{{ heroImg }}</div><p>{{ none }}</p>', `class Component extends DCLogic {
+  renderVals() {
+    return {
+      heroImg: React.createElement('img', { src: 'images/a "b".jpg', alt: 'A & B', decoding: 'async', hidden: false, style: { width: '100%', objectFit: 'cover', '--x': '1' } }),
+      none: null,
+    };
+  }
+}`));
+  assert.match(out, /<div class="hero"><img src="images\/a &quot;b&quot;.jpg" alt="A &amp; B" decoding="async" style="width:100%;object-fit:cover;--x:1"><\/div><p><\/p>/);
+  assert.throws(() => renderPage(page('<i>{{ x }}</i>'), { vals: { x: { type: () => {}, props: {} } } }), /neither text nor an element/);
 });

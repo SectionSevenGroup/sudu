@@ -73,7 +73,7 @@ async function withControl(options, fn) {
 // studio adds or renames work.
 const anySlug = (() => {
   const f = siteFiles();
-  return model.readSite(f['project.html'], f['src/work.html']).order[0];
+  return model.readSite(f['src/project.html'], f['src/work.html']).order[0];
 })();
 
 test('only POST reaches the endpoint', async () => {
@@ -163,15 +163,15 @@ test('an unknown action and a malformed body are refused before any work', async
 test('a valid edit becomes one commit on the draft, and main is untouched', async () => {
   await withControl({}, async ({ post, signIn, repo }) => {
     await signIn();
-    const before = repo.files['project.html'];
+    const before = repo.files['src/project.html'];
 
     let r = await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'A line written by the test.' } });
     assert.equal(r.status, 200);
     assert.equal(r.body.changed, true);
-    assert.deepEqual(r.body.files, ['project.html']);
+    assert.deepEqual(r.body.files, ['src/project.html']);
     assert.equal(repo.commits.length, 1);
-    assert.deepEqual(repo.commits[0].paths, ['project.html']);
-    assert.equal(repo.files['project.html'], before, 'main did not move');
+    assert.deepEqual(repo.commits[0].paths, ['src/project.html']);
+    assert.equal(repo.files['src/project.html'], before, 'main did not move');
 
     r = await post({ action: 'projects' });
     const project = r.body.projects.find((p) => p.slug === anySlug);
@@ -379,7 +379,7 @@ test('a network failure never reaches the browser', async () => {
 });
 
 test("the content model's own diagnostics never reach the browser", async () => {
-  const broken = { 'project.html': `<html>${INTERNAL}</html>`, 'src/work.html': '<html></html>' };
+  const broken = { 'src/project.html': `<html>${INTERNAL}</html>`, 'src/work.html': '<html></html>' };
   await withControl({ files: broken }, async ({ post, signIn }) => {
     await signIn();
     const r = await post({ action: 'projects' });
@@ -456,7 +456,7 @@ test('a save is refused when the draft moved after the source was read', async (
     let shaB = null;
     gh.hook(/\/git\/ref\/heads\/control%2Fdraft$/, (r) => {
       resolves += 1;
-      if (resolves === 2) shaB = gh.pushOutside({ 'project.html': r.draft['project.html'] + '\n<!-- someone else -->' });
+      if (resolves === 2) shaB = gh.pushOutside({ 'src/project.html': r.draft['src/project.html'] + '\n<!-- someone else -->' });
     });
 
     const r = await post({ action: 'saveProject', slug: anySlug, patch: { lede: 'Written against the old draft.' } });
@@ -472,7 +472,7 @@ test('a save is refused when the draft moved after the source was read', async (
     assert.equal(gh.made('POST', /\/git\/blobs$/).length, 0, 'not even a blob was uploaded');
 
     // and the other person's commit is intact, with none of our text on it
-    const after = repo.snapshots.get(shaB)['project.html'];
+    const after = repo.snapshots.get(shaB)['src/project.html'];
     assert.match(after, /<!-- someone else -->/, 'their edit survives');
     assert.equal(after.includes('Written against the old draft.'), false, 'ours did not overwrite it');
   });
@@ -501,7 +501,7 @@ test('a clean draft that is only behind fast-forwards before anything is read', 
     await signIn();
     // main has moved on since the draft was cut; the draft carries no work
     const mainNow = repo.mainSha;
-    repo.snapshots.set(mainNow, { ...repo.snapshots.get(mainNow), 'project.html': repo.files['project.html'] });
+    repo.snapshots.set(mainNow, { ...repo.snapshots.get(mainNow), 'src/project.html': repo.files['src/project.html'] });
 
     const r = await post({ action: 'projects' });
     assert.equal(r.status, 200);
@@ -518,7 +518,7 @@ test('a clean draft that is only behind fast-forwards before anything is read', 
     assert.equal(patches[0].body.force, false);
 
     // the content the editor sees came from the commit the draft now points at
-    const reads = gh.made('GET', /\/contents\/project\.html/);
+    const reads = gh.made('GET', /\/contents\/src\/project\.html/);
     assert.equal(reads.length, 1);
     assert.match(reads[0].path, new RegExp(`ref=${mainNow}$`), reads[0].path);
     assert.ok(r.body.projects.length > 0);
@@ -564,7 +564,7 @@ test('a reading order sent to saveProject is ignored, not written', async () => 
     let r = await post({ action: 'projects' });
     const edited = r.body.projects.find((p) => p.editorial);
     assert.ok(edited, 'at least one project has a reading order');
-    const beforeSrc = repo.snapshots.get(repo.draftSha)['project.html'];
+    const beforeSrc = repo.snapshots.get(repo.draftSha)['src/project.html'];
 
     r = await post({
       action: 'saveProject',
@@ -576,7 +576,7 @@ test('a reading order sent to saveProject is ignored, not written', async () => 
     assert.equal(r.body.changed, true, 'the copy edit went through');
 
     // the copy changed; the reading order did not
-    const afterSrc = repo.snapshots.get(repo.draftSha)['project.html'];
+    const afterSrc = repo.snapshots.get(repo.draftSha)['src/project.html'];
     assert.notEqual(afterSrc, beforeSrc);
     const before = model.readSite(beforeSrc, repo.files['src/work.html']);
     const after = model.readSite(afterSrc, repo.files['src/work.html']);
@@ -644,7 +644,7 @@ test('a save between the preview check and the merge stops the publish', async (
     let shaB = null;
     gh.hook(/\/commits\/[^/]+\/status$/, (repoNow) => {
       if (shaB) return;
-      shaB = gh.pushOutside({ 'project.html': repoNow.draft['project.html'] + '\n<!-- newer, unbuilt -->' });
+      shaB = gh.pushOutside({ 'src/project.html': repoNow.draft['src/project.html'] + '\n<!-- newer, unbuilt -->' });
       repoNow.statusBySha.set(shaB, [{ context: PREVIEW, state: 'pending' }]);
     });
 
@@ -661,7 +661,7 @@ test('a save between the preview check and the merge stops the publish', async (
     }
     assert.equal(repo.mainSha, mainBefore, 'the site did not move');
     assert.equal(repo.draftSha, shaB, 'the draft still carries the newer work');
-    assert.equal(repo.snapshots.get(repo.mainSha)['project.html'].includes('<!-- newer, unbuilt -->'), false,
+    assert.equal(repo.snapshots.get(repo.mainSha)['src/project.html'].includes('<!-- newer, unbuilt -->'), false,
       'the unbuilt commit did not reach main');
 
     // and the editor is told to look at the new preview, which is not green
@@ -681,7 +681,7 @@ test("GitHub's merge precondition refuses a head that moved at the last moment",
     // move it later than Control can possibly notice: as the merge lands
     let shaB = null;
     gh.hook(/\/merge$/, (repoNow) => {
-      if (!shaB) shaB = gh.pushOutside({ 'project.html': repoNow.draft['project.html'] + '\n<!-- last moment -->' });
+      if (!shaB) shaB = gh.pushOutside({ 'src/project.html': repoNow.draft['src/project.html'] + '\n<!-- last moment -->' });
     });
 
     const mainBefore = repo.mainSha;
@@ -693,7 +693,7 @@ test("GitHub's merge precondition refuses a head that moved at the last moment",
     assert.equal(r.status, 409);
     assert.equal(r.body.error, 'The draft changed after its preview was checked. Review the new preview before publishing.');
     assert.equal(repo.mainSha, mainBefore, 'nothing was published');
-    assert.equal(repo.snapshots.get(repo.mainSha)['project.html'].includes('<!-- last moment -->'), false);
+    assert.equal(repo.snapshots.get(repo.mainSha)['src/project.html'].includes('<!-- last moment -->'), false);
   });
 });
 
@@ -716,7 +716,7 @@ test('a patch of nothing but hidden fields changes nothing at all', async () => 
   await withControl({}, async ({ post, signIn, repo }) => {
     await signIn();
     await post({ action: 'projects' });
-    const before = repo.snapshots.get(repo.draftSha)['project.html'];
+    const before = repo.snapshots.get(repo.draftSha)['src/project.html'];
 
     const r = await post({
       action: 'saveProject',
@@ -728,7 +728,7 @@ test('a patch of nothing but hidden fields changes nothing at all', async () => 
     assert.equal(r.status, 200);
     assert.equal(r.body.changed, false, 'there was nothing to write');
     assert.equal(repo.commits.length, 0, 'no commit was created');
-    assert.equal(repo.snapshots.get(repo.draftSha)['project.html'], before, 'project.html is byte-identical');
+    assert.equal(repo.snapshots.get(repo.draftSha)['src/project.html'], before, 'project.html is byte-identical');
   });
 });
 
@@ -737,7 +737,7 @@ test('a real edit carrying hidden fields writes only the real edit', async () =>
     await signIn();
     let r = await post({ action: 'projects' });
     const target = r.body.projects.find((p) => p.editorial) || r.body.projects[0];
-    const beforeSrc = repo.snapshots.get(repo.draftSha)['project.html'];
+    const beforeSrc = repo.snapshots.get(repo.draftSha)['src/project.html'];
     const before = model.readSite(beforeSrc, repo.files['src/work.html']);
 
     r = await post({
@@ -748,9 +748,9 @@ test('a real edit carrying hidden fields writes only the real edit', async () =>
     });
     assert.equal(r.status, 200);
     assert.equal(r.body.changed, true);
-    assert.deepEqual(r.body.files, ['project.html']);
+    assert.deepEqual(r.body.files, ['src/project.html']);
 
-    const after = model.readSite(repo.snapshots.get(repo.draftSha)['project.html'], repo.files['src/work.html']);
+    const after = model.readSite(repo.snapshots.get(repo.draftSha)['src/project.html'], repo.files['src/work.html']);
     assert.equal(after.DATA[target.slug].lede, 'The only thing that should change.');
 
     // every other field of this project is exactly as it was
@@ -795,7 +795,7 @@ test('a save whose review cannot be opened is reported as saved', async () => {
     assert.equal(r.status, 200, 'not an error: the work is on the branch');
     assert.equal(r.body.changed, true);
     assert.equal(r.body.review, 'failed');
-    assert.deepEqual(r.body.files, ['project.html']);
+    assert.deepEqual(r.body.files, ['src/project.html']);
     assert.equal(repo.commits.length, 1, 'the commit is real');
     assert.equal(repo.draftSha, r.body.sha, 'and the branch points at it');
 
@@ -843,7 +843,7 @@ test('an existing draft with no pull request is adopted, not overwritten', async
   // exactly the state the site is in: a commit on control/draft, no PR
   await withControl({}, async ({ post, signIn, gh, repo }) => {
     await signIn();
-    const orphan = gh.pushOutside({ 'project.html': repo.files['project.html'].replace('SuDu', 'SuDu') });
+    const orphan = gh.pushOutside({ 'src/project.html': repo.files['src/project.html'].replace('SuDu', 'SuDu') });
     repo.pr = null;
 
     const r = await post({ action: 'overview' });
@@ -893,7 +893,7 @@ const pageOf = (body, page) => body.pages.find((p) => p.page === page);
 // never one from the draft and one from main.
 const draftSite = (repo) => {
   const at = repo.snapshots.get(repo.draftSha) || repo.files;
-  return model.readSite(at['project.html'], at['src/work.html']);
+  return model.readSite(at['src/project.html'], at['src/work.html']);
 };
 
 test('every page is readable with its fields and its keys', async () => {
@@ -1127,7 +1127,7 @@ test('reordering the catalogue regenerates counters and the next chain', async (
     r = await post({ action: 'reorder', order: moved });
     assert.equal(r.status, 200);
     assert.equal(r.body.changed, true);
-    assert.deepEqual(r.body.files.sort(), ['project.html', 'src/work.html']);
+    assert.deepEqual(r.body.files.sort(), ['src/project.html', 'src/work.html']);
 
     const site = draftSite(repo);
     assert.deepEqual(site.order, moved);
@@ -1158,7 +1158,7 @@ test('a project is created, listed, ordered and given its own page', async () =>
     assert.equal(r.status, 200);
     assert.equal(r.body.slug, 'riverside-pavilion');
     assert.equal(r.body.changed, true);
-    assert.deepEqual(r.body.files.sort(), ['project.html', 'src/work.html']);
+    assert.deepEqual(r.body.files.sort(), ['src/project.html', 'src/work.html']);
 
     const site = draftSite(repo);
     assert.equal(site.order.length, was + 1);
@@ -1285,7 +1285,7 @@ test('every structural edit obeys the stale-draft guard', async () => {
       let resolves = 0;
       gh.hook(/\/git\/ref\/heads\/control%2Fdraft$/, (r) => {
         resolves += 1;
-        if (resolves === 2) gh.pushOutside({ 'project.html': r.draft['project.html'] + '\n<!-- other -->' });
+        if (resolves === 2) gh.pushOutside({ 'src/project.html': r.draft['src/project.html'] + '\n<!-- other -->' });
       });
       const r = await post(body);
       assert.equal(r.status, 409, edit.action);

@@ -14,6 +14,12 @@ https://www.sudu.studio/*    https://sudu.studio/:splat    301!
 /project.html    p=:slug    /work/:slug/    301!
 /project         p=:slug    /work/:slug/    301!
 
+# --- authored sources -------------------------------------------------------
+# src/ holds the Design Component sources that scripts/render-static.mjs and
+# build-projects.mjs render from. Forced, because the files exist and would
+# otherwise be served as pages.
+/src/*    /index.html    404!
+
 # --- legacy Squarespace paths -----------------------------------------------
 # These replace the meta-refresh stub pages from PR #3, which are deleted in
 # the same commit. Both the extensionless Squarespace path and the .html stub

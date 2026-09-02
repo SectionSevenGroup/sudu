@@ -19,7 +19,7 @@ const PAGES = [
   'studio.html',
   'contact.html',
   'sketch/index.html',
-  'project.html',
+  'src/project.html',
   'custom-home-design-edmonton.html',
   'renovations-additions-edmonton.html',
   'restaurant-hospitality-design-edmonton.html',

@@ -20,7 +20,6 @@
 <meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-<script src="/js/support.js?v=8fe7df74"></script>
 <script src="/js/chrome-bar.js?v=2f2eaa02" data-turbo-track="reload"></script>
 
 <!-- The router and its coordinator are singletons, so they live in the real
@@ -42,14 +41,9 @@
      made a revisit play two arrivals. It is deliberately not no-cache:
      snapshots are still stored, and Back/Forward still restores from them. -->
 <meta name="turbo-cache-control" content="no-preview">
-</head>
-<body>
-<x-dc>
-<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-<script src="/js/image-slot.js?v=fff26d08"></script>
 <style>
   html { background: #F3F1EA; }
   body { margin: 0; background: #F3F1EA; color: #171613; font-family: 'Urbanist', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -157,6 +151,10 @@
 
   .project-gallery-grid > .project-gallery-item:first-child { grid-column:1 / -1; aspect-ratio:16/9 !important; }
   @media (max-width:720px) { .project-gallery-grid { grid-template-columns:1fr !important; } .project-gallery-grid > .project-gallery-item { grid-column:auto !important; aspect-ratio:4/3 !important; } }
+.scp0:hover{border-bottom-color:#E17B3E !important;color:#E17B3E !important}
+.scp1:hover{transform:scale(1.05) !important}
+.scp2:hover{background:#E8E5DC !important}
+html,body{height:100%;margin:0}#page{height:100%}
 </style>
 <script>(function(){var mark=function(){document.querySelectorAll('[data-theme-surface]').forEach(function(el){if(el.closest('#suduBar'))return;if(el.closest('section,header,footer'))el.classList.add('dm-flat');else el.classList.add('dm-wrap');});};
 [0,400,1200,3000].forEach(function(t){setTimeout(mark,t);});
@@ -180,20 +178,21 @@ document.addEventListener('mouseleave',function(){if(el)el.style.opacity='0';});
 document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});})();</script>
 <script src="/i18n.js?v=cbd5fce2" defer></script>
 <script src="/js/page-arrival.js?v=678090fc" defer></script>
+<script src="/js/reveal.js?v=3c98252b" defer></script>
 <script src="/js/audio-player.js?v=5e49f639" defer></script>
 <script type="module" src="/js/haptics.js?v=3c4ba22c"></script>
-</helmet>
-
-<div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
+</head>
+<body>
+<div id="page"><div data-theme-surface="cream" style="background:#F3F1EA; color:#171613; font-family:'Urbanist', sans-serif;">
 
   <header data-theme-surface="cream" style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:34px clamp(20px,4.5vw,64px) 30px; background:rgba(243,241,234,0.94);">
     <a href="/" data-turbo-preload style="display:flex; align-items:flex-end; gap:12px;">
       <img src="/images/sudu-mark.png" alt="SuDu Studio" style="height:38px; width:auto; display:block;">
     </a>
     <nav style="display:flex; align-items:flex-end; gap:clamp(16px,2.6vw,30px);">
-      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Work</a>
-      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Studio</a>
-      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" style-hover="border-bottom-color:#E17B3E; color:#E17B3E;">Contact</a></nav>
+      <a href="/work" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Work</a>
+      <a href="/studio" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Studio</a>
+      <a href="/contact" data-turbo-preload style="font-size:13px; font-weight:500; line-height:1.4; padding-bottom:2px; border-bottom:1px solid transparent; transition:border-color .3s ease, color .3s ease;" class="scp0">Contact</a></nav>
   </header>
 
   <section data-screen-label="Project Hero" style="padding:clamp(96px,12vh,128px) clamp(20px,4.5vw,64px) 0;">
@@ -210,7 +209,7 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
   </section>
 
   <div data-reveal data-motion="major" style="margin:0 clamp(20px,4.5vw,64px); aspect-ratio:16/9; overflow:hidden; background:#E8E5DC;">
-    <img src="/images/bar-bricco-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1920&q=82 1920w" sizes="100vw" alt="Bar Bricco" width="1500" height="997" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
+    <img src="/images/bar-bricco-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fbar-bricco-edmonton.jpg&w=1920&q=82 1920w" sizes="100vw" alt="Bar Bricco" width="1500" height="997" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
   </div>
 
   <section data-screen-label="Project Facts" style="display:flex; flex-wrap:wrap; gap:32px 56px; padding:clamp(56px,7vw,88px) clamp(20px,4.5vw,64px); border-bottom:1px solid rgba(23,22,19,0.13);">
@@ -234,69 +233,8 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
     </div>
   </section>
 
-  <sc-if value="{{ hasEditorial }}" hint-placeholder-val="{{ false }}">
-    <section data-screen-label="Project Sequence" class="pj-seq">
-      <sc-for list="{{ editorialBlocks }}" as="b" hint-placeholder-count="2">
-        <div class="pj-block">
-          <sc-if value="{{ b.hasLabel }}" hint-placeholder-val="{{ false }}">
-            <div class="pj-label">
-              <h2>{{ b.label }}</h2>
-              <span>{{ b.note }}</span>
-            </div>
-          </sc-if>
-          <sc-if value="{{ b.isSingle }}" hint-placeholder-val="{{ false }}">
-            <div data-reveal data-motion="major" class="pj-single" style="{{ b.style }}">
-              <img class="pj-img" src="{{ b.a.src }}" srcset="/.netlify/images?url={{ b.a.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.a.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.a.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.a.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.a.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 92vw" alt="{{ b.a.alt }}" width="{{ b.a.w }}" height="{{ b.a.h }}" loading="lazy" decoding="async">
-            </div>
-          </sc-if>
-          <sc-if value="{{ b.isPair }}" hint-placeholder-val="{{ false }}">
-            <div data-reveal data-motion="major" class="pj-pair" style="{{ b.style }}">
-              <img class="pj-img" src="{{ b.a.src }}" srcset="/.netlify/images?url={{ b.a.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.a.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.a.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.a.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.a.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 46vw" alt="{{ b.a.alt }}" width="{{ b.a.w }}" height="{{ b.a.h }}" loading="lazy" decoding="async">
-              <sc-if value="{{ b.hasB }}" hint-placeholder-val="{{ false }}">
-                <img class="pj-img" src="{{ b.b.src }}" srcset="/.netlify/images?url={{ b.b.abs }}&w=480&q=82 480w, /.netlify/images?url={{ b.b.abs }}&w=768&q=82 768w, /.netlify/images?url={{ b.b.abs }}&w=1080&q=82 1080w, /.netlify/images?url={{ b.b.abs }}&w=1440&q=82 1440w, /.netlify/images?url={{ b.b.abs }}&w=1920&q=82 1920w" sizes="(max-width:820px) 100vw, 46vw" alt="{{ b.b.alt }}" width="{{ b.b.w }}" height="{{ b.b.h }}" loading="lazy" decoding="async">
-              </sc-if>
-            </div>
-          </sc-if>
-        </div>
-      </sc-for>
-    </section>
-  </sc-if>
-  <sc-if value="{{ hasGallery }}" hint-placeholder-val="{{ false }}">
-    <section data-screen-label="Project Gallery" style="padding:clamp(24px,3vw,40px) clamp(20px,4.5vw,64px) 0;">
-      <sc-for list="{{ galleryGroups }}" as="grp" hint-placeholder-count="1">
-        <div style="padding-top:clamp(24px,3vw,36px);">
-          <sc-if value="{{ grp.hasHead }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 24px; padding:14px 0 20px; border-top:1px solid rgba(23,22,19,0.13);">
-              <h2 style="margin:0; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:0.02em; line-height:1;">{{ grp.head }}</h2>
-              <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ grp.sub }}</span>
-            </div>
-          </sc-if>
-          <div class="project-gallery-grid" data-reveal data-motion="detail" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,2vw,28px);">
-            <sc-for list="{{ grp.images }}" as="g" hint-placeholder-count="2">
-              <div class="project-gallery-item" style="aspect-ratio:4/3; overflow:hidden; background:{{ grp.bg }};">
-                <img src="{{ g.src }}" srcset="/.netlify/images?url=/{{ g.src }}&w=480&q=82 480w, /.netlify/images?url=/{{ g.src }}&w=768&q=82 768w, /.netlify/images?url=/{{ g.src }}&w=1080&q=82 1080w, /.netlify/images?url=/{{ g.src }}&w=1440&q=82 1440w, /.netlify/images?url=/{{ g.src }}&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="{{ g.alt }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:{{ grp.fit }}; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.04);">
-              </div>
-            </sc-for>
-          </div>
-        </div>
-      </sc-for>
-    </section>
-  </sc-if>
-  <sc-if value="{{ showSlots }}" hint-placeholder-val="{{ false }}">
-    <section data-screen-label="Project Gallery Slots" style="padding:clamp(48px,6vw,72px) clamp(20px,4.5vw,64px) 0;">
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:clamp(16px,2vw,28px);">
-        <div data-reveal data-motion="pair" style="aspect-ratio:4/3;">
-          <image-slot id="{{ slotA }}" shape="rect" src="{{ gA }}" placeholder="Drop a detail photo"></image-slot>
-        </div>
-        <div data-reveal data-motion="pair" style="aspect-ratio:4/3;">
-          <image-slot id="{{ slotB }}" shape="rect" src="{{ gB }}" placeholder="Drop an interior photo"></image-slot>
-        </div>
-      </div>
-      <div data-reveal data-motion="major" style="margin-top:clamp(16px,2vw,28px); aspect-ratio:21/9;">
-        <image-slot id="{{ slotC }}" shape="rect" src="{{ gC }}" placeholder="Drop a wide photo"></image-slot>
-      </div>
-    </section>
-  </sc-if>
+  
+  
 
   <section data-screen-label="Related Work" style="padding:0 clamp(20px,4.5vw,64px) clamp(40px,5vw,64px);">
     <div style="display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding:clamp(32px,4vw,48px) 0 18px; border-top:1px solid rgba(23,22,19,0.13);">
@@ -304,32 +242,45 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <span style="font-family:'Urbanist', sans-serif; font-size:11px; font-weight:500; letter-spacing:0.08em; color:#A6A399;">From the archive</span>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:28px 24px;">
-      <sc-for list="{{ relatedCards }}" as="r" hint-placeholder-count="3">
-        <a href="{{ r.href }}" style="display:block;">
+      
+        <a href="/work/corso32/" style="display:block;">
           <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
-            <sc-if value="{{ r.hasThumb }}" hint-placeholder-val="{{ false }}">
-              <img src="{{ r.thumb }}" alt="{{ r.name }}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.05);">
-            </sc-if>
+            
+              <img src="/images/corso-32-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fcorso-32-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Corso 32" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+            
           </div>
-          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ r.eyebrow }}</div>
-          <div style="margin-top:5px; font-size:15px; font-weight:600; letter-spacing:-0.01em; line-height:1.15;">{{ r.name }}</div>
-          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">{{ r.location }}</div>
+          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</div>
+          <div style="margin-top:5px; font-size:15px; font-weight:600; letter-spacing:-0.01em; line-height:1.15;">Corso 32</div>
+          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
         </a>
-      </sc-for>
+      
+        <a href="/work/uccellino/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            
+              <img src="/images/uccellino-restaurant-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fuccellino-restaurant-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="Uccellino" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+            
+          </div>
+          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality</div>
+          <div style="margin-top:5px; font-size:15px; font-weight:600; letter-spacing:-0.01em; line-height:1.15;">Uccellino</div>
+          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
+        <a href="/work/the-helm/" style="display:block;">
+          <div style="aspect-ratio:4/3; overflow:hidden; background:#E8E5DC;">
+            
+              <img src="/images/the-helm-edmonton.jpg" srcset="/.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=480&q=82 480w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=768&q=82 768w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1080&q=82 1080w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1440&q=82 1440w, /.netlify/images?url=%2Fimages%2Fthe-helm-edmonton.jpg&w=1920&q=82 1920w" sizes="(max-width:720px) 100vw, 50vw" alt="The Helm" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.16,1,.3,1);" class="scp1">
+            
+          </div>
+          <div style="margin-top:12px; font-family:'Urbanist', sans-serif; font-size:10px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">Hospitality · Retail</div>
+          <div style="margin-top:5px; font-size:15px; font-weight:600; letter-spacing:-0.01em; line-height:1.15;">The Helm</div>
+          <div style="margin-top:4px; font-family:'Urbanist', sans-serif; font-size:11px; color:#67655D;">Edmonton, AB</div>
+        </a>
+      
     </div>
-    <sc-if value="{{ hasRelatedText }}" hint-placeholder-val="{{ false }}">
-      <ul style="list-style:none; margin:24px 0 0; padding:0;">
-        <sc-for list="{{ relatedText }}" as="r" hint-placeholder-count="1">
-          <li style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 24px; padding:12px 0; border-bottom:1px solid rgba(23,22,19,0.13);">
-            <span style="font-size:14.5px; font-weight:500;">{{ r.name }}</span>
-            <span style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#A6A399;">{{ r.meta }}</span>
-          </li>
-        </sc-for>
-      </ul>
-    </sc-if>
+    
   </section>
 
-  <a href="/work/uccellino/" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" style-hover="background:#E8E5DC;">
+  <a href="/work/uccellino/" data-reveal data-motion="detail" style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; padding:clamp(56px,8vw,96px) clamp(20px,4.5vw,64px); border-top:1px solid rgba(23,22,19,0.13); transition:background .35s ease;" class="scp2">
     <div>
       <div style="font-family:'Urbanist', sans-serif; font-size:10.5px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#67655D; margin-bottom:8px;">Next project</div>
       <div style="font-size:clamp(24px,3vw,38px); font-weight:700; letter-spacing:-0.03em; line-height:1;">Uccellino</div>
@@ -342,583 +293,6 @@ document.addEventListener('mouseenter',function(){if(el)el.style.opacity='1';});
       <span style="width:1px; height:14px; background:rgba(23,22,19,0.22);"></span>
       <span>&copy; 2026 SuDu Studio Architecture</span>
     </div><span>Alberta</span>
-  </footer>
-
-</div>
-
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  static DATA = {
-    'west-vancouver': {
-      eyebrow: 'Private Residential', title: 'West Vancouver', location: 'West Vancouver, BC',
-      scope: 'Architecture, Interiors', status: 'Completed', counter: '01 / 19',
-      lede: 'A private residence and gallery organized around the display of a personal art collection.',
-      body: 'Sited at the rear of a south-facing property, the study explored three architectural directions for a private office, gallery, and rare car collection. The selected concept, H.21.01 / White Box, uses a minimal white volume, an open lower level, and a restrained material language to balance privacy, landscape, light, and display.',
-      heroSrc: '/images/west-vancouver-private-residence.jpg', next: 'wilfreds',
-      groups: [
-        { head: 'H.21.01 / White Box', sub: 'Selected concept', images: ['/images/wv-elevation.jpg', '/images/wv-interior.jpg'] }, { head: 'Drawings', sub: 'H.21.01 / White Box floor plans', small: true, images: ['/images/wv-plans.png'] }, { head: 'H.21.02 / Glass Gallery', sub: 'Alternative study', images: ['/images/wv-glass-1.jpg', '/images/wv-glass-2.jpg', '/images/wv-glass-3.jpg', '/images/wv-glass-top.png'] }, { head: 'H.21.03 / The Cantilever', sub: 'Alternative study', images: ['/images/wv-cant-1.jpg', '/images/wv-cant-2.jpg', '/images/wv-cant-3.jpg'] }, { head: 'Drawings', sub: 'H.21.03 / The Cantilever floor plans', small: true, images: ['/images/wv-cant-plans.png'] }
-      ],
-      gA: '/images/wv-elevation.jpg', gB: '/images/wv-interior.jpg', gC: '/images/wv-plans.jpg',
-      related: [
-        { name: 'West Shore Residence', meta: 'Private Residential', key: 'westshore' }, { name: 'Residence Studies 1\u201312', meta: 'Visual Research \u00b7 Alberta / Norfolk' }
-      ]
-    },
-    'wilfreds': {
-      eyebrow: 'Hospitality', title: 'Wilfreds', location: 'Edmonton, AB',
-      scope: 'Interiors, Material Direction', status: 'Completed', counter: '02 / 19',
-      lede: 'A standalone brick heritage building, rebuilt from the inside out as a single hospitality idea.',
-      body: 'Custom millwork, soft colour, natural materials, and playful mural work give the room a warm, residential scale. Space and millwork by the studio, mural by Vanguard Works, brand development with Shaun Brandt: a demonstration of how closely identity and physical place can be built together.',
-      heroSrc: '/images/wilfreds-hospitality-edmonton.jpg', next: 'westshore',
-      gallery: ['/images/wf-2.jpg', '/images/wf-3.jpg', '/images/wf-4.jpg', '/images/wf-5.jpg', '/images/wf-6.jpg'],
-      gA: '/images/wf-3.jpg', gB: '/images/wf-4.jpg', gC: '/images/wf-6.jpg',
-      related: [
-        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' }, { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' }, { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' }, { name: 'The Helm', meta: 'Hospitality', key: 'the-helm' }, { name: 'Hell\u2019s Kitchen at Enoch Casino', meta: 'Hospitality \u00b7 Entertainment', key: 'hells-kitchen' }
-      ]
-    },
-    'westshore': {
-      eyebrow: 'Private Residential', title: 'Westshore Estates', location: 'Okanagan, BC',
-      scope: 'Architecture, Concept Design', status: 'In development', counter: '03 / 19',
-      lede: 'A custom residence developed from massing studies through exterior material resolution.',
-      body: 'The design began as a study of the site\u2019s long views and grade, testing massing options before committing to a form. Exterior materials were resolved early so the concept and its construction logic developed together.',
-      heroSrc: '/images/westshore-estates-house-exterior.jpg', next: 'casita',
-      gallery: ['/images/westshore-estates-hillside-elevation.jpg', '/images/westshore-estates-entry-drive.jpg'],
-      gA: '/images/westshore-estates-hillside-elevation.jpg', gB: '/images/westshore-estates-entry-drive.jpg',
-      related: [
-        { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' }, { name: 'Condominium Work', meta: 'Residential \u00b7 Current' }
-      ]
-    },
-    'casita': {
-      eyebrow: 'Private Residential', title: 'Casita', location: 'Costa Rica',
-      scope: 'Architecture, Interiors', status: 'In development', counter: '04 / 19',
-      lede: 'A single family residence lifted into the palm canopy of a hillside site.',
-      body: 'A compact volume raised on concrete pilotis, opening the main living level to the treetops and long views while the ground plane stays planted and shaded beneath. Deep overhangs, screened openings, and a pared palette of white render, warm timber, and glass are shaped around the tropical climate.',
-      heroSrc: '/images/casita-costa-rica-hillside.jpg', next: 'mackenzie-ravine',
-      groups: [
-        { head: '', sub: '', images: ['/images/casita-costa-rica-entry.jpg'] }, { head: 'Drawings', sub: 'Casita 01 / Site plan and floor plans', small: true, images: ['/images/casita-site-plan.png', '/images/casita-main-floor-plan.png', '/images/casita-second-floor-plan.png'] }
-      ],
-      related: [
-        { name: 'Westshore Estates', meta: 'Private Residential', key: 'westshore' }, { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' }
-      ]
-    },
-    'mackenzie-ravine': {
-      eyebrow: 'Private Residential', title: 'Mackenzie Ravine', location: 'Edmonton, AB',
-      scope: 'Architecture, Interiors', status: 'Completed', counter: '05 / 19',
-      lede: 'A 4,000 sq ft modern residence on the edge of Mackenzie Ravine.',
-      body: 'Flat-roofed volumes of dark standing-seam cladding and warm cedar sit low among mature spruce, with full-height glazing opening the main living spaces to a concrete terrace and the ravine beyond. The design began as a set of napkin sketches and carried that directness through to the built work.',
-      heroSrc: '/images/mackenzie-ravine-front-drive-dusk.jpg', next: 'atb',
-      groups: [
-        { head: '', sub: '', images: ['/images/mackenzie-ravine-rear-terrace-dusk.jpg'] }, { head: 'Process', sub: 'Napkin sketches', images: ['/images/mackenzie-ravine-napkin-sketches.jpg'] }, { head: 'Drawings', sub: 'Floor plans', small: true, images: ['/images/mackenzie-ravine-main-floor-plan.png', '/images/mackenzie-ravine-basement-plan.png', '/images/mackenzie-ravine-upper-floor-plan.png'] }
-      ],
-      related: [
-        { name: 'West Vancouver Gallery', meta: 'Private Residential', key: 'west-vancouver' }, { name: 'Casita', meta: 'Private Residential', key: 'casita' }
-      ]
-    },
-    'atb': {
-      eyebrow: 'Commercial', title: 'ATB Place Reimagined', location: 'Edmonton, AB',
-      scope: 'Repositioning, Public Realm, with DIALOG', status: 'Completed', counter: '06 / 19',
-      lede: 'Renewal of the concourse, podium, and exterior plazas at a major downtown intersection.',
-      body: 'For client HOOP, the study turns an internalized office podium into an active public throughway: food and retail addressing the street, plazas reworked as everyday civic space, and a stronger connection between the towers, tenants, and downtown residents. Design team: Joe Johnson (Makespace Group) with DIALOG.',
-      heroSrc: '/images/atb-place-reimagined-edmonton.jpg', next: 'corso32',
-      gallery: ['/images/atb-place-exterior-approach.jpg', '/images/atb-place-concourse-interior.jpg'],
-      related: [
-        { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking Environments', key: 'atb-banking' }, { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' }, { name: 'Enoch Elders Lodge', meta: 'Community Housing', key: 'enoch' }, { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }
-      ]
-    },
-    'corso32': {
-      eyebrow: 'Hospitality', title: 'Corso 32', location: 'Edmonton, AB',
-      scope: 'Interiors, Brand, Millwork', status: 'Completed, 2010', counter: '07 / 19',
-      lede: 'An intimate Italian restaurant on Jasper Avenue, built around a narrow room and a long bar.',
-      body: 'A tight plan resolved through custom millwork, warm material choices, and careful lighting: a restaurant for an award-winning chef where the room supports the food rather than competing with it.',
-      heroSrc: '/images/corso-32-restaurant-edmonton.jpg', next: 'bar-bricco',
-      gallery: ['/images/corso-1.jpg', '/images/corso-2.jpg', '/images/corso-4.jpg', '/images/corso-5.jpg'],
-      related: [
-        { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' }, { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' }, { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }
-      ]
-    },
-    'bar-bricco': {
-      eyebrow: 'Hospitality', title: 'Bar Bricco', location: 'Edmonton, AB',
-      scope: 'Interiors, Millwork', status: 'Completed', counter: '08 / 19',
-      lede: 'A standing-room spuntini bar, compact and precise, next door to Corso 32.',
-      body: 'A small footprint treated as a virtue: a single counter-focused room where millwork, lighting, and material restraint do the spatial work. Designed as a companion piece to Corso 32.',
-      heroSrc: '/images/bar-bricco-edmonton.jpg', next: 'uccellino',
-      related: [
-        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' }, { name: 'Uccellino', meta: 'Hospitality', key: 'uccellino' }, { name: 'The Helm', meta: 'Hospitality', key: 'the-helm' }
-      ]
-    },
-    'uccellino': {
-      eyebrow: 'Hospitality', title: 'Uccellino', location: 'Edmonton, AB',
-      scope: 'Interiors, Material Direction', status: 'Completed', counter: '09 / 19',
-      lede: 'A bright, pared-back Italian room completing the Jasper Avenue trio.',
-      body: 'Where Corso 32 is dark and Bar Bricco is compact, Uccellino is open and light: pale surfaces, simple lines, and a calm dining room that lets daylight and the table carry the experience.',
-      heroSrc: '/images/uccellino-restaurant-edmonton.jpg', next: 'alder-room-alta',
-      related: [
-        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' }, { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' }, { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }
-      ]
-    },
-    'alder-room-alta': {
-      eyebrow: 'Hospitality', title: 'Alder Room \u0026 Alta', location: 'Edmonton, AB',
-      scope: 'Interiors, Branded Environment', status: 'Completed', counter: '10 / 19',
-      lede: 'Two rooms, one kitchen: a tasting-menu dining room and its adjoining bar for chef Ben Staley.',
-      body: 'The Alder Room, an intimate multi-course tasting room, and Alta, its more casual bar and a la carte companion, share one kitchen and one pared-back material language: dark surfaces, warm wood, and precise lighting that puts the food and the craft at centre stage. Named one of Canada\u2019s Best New Restaurants by Air Canada\u2019s enRoute in 2017. Logo design by Denis Lenarduzzi.',
-      heroSrc: '/images/alder-room-alta-logo.jpg', next: 'the-helm',
-      gallery: ['/images/alta-bar-glassware-edmonton.jpg', '/images/alder-room-dining-room-edmonton.jpg', '/images/alta-cocktail-program.jpg', '/images/alder-room-tasting-menu.jpg', '/images/alder-room-truffles.jpg'],
-      related: [
-        { name: 'Corso 32', meta: 'Hospitality', key: 'corso32' }, { name: 'Bar Bricco', meta: 'Hospitality', key: 'bar-bricco' }
-      ]
-    },
-    'the-helm': {
-      eyebrow: 'Hospitality \u00b7 Retail', title: 'The Helm', location: 'Edmonton, AB',
-      scope: 'Interiors, Brand Integration', status: 'Completed', counter: '11 / 19',
-      lede: 'A menswear environment where retail display and clubroom character share one room.',
-      body: 'Fixture design, millwork, and material direction built around the ritual of menswear: a shop that reads as a room you want to stay in, with the brand carried through every surface.',
-      heroSrc: '/images/the-helm-edmonton.jpg', next: 'hells-kitchen',
-      groups: [
-        { head: 'Completed Space', sub: '', images: ['/images/helm-1.jpg', '/images/helm-2.jpg', '/images/helm-3.jpg', '/images/helm-4.jpg', '/images/helm-5.jpg', '/images/helm-6.jpg', '/images/helm-8.jpg', '/images/helm-9.jpg', '/images/helm-10.jpg'] }, { head: 'Process / Construction', sub: '', images: ['/images/helm-c1.jpg', '/images/helm-c2.jpg', '/images/helm-c3.jpg'] }
-      ],
-      related: [
-        { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }, { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking', key: 'atb-banking' }
-      ]
-    },
-    'hells-kitchen': {
-      eyebrow: 'Hospitality \u00b7 Entertainment', title: 'Hell\u2019s Kitchen', location: 'Enoch, AB',
-      scope: 'Architecture, Patio Addition, with MES Architecture', status: 'Under construction', counter: '12 / 19',
-      lede: 'A 3,000 sq ft modern patio addition for Hell\u2019s Kitchen at Enoch Casino.',
-      body: 'A compact architectural extension of glass, concrete, black metal, and warm soffit material, giving the restaurant a stronger exterior presence, an improved arrival sequence, and a refined indoor-outdoor relationship with the larger casino building.',
-      heroSrc: '/images/hells-kitchen-enoch.jpg', next: 'atb-banking',
-      gallery: ['/images/hk-day.png', '/images/hk-elev.png', '/images/hk-int.jpg'],
-      related: [
-        { name: 'Enoch Elders Lodge', meta: 'Community \u00b7 Enoch Cree Nation', key: 'enoch' }, { name: 'The Helm', meta: 'Hospitality \u00b7 Retail', key: 'the-helm' }
-      ]
-    },
-    'atb-banking': {
-      eyebrow: 'Retail \u00b7 Banking', title: 'ATB Reimagining Banking', location: 'Alberta',
-      scope: 'Strategy, Concept, Design Direction', status: 'Completed', counter: '13 / 19',
-      lede: 'A multi-year initiative reimagining ATB Financial\u2019s flagship and neighbourhood branches.',
-      body: 'Strategic planning, concept development, and design direction for \u201cBranches of the Future\u201d: banking environments rebuilt around customer experience, with a design system flexible enough to scale across Alberta.',
-      heroSrc: '/images/atb-reimagining-banking.jpg', next: 'factory-yyc',
-      groups: [
-        { head: 'Eighth Avenue Place / Calgary', sub: 'Architect: Stantec', images: ['/images/atbb-eap1.jpg', '/images/atbb-eap2.jpg', '/images/atbb-eap3.jpg', '/images/atbb-eap4.jpg', '/images/atbb-eap5.jpg', '/images/atbb-eap6.jpg'] }, { head: 'City Centre / Edmonton', sub: 'Architect: Lemay', images: ['/images/atbb-cc1.jpg', '/images/atbb-cc2.jpg', '/images/atbb-cc3.jpg'] }, { head: 'Hudson Block / Calgary', sub: 'Architect: Lemay', images: ['/images/atbb-hb1.jpg', '/images/atbb-hb2.jpg', '/images/atbb-hb3.jpg', '/images/atbb-hb4.jpg', '/images/atbb-hb5.jpg'] }
-      ],
-      related: [
-        { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' }, { name: 'The Helm', meta: 'Retail', key: 'the-helm' }
-      ]
-    },
-    'factory-yyc': {
-      eyebrow: 'Hospitality \u00b7 Concept', title: 'Factory YYC', location: 'Calgary, AB',
-      scope: 'Concept Design', status: 'Concept', counter: '14 / 19',
-      lede: 'A caf\u00e9 and marketplace concept for a downtown Calgary workplace.',
-      body: 'A full food-and-retail program developed in concept: an oak service bar with marketplace shelving at entry, a caf\u00e9 floor opening to the lobby stair, and a dining hall of booths, communal tables, and a servery beyond.',
-      heroSrc: '/images/factory-yyc-calgary.jpg', next: 'factory-club',
-      groups: [
-        { head: 'Concept Renderings', sub: 'Caf\u00e9 bar & dining hall', images: ['/images/factory-yyc-cafe-bar.jpg', '/images/factory-yyc-dining-hall.jpg'] }
-      ],
-      related: [
-        { name: 'Hell\u2019s Kitchen', meta: 'Hospitality \u00b7 Entertainment', key: 'hells-kitchen' }, { name: 'Wilfreds', meta: 'Hospitality', key: 'wilfreds' }
-      ]
-    },
-    'factory-club': {
-      eyebrow: 'Hospitality \u00b7 Private Club', title: 'Factory Private Club', location: 'The Edison, Calgary, AB',
-      scope: 'Interiors, Branded Environment', status: 'Completed', counter: '15 / 19',
-      lede: 'A private members\u2019 club on the main floor of the Edison in downtown Calgary.',
-      body: 'A long bar of blackened steel and stacked concrete block under a walnut-slat ceiling, lounge seating against the Edison\u2019s angled facade, and a pixel-mosaic mural closing the room. The club\u2019s mark is built into the space itself: backlit at the walnut entry and screened across the glazing.',
-      heroSrc: '/images/factory-club-edison-bar-mural.jpg', next: 'opt',
-      groups: [
-        { head: 'The Club', sub: 'Photography', images: ['/images/factory-club-edison-entry.jpg', '/images/factory-club-edison-lounge.jpg'] }
-      ],
-      related: [
-        { name: 'Factory YYC', meta: 'Hospitality \u00b7 Concept', key: 'factory-yyc' }, { name: 'Alder Room & Alta', meta: 'Hospitality', key: 'alder-room-alta' }
-      ]
-    },
-    'opt': {
-      eyebrow: 'Retail \u00b7 Healthcare', title: 'OPT', location: 'Edmonton, AB',
-      scope: 'Interiors, Retail Environment', status: 'Completed', counter: '16 / 19',
-      lede: 'An optometry clinic and eyewear retail environment.',
-      body: 'Clinic and retail resolved as one room: an ash display wall doubling as the exam-room screen, a supergraphic eye chart marking the threshold between the two, and white casework with framed mirror ledges carrying the frame collection down the length of the space.',
-      heroSrc: '/images/opt-optometry-eye-chart.jpg', next: 'selkirk',
-      groups: [
-        { head: 'Clinic & Dispensary', sub: 'Photography', images: ['/images/opt-optometry-retail-floor.jpg', '/images/opt-optometry-dispensary.jpg'] }
-      ],
-      related: [
-        { name: 'ATB Reimagining Banking', meta: 'Retail \u00b7 Banking', key: 'atb-banking' }, { name: 'Factory Private Club', meta: 'Hospitality · Private Club', key: 'factory-club' }
-      ]
-    },
-    'selkirk': {
-      eyebrow: 'Commercial \u00b7 Community', title: 'The Selkirk', location: 'Alberta',
-      scope: 'Concept Design, with Melcor', status: 'Concept', counter: '17 / 19',
-      lede: 'A commercial repositioning concept for the former RBC building on Jasper Avenue.',
-      body: 'For Melcor, the study renews the tower\u2019s lower levels: new architectural interventions, exterior plaza work, lighting, landscape, and interior public space shift the building from a closed corporate address into an open, active urban destination. With DIALOG.',
-      heroSrc: '/images/the-selkirk-commercial.jpg', next: 'enoch',
-      gallery: ['/images/the-selkirk-exterior.jpg', '/images/the-selkirk-interior.jpg', '/images/sel-aerial.jpg'],
-      related: [
-        { name: 'ATB Place Reimagined', meta: 'Commercial', key: 'atb' }, { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }
-      ]
-    },
-    'enoch': {
-      eyebrow: 'Community Housing', title: 'Enoch Elders Lodge', location: 'Enoch Cree Nation, AB',
-      scope: 'Concept Design', status: 'Concept', counter: '18 / 19',
-      lede: 'A concept for elders housing with Enoch Cree Nation.',
-      body: 'A housing concept shaped around community, culture, and care: shared gathering space at the heart, dwellings arranged for connection, dignity, and everyday visits.',
-      heroSrc: '/images/enoch-elders-lodge.jpg', next: 'youth-recovery',
-      gallery: ['/images/enoch-1.png', '/images/enoch-2.png', '/images/enoch-3.png', '/images/enoch-4.png', '/images/enoch-mural.jpg'],
-      related: [
-        { name: 'Youth Recovery Centre', meta: 'Community \u00b7 Wellness', key: 'youth-recovery' }, { name: 'Hell\u2019s Kitchen', meta: 'Enoch Casino', key: 'hells-kitchen' }
-      ]
-    },
-    'youth-recovery': {
-      eyebrow: 'Community \u00b7 Wellness', title: 'Youth Recovery Centre', location: 'Alberta',
-      scope: 'Architecture, with MES Architecture', status: 'In progress', counter: '19 / 19',
-      lede: 'A youth recovery and wellness environment built around calm, residential-scale space.',
-      body: 'Clear planning, efficient SIP panelized construction, warm materials, natural light, and protected outdoor connections create an environment focused on privacy, safety, dignity, and recovery. With MES Architecture.',
-      heroSrc: '/images/youth-recovery-centre.jpg', next: 'west-vancouver',
-      gallery: ['/images/yr-ext.png', '/images/frog-lake-interior.jpg', '/images/yr-int3.jpg', '/images/yr-bear.png'],
-      related: [
-        { name: 'Enoch Elders Lodge', meta: 'Community Housing', key: 'enoch' }, { name: 'The Selkirk', meta: 'Commercial \u00b7 Community', key: 'selkirk' }
-      ]
-    }
-  };
-
-  // Editorial sequencing for the project pages.
-  //
-  // A project's images are data; the order they are read in is design. This map
-  // holds that reading — which image establishes the project, which two belong
-  // together, where the page should pause — and it is kept apart from DATA
-  // because the photographs do not change when the sequencing does.
-  //
-  // A block is only ever one image or a pair. A full-width image and an inset
-  // are the same block: an inset is simply given a width and an edge to sit
-  // against. A project with no entry here renders the original gallery, which
-  // is why nothing else on the site had to change.
-  //
-  // Nothing here names a photograph or repeats a heading: DATA owns the images
-  // and the words, this owns only the order they are read in.
-  //   t   's' single | 'p' pair
-  //   i   indices into the project's own images, in DATA order
-  //   g   index of the DATA group whose head and sub label this block, so the
-  //       heading and the architect credit are never copied out of DATA
-  //   w   single: width as a percentage of the rail (omit for full width)
-  //   al  single: 'l' or 'r', the edge an inset sits against
-  //   sp  pair: grid-template-columns, so the relationship is stated not implied
-  //   lb/nt  a quiet label above a block, only where the project has real headings
-  static EDITORIAL = {
-    'atb-banking': {
-      rhythm: 'monograph',
-      seq: [
-        { t: 's', i: [1], g: 0 },
-        { t: 'p', i: [0, 2], sp: '1fr 1fr' },
-        { t: 's', i: [5] },
-        { t: 's', i: [3], w: 66, al: 'r' },
-        { t: 's', i: [4] },
-        { t: 's', i: [6], g: 1 },
-        { t: 'p', i: [8, 7], sp: '1.5fr 1fr' },
-        { t: 's', i: [9], g: 2 },
-        { t: 'p', i: [10, 11], sp: '1fr 1fr' },
-        { t: 's', i: [12] },
-        { t: 's', i: [13] }
-      ]
-    },
-    'the-helm': {
-      rhythm: 'monograph',
-      seq: [
-        { t: 's', i: [11], g: 1 },
-        { t: 'p', i: [9, 10], sp: '1fr 1fr' },
-        { t: 's', i: [2], g: 0 },
-        { t: 's', i: [8], w: 58, al: 'l' },
-        { t: 's', i: [6] },
-        { t: 'p', i: [1, 4], sp: '1fr 1fr' },
-        { t: 's', i: [3] },
-        { t: 's', i: [7], w: 66, al: 'r' },
-        { t: 's', i: [0] },
-        { t: 's', i: [5] }
-      ]
-    },
-    'west-vancouver': {
-      rhythm: 'linear',
-      seq: [
-        { t: 's', i: [0], g: 0 },
-        { t: 's', i: [1] },
-        { t: 's', i: [2], w: 58, al: 'r' },
-        { t: 's', i: [3], g: 2 },
-        { t: 'p', i: [4, 5], sp: '1fr 1fr' },
-        { t: 's', i: [6], w: 58, al: 'l' },
-        { t: 's', i: [7], g: 3 },
-        { t: 'p', i: [8, 9], sp: '1fr 1fr' },
-        { t: 's', i: [10], w: 58, al: 'r' }
-      ]
-    },
-    'wilfreds': {
-      rhythm: 'linear',
-      seq: [
-        { t: 's', i: [1] },
-        { t: 's', i: [0] },
-        { t: 'p', i: [3, 4], sp: '1fr 1fr' },
-        { t: 's', i: [2] }
-      ]
-    },
-    'selkirk': {
-      rhythm: 'compact',
-      seq: [
-        { t: 's', i: [2] },
-        { t: 's', i: [0] },
-        { t: 's', i: [1] }
-      ]
-    }
-  };
-  // Intrinsic pixel dimensions, measured from the files in images/. The
-  // generator bakes these onto the hero <img> so project pages reserve
-  // layout before the image decodes.
-  static DIMS = {
-    '/images/alder-room-alta-logo.jpg': [1920, 1200],
-    '/images/alder-room-dining-room-edmonton.jpg': [2000, 1333],
-    '/images/alder-room-tasting-menu.jpg': [2000, 1333],
-    '/images/alder-room-truffles.jpg': [2000, 1333],
-    '/images/alta-bar-glassware-edmonton.jpg': [2000, 1333],
-    '/images/alta-cocktail-program.jpg': [2000, 1333],
-    '/images/atb-place-concourse-interior.jpg': [2200, 1197],
-    '/images/atb-place-exterior-approach.jpg': [1500, 816],
-    '/images/atb-place-reimagined-edmonton.jpg': [2500, 1360],
-    '/images/atb-reimagining-banking.jpg': [1858, 1398],
-    '/images/atbb-cc1.jpg': [1400, 1082],
-    '/images/atbb-cc2.jpg': [1400, 1750],
-    '/images/atbb-cc3.jpg': [1500, 1159],
-    '/images/atbb-eap1.jpg': [1500, 998],
-    '/images/atbb-eap2.jpg': [1500, 998],
-    '/images/atbb-eap3.jpg': [1500, 998],
-    '/images/atbb-eap4.jpg': [1500, 998],
-    '/images/atbb-eap5.jpg': [1500, 998],
-    '/images/atbb-eap6.jpg': [1500, 998],
-    '/images/atbb-hb1.jpg': [1500, 858],
-    '/images/atbb-hb2.jpg': [960, 720],
-    '/images/atbb-hb3.jpg': [1500, 1125],
-    '/images/atbb-hb4.jpg': [1500, 1000],
-    '/images/atbb-hb5.jpg': [1500, 1125],
-    '/images/bar-bricco-edmonton.jpg': [1500, 997],
-    '/images/casita-costa-rica-entry.jpg': [2200, 1228],
-    '/images/casita-costa-rica-hillside.jpg': [2200, 1228],
-    '/images/casita-main-floor-plan.png': [1500, 1125],
-    '/images/casita-second-floor-plan.png': [1500, 1125],
-    '/images/casita-site-plan.png': [1500, 1125],
-    '/images/corso-1.jpg': [1500, 998],
-    '/images/corso-2.jpg': [1500, 2258],
-    '/images/corso-32-restaurant-edmonton.jpg': [1500, 998],
-    '/images/corso-4.jpg': [994, 670],
-    '/images/corso-5.jpg': [1500, 996],
-    '/images/enoch-1.png': [1500, 844],
-    '/images/enoch-2.png': [1500, 1125],
-    '/images/enoch-3.png': [1500, 2000],
-    '/images/enoch-4.png': [1500, 844],
-    '/images/enoch-elders-lodge.jpg': [1500, 844],
-    '/images/enoch-mural.jpg': [1500, 844],
-    '/images/factory-club-edison-bar-mural.jpg': [2400, 1123],
-    '/images/factory-club-edison-entry.jpg': [2400, 1123],
-    '/images/factory-club-edison-lounge.jpg': [2400, 1123],
-    '/images/factory-yyc-cafe-bar.jpg': [2400, 1091],
-    '/images/factory-yyc-calgary.jpg': [2400, 1091],
-    '/images/factory-yyc-dining-hall.jpg': [2400, 1091],
-    '/images/hells-kitchen-enoch.jpg': [1500, 1000],
-    '/images/helm-1.jpg': [1500, 1000],
-    '/images/helm-10.jpg': [1500, 2250],
-    '/images/helm-2.jpg': [1500, 2250],
-    '/images/helm-3.jpg': [1500, 1000],
-    '/images/helm-4.jpg': [1500, 1000],
-    '/images/helm-5.jpg': [1500, 2250],
-    '/images/helm-6.jpg': [1500, 1000],
-    '/images/helm-8.jpg': [1500, 1000],
-    '/images/helm-9.jpg': [1500, 2249],
-    '/images/helm-c1.jpg': [1500, 2000],
-    '/images/helm-c2.jpg': [1500, 2000],
-    '/images/helm-c3.jpg': [1500, 1125],
-    '/images/hk-day.png': [1500, 855],
-    '/images/hk-elev.png': [1500, 837],
-    '/images/hk-int.jpg': [1500, 845],
-    '/images/mackenzie-ravine-basement-plan.png': [1500, 1125],
-    '/images/mackenzie-ravine-front-drive-dusk.jpg': [2200, 1137],
-    '/images/mackenzie-ravine-main-floor-plan.png': [1500, 1125],
-    '/images/mackenzie-ravine-napkin-sketches.jpg': [2200, 1380],
-    '/images/mackenzie-ravine-rear-terrace-dusk.jpg': [2200, 1124],
-    '/images/mackenzie-ravine-upper-floor-plan.png': [1500, 1125],
-    '/images/opt-optometry-dispensary.jpg': [2400, 1227],
-    '/images/opt-optometry-eye-chart.jpg': [2400, 1227],
-    '/images/opt-optometry-retail-floor.jpg': [2400, 1227],
-    '/images/sel-aerial.jpg': [1500, 844],
-    '/images/the-helm-edmonton.jpg': [1500, 2250],
-    '/images/the-selkirk-commercial.jpg': [1365, 768],
-    '/images/the-selkirk-exterior.jpg': [1365, 768],
-    '/images/the-selkirk-interior.jpg': [1417, 736],
-    '/images/uccellino-restaurant-edmonton.jpg': [1500, 991],
-    '/images/west-vancouver-private-residence.jpg': [1500, 844],
-    '/images/westshore-estates-entry-drive.jpg': [1448, 1086],
-    '/images/westshore-estates-hillside-elevation.jpg': [1448, 1086],
-    '/images/westshore-estates-house-exterior.jpg': [1448, 1086],
-    '/images/wf-2.jpg': [1500, 1000],
-    '/images/wf-3.jpg': [1400, 919],
-    '/images/wf-4.jpg': [1400, 933],
-    '/images/wf-5.jpg': [1400, 2100],
-    '/images/wf-6.jpg': [1400, 2100],
-    '/images/wilfreds-hospitality-edmonton.jpg': [1400, 1867],
-    '/images/wv-cant-1.jpg': [1500, 844],
-    '/images/wv-cant-2.jpg': [1500, 844],
-    '/images/wv-cant-3.jpg': [1500, 844],
-    '/images/wv-cant-plans.png': [1500, 844],
-    '/images/wv-elevation.jpg': [1500, 844],
-    '/images/wv-glass-1.jpg': [1500, 844],
-    '/images/wv-glass-2.jpg': [1500, 844],
-    '/images/wv-glass-3.jpg': [1500, 844],
-    '/images/wv-glass-top.png': [1500, 844],
-    '/images/wv-interior.jpg': [1500, 844],
-    '/images/wv-plans.jpg': [1500, 967],
-    '/images/wv-plans.png': [1500, 967],
-    '/images/youth-recovery-centre.jpg': [1500, 836],
-    '/images/yr-bear.png': [1500, 818],
-    '/images/yr-ext.png': [1500, 836],
-    '/images/yr-int3.jpg': [1500, 837],
-  };
-  renderVals() {
-    const key = 'bar-bricco';
-    const slug = Component.DATA[key] ? key : 'west-vancouver';
-    const d = Component.DATA[slug];
-    const ed = Component.EDITORIAL[slug] || null;
-    // One source of truth for the photographs. The sequence indexes into this,
-    // in the same order the gallery would have shown them.
-    const projectMedia = d.groups
-      ? d.groups.reduce((all, grp) => all.concat(grp.images || []), [])
-      : (d.gallery || []);
-    const nd = Component.DATA[d.next];
-    const projects = Component.DATA;
-    return {
-      ...d,
-      slotA: key + '-a', slotB: key + '-b', slotC: key + '-c',
-      gA: d.gA || '', gB: d.gB || '', gC: d.gC || '',
-      galleryGroups: (d.groups
-        ? d.groups.map((grp) => ({ hasHead: !!grp.head, head: grp.head || '', sub: grp.sub || '', minW: grp.small ? 300 : 560, bg: grp.small ? 'transparent' : '#E8E5DC', fit: grp.small ? 'contain' : 'cover', images: grp.images.map((src) => ({ src, alt: d.title + (grp.head ? ' \u2014 ' + grp.head : '') })) }))
-        : [{ hasHead: false, head: '', sub: '', minW: 560, bg: '#E8E5DC', fit: 'cover', images: (d.gallery || []).map((src) => ({ src, alt: d.title })) }]),
-      hasEditorial: !!ed,
-      editorialBlocks: (ed ? ed.seq : []).map((b) => {
-        const m = b.i.map((k) => {
-          const im = projectMedia[k];
-          // A sequence that points past the end of a project's images would
-          // otherwise render an empty block and look like a styling problem.
-          if (!im) throw new Error('EDITORIAL[' + slug + ']: no image at index ' + k);
-          return im;
-        });
-        const grp = (typeof b.g === 'number' && d.groups) ? d.groups[b.g] : null;
-        // width/height come from DIMS so the browser reserves each image's own
-        // proportion before it loads: nothing is cropped and nothing shifts.
-        // Loading stays lazy in the markup rather than being interpolated — an
-        // interpolated loading= is not a valid value at parse time, so the
-        // browser falls back to eager and fetches the literal placeholder.
-        const shot = (im) => {
-          const dim = Component.DIMS[im] || [3, 2];
-          return { src: im, abs: im.charAt(0) === '/' ? im : '/' + im, w: dim[0], h: dim[1], alt: d.title };
-        };
-        return {
-          isPair: b.t === 'p',
-          isSingle: b.t !== 'p',
-          hasLabel: !!(grp && grp.head),
-          label: grp ? (grp.head || '') : '',
-          note: grp ? (grp.sub || '') : '',
-          // an inset is a width and an edge; 'r' pushes it against the right rail
-          style: b.t === 'p'
-            ? '--pj-cols:' + (b.sp || '1fr 1fr')
-            : (b.w ? '--pj-w:' + b.w + '%;--pj-ml:' + (b.al === 'r' ? 'auto' : '0') : ''),
-          a: shot(m[0]),
-          b: m[1] ? shot(m[1]) : null,
-          hasB: !!m[1]
-        };
-      }),
-      hasGallery: !ed && !!((d.gallery && d.gallery.length) || (d.groups && d.groups.length)),
-      showSlots: false,
-      nextTitle: nd.title, nextHref: '/work/' + d.next + '/',
-      heroImg: d.heroSrc ? React.createElement('img', { src: d.heroSrc, alt: d.title, decoding: 'async', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : null,
-      relatedCards: (d.related || []).filter((r) => r.key && projects[r.key]).map((r) => ({
-        href: '/work/' + r.key + '/',
-        thumb: projects[r.key].heroSrc || '',
-        hasThumb: !!projects[r.key].heroSrc,
-        name: r.name,
-        eyebrow: projects[r.key].eyebrow,
-        location: projects[r.key].location
-      })),
-      relatedText: (d.related || []).filter((r) => !r.key || !projects[r.key]),
-      hasRelatedText: (d.related || []).some((r) => !r.key || !projects[r.key])
-    };
-  }
-  componentDidMount() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ease = 'cubic-bezier(.16,1,.3,1)';
-    if (window.__suduProjIO) { window.__suduProjIO.refresh(); return; }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        const el = en.target;
-        if (!en.isIntersecting) return;
-        const clip = el.hasAttribute('data-reveal-clip');
-        el.style.opacity = '1';
-        if (clip) el.style.clipPath = 'inset(0 0 0 0)'; else el.style.transform = 'none';
-        io.unobserve(el);
-      });
-    }, { rootMargin: '0px 0px -8% 0px' });
-    const refresh = () => {
-      const vh = window.innerHeight || 1;
-      document.querySelectorAll('[data-reveal]').forEach((el) => {
-        if (el._prepped) {
-          // swept past (anchor jump / fast scroll): IO may never have fired — force-reveal
-          if (el.style.opacity === '0' && el.getBoundingClientRect().bottom <= 0) {
-            el.style.opacity = '1';
-            if (el.hasAttribute('data-reveal-clip')) el.style.clipPath = 'inset(0 0 0 0)';
-            else el.style.transform = 'none';
-          }
-          return;
-        }
-        el._prepped = true;
-        const clip = el.hasAttribute('data-reveal-clip');
-        // already in view (or above) at prep time: reveal synchronously, never hide it
-        if (el.getBoundingClientRect().top < vh * 0.92) { el.style.opacity = '1'; return; }
-        if (clip) {
-          el.style.opacity = '0';
-          el.style.clipPath = 'inset(0 0 92% 0)';
-          el.style.transition = 'opacity 1.2s ' + ease + ', clip-path 1.5s ' + ease;
-          io.observe(el);
-          return;
-        }
-        // A small editorial vocabulary. Which one an element gets is decided by
-        // its place in the composition (data-motion), not by its index or by
-        // what kind of asset it holds. Opacity is the dominant effect
-        // throughout; movement is small enough to be felt rather than seen.
-        //   major  — full-width imagery: opacity only, nothing moves
-        //   pair   — adjacent members of one row, staggered left to right
-        //   detail — ordinary editorial content and grouped galleries
-        // Anything without data-motion keeps the quiet default.
-        const MOTION = {
-          major:  { rise: 0, op: 1.15, tr: 1.15 },
-          pair:   { rise: 6, op: 0.95, tr: 1.05 },
-          detail: { rise: 7, op: 1.0,  tr: 1.1 },
-          '':     { rise: 8, op: 1.0,  tr: 1.1 }
-        };
-        const kind = el.getAttribute('data-motion') || '';
-        const m = MOTION[kind] || MOTION[''];
-        // a pair takes its stagger from its own order within its row, so the
-        // sequence reads left to right without anything being hard-coded
-        let delay = 0;
-        if (kind === 'pair' && el.parentElement) {
-          const sibs = [...el.parentElement.querySelectorAll('[data-motion="pair"]')]
-            .sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
-          delay = Math.max(0, sibs.indexOf(el)) * 0.1;
-        }
-        el.style.opacity = '0';
-        el.style.transform = m.rise ? 'translateY(' + m.rise + 'px)' : 'none';
-        el.style.transition = 'opacity ' + m.op + 's ' + ease + ' ' + delay + 's, transform '
-          + m.tr + 's ' + ease + ' ' + delay + 's';
-        io.observe(el);
-      });
-    };
-    window.__suduProjIO = { refresh };
-    refresh();
-    // catch nodes swapped in by late re-renders
-    setTimeout(refresh, 400);
-    setTimeout(refresh, 1500);
-    window.addEventListener('scroll', () => { if (!window.__spq) { window.__spq = 1; requestAnimationFrame(() => { window.__spq = 0; refresh(); }); } }, { passive: true });
-  }
-  componentDidUpdate() { if (window.__suduProjIO) window.__suduProjIO.refresh(); }
-}
-</script>
+  </footer></div></div>
 </body>
 </html>

@@ -18,7 +18,7 @@ export const PREVIEW = 'netlify/sudustudioarchitecture/deploy-preview';
 
 export function siteFiles() {
   return {
-    'project.html': readFileSync(new URL('../project.html', import.meta.url), 'utf8'),
+    'src/project.html': readFileSync(new URL('../src/project.html', import.meta.url), 'utf8'),
     'src/work.html': readFileSync(new URL('../src/work.html', import.meta.url), 'utf8'),
   };
 }
