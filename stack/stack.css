@@ -67,6 +67,28 @@ a {
   letter-spacing: .12em;
 }
 
+.play-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.play-switch a,
+.play-switch span {
+  color: rgba(36, 35, 31, .38);
+  text-decoration: none;
+}
+
+.play-switch a[aria-current="page"] {
+  color: var(--stack-ink);
+}
+
+.play-switch a:hover,
+.play-switch a:focus-visible {
+  color: var(--stack-ink);
+  outline: none;
+}
+
 .stack-instruction,
 .stack-note,
 .stack-loading {

@@ -18,3 +18,5 @@ export const LineBasicMaterial = THREE.LineBasicMaterial;
 export const LineSegments = THREE.LineSegments;
 export const Group = THREE.Group;
 export const Mesh = THREE.Mesh;
+export const GridHelper = THREE.GridHelper;
+export const PlaneGeometry = THREE.PlaneGeometry;

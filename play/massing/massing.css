@@ -1,0 +1,82 @@
+.massing-note {
+  gap: 10px;
+}
+
+#massing-selection {
+  max-width: 112px;
+  overflow: hidden;
+  color: rgba(36, 35, 31, .58);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.massing-action {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(36, 35, 31, .38);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.massing-action:hover:not(:disabled),
+.massing-action:focus-visible:not(:disabled) {
+  color: #111;
+  border-bottom-color: #111;
+  outline: none;
+}
+
+.massing-action:disabled {
+  border-bottom-color: transparent;
+  opacity: .22;
+  cursor: default;
+}
+
+.cue-chevron-turn path {
+  fill: none;
+  stroke: var(--stack-accent);
+  stroke-width: 1.55;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.massing-intro.is-open .stack-cue-turn .cue-block,
+.massing-intro.is-open .stack-cue-turn .cue-ghost {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: massing-cue-turn 920ms cubic-bezier(.2,.7,.25,1) 420ms 2;
+}
+
+@keyframes massing-cue-turn {
+  0%, 100% { rotate: 0deg; }
+  50% { rotate: -7deg; }
+}
+
+@media (max-width: 760px) {
+  .massing-note {
+    right: 22px;
+    bottom: 19px;
+    max-width: calc(100vw - 44px);
+    gap: 8px;
+  }
+
+  #massing-selection,
+  #massing-down,
+  #massing-view {
+    display: none;
+  }
+
+  .massing-action {
+    min-height: 24px;
+    padding: 4px 1px 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .massing-intro.is-open .stack-cue-turn .cue-block,
+  .massing-intro.is-open .stack-cue-turn .cue-ghost {
+    animation: none;
+  }
+}

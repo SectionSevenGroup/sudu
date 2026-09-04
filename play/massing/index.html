@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>MASSING | SuDu Studio</title>
+  <meta name="description" content="MASSING, an interactive architectural study by SuDu Studio.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://sudu.studio/play/massing/">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/stack/stack.css">
+  <link rel="stylesheet" href="/play/massing/massing.css">
+</head>
+<body>
+  <main class="stack-study massing-study" aria-labelledby="massing-title">
+    <header class="stack-header">
+      <a class="stack-mark" href="/" aria-label="SuDu Studio home"><img src="/images/sudu-mark.png" alt="SuDu Studio"></a>
+      <h1 id="massing-title" class="play-switch">
+        <a href="/stack">STACK</a>
+        <span aria-hidden="true">/</span>
+        <a href="/play/massing/" aria-current="page">MASSING</a>
+      </h1>
+    </header>
+
+    <div id="stack-stage" class="stack-stage" aria-label="Interactive architectural massing table. Select a block, move and lift it, rotate it in quarter turns, then place it to return it to physical gravity and contact." tabindex="0">
+      <p class="stack-loading" aria-live="polite">laying out the kit</p>
+    </div>
+
+    <p class="stack-instruction">drag a block · empty space orbits</p>
+
+    <div class="stack-note massing-note" aria-live="polite">
+      <span id="massing-selection"></span>
+      <button id="massing-turn" class="massing-action" type="button" disabled>turn</button>
+      <button id="massing-up" class="massing-action" type="button" disabled>up</button>
+      <button id="massing-down" class="massing-action" type="button" disabled>down</button>
+      <button id="massing-place" class="massing-action" type="button" disabled>place</button>
+      <button id="massing-view" class="massing-action" type="button">top</button>
+      <button id="stack-help" class="stack-help" type="button" aria-label="Show controls">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7h14M5 12h14M5 17h14"/>
+          <path class="stack-help-accent" d="M17 7h2M5 12h2M10 17h4"/>
+        </svg>
+      </button>
+      <button id="again" type="button">reset</button>
+    </div>
+
+    <section id="stack-intro" class="stack-intro is-open massing-intro" aria-label="Massing controls" aria-modal="true" role="dialog">
+      <div class="stack-intro-set" aria-hidden="true">
+        <svg class="stack-cue stack-cue-move" viewBox="0 0 240 160">
+          <g class="cue-ghost" transform="translate(24 0)">
+            <path d="M55 61 71 47h112l-16 14Z"/>
+            <path d="M55 61h112v42H55Z"/>
+            <path d="m167 61 16-14v42l-16 14Z"/>
+          </g>
+          <g class="cue-block" transform="translate(-18 0)">
+            <path class="cue-top cue-accent" d="M55 61 71 47h112l-16 14Z"/>
+            <path class="cue-side" d="M55 61h112v42H55Z"/>
+            <path class="cue-face" d="m167 61 16-14v42l-16 14Z"/>
+          </g>
+          <g class="cue-chevron cue-chevron-x">
+            <path d="m188 70 10 7-10 7"/>
+            <path d="m203 70 10 7-10 7"/>
+          </g>
+        </svg>
+
+        <svg class="stack-cue stack-cue-lift" viewBox="0 0 240 160">
+          <g class="cue-ghost" transform="translate(0 -34)">
+            <path d="M55 61 71 47h112l-16 14Z"/>
+            <path d="M55 61h112v42H55Z"/>
+            <path d="m167 61 16-14v42l-16 14Z"/>
+          </g>
+          <g class="cue-block" transform="translate(0 18)">
+            <path class="cue-top" d="M55 61 71 47h112l-16 14Z"/>
+            <path class="cue-side cue-accent" d="M55 61h112v42H55Z"/>
+            <path class="cue-face" d="m167 61 16-14v42l-16 14Z"/>
+          </g>
+          <g class="cue-chevron cue-chevron-up">
+            <path d="m103 42 7-10 7 10"/>
+            <path d="M110 32v40"/>
+          </g>
+        </svg>
+
+        <svg class="stack-cue stack-cue-turn" viewBox="0 0 240 160">
+          <g class="cue-ghost" transform="translate(16 -8)">
+            <path d="M55 61 71 47h112l-16 14Z"/>
+            <path d="M55 61h112v42H55Z"/>
+            <path d="m167 61 16-14v42l-16 14Z"/>
+          </g>
+          <g class="cue-block" transform="translate(-12 12)">
+            <path class="cue-top cue-accent" d="M55 61 71 47h112l-16 14Z"/>
+            <path class="cue-side" d="M55 61h112v42H55Z"/>
+            <path class="cue-face" d="m167 61 16-14v42l-16 14Z"/>
+          </g>
+          <g class="cue-chevron cue-chevron-turn">
+            <path d="M180 111c18-10 24-28 15-44"/>
+            <path d="m185 69 12-4 3 12"/>
+          </g>
+        </svg>
+      </div>
+
+      <button id="stack-start" class="stack-start" type="button" aria-label="Start MASSING">
+        <svg viewBox="0 0 42 42" aria-hidden="true">
+          <path d="m16 12 10 9-10 9"/>
+          <path d="m23 12 10 9-10 9"/>
+        </svg>
+      </button>
+    </section>
+  </main>
+
+  <script src="/stack/intro.js" defer></script>
+  <script type="module" src="/play/massing/massing.js"></script>
+</body>
+</html>

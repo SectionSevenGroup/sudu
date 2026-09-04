@@ -11,6 +11,7 @@ const served = [
   ...readdirSync(new URL('..', import.meta.url)).filter((f) => f.endsWith('.html')),
   ...readdirSync(new URL('../work', import.meta.url), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => 'work/' + d.name + '/index.html'),
   'sketch/index.html',
+  'play/massing/index.html',
 ];
 
 test('every served page carries no inline script other than JSON-LD', () => {
@@ -54,4 +55,17 @@ test('_headers sends the public policy with script-src limited to self', () => {
   assert.ok(block.includes('X-Content-Type-Options: nosniff'));
   assert.ok(block.includes('Referrer-Policy: strict-origin-when-cross-origin'));
   assert.ok(rules.indexOf('/control/*') > at, 'the /control/* block must follow /* so its own values win');
+});
+
+test('MASSING permits only its local WebAssembly physics runtime', () => {
+  const rules = read('_headers').split('\n').filter((line) => line.trim() && !line.trim().startsWith('#'));
+  const at = rules.indexOf('/play/massing/*');
+  assert.ok(at >= 0, 'no /play/massing/* rule');
+  const block = [];
+  for (let i = at + 1; i < rules.length && /^\s/.test(rules[i]); i++) block.push(rules[i].trim());
+  const csp = block.find((line) => line.startsWith('Content-Security-Policy:'));
+  assert.ok(csp, 'no Content-Security-Policy on /play/massing/*');
+  assert.match(csp, /script-src 'self' 'wasm-unsafe-eval'/);
+  assert.doesNotMatch(csp, /https?:/);
+  assert.doesNotMatch(csp, /'unsafe-eval'/);
 });
