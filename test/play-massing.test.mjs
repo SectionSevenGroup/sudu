@@ -11,8 +11,8 @@ test('MASSING uses the SuDu placement template without changing STACK', async ()
   ]);
 
   assert.doesNotMatch(stack, /MASSING|play-switch|play\/massing/);
-  assert.match(massing, /href="\/play\/massing\/massing\.css"/);
-  assert.match(massing, /src="\/play\/massing\/massing\.js"/);
+  assert.match(massing, /href="\/play\/blocks\/massing\.css"/);
+  assert.match(massing, /src="\/play\/blocks\/massing\.js"/);
   assert.doesNotMatch(massing, /stack\.css|stack\/intro\.js|stack-intro|massing-place/);
 });
 
@@ -25,8 +25,8 @@ test('MASSING reuses the local physics bundle without burdening the homepage', a
     read('index.html')
   ]);
 
-  assert.match(massingScript, /import\('\/play\/massing\/three-shim\.js'\)/);
-  assert.match(massingScript, /import\('\/play\/massing\/rapier-shim\.js'\)/);
+  assert.match(massingScript, /import\('\/play\/blocks\/three-shim\.js'\)/);
+  assert.match(massingScript, /import\('\/play\/blocks\/rapier-shim\.js'\)/);
   assert.match(massingShim, /import \{ THREE \} from '\/stack\/vendor\/stack-deps\.js'/);
   assert.match(rapierShim, /import \{ RAPIER \} from '\/stack\/vendor\/stack-deps\.js'/);
   assert.match(rapierShim, /CoefficientCombineRule/);
@@ -315,10 +315,68 @@ test('MASSING challenge guide is optional and reduced-motion aware', async () =>
   const script = await read('play/blocks/massing.js');
 
   assert.match(script, /let challengeGuideEnabled = false/);
-  assert.match(script, /challengeGuideEnabled = !challengeGuideEnabled/);
+  assert.match(script, /challengeHintLevel = \(challengeHintLevel \+ 1\) % 3/);
+  assert.match(script, /challengeHintUsedLevel = Math\.max/);
+  assert.match(script, /challengeGuideEnabled = challengeHintLevel > 0/);
   assert.match(script, /opacity: \.18/);
   assert.match(script, /if \(reducedMotion\)/);
   assert.match(script, /piece\.hold \|\| !piece\.body\.isDynamic\(\)/);
+});
+
+test('MASSING turns the phone into a finite parts workbench', async () => {
+  const [page, script, style] = await Promise.all([
+    read('play/blocks/index.html'),
+    read('play/blocks/massing.js'),
+    read('play/blocks/massing.css')
+  ]);
+
+  assert.match(page, /id="parts-tray"/);
+  assert.match(page, /id="parts-rail"/);
+  assert.match(script, /const PART_FAMILIES = \[\.\.\.new Set/);
+  assert.match(script, /function setupPartsTray/);
+  assert.match(script, /pieces\.find\(candidate => candidate\.inTray/);
+  assert.match(script, /function spawnPieceFromTray/);
+  assert.match(script, /function updateSpawnMotion/);
+  assert.match(script, /collider\.setEnabled\(!inTray\)/);
+  assert.match(script, /remaining === 0/);
+  assert.doesNotMatch(script, /pieces\.push\([^)]*clone/i);
+  assert.match(style, /\.parts-tray__rail[\s\S]*overflow-x: auto/);
+  assert.match(style, /scroll-snap-type: x proximity/);
+});
+
+test('MASSING keeps the phone field clear and uses a compact challenge dock', async () => {
+  const style = await read('play/blocks/massing.css');
+
+  assert.match(style, /@media \(max-width: 640px\)/);
+  assert.match(style, /height: 62px/);
+  assert.match(style, /\.challenge-preview[\s\S]*width: 150px[\s\S]*height: 150px/);
+  assert.match(style, /\.challenge-ledger\.is-preview-open \.challenge-preview/);
+  assert.match(style, /bottom: calc\(52px \+ env\(safe-area-inset-bottom, 0px\)\)/);
+});
+
+test('MASSING challenge model is black, hints cost points, and time stays subtle', async () => {
+  const [page, script, style] = await Promise.all([
+    read('play/blocks/index.html'),
+    read('play/blocks/massing.js'),
+    read('play/blocks/massing.css')
+  ]);
+
+  assert.match(page, /id="challenge-score"/);
+  assert.match(page, /id="challenge-spin"[^>]*>show</);
+  assert.match(page, /id="challenge-guide"[^>]*>hint</);
+  assert.match(script, /color: 0x11110f/);
+  assert.match(script, /const CHALLENGE_BASE_SCORE = 1000/);
+  assert.match(script, /const HINT_COSTS = \[0, 100, 180\]/);
+  assert.match(script, /function currentChallengeScore/);
+  assert.match(script, /sudu-blocks-best-/);
+  assert.match(style, /\.challenge-score/);
+});
+
+test('MASSING uses the same persistent SuDu music as the main site', async () => {
+  const page = await read('play/blocks/index.html');
+
+  assert.match(page, /src="\/js\/chrome-bar\.js/);
+  assert.match(page, /src="\/js\/audio-player\.js/);
 });
 
 test('STACK compatibility redirects remain one-way', async () => {
