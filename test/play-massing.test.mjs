@@ -41,6 +41,24 @@ test('MASSING previews aligned stacking and places automatically on release', as
   assert.match(script, /selected\.body\.setTranslation\(selected\.targetPosition, true\)/);
 });
 
+test('MASSING matches the current SuDu chrome and limits collision energy', async () => {
+  const [script, style] = await Promise.all([
+    read('play/massing/massing.js'),
+    read('play/massing/massing.css')
+  ]);
+
+  assert.match(style, /padding: 34px clamp\(20px, 4\.5vw, 64px\) 30px/);
+  assert.match(style, /height: 38px/);
+  assert.match(style, /font-size: 13px/);
+  assert.match(script, /const MAX_CARRY_SPEED = 3/);
+  assert.match(script, /const MAX_HORIZONTAL_SPEED = 1\.15/);
+  assert.match(script, /const CONTROL_TURN_SPEED = Math\.PI \* 1\.2/);
+  assert.match(script, /function limitBodyMotion/);
+  assert.match(script, /function updateSelectedControls/);
+  assert.match(script, /for \(const piece of pieces\) limitBodyMotion\(piece\)/);
+  assert.doesNotMatch(script, /carryPosition\.copy\(carried\.carryDesired\)/);
+});
+
 test('MASSING exposes pointer, keyboard and reduced-motion paths', async () => {
   const [script, style] = await Promise.all([
     read('play/massing/massing.js'),

@@ -38,33 +38,35 @@ a {
 
 .massing-header {
   position: fixed;
-  inset: 0 0 auto 0;
+  top: 0;
+  right: 0;
+  left: 0;
   z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 34px clamp(20px, 4.5vw, 64px) 30px;
   pointer-events: none;
 }
 
 .massing-mark {
-  position: fixed;
-  top: 22px;
-  left: 42px;
   pointer-events: auto;
 }
 
 .massing-mark img {
   display: block;
-  width: 43px;
-  height: auto;
+  width: auto;
+  height: 38px;
 }
 
 .massing-header h1 {
-  position: fixed;
-  top: 27px;
-  right: 46px;
   margin: 0;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: .12em;
+  padding-bottom: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0;
 }
 
 .massing-instruction,
@@ -72,21 +74,21 @@ a {
 .massing-loading {
   position: fixed;
   z-index: 20;
-  font-size: 8px;
+  font-size: 10.5px;
   font-weight: 500;
   letter-spacing: .055em;
   color: rgba(36, 35, 31, .72);
 }
 
 .massing-instruction {
-  left: 42px;
-  bottom: 25px;
+  left: clamp(20px, 4.5vw, 64px);
+  bottom: 30px;
   margin: 0;
 }
 
 .massing-note {
-  right: 44px;
-  bottom: 24px;
+  right: clamp(20px, 4.5vw, 64px);
+  bottom: 30px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -157,29 +159,8 @@ a {
 }
 
 @media (max-width: 760px) {
-  .massing-mark {
-    top: 18px;
-    left: 22px;
-  }
-
-  .massing-mark img {
-    width: 39px;
-  }
-
-  .massing-header h1 {
-    top: 22px;
-    right: 22px;
-  }
-
-  .massing-instruction {
-    left: 22px;
-    bottom: 20px;
-  }
-
   .massing-note {
-    right: 22px;
-    bottom: 19px;
-    max-width: calc(100vw - 44px);
+    max-width: calc(100vw - 40px);
     gap: 8px;
   }
 
@@ -192,6 +173,26 @@ a {
   .massing-action {
     min-height: 24px;
     padding: 4px 1px 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .massing-header {
+    padding-top: 24px;
+    padding-bottom: 22px;
+  }
+
+  .massing-mark img {
+    height: 32px;
+  }
+
+  .massing-header h1 {
+    font-size: 12px;
+  }
+
+  .massing-instruction,
+  .massing-note {
+    bottom: 22px;
   }
 }
 

@@ -23,7 +23,13 @@ Promise.all([
   const EDGE_RADIUS = .025;
   const SNAP_GAP = .014;
   const DRAG_THRESHOLD = 5;
-  const MAX_CARRY_SPEED = 8.5;
+  const MAX_CARRY_SPEED = 3;
+  const MAX_HORIZONTAL_SPEED = 1.15;
+  const MAX_RISE_SPEED = 1.6;
+  const MAX_FALL_SPEED = 3.2;
+  const MAX_ANGULAR_SPEED = 4;
+  const CONTROL_MOVE_SPEED = 1.6;
+  const CONTROL_TURN_SPEED = Math.PI * 1.2;
   const MIN_ELEVATION = THREE.MathUtils.degToRad(4);
   const MAX_ELEVATION = THREE.MathUtils.degToRad(84);
   const MODEL_ELEVATION = THREE.MathUtils.degToRad(30);
@@ -413,6 +419,8 @@ Promise.all([
     piece.targetPosition.copy(position);
     piece.targetPosition.y = Math.max(piece.halfHeight + .04, piece.targetPosition.y);
     piece.targetRotation.copy(rotation);
+    piece.controlPosition.copy(piece.targetPosition);
+    piece.controlRotation.copy(piece.targetRotation);
     piece.body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased, true);
     piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
@@ -448,7 +456,7 @@ Promise.all([
 
     world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
     const ground = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -.12, -1.5));
-    world.createCollider(RAPIER.ColliderDesc.cuboid(18, .08, 17).setFriction(.76), ground);
+    world.createCollider(RAPIER.ColliderDesc.cuboid(18, .08, 17).setFriction(.86), ground);
 
     for (const definition of BLOCKS) {
       const yaw = definition.rotation || 0;
@@ -457,8 +465,8 @@ Promise.all([
         RAPIER.RigidBodyDesc.dynamic()
           .setTranslation(...definition.position)
           .setRotation(rotation)
-          .setLinearDamping(.28)
-          .setAngularDamping(.44)
+          .setLinearDamping(.62)
+          .setAngularDamping(.82)
       );
 
       const group = new THREE.Group();
@@ -480,7 +488,7 @@ Promise.all([
         )
           .setTranslation(x, y, z)
           .setDensity(1.1)
-          .setFriction(.72)
+          .setFriction(.82)
           .setRestitution(0);
         world.createCollider(collider, body);
 
@@ -520,7 +528,9 @@ Promise.all([
         shapes,
         geometries,
         targetPosition: new THREE.Vector3(...definition.position),
-        targetRotation: rotation.clone()
+        targetRotation: rotation.clone(),
+        controlPosition: new THREE.Vector3(...definition.position),
+        controlRotation: rotation.clone()
       });
     }
 
@@ -578,8 +588,7 @@ Promise.all([
     if (active && event.pointerId === active.pointerId) {
       const carried = active;
       if (!cancelled && carried.moved) {
-        carried.carryPosition.copy(carried.carryDesired);
-        carried.piece.targetPosition.copy(carried.carryDesired);
+        carried.piece.targetPosition.copy(carried.carryPosition);
         carried.piece.body.setNextKinematicTranslation(carried.piece.targetPosition);
         updateSnapCandidate(carried.piece.targetPosition);
       }
@@ -692,28 +701,22 @@ Promise.all([
   function rotateSelected() {
     if (!selected) return;
     const turn = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
-    turn.multiply(selected.targetRotation).normalize();
-    selected.targetRotation.copy(turn);
-    selected.body.setNextKinematicRotation(selected.targetRotation);
-    updateSnapCandidate();
+    turn.multiply(selected.controlRotation).normalize();
+    selected.controlRotation.copy(turn);
   }
 
   function liftSelected(direction) {
     if (!selected) return;
-    selected.targetPosition.y = Math.max(
+    selected.controlPosition.y = Math.max(
       selected.halfHeight + .04,
-      selected.targetPosition.y + direction * GRID
+      selected.controlPosition.y + direction * GRID
     );
-    selected.body.setNextKinematicTranslation(selected.targetPosition);
-    updateSnapCandidate();
   }
 
   function moveSelected(x, z) {
     if (!selected) return;
-    selected.targetPosition.x = THREE.MathUtils.clamp(selected.targetPosition.x + x * GRID, -15.5, 15.5);
-    selected.targetPosition.z = THREE.MathUtils.clamp(selected.targetPosition.z + z * GRID, -16, 15);
-    selected.body.setNextKinematicTranslation(selected.targetPosition);
-    updateSnapCandidate();
+    selected.controlPosition.x = THREE.MathUtils.clamp(selected.controlPosition.x + x * GRID, -15.5, 15.5);
+    selected.controlPosition.z = THREE.MathUtils.clamp(selected.controlPosition.z + z * GRID, -16, 15);
   }
 
   function toggleView() {
@@ -759,6 +762,21 @@ Promise.all([
     updateSnapCandidate(active.piece.targetPosition);
   }
 
+  function updateSelectedControls(delta) {
+    if (!selected || active) return;
+
+    const travel = selected.controlPosition.clone().sub(selected.targetPosition);
+    const maxTravel = CONTROL_MOVE_SPEED * Math.max(delta, 1 / 240);
+    if (travel.length() > maxTravel) travel.setLength(maxTravel);
+    selected.targetPosition.add(travel);
+    selected.targetRotation.rotateTowards(selected.controlRotation, CONTROL_TURN_SPEED * delta);
+    selected.body.setNextKinematicTranslation(selected.targetPosition);
+    selected.body.setNextKinematicRotation(selected.targetRotation);
+    if (travel.lengthSq() > 0 || selected.targetRotation.angleTo(selected.controlRotation) > .0001) {
+      updateSnapCandidate();
+    }
+  }
+
   function updateOrbit(delta) {
     if (!orbitGesture && !reducedMotion) {
       const frameScale = Math.min(1.5, delta * 60);
@@ -784,6 +802,36 @@ Promise.all([
     updateCamera();
   }
 
+  function limitBodyMotion(piece) {
+    if (piece === selected) return;
+
+    const velocity = piece.body.linvel();
+    const horizontalSpeed = Math.hypot(velocity.x, velocity.z);
+    const horizontalScale = horizontalSpeed > MAX_HORIZONTAL_SPEED
+      ? MAX_HORIZONTAL_SPEED / horizontalSpeed
+      : 1;
+    const cappedY = THREE.MathUtils.clamp(velocity.y, -MAX_FALL_SPEED, MAX_RISE_SPEED);
+
+    if (horizontalScale < 1 || cappedY !== velocity.y) {
+      piece.body.setLinvel({
+        x: velocity.x * horizontalScale,
+        y: cappedY,
+        z: velocity.z * horizontalScale
+      }, true);
+    }
+
+    const angularVelocity = piece.body.angvel();
+    const angularSpeed = Math.hypot(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+    if (angularSpeed > MAX_ANGULAR_SPEED) {
+      const angularScale = MAX_ANGULAR_SPEED / angularSpeed;
+      piece.body.setAngvel({
+        x: angularVelocity.x * angularScale,
+        y: angularVelocity.y * angularScale,
+        z: angularVelocity.z * angularScale
+      }, true);
+    }
+  }
+
   function frame(now) {
     if (destroyed) return;
     animationFrame = requestAnimationFrame(frame);
@@ -797,10 +845,12 @@ Promise.all([
     accumulator += delta;
     updateOrbit(delta);
     updateCarry(delta);
+    updateSelectedControls(delta);
 
     while (accumulator >= PHYSICS_STEP) {
       world.timestep = PHYSICS_STEP;
       world.step();
+      for (const piece of pieces) limitBodyMotion(piece);
       accumulator -= PHYSICS_STEP;
     }
 
