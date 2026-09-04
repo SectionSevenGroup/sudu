@@ -354,6 +354,15 @@ test('MASSING keeps the phone field clear and uses a compact challenge dock', as
   assert.match(style, /bottom: calc\(52px \+ env\(safe-area-inset-bottom, 0px\)\)/);
 });
 
+test('MASSING keeps the side ledger compact with small square challenge numbers', async () => {
+  const style = await read('play/blocks/massing.css');
+
+  assert.match(style, /@media \(min-width: 641px\)/);
+  assert.match(style, /bottom: auto/);
+  assert.match(style, /grid-template-rows: auto auto 124px auto auto auto/);
+  assert.match(style, /width: 32px[\s\S]*min-height: 32px[\s\S]*aspect-ratio: 1/);
+});
+
 test('MASSING challenge model is black, hints cost points, and time stays subtle', async () => {
   const [page, script, style] = await Promise.all([
     read('play/blocks/index.html'),
