@@ -380,6 +380,30 @@ a {
   color: var(--massing-accent);
 }
 
+#challenge-done {
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(36, 35, 31, .44);
+  border-radius: 50%;
+  line-height: 1;
+}
+
+#challenge-done:hover,
+#challenge-done:focus-visible {
+  border-color: var(--massing-accent);
+  color: var(--massing-accent);
+}
+
+#challenge-done:disabled {
+  border-color: rgba(36, 35, 31, .14);
+  color: rgba(36, 35, 31, .3);
+  cursor: default;
+}
+
 .challenge-status {
   min-height: 15px;
   margin: 0;
@@ -806,6 +830,13 @@ a {
     padding: 0 0 1px;
     font-size: 9.5px;
   }
+
+  #challenge-done {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    border-bottom-width: 1px;
+  }
 }
 
 @media (max-width: 390px) {
@@ -821,5 +852,84 @@ a {
 
   .challenge-actions button {
     font-size: 9px;
+  }
+}
+
+@media (min-width: 641px) {
+  #massing-stage {
+    right: clamp(210px, 19vw, 272px);
+  }
+
+  .challenge-ledger {
+    top: 96px;
+    right: clamp(20px, 4.5vw, 64px);
+    bottom: auto;
+    left: auto;
+    display: grid;
+    width: clamp(184px, 15.5vw, 220px);
+    height: auto;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 124px auto auto auto;
+    align-content: start;
+    gap: 0;
+    padding: 0 0 14px 16px;
+    border: 0;
+    border-left: 1px solid rgba(36, 35, 31, .18);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .challenge-ledger__head,
+  .challenge-numbers,
+  .challenge-preview,
+  .challenge-copy,
+  .challenge-actions,
+  .challenge-status {
+    grid-column: 1;
+    position: static;
+  }
+
+  .challenge-ledger__head {
+    grid-row: 1;
+    padding-bottom: 10px;
+  }
+
+  .challenge-numbers {
+    grid-row: 2;
+    width: 160px;
+    justify-self: start;
+  }
+
+  .challenge-numbers button {
+    width: 32px;
+    min-height: 32px;
+    aspect-ratio: 1;
+    padding: 0;
+  }
+
+  .challenge-preview {
+    grid-row: 3;
+    width: 160px;
+    height: 124px;
+    justify-self: start;
+  }
+
+  .challenge-copy {
+    grid-row: 4;
+    padding: 12px 0 10px;
+  }
+
+  .challenge-actions {
+    grid-row: 5;
+    gap: 8px;
+    padding: 9px 0 7px;
+  }
+
+  .challenge-status {
+    grid-row: 6;
+    min-height: 14px;
+    padding-top: 1px;
   }
 }

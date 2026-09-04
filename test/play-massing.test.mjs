@@ -166,11 +166,13 @@ test('MASSING matches the current SuDu chrome and limits collision energy', asyn
 });
 
 test('MASSING exposes pointer, keyboard and reduced-motion paths', async () => {
-  const [script, style] = await Promise.all([
+  const [page, script, style] = await Promise.all([
+    read('play/blocks/index.html'),
     read('play/blocks/massing.js'),
     read('play/blocks/massing.css')
   ]);
 
+  assert.match(page, /aria-label="Rotate selected block 90 degrees"[^>]*>rotate</);
   assert.match(script, /addEventListener\('pointerdown'/);
   assert.match(script, /stage\.addEventListener\('keydown'/);
   assert.match(script, /event\.key\.toLowerCase\(\) === 'r'/);
@@ -352,6 +354,33 @@ test('MASSING keeps the phone field clear and uses a compact challenge dock', as
   assert.match(style, /\.challenge-preview[\s\S]*width: 150px[\s\S]*height: 150px/);
   assert.match(style, /\.challenge-ledger\.is-preview-open \.challenge-preview/);
   assert.match(style, /bottom: calc\(52px \+ env\(safe-area-inset-bottom, 0px\)\)/);
+});
+
+test('MASSING keeps the side ledger compact with small square challenge numbers', async () => {
+  const style = await read('play/blocks/massing.css');
+
+  assert.match(style, /@media \(min-width: 641px\)/);
+  assert.match(style, /bottom: auto/);
+  assert.match(style, /grid-template-rows: auto auto 124px auto auto auto/);
+  assert.match(style, /width: 32px[\s\S]*min-height: 32px[\s\S]*aspect-ratio: 1/);
+});
+
+test('MASSING checks a challenge only when Done is pressed and marks correct blocks in orange', async () => {
+  const [page, script, style] = await Promise.all([
+    read('play/blocks/index.html'),
+    read('play/blocks/massing.js'),
+    read('play/blocks/massing.css')
+  ]);
+
+  assert.match(page, /id="challenge-done"[^>]*>done</);
+  assert.match(script, /function requestChallengeCheck/);
+  assert.match(script, /function partialChallengeMatch/);
+  assert.match(script, /function performChallengeCheck/);
+  assert.match(script, /piece\.checkedCorrect = true/);
+  assert.match(script, /setPieceEdges\(piece, selectedMaterial\)/);
+  assert.match(script, /right`\)/);
+  assert.match(script, /shape right · settle and press done/);
+  assert.match(style, /#challenge-done[\s\S]*border-radius: 50%/);
 });
 
 test('MASSING challenge model is black, hints cost points, and time stays subtle', async () => {

@@ -18,6 +18,7 @@ const challengeCue = document.querySelector('#challenge-cue');
 const challengeSpin = document.querySelector('#challenge-spin');
 const challengeGuide = document.querySelector('#challenge-guide');
 const challengeReset = document.querySelector('#challenge-reset');
+const challengeDone = document.querySelector('#challenge-done');
 const challengeStatus = document.querySelector('#challenge-status');
 const challengeScore = document.querySelector('#challenge-score');
 const partsTray = document.querySelector('#parts-tray');
@@ -326,7 +327,7 @@ Promise.all([
   let challengeGuideVisual = null;
   let challengeSpinState = null;
   let challengePreviewHideAt = 0;
-  let challengeMatchedTime = 0;
+  let challengeCheckAt = 0;
   let challengeComplete = false;
   let challengeStatusText = 'build the model';
   let challengeStartedAt = performance.now();
@@ -677,6 +678,7 @@ Promise.all([
     challengeStartedAt = performance.now();
     challengeFinalScore = null;
     challengeLastScorePaint = -1;
+    challengeCheckAt = 0;
   }
 
   function saveChallengeScore() {
@@ -710,6 +712,7 @@ Promise.all([
         challengeGuide.textContent = 'hint';
         challengeGuide.setAttribute('aria-pressed', 'false');
       }
+      if (challengeDone) challengeDone.disabled = true;
       paintChallengeScore(performance.now(), true);
       setChallengeStatus('arrange freely');
       return;
@@ -729,6 +732,7 @@ Promise.all([
       challengeGuide.textContent = challengeHintLevel === 0 ? 'hint' : challengeHintLevel === 1 ? 'hint +' : 'hide hint';
       challengeGuide.setAttribute('aria-pressed', String(challengeGuideEnabled));
     }
+    if (challengeDone) challengeDone.disabled = challengeComplete;
     paintChallengeScore(performance.now(), true);
     setChallengeStatus(challengeComplete ? 'complete · choose the next' : 'build the model', challengeComplete);
   }
@@ -819,7 +823,6 @@ Promise.all([
 
   function chooseChallenge(index) {
     activeChallengeIndex = index;
-    challengeMatchedTime = 0;
     challengeComplete = false;
     resetChallengeAttempt();
     rebuild();
@@ -907,36 +910,111 @@ Promise.all([
     return null;
   }
 
-  function updateChallengeProgress(delta) {
-    if (activeChallengeIndex < 0 || challengeComplete || active || selected || clusterSettle) {
-      challengeMatchedTime = 0;
-      return;
+  function partialChallengeMatchAtTransform(challenge, quarterTurn, translation) {
+    const unused = new Set(pieces.filter(piece => !piece.inTray && !piece.spawning));
+    const matched = [];
+    const axis = new THREE.Vector3(0, 1, 0);
+    let error = 0;
+
+    for (const target of challenge.targets) {
+      const expected = new THREE.Vector3(...target.position).applyAxisAngle(axis, quarterTurn).add(translation);
+      const expectedYaw = target.rotation + quarterTurn;
+      let best = null;
+
+      for (const piece of unused) {
+        if (pieceFamily(piece.name) !== target.family) continue;
+        const position = bodyPosition(piece);
+        const distance = position.distanceTo(expected);
+        if (distance > .42) continue;
+        const rotation = bodyRotation(piece);
+        const up = new THREE.Vector3(0, 1, 0).applyQuaternion(rotation);
+        if (up.y < .955) continue;
+        if (!ORIENTATION_FREE_FAMILIES.has(target.family)
+          && angleDistance(yawFromQuaternion(rotation), expectedYaw) > .22) continue;
+        if (!best || distance < best.distance) best = { piece, distance };
+      }
+
+      if (!best) continue;
+      unused.delete(best.piece);
+      matched.push(best.piece);
+      error += best.distance;
     }
 
+    return { matched, error };
+  }
+
+  function partialChallengeMatch(challenge) {
+    const axis = new THREE.Vector3(0, 1, 0);
+    const available = pieces.filter(piece => !piece.inTray && !piece.spawning);
+    let best = { matched: [], error: Infinity };
+
+    for (const target of challenge.targets) {
+      for (const piece of available) {
+        if (pieceFamily(piece.name) !== target.family) continue;
+        for (let turn = 0; turn < 4; turn += 1) {
+          const quarterTurn = turn * Math.PI / 2;
+          const rotatedTarget = new THREE.Vector3(...target.position).applyAxisAngle(axis, quarterTurn);
+          const translation = bodyPosition(piece).sub(rotatedTarget);
+          const candidate = partialChallengeMatchAtTransform(challenge, quarterTurn, translation);
+          if (candidate.matched.length > best.matched.length
+            || (candidate.matched.length === best.matched.length && candidate.error < best.error)) {
+            best = candidate;
+          }
+        }
+      }
+    }
+
+    return best;
+  }
+
+  function clearChallengeMarks(resetStatus = false) {
+    for (const piece of pieces) {
+      if (!piece.checkedCorrect) continue;
+      piece.checkedCorrect = false;
+      if (piece !== selected && piece !== hovered) setPieceEdges(piece, restingEdgeMaterial(piece));
+    }
+    if (resetStatus && activeChallengeIndex >= 0 && !challengeComplete) setChallengeStatus('build the model');
+  }
+
+  function performChallengeCheck() {
     const challenge = CHALLENGES[activeChallengeIndex];
-    const shapeMatch = matchChallenge(challenge, false);
-    if (!shapeMatch) {
-      challengeMatchedTime = 0;
-      if (challengeStatusText !== 'build the model') setChallengeStatus('build the model');
+    if (!challenge || challengeComplete) return;
+    clearChallengeMarks();
+    const result = partialChallengeMatch(challenge);
+    for (const piece of result.matched) {
+      piece.checkedCorrect = true;
+      if (piece !== hovered) setPieceEdges(piece, selectedMaterial);
+    }
+
+    if (result.matched.length < challenge.targets.length) {
+      setChallengeStatus(`${result.matched.length} / ${challenge.targets.length} right`);
       return;
     }
 
-    const stableMatch = matchChallenge(challenge, true);
-    if (!stableMatch) {
-      challengeMatchedTime = 0;
-      setChallengeStatus('structure found · let it settle');
-      return;
-    }
-
-    challengeMatchedTime += delta;
-    if (challengeMatchedTime < 1.15) {
-      setChallengeStatus('testing balance');
+    if (!matchChallenge(challenge, true)) {
+      setChallengeStatus('shape right · settle and press done');
       return;
     }
 
     challengeComplete = true;
     saveChallengeScore();
+    if (challengeDone) challengeDone.disabled = true;
     setChallengeStatus('complete · choose the next', true);
+  }
+
+  function requestChallengeCheck() {
+    if (activeChallengeIndex < 0 || challengeComplete) return;
+    if (selected) releaseSelected();
+    clearChallengeMarks();
+    challengeCheckAt = performance.now() + (reducedMotion ? 20 : 760);
+    setChallengeStatus('checking');
+  }
+
+  function updateChallengeProgress() {
+    if (!challengeCheckAt || performance.now() < challengeCheckAt) return;
+    if (active || selected || clusterSettle || spawnMotion) return;
+    challengeCheckAt = 0;
+    performChallengeCheck();
   }
 
   function setInstruction(text) {
@@ -985,6 +1063,7 @@ Promise.all([
   }
 
   function restingEdgeMaterial(piece) {
+    if (piece.checkedCorrect) return selectedMaterial;
     return piece.hold ? heldMaterial : edgeMaterial;
   }
 
@@ -1261,7 +1340,7 @@ Promise.all([
       piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
       piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
       piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
-      setPieceEdges(piece, piece === hovered ? hoverMaterial : edgeMaterial);
+      setPieceEdges(piece, piece === hovered ? hoverMaterial : restingEdgeMaterial(piece));
       released.push(piece);
     }
 
@@ -1270,6 +1349,10 @@ Promise.all([
 
   function selectPiece(piece) {
     if (selected && selected !== piece) releaseSelected();
+    if (!challengeComplete) {
+      challengeCheckAt = 0;
+      clearChallengeMarks(true);
+    }
     if (piece.inTray) setPieceInTray(piece, false);
     for (const collider of piece.colliders) collider.setEnabled(true);
     if (piece.hold) releaseHold(piece.hold);
@@ -1654,7 +1737,6 @@ Promise.all([
     resetChallengeAttempt();
     clusterSettle = null;
     spawnMotion = null;
-    challengeMatchedTime = 0;
     challengeComplete = false;
     holds = [];
     releaseSelected(false);
@@ -1753,7 +1835,8 @@ Promise.all([
         homeRotation: rotation.clone(),
         hold: null,
         inTray: false,
-        spawning: false
+        spawning: false,
+        checkedCorrect: false
       };
       pieces.push(piece);
       if (mobilePartsMode) setPieceInTray(piece, true);
@@ -2094,6 +2177,7 @@ Promise.all([
   challengeSpin?.addEventListener('click', startChallengeSpin);
   challengeGuide?.addEventListener('click', toggleChallengeGuide);
   challengeReset?.addEventListener('click', rebuild);
+  challengeDone?.addEventListener('click', requestChallengeCheck);
   partsRail?.addEventListener('click', event => {
     const button = event.target.closest('[data-part-family]');
     if (!button || button.disabled) return;
