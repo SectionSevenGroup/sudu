@@ -278,3 +278,52 @@ test('MASSING physics drops a removed load and lets unstable blocks finish settl
   assert.equal(unstable.body.isSleeping(), true, 'an unstable block does not slide indefinitely');
   balanceWorld.free();
 });
+
+
+test('MASSING offers ten progressive architectural challenges', async () => {
+  const [page, script, style] = await Promise.all([
+    read('play/blocks/index.html'),
+    read('play/blocks/massing.js'),
+    read('play/blocks/massing.css')
+  ]);
+
+  assert.equal((page.match(/data-challenge="/g) || []).length, 10);
+  assert.match(page, /id="challenge-preview"/);
+  assert.match(page, /id="challenge-guide"/);
+  assert.match(script, /const CHALLENGES = \[/);
+  for (const title of [
+    'plinth',
+    'bay',
+    'court',
+    'portico',
+    'house',
+    'bridge',
+    'cantilever',
+    'rotunda',
+    'court gate',
+    'habitat'
+  ]) assert.match(script, new RegExp("title: '" + title + "'"));
+  assert.match(script, /function createChallengeVisual/);
+  assert.match(script, /function matchChallenge/);
+  assert.match(script, /function updateChallengeProgress/);
+  assert.match(script, /function startChallengeSpin/);
+  assert.match(script, /complete · choose the next/);
+  assert.match(style, /\.challenge-ledger/);
+});
+
+test('MASSING challenge guide is optional and reduced-motion aware', async () => {
+  const script = await read('play/blocks/massing.js');
+
+  assert.match(script, /let challengeGuideEnabled = false/);
+  assert.match(script, /challengeGuideEnabled = !challengeGuideEnabled/);
+  assert.match(script, /opacity: \.18/);
+  assert.match(script, /if \(reducedMotion\)/);
+  assert.match(script, /piece\.hold \|\| !piece\.body\.isDynamic\(\)/);
+});
+
+test('STACK compatibility redirects remain one-way', async () => {
+  const redirects = await read('_redirects');
+
+  assert.match(redirects, /\/stack\s+\/play\/stack\s+301!/);
+  assert.doesNotMatch(redirects, /\/play\/stack\/?\s+\/stack\s+301!/);
+});
