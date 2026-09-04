@@ -2,6 +2,7 @@ import * as THREE from '/stack/vendor/three-shim.js';
 
 const shield = document.querySelector('#stack-cue-shield');
 const help = document.querySelector('#stack-help');
+const again = document.querySelector('#again');
 const stage = document.querySelector('#stack-stage');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -21,8 +22,8 @@ const originalSceneAdd = THREE.Scene.prototype.add;
 const originalLookAt = THREE.PerspectiveCamera.prototype.lookAt;
 
 // Capture the actual block groups and actual camera used by stack.js.
-// The cue is physically parented to a real block face, so it inherits the
-// block's true perspective, scale, settling and occlusion.
+// Every cue is physically parented to a real block, so face colour and
+// chevrons inherit its exact perspective, scale, settling and occlusion.
 if (!window.__stackLiveCuePatched) {
   window.__stackLiveCuePatched = true;
 
@@ -34,19 +35,11 @@ if (!window.__stackLiveCuePatched) {
     return originalSceneAdd.apply(this, objects);
   };
 
-  // WebGLRenderer.render is an instance method in this Three build, so a
-  // prototype patch there never saw the live camera. Camera.lookAt is called
-  // by STACK on setup and every orbit frame, making it the reliable hook.
   THREE.PerspectiveCamera.prototype.lookAt = function (...args) {
     registry.camera = this;
     return originalLookAt.apply(this, args);
   };
 }
-
-const chevron = document.createElement('div');
-chevron.className = 'stack-live-chevron';
-chevron.setAttribute('aria-hidden', 'true');
-shield.append(chevron);
 
 let running = false;
 let activeCue = null;
@@ -56,15 +49,6 @@ let initialTimer = 0;
 
 function blockAt(course, slot) {
   return registry.blocks[course * 3 + slot] || null;
-}
-
-function screenPoint(world) {
-  const projected = world.clone().project(registry.camera);
-  const rect = stage.getBoundingClientRect();
-  return {
-    x: rect.left + (projected.x * .5 + .5) * rect.width,
-    y: rect.top + (-projected.y * .5 + .5) * rect.height
-  };
 }
 
 function visibleSign(group, axis, half) {
@@ -79,93 +63,139 @@ function visibleSign(group, axis, half) {
   return registry.camera.position.distanceTo(plusWorld) <= registry.camera.position.distanceTo(minusWorld) ? 1 : -1;
 }
 
-function makeHighlight(type, group) {
-  let geometry;
-  let position;
-  let normal;
+function barBetween(a, b, thickness, material) {
+  const direction = b.clone().sub(a);
+  const length = direction.length();
+  const midpoint = a.clone().add(b).multiplyScalar(.5);
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
+  mesh.position.copy(midpoint);
+  mesh.scale.set(length, thickness, thickness);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), direction.normalize());
+  mesh.renderOrder = 12;
+  return mesh;
+}
 
-  if (type === 'end') {
-    const sign = visibleSign(group, 'x', 1.5);
-    geometry = new THREE.BoxGeometry(.028, .346, .89);
-    position = new THREE.Vector3(sign * 1.518, 0, 0);
-    normal = new THREE.Vector3(sign, 0, 0);
-  } else if (type === 'side') {
-    const sign = visibleSign(group, 'z', .46);
-    geometry = new THREE.BoxGeometry(2.94, .346, .028);
-    position = new THREE.Vector3(0, 0, sign * .472);
-    normal = new THREE.Vector3(0, 0, sign);
-  } else {
-    geometry = new THREE.BoxGeometry(2.94, .028, .89);
-    position = new THREE.Vector3(0, .192, 0);
-    normal = new THREE.Vector3(0, 1, 0);
+function makeDoubleChevron(direction, perpendicular, origin, scale, material) {
+  const group = new THREE.Group();
+  const parts = [];
+  const dir = direction.clone().normalize();
+  const perp = perpendicular.clone().normalize();
+  const headDepth = scale * .34;
+  const halfHeight = scale * .28;
+  const thickness = scale * .115;
+  const spacing = scale * .31;
+
+  // Two solid chevrons, matching the site's heavy directional language.
+  for (let i = 0; i < 2; i++) {
+    const tip = origin.clone().addScaledVector(dir, i * spacing);
+    const centreBack = tip.clone().addScaledVector(dir, -headDepth);
+    const upper = centreBack.clone().addScaledVector(perp, halfHeight);
+    const lower = centreBack.clone().addScaledVector(perp, -halfHeight);
+    const upperBar = barBetween(upper, tip, thickness, material);
+    const lowerBar = barBetween(lower, tip, thickness, material);
+    group.add(upperBar, lowerBar);
+    parts.push(upperBar, lowerBar);
   }
 
-  const material = new THREE.MeshBasicMaterial({
+  return { group, parts };
+}
+
+function makeCue(type, block) {
+  let faceGeometry;
+  let facePosition;
+  let direction;
+  let perpendicular;
+  let arrowOrigin;
+  let arrowScale;
+
+  if (type === 'end') {
+    const sign = visibleSign(block, 'x', 1.5);
+    direction = new THREE.Vector3(sign, 0, 0);
+    perpendicular = new THREE.Vector3(0, 1, 0);
+    faceGeometry = new THREE.BoxGeometry(.028, .346, .89);
+    facePosition = new THREE.Vector3(sign * 1.518, 0, 0);
+    arrowOrigin = facePosition.clone().addScaledVector(direction, .32);
+    arrowScale = .52;
+  } else if (type === 'side') {
+    const sign = visibleSign(block, 'z', .46);
+    direction = new THREE.Vector3(0, 0, sign);
+    perpendicular = new THREE.Vector3(0, 1, 0);
+    faceGeometry = new THREE.BoxGeometry(2.94, .346, .028);
+    facePosition = new THREE.Vector3(0, 0, sign * .472);
+    arrowOrigin = facePosition.clone().addScaledVector(direction, .28);
+    arrowScale = .48;
+  } else {
+    direction = new THREE.Vector3(0, 1, 0);
+    perpendicular = new THREE.Vector3(1, 0, 0);
+    faceGeometry = new THREE.BoxGeometry(2.94, .028, .89);
+    facePosition = new THREE.Vector3(0, .192, 0);
+    arrowOrigin = facePosition.clone().addScaledVector(direction, .34);
+    arrowScale = .52;
+  }
+
+  const faceMaterial = new THREE.MeshBasicMaterial({
     color: ACCENT,
     transparent: true,
     opacity: 0,
     depthTest: true,
     depthWrite: false
   });
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.copy(position);
-  mesh.renderOrder = 10;
-  group.add(mesh);
+  const arrowMaterial = new THREE.MeshBasicMaterial({
+    color: ACCENT,
+    transparent: true,
+    opacity: 0,
+    depthTest: true,
+    depthWrite: false
+  });
 
-  return { type, group, mesh, material, localCentre: position, localNormal: normal };
-}
+  const face = new THREE.Mesh(faceGeometry, faceMaterial);
+  face.position.copy(facePosition);
+  face.renderOrder = 11;
+  block.add(face);
 
-function chevronMarkup(type) {
-  if (type === 'top') {
-    return '<svg viewBox="0 0 72 30" aria-hidden="true"><path d="M42 6 54 15 42 24"/><path d="M28 6 40 15 28 24"/></svg>';
-  }
-  return '<svg viewBox="0 0 86 30" aria-hidden="true"><path d="M22 6 10 15 22 24"/><path d="M64 6 76 15 64 24"/></svg>';
+  const arrows = makeDoubleChevron(direction, perpendicular, arrowOrigin, arrowScale, arrowMaterial);
+  block.add(arrows.group);
+
+  return {
+    type,
+    block,
+    face,
+    faceMaterial,
+    arrowMaterial,
+    arrowGroup: arrows.group,
+    arrowParts: arrows.parts,
+    arrowBase: arrows.group.position.clone(),
+    direction
+  };
 }
 
 function removeActiveCue() {
   if (!activeCue) return;
-  activeCue.group.remove(activeCue.mesh);
-  activeCue.mesh.geometry.dispose();
-  activeCue.material.dispose();
+
+  activeCue.block.remove(activeCue.face);
+  activeCue.block.remove(activeCue.arrowGroup);
+  activeCue.face.geometry.dispose();
+  activeCue.arrowParts.forEach(part => part.geometry.dispose());
+  activeCue.faceMaterial.dispose();
+  activeCue.arrowMaterial.dispose();
   activeCue = null;
-  chevron.style.opacity = '0';
 }
 
 function setCue(type, block) {
   removeActiveCue();
-  activeCue = makeHighlight(type, block);
-  chevron.innerHTML = chevronMarkup(type);
-  chevron.classList.toggle('is-one-way', type === 'top');
+  activeCue = makeCue(type, block);
 }
 
 function updateCue(now, startTime) {
-  if (!activeCue || !registry.camera) return;
+  if (!activeCue) return;
 
   const phase = Math.min(1, Math.max(0, (now - startTime) / PHASE_MS));
   const pulse = reducedMotion ? .88 : Math.sin(Math.PI * phase);
-  activeCue.material.opacity = .18 + pulse * .48;
+  const travel = reducedMotion ? 0 : Math.sin(phase * Math.PI * 2) * .055;
 
-  const centreWorld = activeCue.group.localToWorld(activeCue.localCentre.clone());
-  const outwardLocal = activeCue.localCentre.clone().addScaledVector(activeCue.localNormal, .82);
-  const outwardWorld = activeCue.group.localToWorld(outwardLocal);
-  const centre = screenPoint(centreWorld);
-  const outward = screenPoint(outwardWorld);
-  let dx = outward.x - centre.x;
-  let dy = outward.y - centre.y;
-  const length = Math.hypot(dx, dy) || 1;
-  dx /= length;
-  dy /= length;
-
-  const offset = activeCue.type === 'top' ? 34 : 30;
-  const travel = reducedMotion ? 0 : (activeCue.type === 'top' ? pulse * 8 : Math.sin(phase * Math.PI * 2) * 4);
-  const x = centre.x + dx * offset;
-  const y = centre.y + dy * offset;
-  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-  chevron.style.left = `${x}px`;
-  chevron.style.top = `${y}px`;
-  chevron.style.opacity = `${.38 + pulse * .62}`;
-  chevron.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateX(${travel}px)`;
+  activeCue.faceMaterial.opacity = .16 + pulse * .50;
+  activeCue.arrowMaterial.opacity = .40 + pulse * .60;
+  activeCue.arrowGroup.position.copy(activeCue.arrowBase).addScaledVector(activeCue.direction, travel);
 }
 
 function stopTutorial() {
@@ -179,11 +209,11 @@ function stopTutorial() {
 
 function playStep(step) {
   const targets = [
-    // A genuinely exposed end face around mid-height.
+    // Actual exposed end face around mid-height.
     { type: 'end', block: blockAt(13, 2) },
-    // A visible long face on the front side of the tower.
+    // Actual visible long side face on the front half of the tower.
     { type: 'side', block: blockAt(12, 2) },
-    // A real upper top face for the lift cue.
+    // Actual top face on the upper course.
     { type: 'top', block: blockAt(23, 1) }
   ];
   const target = targets[step];
@@ -236,6 +266,11 @@ help?.addEventListener('click', event => {
   event.preventDefault();
   window.clearTimeout(initialTimer);
   if (!startTutorial()) requestAnimationFrame(startTutorial);
+});
+
+again?.addEventListener('click', () => {
+  window.clearTimeout(initialTimer);
+  if (running) stopTutorial();
 });
 
 document.addEventListener('keydown', event => {
