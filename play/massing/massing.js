@@ -14,7 +14,7 @@ if (!stage || !loading) throw new Error('MASSING stage is unavailable.');
 
 Promise.all([
   import('/play/massing/three-shim.js'),
-  import('/stack/vendor/rapier-shim.js')
+  import('/play/massing/rapier-shim.js')
 ]).then(async ([THREE, RAPIER]) => {
   await RAPIER.init();
   loading.remove();
@@ -30,8 +30,17 @@ Promise.all([
   const ALIGN_CAPTURE = MODULE * .55;
   const ALIGN_DURATION = .72;
   const HOLD_DURATION = 8000;
+  const FLOOR_LEVEL = .04;
+  const BLOCK_FRICTION = .72;
+  const GROUND_FRICTION = .78;
+  const CARRY_FRICTION = .025;
+  const LINEAR_DAMPING = .72;
+  const ANGULAR_DAMPING = .95;
+  const SOLVER_ITERATIONS = 6;
+  const SOFT_CCD_PREDICTION = .12;
   const CARRY_CLEARANCE = .38;
   const CARRY_LOOKAHEAD = .22;
+  const CARRY_PASS_GAP = .06;
   const DRAG_THRESHOLD = 5;
   const MIN_CARRY_SPEED = 1.25;
   const MAX_CARRY_SPEED = 8;
@@ -191,11 +200,11 @@ Promise.all([
 
   const floorGeometry = new THREE.BoxGeometry(44, .08, 40);
   const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
-  floorMesh.position.set(0, -.08, -1.5);
+  floorMesh.position.set(0, FLOOR_LEVEL - .04, -1.5);
   scene.add(floorMesh);
 
   const grid = new THREE.GridHelper(14.4, 24, 0x24231f, 0x24231f);
-  grid.position.set(0, -.032, 0);
+  grid.position.set(0, FLOOR_LEVEL + .008, 0);
   grid.material.transparent = true;
   grid.material.opacity = .075;
   scene.add(grid);
@@ -267,6 +276,11 @@ Promise.all([
     for (const button of [turnButton, upButton, downButton]) {
       if (button) button.disabled = !enabled;
     }
+  }
+
+  function setPieceCarryFriction(piece, carrying) {
+    const friction = carrying ? CARRY_FRICTION : BLOCK_FRICTION;
+    for (const collider of piece.colliders) collider.setFriction(friction);
   }
 
   function bodyPosition(piece) {
@@ -488,10 +502,11 @@ Promise.all([
     }
     selected.body.setTranslation(selected.targetPosition, true);
     selected.body.setRotation(selected.targetRotation, true);
+    setPieceCarryFriction(selected, false);
     selected.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
     selected.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     selected.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
-    selected.body.wakeUp();
+    const released = selected;
     setPieceEdges(selected, selected === hovered ? hoverMaterial : restingEdgeMaterial(selected));
     selected = null;
     active = null;
@@ -499,27 +514,47 @@ Promise.all([
     stage.classList.remove('is-dragging');
     setInstruction(DEFAULT_INSTRUCTION);
     updateSelectionUI();
+    wakeTouchingCluster(released);
   }
 
-  function detachPieceFromHold(piece) {
-    const hold = piece.hold;
+  function wakeTouchingCluster(root) {
+    if (!root) return;
+    for (const piece of findTouchingCluster(root).order) {
+      if (piece.body.isDynamic()) piece.body.wakeUp();
+    }
+  }
+
+  function releaseHold(hold) {
     if (!hold) return;
-    hold.pieces.delete(piece);
-    piece.hold = null;
-    if (!hold.pieces.size) holds = holds.filter(candidate => candidate !== hold);
+    holds = holds.filter(candidate => candidate !== hold);
+    const released = [];
+
+    for (const piece of hold.pieces) {
+      if (piece.hold !== hold) continue;
+      piece.hold = null;
+      piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      setPieceEdges(piece, piece === hovered ? hoverMaterial : edgeMaterial);
+      released.push(piece);
+    }
+
+    for (const piece of released) wakeTouchingCluster(piece);
   }
 
   function selectPiece(piece) {
     if (selected && selected !== piece) releaseSelected();
-    detachPieceFromHold(piece);
+    if (piece.hold) releaseHold(piece.hold);
+    wakeTouchingCluster(piece);
     selected = piece;
     const position = bodyPosition(piece);
     const rotation = uprightRotation(piece);
     piece.targetPosition.copy(position);
-    piece.targetPosition.y = Math.max(piece.halfHeight + .04, piece.targetPosition.y);
+    piece.targetPosition.y = Math.max(piece.halfHeight + FLOOR_LEVEL, piece.targetPosition.y);
     piece.targetRotation.copy(rotation);
     piece.controlPosition.copy(piece.targetPosition);
     piece.controlRotation.copy(piece.targetRotation);
+    setPieceCarryFriction(piece, true);
     piece.body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased, true);
     piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
@@ -556,7 +591,7 @@ Promise.all([
     position.x = Math.round(position.x / GRID) * GRID;
     position.z = Math.round(position.z / GRID) * GRID;
     const bounds = getWorldBounds(piece.shapes, position, rotation);
-    const level = .04 + Math.round((bounds.minY - .04) / GRID) * GRID;
+    const level = FLOOR_LEVEL + Math.round((bounds.minY - FLOOR_LEVEL) / GRID) * GRID;
     position.y += level - bounds.minY;
     return { position, rotation };
   }
@@ -593,6 +628,7 @@ Promise.all([
     for (const item of completed.items) {
       item.piece.body.setTranslation(item.targetPosition, true);
       item.piece.body.setRotation(item.targetRotation, true);
+      setPieceCarryFriction(item.piece, false);
       item.piece.body.setBodyType(RAPIER.RigidBodyType.Fixed, true);
       item.piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
       item.piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
@@ -615,16 +651,7 @@ Promise.all([
         continue;
       }
 
-      holds = holds.filter(candidate => candidate !== hold);
-      for (const piece of hold.pieces) {
-        if (piece.hold !== hold) continue;
-        piece.hold = null;
-        piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
-        piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
-        piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
-        piece.body.wakeUp();
-        setPieceEdges(piece, piece === hovered ? hoverMaterial : edgeMaterial);
-      }
+      releaseHold(hold);
     }
 
     if (!active && !selected && !clusterSettle) {
@@ -642,11 +669,12 @@ Promise.all([
     setHover(null);
 
     const cluster = findTouchingCluster(root);
+    const existingHolds = new Set(cluster.order.map(piece => piece.hold).filter(Boolean));
+    for (const hold of existingHolds) releaseHold(hold);
     const plans = new Map();
     const items = [];
 
     for (const piece of cluster.order) {
-      detachPieceFromHold(piece);
       const connection = cluster.parents.get(piece);
       const plan = connection
         ? alignedChildPlan(piece, { piece: connection.parent, ...plans.get(connection.parent) }, connection.relation)
@@ -797,7 +825,8 @@ Promise.all([
     return collider
       .setTranslation(...shape.at)
       .setDensity(1.1)
-      .setFriction(.82)
+      .setFriction(BLOCK_FRICTION)
+      .setFrictionCombineRule(RAPIER.CoefficientCombineRule.Min)
       .setRestitution(0);
   }
 
@@ -815,8 +844,18 @@ Promise.all([
     if (viewButton) viewButton.textContent = 'top';
 
     world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
-    const ground = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -.12, -1.5));
-    world.createCollider(RAPIER.ColliderDesc.cuboid(22, .08, 20).setFriction(.86), ground);
+    world.integrationParameters.numSolverIterations = 8;
+    world.integrationParameters.numInternalPgsIterations = 2;
+    world.integrationParameters.maxCcdSubsteps = 2;
+    const ground = world.createRigidBody(
+      RAPIER.RigidBodyDesc.fixed().setTranslation(0, FLOOR_LEVEL - .08, -1.5)
+    );
+    world.createCollider(
+      RAPIER.ColliderDesc.cuboid(22, .08, 20)
+        .setFriction(GROUND_FRICTION)
+        .setFrictionCombineRule(RAPIER.CoefficientCombineRule.Min),
+      ground
+    );
 
     for (const definition of BLOCKS) {
       const yaw = definition.rotation || 0;
@@ -825,8 +864,11 @@ Promise.all([
         RAPIER.RigidBodyDesc.dynamic()
           .setTranslation(...definition.position)
           .setRotation(rotation)
-          .setLinearDamping(.62)
-          .setAngularDamping(.82)
+          .setLinearDamping(LINEAR_DAMPING)
+          .setAngularDamping(ANGULAR_DAMPING)
+          .setAdditionalSolverIterations(SOLVER_ITERATIONS)
+          .setCcdEnabled(true)
+          .setSoftCcdPrediction(SOFT_CCD_PREDICTION)
       );
 
       const group = new THREE.Group();
@@ -835,13 +877,14 @@ Promise.all([
       const edges = [];
       const geometries = [];
       const shapes = [];
+      const colliders = [];
       const pieceIndex = pieces.length;
 
       for (const shape of definition.shapes) {
         const [x, y, z] = shape.at;
         const geometry = createShapeGeometry(shape);
-        const collider = createShapeCollider(shape, geometry);
-        world.createCollider(collider, body);
+        const collider = world.createCollider(createShapeCollider(shape, geometry), body);
+        colliders.push(collider);
 
         const outlineGeometry = new THREE.EdgesGeometry(geometry, 18);
         geometries.push(geometry, outlineGeometry);
@@ -876,11 +919,14 @@ Promise.all([
         group,
         edges,
         shapes,
+        colliders,
         geometries,
         targetPosition: new THREE.Vector3(...definition.position),
         targetRotation: rotation.clone(),
         controlPosition: new THREE.Vector3(...definition.position),
         controlRotation: rotation.clone(),
+        homePosition: new THREE.Vector3(...definition.position),
+        homeRotation: rotation.clone(),
         hold: null
       });
     }
@@ -914,20 +960,69 @@ Promise.all([
     return Math.abs(value - snapped) <= tolerance ? snapped : value;
   }
 
-  function suggestedCarryHeight(piece, x, z, baseY, levelOffset = 0) {
-    const planPosition = new THREE.Vector3(x, 0, z);
-    const movingBounds = getWorldBounds(piece.shapes, planPosition, piece.targetRotation);
-    let height = Math.max(baseY + levelOffset, .04 - movingBounds.minY);
+  function carriedSupports(piece, position) {
+    const movingBounds = getWorldBounds(piece.shapes, position, piece.targetRotation);
+    const supports = new Set();
 
     for (const target of pieces) {
       if (target === piece) continue;
       const targetBounds = getWorldBounds(target.shapes, bodyPosition(target), bodyRotation(target));
-      const overlapsX = movingBounds.maxX + CARRY_LOOKAHEAD >= targetBounds.minX
-        && movingBounds.minX - CARRY_LOOKAHEAD <= targetBounds.maxX;
-      const overlapsZ = movingBounds.maxZ + CARRY_LOOKAHEAD >= targetBounds.minZ
-        && movingBounds.minZ - CARRY_LOOKAHEAD <= targetBounds.maxZ;
-      if (!overlapsX || !overlapsZ) continue;
-      height = Math.max(height, targetBounds.maxY + CARRY_CLEARANCE - movingBounds.minY);
+      const overlapX = overlap(movingBounds.minX, movingBounds.maxX, targetBounds.minX, targetBounds.maxX);
+      const overlapZ = overlap(movingBounds.minZ, movingBounds.maxZ, targetBounds.minZ, targetBounds.maxZ);
+      const restsAbove = targetBounds.centreY > movingBounds.centreY
+        && Math.abs(targetBounds.minY - movingBounds.maxY) <= CONTACT_CAPTURE;
+      if (restsAbove && overlapX >= CONTACT_OVERLAP && overlapZ >= CONTACT_OVERLAP) supports.add(target);
+    }
+
+    return supports;
+  }
+
+  function updateCarriedSupports(carried, x, z) {
+    const movingBounds = getWorldBounds(
+      carried.piece.shapes,
+      new THREE.Vector3(x, 0, z),
+      carried.piece.targetRotation
+    );
+
+    for (const support of [...carried.carryIgnore]) {
+      const targetBounds = getWorldBounds(support.shapes, bodyPosition(support), bodyRotation(support));
+      const separatedX = movingBounds.minX - CARRY_LOOKAHEAD > targetBounds.maxX
+        || movingBounds.maxX + CARRY_LOOKAHEAD < targetBounds.minX;
+      const separatedZ = movingBounds.minZ - CARRY_LOOKAHEAD > targetBounds.maxZ
+        || movingBounds.maxZ + CARRY_LOOKAHEAD < targetBounds.minZ;
+      if (separatedX || separatedZ) carried.carryIgnore.delete(support);
+    }
+  }
+
+  function suggestedCarryHeight(piece, x, z, baseY, levelOffset = 0, ignored = new Set()) {
+    const planPosition = new THREE.Vector3(x, 0, z);
+    const movingBounds = getWorldBounds(piece.shapes, planPosition, piece.targetRotation);
+    let height = Math.max(baseY + levelOffset, FLOOR_LEVEL - movingBounds.minY);
+
+    for (let pass = 0; pass < pieces.length; pass += 1) {
+      let raised = false;
+      for (const target of pieces) {
+        if (target === piece || ignored.has(target)) continue;
+        const targetBounds = getWorldBounds(target.shapes, bodyPosition(target), bodyRotation(target));
+        const overlapsX = movingBounds.maxX + CARRY_LOOKAHEAD >= targetBounds.minX
+          && movingBounds.minX - CARRY_LOOKAHEAD <= targetBounds.maxX;
+        const overlapsZ = movingBounds.maxZ + CARRY_LOOKAHEAD >= targetBounds.minZ
+          && movingBounds.minZ - CARRY_LOOKAHEAD <= targetBounds.maxZ;
+        if (!overlapsX || !overlapsZ) continue;
+
+        const movingMinY = movingBounds.minY + height;
+        const movingMaxY = movingBounds.maxY + height;
+        const passesBelow = movingMaxY <= targetBounds.minY - CARRY_PASS_GAP;
+        const passesAbove = movingMinY >= targetBounds.maxY + CARRY_CLEARANCE;
+        if (passesBelow || passesAbove) continue;
+
+        const raisedHeight = targetBounds.maxY + CARRY_CLEARANCE - movingBounds.minY;
+        if (raisedHeight > height + .001) {
+          height = raisedHeight;
+          raised = true;
+        }
+      }
+      if (!raised) break;
     }
 
     return height;
@@ -940,7 +1035,8 @@ Promise.all([
       active.carryDesired.x,
       active.carryDesired.z,
       active.baseY,
-      active.levelOffset
+      active.levelOffset,
+      active.carryIgnore
     );
   }
 
@@ -963,7 +1059,8 @@ Promise.all([
       carryPosition: origin.clone(),
       baseY: origin.y,
       levelOffset: 0,
-      wheelAccumulator: 0
+      wheelAccumulator: 0,
+      carryIgnore: carriedSupports(piece, origin)
     };
     stage.classList.add('is-dragging');
   }
@@ -1037,12 +1134,14 @@ Promise.all([
         const desired = active.carryOrigin.clone().add(carryPoint.clone().sub(active.carryGrabPoint));
         desired.x = THREE.MathUtils.clamp(snapNear(desired.x), -19, 19);
         desired.z = THREE.MathUtils.clamp(snapNear(desired.z), -18, 17);
+        updateCarriedSupports(active, desired.x, desired.z);
         desired.y = suggestedCarryHeight(
           active.piece,
           desired.x,
           desired.z,
           active.baseY,
-          active.levelOffset
+          active.levelOffset,
+          active.carryIgnore
         );
         active.carryDesired.copy(desired);
       }
@@ -1128,7 +1227,7 @@ Promise.all([
       return;
     }
     selected.controlPosition.y = Math.max(
-      selected.halfHeight + .04,
+      selected.halfHeight + FLOOR_LEVEL,
       selected.controlPosition.y + direction * GRID
     );
   }
@@ -1171,6 +1270,9 @@ Promise.all([
 
   function updateCarry(delta) {
     if (!active) return;
+    for (const support of active.carryIgnore) {
+      if (support.body.isDynamic()) support.body.wakeUp();
+    }
     const travel = active.carryDesired.clone().sub(active.carryPosition);
     const distance = travel.length();
     const response = THREE.MathUtils.clamp(distance / CARRY_ACCEL_DISTANCE, 0, 1);
@@ -1193,6 +1295,9 @@ Promise.all([
     if (travel.length() > maxTravel) travel.setLength(maxTravel);
     selected.targetPosition.add(travel);
     selected.targetRotation.rotateTowards(selected.controlRotation, CONTROL_TURN_SPEED * delta);
+    if (travel.lengthSq() > 0 || selected.targetRotation.angleTo(selected.controlRotation) > .0001) {
+      wakeTouchingCluster(selected);
+    }
     selected.body.setNextKinematicTranslation(selected.targetPosition);
     selected.body.setNextKinematicRotation(selected.targetRotation);
     if (travel.lengthSq() > 0 || selected.targetRotation.angleTo(selected.controlRotation) > .0001) {
@@ -1271,6 +1376,23 @@ Promise.all([
     }
   }
 
+  function recoverFallenPiece(piece) {
+    if (piece.hold) releaseHold(piece.hold);
+    const position = piece.homePosition.clone();
+    position.y = suggestedCarryHeight(piece, position.x, position.z, position.y);
+    setPieceCarryFriction(piece, false);
+    piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+    piece.body.setTranslation(position, true);
+    piece.body.setRotation(piece.homeRotation, true);
+    piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+    piece.body.wakeUp();
+    piece.targetPosition.copy(position);
+    piece.targetRotation.copy(piece.homeRotation);
+    piece.controlPosition.copy(position);
+    piece.controlRotation.copy(piece.homeRotation);
+  }
+
   function frame(now) {
     if (destroyed) return;
     animationFrame = requestAnimationFrame(frame);
@@ -1301,9 +1423,7 @@ Promise.all([
       piece.group.position.set(position.x, position.y, position.z);
       piece.group.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
       if (piece !== selected && position.y < -5) {
-        piece.body.setTranslation({ x: 0, y: piece.halfHeight + 4, z: 0 }, true);
-        piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
-        piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+        recoverFallenPiece(piece);
       }
     }
 
@@ -1311,11 +1431,13 @@ Promise.all([
   }
 
   function clearInteraction() {
+    const interruptedCarry = !!active && selected === active.piece;
     if (active) releaseCapture(active.pointerId);
     if (orbitGesture) releaseCapture(orbitGesture.pointerId);
     active = null;
     orbitGesture = null;
     stage.classList.remove('is-dragging', 'is-orbiting');
+    if (interruptedCarry) releaseSelected();
   }
 
   function handleResize() {
