@@ -11,6 +11,7 @@
   const players = [];
   let activeIndex = 0;
   let handledMoves = 0;
+  let resetting = false;
 
   function render() {
     list.replaceChildren();
@@ -42,17 +43,30 @@
     render();
   }
 
-  function readMoves() {
-    return Number.parseInt(moveCount.textContent, 10) || 0;
+  function scoreLabel(count) {
+    return `${count} ${count === 1 ? 'move' : 'moves'}`;
   }
 
   function syncTurns() {
-    const nextMoves = readMoves();
+    const raw = moveCount.textContent.trim();
+
+    // STACK used to clear the move label when the tower collapsed. Preserve the
+    // score instead. Reset is the only action allowed to clear it deliberately.
+    if (!raw) {
+      if (handledMoves > 0 && !resetting) moveCount.textContent = scoreLabel(handledMoves);
+      return;
+    }
+
+    const nextMoves = Number.parseInt(raw, 10) || 0;
 
     if (nextMoves < handledMoves) {
-      handledMoves = nextMoves;
-      activeIndex = 0;
-      render();
+      if (resetting) {
+        handledMoves = nextMoves;
+        activeIndex = 0;
+        render();
+      } else {
+        moveCount.textContent = scoreLabel(handledMoves);
+      }
       return;
     }
 
@@ -64,9 +78,13 @@
   }
 
   function resetTurn() {
+    resetting = true;
     activeIndex = 0;
     handledMoves = 0;
     render();
+    window.setTimeout(() => {
+      resetting = false;
+    }, 180);
   }
 
   form.addEventListener('submit', event => {
@@ -75,14 +93,14 @@
   });
 
   // A successful placement is the only operation that increments #move-count,
-  // so this makes turn progression automatic and tied to a completed move.
+  // so turn progression remains automatic and tied to a completed move.
   const moveObserver = new MutationObserver(syncTurns);
   moveObserver.observe(moveCount, { childList: true, characterData: true, subtree: true });
 
   // Small fallback for browsers that coalesce text-node mutations.
   setInterval(syncTurns, 120);
 
-  reset?.addEventListener('click', () => requestAnimationFrame(resetTurn));
+  reset?.addEventListener('click', resetTurn);
 
   render();
 })();
