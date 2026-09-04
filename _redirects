@@ -8,11 +8,11 @@
 https://www.sudu.studio/*    https://sudu.studio/:splat    301!
 
 # --- hidden PLAY studies ----------------------------------------------------
-# STACK's public/canonical address lives under the PLAY namespace. Keep the
-# implementation static and route-isolated, and preserve old /stack links.
+# STACK now has a real physical page at /play/stack.html, so Netlify's own
+# pretty-URL handling resolves /play/stack without an internal rewrite loop.
+# Preserve the old public path as a one-way legacy redirect only.
 /stack          /play/stack    301!
-/play/stack/    /play/stack    301!
-/play/stack     /stack.html    200
+/stack.html     /play/stack    301!
 
 # --- project pages: retire the query-param route ----------------------------
 # Forced, because project.html exists as a real file and would otherwise be
@@ -45,3 +45,7 @@ https://www.sudu.studio/*    https://sudu.studio/:splat    301!
 /portfolio.html       /work       301
 /contact-us           /contact    301
 /contact-us.html      /contact    301
+
+# --- previous MASSING play route --------------------------------------------
+/play/massing      /play/blocks/          301!
+/play/massing/*    /play/blocks/:splat    301!
