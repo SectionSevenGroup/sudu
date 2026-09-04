@@ -122,19 +122,16 @@
     gameOver = true;
 
     if (players.length) {
-      // If someone has actually begun the next turn, that player caused the
-      // collapse. Otherwise the tower failed while the previous placement was
-      // settling, so the last successful mover caused it.
       if (turnInProgress && turnOwnerIndex != null) {
+        // The current player was physically manipulating the tower when it fell.
         loserIndex = turnOwnerIndex;
         winnerIndex = lastSuccessfulIndex;
       } else {
+        // No new turn had started, so the last placement itself caused the fall.
         loserIndex = lastSuccessfulIndex ?? activeIndex;
         winnerIndex = previousSuccessfulIndex;
       }
 
-      // First-turn collapse has no previous successful move. Keep a singular
-      // winner for multiplayer by using the previous player in the turn order.
       if (players.length > 1 && winnerIndex == null && loserIndex != null) {
         winnerIndex = (loserIndex - 1 + players.length) % players.length;
       }
@@ -142,8 +139,6 @@
       if (winnerIndex === loserIndex) winnerIndex = null;
     }
 
-    // stack.js historically clears this label when its own collapse detector
-    // fires. Re-author the recorded score here so the final state always keeps it.
     if (handledMoves > 0) moveCount.textContent = scoreLabel(handledMoves);
 
     turnInProgress = false;
