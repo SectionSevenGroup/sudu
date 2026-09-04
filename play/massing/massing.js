@@ -23,7 +23,9 @@ Promise.all([
   const EDGE_RADIUS = .025;
   const SNAP_GAP = .014;
   const DRAG_THRESHOLD = 5;
-  const MAX_CARRY_SPEED = 3;
+  const MIN_CARRY_SPEED = 1.25;
+  const MAX_CARRY_SPEED = 8;
+  const CARRY_ACCEL_DISTANCE = 3.5;
   const MAX_HORIZONTAL_SPEED = 1.15;
   const MAX_RISE_SPEED = 1.6;
   const MAX_FALL_SPEED = 3.2;
@@ -753,7 +755,10 @@ Promise.all([
     if (!active) return;
     const travel = active.carryDesired.clone().sub(active.carryPosition);
     const distance = travel.length();
-    const maxStep = MAX_CARRY_SPEED * Math.max(delta, 1 / 240);
+    const response = THREE.MathUtils.clamp(distance / CARRY_ACCEL_DISTANCE, 0, 1);
+    const easedResponse = response * response * (3 - 2 * response);
+    const carrySpeed = THREE.MathUtils.lerp(MIN_CARRY_SPEED, MAX_CARRY_SPEED, easedResponse);
+    const maxStep = carrySpeed * Math.max(delta, 1 / 240);
     if (distance > maxStep) travel.setLength(maxStep);
     active.carryPosition.add(travel);
     active.piece.targetPosition.copy(active.carryPosition);

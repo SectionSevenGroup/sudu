@@ -50,7 +50,10 @@ test('MASSING matches the current SuDu chrome and limits collision energy', asyn
   assert.match(style, /padding: 34px clamp\(20px, 4\.5vw, 64px\) 30px/);
   assert.match(style, /height: 38px/);
   assert.match(style, /font-size: 13px/);
-  assert.match(script, /const MAX_CARRY_SPEED = 3/);
+  assert.match(script, /const MIN_CARRY_SPEED = 1\.25/);
+  assert.match(script, /const MAX_CARRY_SPEED = 8/);
+  assert.match(script, /const CARRY_ACCEL_DISTANCE = 3\.5/);
+  assert.match(script, /const easedResponse = response \* response \* \(3 - 2 \* response\)/);
   assert.match(script, /const MAX_HORIZONTAL_SPEED = 1\.15/);
   assert.match(script, /const CONTROL_TURN_SPEED = Math\.PI \* 1\.2/);
   assert.match(script, /function limitBodyMotion/);
