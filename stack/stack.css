@@ -2,6 +2,10 @@
   --stack-paper: #f3f1ea;
   --stack-ink: #24231f;
   --stack-accent: #ef5b2a;
+  --stack-inset: clamp(20px, 4.5vw, 64px);
+  --stack-ui: 13px;
+  --stack-support: 12px;
+  --stack-label: 11px;
 }
 
 * {
@@ -20,10 +24,12 @@ body {
 
 body {
   font-family: 'Urbanist', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
-a {
+a,
+input {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -36,60 +42,71 @@ a {
   -webkit-user-select: none;
 }
 
+/* Same SuDu site header geometry, without a divider on STACK. */
 .stack-header {
   position: fixed;
-  inset: 0 0 auto 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 34px var(--stack-inset) 30px;
+  background: rgba(243, 241, 234, .94);
   pointer-events: none;
 }
 
 .stack-mark {
-  position: fixed;
-  top: 22px;
-  left: 42px;
+  display: flex;
+  align-items: flex-end;
   pointer-events: auto;
 }
 
 .stack-mark img {
   display: block;
-  width: 43px;
-  height: auto;
+  width: auto;
+  height: 38px;
 }
 
 .stack-header h1 {
-  position: fixed;
-  top: 27px;
-  right: 46px;
   margin: 0;
-  font-size: 10px;
-  font-weight: 600;
+  padding-bottom: 3px;
+  font-size: var(--stack-ui);
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: .12em;
+  letter-spacing: 0;
 }
 
+/* STACK uses the same practical scale as the SuDu site: 13px controls,
+   12px supporting copy and 11px tertiary labels. No micro-type. */
 .stack-instruction,
 .stack-note,
-.stack-loading {
+.stack-loading,
+.stack-players {
   position: fixed;
   z-index: 20;
-  font-size: 8px;
+  font-size: var(--stack-support);
   font-weight: 500;
-  letter-spacing: .055em;
+  line-height: 1.35;
+  letter-spacing: .02em;
   color: rgba(36, 35, 31, .72);
 }
 
 .stack-instruction {
-  left: 42px;
+  left: var(--stack-inset);
   bottom: 25px;
   margin: 0;
 }
 
 .stack-note {
-  right: 44px;
+  right: var(--stack-inset);
   bottom: 24px;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 14px;
+  font-size: var(--stack-support);
 }
 
 #move-count:empty {
@@ -115,8 +132,8 @@ a {
 }
 
 .stack-help {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   padding: 1px;
   border: 0;
   background: transparent;
@@ -174,209 +191,238 @@ a {
   transform: translate(-50%, -50%);
 }
 
-/* Visual-only preface. The game exists below it, but receives no pointer input
-   until the chevron control dismisses this layer. */
-.stack-intro {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
+/* Player ledger. It is a quiet turn ledger, not a scoreboard. */
+.stack-players {
+  top: 50%;
+  left: var(--stack-inset);
+  width: 180px;
+  transform: translateY(-50%);
+  z-index: 130;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.stack-player-form {
   display: grid;
-  grid-template-rows: 1fr auto 1fr;
-  place-items: center;
-  padding: clamp(88px, 12vh, 132px) clamp(24px, 6vw, 96px) clamp(44px, 8vh, 80px);
-  background: rgba(243, 241, 234, .985);
-  opacity: 0;
-  visibility: hidden;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  align-items: end;
+  gap: 10px;
+  width: 100%;
+  transition: opacity 180ms ease;
+}
+
+.stack-player-form.is-full {
+  display: none;
+}
+
+.stack-player-form.is-locked {
+  opacity: .32;
   pointer-events: none;
-  transition: opacity 260ms ease, visibility 0s linear 260ms;
 }
 
-.stack-intro.is-open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition: opacity 220ms ease;
-}
-
-.stack-intro-set {
-  grid-row: 2;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 250px));
-  align-items: center;
-  justify-content: center;
-  gap: clamp(28px, 5vw, 82px);
-  width: min(100%, 940px);
-}
-
-.stack-cue {
-  display: block;
+.stack-player-input {
   width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.stack-cue path {
-  vector-effect: non-scaling-stroke;
-}
-
-.cue-block path {
-  fill: var(--stack-paper);
-  stroke: var(--stack-ink);
-  stroke-width: 1.05;
-  stroke-linejoin: miter;
-}
-
-.cue-block .cue-top {
-  fill: #f7f5ef;
-}
-
-.cue-block .cue-accent {
-  fill: color-mix(in srgb, var(--stack-accent) 22%, var(--stack-paper));
-  stroke: var(--stack-accent);
-  stroke-width: 1.45;
-}
-
-.cue-ghost path {
-  fill: none;
-  stroke: rgba(36, 35, 31, .22);
-  stroke-width: .9;
-  stroke-dasharray: 2.5 4;
-}
-
-.cue-chevron path {
-  fill: none;
-  stroke: var(--stack-accent);
-  stroke-width: 1.55;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
-}
-
-.cue-chevron .cue-faint {
-  opacity: .38;
-}
-
-.stack-intro.is-open .cue-chevron-x {
-  animation: stack-cue-x 920ms cubic-bezier(.2,.7,.25,1) 180ms 2;
-}
-
-.stack-intro.is-open .cue-chevron-y {
-  animation: stack-cue-y 920ms cubic-bezier(.2,.7,.25,1) 300ms 2;
-}
-
-.stack-intro.is-open .cue-chevron-up {
-  animation: stack-cue-up 920ms cubic-bezier(.2,.7,.25,1) 420ms 2;
-}
-
-@keyframes stack-cue-x {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(5px); }
-}
-
-@keyframes stack-cue-y {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-@keyframes stack-cue-up {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-.stack-start {
-  grid-row: 3;
-  align-self: start;
-  width: 48px;
-  height: 48px;
-  margin-top: clamp(28px, 5vh, 54px);
-  padding: 0;
-  border: 1px solid rgba(36, 35, 31, .34);
-  border-radius: 50%;
+  min-width: 0;
+  padding: 0 0 5px;
+  border: 0;
+  border-bottom: 1px solid rgba(36, 35, 31, .26);
+  border-radius: 0;
+  outline: 0;
   background: transparent;
-  color: var(--stack-accent);
+  color: var(--stack-ink);
+  font: inherit;
+  font-size: var(--stack-support);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: .02em;
+  appearance: none;
+}
+
+.stack-player-input::placeholder {
+  color: rgba(36, 35, 31, .34);
+  opacity: 1;
+}
+
+.stack-player-input:focus {
+  border-bottom-color: rgba(36, 35, 31, .66);
+}
+
+.stack-player-add {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--stack-ink);
+  font: 300 20px/20px 'Urbanist', Arial, sans-serif;
   cursor: pointer;
-  transition: border-color 160ms ease, transform 160ms ease;
 }
 
-.stack-start svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
-}
-
-.stack-start:hover,
-.stack-start:focus-visible {
-  border-color: var(--stack-accent);
-  transform: translateX(2px);
+.stack-player-add:hover,
+.stack-player-add:focus-visible {
+  color: var(--stack-accent);
   outline: none;
 }
 
-body.stack-intro-open .stack-instruction,
-body.stack-intro-open .stack-note {
+.stack-player-list {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stack-player {
+  position: relative;
+  min-height: 15px;
+  padding-left: 15px;
+  overflow: hidden;
+  color: rgba(36, 35, 31, .42);
+  font-size: var(--stack-support);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: .02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 180ms ease, opacity 180ms ease;
+}
+
+.stack-player.is-active,
+.stack-player.is-winner {
+  color: var(--stack-ink);
+}
+
+.stack-player.is-active::before,
+.stack-player.is-winner::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid var(--stack-accent);
+  border-right: 1.5px solid var(--stack-accent);
+  transform: rotate(45deg);
+}
+
+.stack-player.is-loser {
+  opacity: .28;
+}
+
+/* The result belongs to the player ledger, never over the tower. */
+.stack-result {
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+  margin-top: 18px;
+  padding-left: 15px;
+  text-align: left;
+  pointer-events: none;
+  animation: stack-ledger-result-in 220ms ease both;
+}
+
+.stack-result[hidden] {
+  display: none;
+}
+
+.stack-result-kicker {
+  color: rgba(36, 35, 31, .40);
+  font-size: var(--stack-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.stack-result-line {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.stack-result-name {
+  display: block;
+  max-width: 130px;
+  overflow: hidden;
+  color: var(--stack-ink);
+  font-size: var(--stack-ui);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: .01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stack-result-state {
+  color: var(--stack-accent);
+  font-size: var(--stack-label);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+@keyframes stack-ledger-result-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tutorial colour and game-state graphics are visual only. They never sit
+   between the pointer and the Rapier/Three interaction surface. */
+.stack-cue-shield {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none !important;
+  background: transparent;
+}
+
+body.stack-cue-open .stack-instruction,
+body.stack-game-over .stack-instruction {
   opacity: 0;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stack-intro,
-  .stack-start {
+  .stack-player,
+  .stack-player-form,
+  .stack-result {
     transition: none;
-  }
-
-  .stack-intro.is-open .cue-chevron-x,
-  .stack-intro.is-open .cue-chevron-y,
-  .stack-intro.is-open .cue-chevron-up {
     animation: none;
   }
 }
 
 @media (max-width: 760px) {
-  .stack-mark {
-    top: 18px;
-    left: 22px;
-  }
-
-  .stack-mark img {
-    width: 39px;
-  }
-
-  .stack-header h1 {
-    top: 22px;
-    right: 22px;
+  .stack-header {
+    padding-left: var(--stack-inset);
+    padding-right: var(--stack-inset);
   }
 
   .stack-instruction {
-    left: 22px;
     bottom: 20px;
   }
 
   .stack-note {
-    right: 22px;
     bottom: 19px;
   }
 
-  .stack-intro {
-    grid-template-rows: 1fr auto 1fr;
-    padding: 78px 24px 34px;
+  .stack-players {
+    top: 118px;
+    width: 150px;
+    transform: none;
   }
 
-  .stack-intro-set {
-    grid-template-columns: 1fr;
-    gap: 0;
-    width: min(78vw, 270px);
+  .stack-player-list {
+    gap: 7px;
+    margin-top: 12px;
   }
 
-  .stack-cue {
-    margin: -10px 0;
+  .stack-result {
+    margin-top: 14px;
   }
 
-  .stack-start {
-    width: 44px;
-    height: 44px;
-    margin-top: 18px;
+  .stack-result-name {
+    max-width: 105px;
   }
 }
