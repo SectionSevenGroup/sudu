@@ -14,6 +14,14 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# STACK uses the locally bundled rapier3d-compat runtime. Its WASM is embedded
+# in the local JavaScript bundle, so this page needs WebAssembly compilation but
+# no remote scripts, eval(), inline script or third-party network access.
+/stack*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
 # Control is private. It is never indexed, never cached and never framed, and
 # its page may only talk to its own origin.
 /control/*
