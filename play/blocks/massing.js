@@ -13,8 +13,8 @@ const DEFAULT_INSTRUCTION = 'drag · scroll lifts · double-click aligns';
 if (!stage || !loading) throw new Error('MASSING stage is unavailable.');
 
 Promise.all([
-  import('/play/massing/three-shim.js'),
-  import('/play/massing/rapier-shim.js')
+  import('/play/blocks/three-shim.js'),
+  import('/play/blocks/rapier-shim.js')
 ]).then(async ([THREE, RAPIER]) => {
   await RAPIER.init();
   loading.remove();

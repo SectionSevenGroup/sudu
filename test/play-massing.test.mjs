@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL('../' + path, import.meta.url), 'utf8');
 test('MASSING uses the SuDu placement template without changing STACK', async () => {
   const [stack, massing] = await Promise.all([
     read('stack.html'),
-    read('play/massing/index.html')
+    read('play/blocks/index.html')
   ]);
 
   assert.doesNotMatch(stack, /MASSING|play-switch|play\/massing/);
@@ -18,9 +18,9 @@ test('MASSING uses the SuDu placement template without changing STACK', async ()
 
 test('MASSING reuses the local physics bundle without burdening the homepage', async () => {
   const [massingScript, massingShim, rapierShim, stackShim, home] = await Promise.all([
-    read('play/massing/massing.js'),
-    read('play/massing/three-shim.js'),
-    read('play/massing/rapier-shim.js'),
+    read('play/blocks/massing.js'),
+    read('play/blocks/three-shim.js'),
+    read('play/blocks/rapier-shim.js'),
     read('stack/vendor/three-shim.js'),
     read('index.html')
   ]);
@@ -35,7 +35,7 @@ test('MASSING reuses the local physics bundle without burdening the homepage', a
 });
 
 test('MASSING previews aligned stacking and places automatically on release', async () => {
-  const script = await read('play/massing/massing.js');
+  const script = await read('play/blocks/massing.js');
 
   assert.match(script, /function findSnapCandidate/);
   assert.match(script, /const snapGuide = new THREE\.Group\(\)/);
@@ -46,8 +46,8 @@ test('MASSING previews aligned stacking and places automatically on release', as
 
 test('MASSING softly aligns only the joined cluster on double click', async () => {
   const [page, script] = await Promise.all([
-    read('play/massing/index.html'),
-    read('play/massing/massing.js')
+    read('play/blocks/index.html'),
+    read('play/blocks/massing.js')
   ]);
 
   assert.match(page, /scroll lifts · double-click aligns/);
@@ -66,8 +66,8 @@ test('MASSING softly aligns only the joined cluster on double click', async () =
 
 test('MASSING uses a smart crane for simple up-and-over placement', async () => {
   const [page, script] = await Promise.all([
-    read('play/massing/index.html'),
-    read('play/massing/massing.js')
+    read('play/blocks/index.html'),
+    read('play/blocks/massing.js')
   ]);
 
   assert.match(page, /Scroll to change its height/);
@@ -84,7 +84,7 @@ test('MASSING uses a smart crane for simple up-and-over placement', async () => 
 });
 
 test('MASSING releases supports and stabilises every physics transition', async () => {
-  const script = await read('play/massing/massing.js');
+  const script = await read('play/blocks/massing.js');
 
   assert.match(script, /if \(piece\.hold\) releaseHold\(piece\.hold\)/);
   assert.match(script, /function wakeTouchingCluster/);
@@ -101,7 +101,7 @@ test('MASSING releases supports and stabilises every physics transition', async 
 });
 
 test('MASSING draws its grid directly on the continuous cream floor', async () => {
-  const script = await read('play/massing/massing.js');
+  const script = await read('play/blocks/massing.js');
 
   assert.match(script, /scene\.background = new THREE\.Color\(0xf3f1ea\)/);
   assert.match(script, /floorMaterial = new THREE\.MeshBasicMaterial\(\{ color: 0xf3f1ea \}\)/);
@@ -114,8 +114,8 @@ test('MASSING draws its grid directly on the continuous cream floor', async () =
 
 test('MASSING uses a coherent architectural kit of parts', async () => {
   const [script, shim] = await Promise.all([
-    read('play/massing/massing.js'),
-    read('play/massing/three-shim.js')
+    read('play/blocks/massing.js'),
+    read('play/blocks/three-shim.js')
   ]);
 
   assert.match(script, /const MODULE = 1\.2/);
@@ -146,8 +146,8 @@ test('MASSING uses a coherent architectural kit of parts', async () => {
 
 test('MASSING matches the current SuDu chrome and limits collision energy', async () => {
   const [script, style] = await Promise.all([
-    read('play/massing/massing.js'),
-    read('play/massing/massing.css')
+    read('play/blocks/massing.js'),
+    read('play/blocks/massing.css')
   ]);
 
   assert.match(style, /padding: 34px clamp\(20px, 4\.5vw, 64px\) 30px/);
@@ -167,8 +167,8 @@ test('MASSING matches the current SuDu chrome and limits collision energy', asyn
 
 test('MASSING exposes pointer, keyboard and reduced-motion paths', async () => {
   const [script, style] = await Promise.all([
-    read('play/massing/massing.js'),
-    read('play/massing/massing.css')
+    read('play/blocks/massing.js'),
+    read('play/blocks/massing.css')
   ]);
 
   assert.match(script, /addEventListener\('pointerdown'/);
@@ -179,7 +179,7 @@ test('MASSING exposes pointer, keyboard and reduced-motion paths', async () => {
 });
 
 test('MASSING physics drops a removed load and lets unstable blocks finish settling', async () => {
-  const script = await read('play/massing/massing.js');
+  const script = await read('play/blocks/massing.js');
   const constant = (name) => {
     const match = script.match(new RegExp(`const ${name} = ([.\\d]+)`));
     assert.ok(match, `${name} is declared`);
