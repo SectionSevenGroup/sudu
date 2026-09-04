@@ -300,56 +300,63 @@ input {
   opacity: .28;
 }
 
-/* End state is typography only. The fallen tower remains completely visible. */
+/* The result belongs to the player ledger, never over the tower. */
 .stack-result {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  z-index: 140;
   display: grid;
-  justify-items: center;
+  justify-items: start;
   gap: 4px;
-  transform: translate(-50%, -50%);
-  text-align: center;
+  margin-top: 16px;
+  padding-left: 12px;
+  text-align: left;
   pointer-events: none;
-  animation: stack-result-in 260ms ease both;
+  animation: stack-ledger-result-in 220ms ease both;
 }
 
 .stack-result[hidden] {
   display: none;
 }
 
-.stack-result-kicker,
-.stack-result-state {
-  font-size: 9px;
+.stack-result-kicker {
+  color: rgba(36, 35, 31, .40);
+  font-size: 8px;
   font-weight: 500;
   line-height: 1;
-  letter-spacing: .12em;
+  letter-spacing: .10em;
   text-transform: uppercase;
 }
 
-.stack-result-kicker {
-  color: rgba(36, 35, 31, .46);
+.stack-result-line {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
 }
 
 .stack-result-name {
   display: block;
-  margin: 3px 0 1px;
+  max-width: 104px;
+  overflow: hidden;
   color: var(--stack-ink);
-  font-size: clamp(26px, 3vw, 42px);
-  font-weight: 800;
-  line-height: .95;
-  letter-spacing: -.035em;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: .025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stack-result-state {
   color: var(--stack-accent);
+  font-size: 8px;
   font-weight: 700;
+  line-height: 1;
+  letter-spacing: .06em;
+  text-transform: uppercase;
 }
 
-@keyframes stack-result-in {
-  from { opacity: 0; transform: translate(-50%, calc(-50% + 5px)); }
-  to { opacity: 1; transform: translate(-50%, -50%); }
+@keyframes stack-ledger-result-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Tutorial colour and chevrons are rendered in the real Three.js scene. This
@@ -419,6 +426,11 @@ body.stack-game-over .stack-instruction {
   }
 
   .stack-result {
-    top: 52%;
+    margin-top: 13px;
+  }
+
+  .stack-result-name {
+    max-width: 78px;
+    font-size: 9px;
   }
 }
