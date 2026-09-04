@@ -14,7 +14,9 @@ if (!shield || !stage) {
 const ACCENT = 0xef5b2a;
 const PHASE_MS = reducedMotion ? 1100 : 1750;
 const INITIAL_DELAY_MS = reducedMotion ? 250 : 550;
-const COLLAPSE_HOLD_MS = reducedMotion ? 650 : 850;
+const COLLAPSE_HOLD_MS = reducedMotion ? 500 : 650;
+const FALL_DROP = .78;
+const FLOOR_Y = .62;
 const registry = {
   blocks: [],
   camera: null
@@ -252,10 +254,11 @@ function startTutorial() {
 /* --------------------------------------------------------------------------
    Collapse detection
 
-   One legally moved block can be displaced a long way, so a single shift or
-   tilt must never end the game. Snapshot the settled tower, exclude pieces
-   successfully moved to the top, then require a broad structural failure to
-   remain present for a sustained interval before declaring the game over.
+   The game ends only when part of the original tower actually falls.
+   Touching, sliding, rotating, extracting, carrying and placing blocks are
+   never failure states. A genuine partial/full collapse requires at least two
+   original, non-relocated tower blocks to drop substantially below the height
+   where they began, and that condition must persist briefly.
 ---------------------------------------------------------------------------- */
 const homeSnapshots = new Map();
 const relocated = new Set();
@@ -284,11 +287,7 @@ function captureHomes() {
     homeSnapshots.set(index, {
       x: group.position.x,
       y: group.position.y,
-      z: group.position.z,
-      qx: group.quaternion.x,
-      qy: group.quaternion.y,
-      qz: group.quaternion.z,
-      qw: group.quaternion.w
+      z: group.position.z
     });
     initialTop = Math.max(initialTop, group.position.y);
   });
@@ -337,80 +336,25 @@ function syncPlacedBlocks() {
   lastMoveCount = nextMoves;
 }
 
-function quaternionDeltaAngle(group, home) {
-  const dot = Math.abs(
-    group.quaternion.x * home.qx +
-    group.quaternion.y * home.qy +
-    group.quaternion.z * home.qz +
-    group.quaternion.w * home.qw
-  );
-  return 2 * Math.acos(Math.min(1, Math.max(0, dot)));
-}
-
 function collapseMetrics() {
-  let severe = 0;
-  let verySevere = 0;
-  let floorScatter = 0;
-  let upperSevere = 0;
-  let upperCount = 0;
-  let upperHomeX = 0;
-  let upperHomeY = 0;
-  let upperHomeZ = 0;
-  let upperNowX = 0;
-  let upperNowY = 0;
-  let upperNowZ = 0;
+  let fallenBlocks = 0;
+  let floorBlocks = 0;
+  let deepestDrop = 0;
 
   registry.blocks.forEach((group, index) => {
     if (!group || relocated.has(index)) return;
     const home = homeSnapshots.get(index);
     if (!home) return;
 
-    const dx = group.position.x - home.x;
-    const dz = group.position.z - home.z;
-    const horizontal = Math.hypot(dx, dz);
     const drop = home.y - group.position.y;
-    const tilt = quaternionDeltaAngle(group, home);
-    const course = Math.floor(index / 3);
+    deepestDrop = Math.max(deepestDrop, drop);
 
-    const isSevere = horizontal > .90 || drop > .56 || tilt > .62;
-    const isVerySevere = horizontal > 1.45 || drop > .92 || tilt > 1.02;
-
-    if (isSevere) severe++;
-    if (isVerySevere) verySevere++;
-    if (course >= 8 && isSevere) upperSevere++;
-    if (group.position.y < .62 && home.y > 1.0) floorScatter++;
-
-    if (course >= 12) {
-      upperCount++;
-      upperHomeX += home.x;
-      upperHomeY += home.y;
-      upperHomeZ += home.z;
-      upperNowX += group.position.x;
-      upperNowY += group.position.y;
-      upperNowZ += group.position.z;
-    }
+    if (drop >= FALL_DROP) fallenBlocks++;
+    if (home.y > 1.0 && group.position.y <= FLOOR_Y) floorBlocks++;
   });
 
-  let upperShift = 0;
-  let upperDrop = 0;
-  if (upperCount) {
-    upperHomeX /= upperCount;
-    upperHomeY /= upperCount;
-    upperHomeZ /= upperCount;
-    upperNowX /= upperCount;
-    upperNowY /= upperCount;
-    upperNowZ /= upperCount;
-    upperShift = Math.hypot(upperNowX - upperHomeX, upperNowZ - upperHomeZ);
-    upperDrop = upperHomeY - upperNowY;
-  }
-
-  const failed =
-    verySevere >= 6 ||
-    (severe >= 10 && upperSevere >= 5) ||
-    (floorScatter >= 5 && severe >= 7) ||
-    (severe >= 7 && (upperShift > .80 || upperDrop > .75));
-
-  return { failed, severe, verySevere, floorScatter, upperSevere, upperShift, upperDrop };
+  const failed = fallenBlocks >= 2 || floorBlocks >= 2;
+  return { failed, fallenBlocks, floorBlocks, deepestDrop };
 }
 
 function runCollapseDetector(now) {
