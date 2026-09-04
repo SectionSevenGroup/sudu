@@ -7,6 +7,9 @@
 # --- canonical host ---------------------------------------------------------
 https://www.sudu.studio/*    https://sudu.studio/:splat    301!
 
+# --- hidden STACK study -----------------------------------------------------
+/stack    /stack.html    200
+
 # --- project pages: retire the query-param route ----------------------------
 # Forced, because project.html exists as a real file and would otherwise be
 # served in preference to the redirect. With no p= parameter neither rule
