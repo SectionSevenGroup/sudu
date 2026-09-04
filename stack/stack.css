@@ -288,8 +288,8 @@ input {
   transform: rotate(45deg);
 }
 
-/* Tutorial cues are rendered on the real Three.js block faces. This transparent
-   layer exists only to pause pointer input while the three-face sequence runs. */
+/* Tutorial colour and chevrons are rendered in the real Three.js scene. This
+   transparent layer only pauses tower input while the three cues run. */
 .stack-cue-shield {
   position: fixed;
   inset: 0;
@@ -303,39 +303,11 @@ input {
   cursor: default;
 }
 
-.stack-live-chevron {
-  position: fixed;
-  width: 62px;
-  height: 30px;
-  opacity: 0;
-  pointer-events: none;
-  color: var(--stack-accent);
-  transform-origin: center;
-  will-change: left, top, opacity, transform;
-}
-
-.stack-live-chevron.is-one-way {
-  width: 52px;
-}
-
-.stack-live-chevron svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
-}
-
 body.stack-cue-open #stack-stage {
   cursor: default;
 }
 
-body.stack-cue-open .stack-instruction,
-body.stack-cue-open .stack-note {
+body.stack-cue-open .stack-instruction {
   opacity: 0;
   pointer-events: none;
 }
@@ -374,9 +346,5 @@ body.stack-cue-open .stack-note {
   .stack-player-list {
     gap: 5px;
     margin-top: 9px;
-  }
-
-  .stack-live-chevron {
-    width: 52px;
   }
 }
