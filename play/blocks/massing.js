@@ -19,6 +19,9 @@ const challengeSpin = document.querySelector('#challenge-spin');
 const challengeGuide = document.querySelector('#challenge-guide');
 const challengeReset = document.querySelector('#challenge-reset');
 const challengeStatus = document.querySelector('#challenge-status');
+const challengeScore = document.querySelector('#challenge-score');
+const partsTray = document.querySelector('#parts-tray');
+const partsRail = document.querySelector('#parts-rail');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const DEFAULT_INSTRUCTION = 'drag · scroll lifts · double-click aligns';
 
@@ -69,6 +72,12 @@ Promise.all([
   const TOP_ELEVATION = THREE.MathUtils.degToRad(84);
   const MODEL_RADIUS = 31.5;
   const TOP_RADIUS = 29;
+  const MOBILE_MODEL_RADIUS = 21;
+  const MOBILE_TOP_RADIUS = 20;
+  const MOBILE_BREAKPOINT = 640;
+  const SPAWN_DURATION = .56;
+  const CHALLENGE_BASE_SCORE = 1000;
+  const HINT_COSTS = [0, 100, 180];
 
   const box = (size, at = [0, 0, 0]) => ({ kind: 'box', at, size });
   const cylinder = (radius, height, at = [0, 0, 0]) => ({
@@ -308,15 +317,23 @@ Promise.all([
   let destroyed = false;
   let activeChallengeIndex = 0;
   let challengeGuideEnabled = false;
+  let challengeHintLevel = 0;
+  let challengeHintUsedLevel = 0;
   let challengePreviewRenderer = null;
   let challengePreviewScene = null;
   let challengePreviewCamera = null;
   let challengePreviewVisual = null;
   let challengeGuideVisual = null;
   let challengeSpinState = null;
+  let challengePreviewHideAt = 0;
   let challengeMatchedTime = 0;
   let challengeComplete = false;
   let challengeStatusText = 'build the model';
+  let challengeStartedAt = performance.now();
+  let challengeFinalScore = null;
+  let challengeLastScorePaint = -1;
+  let mobilePartsMode = innerWidth <= MOBILE_BREAKPOINT;
+  let spawnMotion = null;
 
   const faceMaterial = new THREE.MeshBasicMaterial({
     color: 0xf3f1ea,
@@ -338,14 +355,14 @@ Promise.all([
     depthTest: false
   });
   const challengePreviewEdgeMaterial = new THREE.LineBasicMaterial({
-    color: 0x24231f,
+    color: 0x11110f,
     transparent: true,
-    opacity: .78
+    opacity: .24
   });
   const challengePreviewFaceMaterial = new THREE.MeshBasicMaterial({
-    color: 0xf3f1ea,
-    transparent: true,
-    opacity: .34,
+    color: 0x11110f,
+    transparent: false,
+    opacity: 1,
     side: THREE.DoubleSide,
     polygonOffset: true,
     polygonOffsetFactor: 1,
@@ -394,6 +411,151 @@ Promise.all([
 
   function definitionForFamily(family) {
     return BLOCKS.find(definition => pieceFamily(definition.name) === family);
+  }
+
+  const PART_FAMILIES = [...new Set(BLOCKS.map(definition => pieceFamily(definition.name)))];
+
+  function iconShapeVertices(shape) {
+    const vertices = [];
+    if (shape.kind === 'cylinder') {
+      for (const y of [-shape.height / 2, shape.height / 2]) {
+        for (let index = 0; index < 16; index += 1) {
+          const angle = index / 16 * Math.PI * 2;
+          vertices.push([
+            Math.cos(angle) * shape.radius + shape.at[0],
+            y + shape.at[1],
+            Math.sin(angle) * shape.radius + shape.at[2]
+          ]);
+        }
+      }
+      return vertices;
+    }
+
+    if (shape.kind === 'gable' || shape.kind === 'ramp' || shape.kind === 'sector') {
+      const data = createProfileData(shape);
+      for (let index = 0; index < data.vertices.length; index += 3) {
+        vertices.push([
+          data.vertices[index] + shape.at[0],
+          data.vertices[index + 1] + shape.at[1],
+          data.vertices[index + 2] + shape.at[2]
+        ]);
+      }
+      return vertices;
+    }
+
+    const [width, height, depth] = shape.size;
+    for (const x of [-width / 2, width / 2]) {
+      for (const y of [-height / 2, height / 2]) {
+        for (const z of [-depth / 2, depth / 2]) {
+          vertices.push([x + shape.at[0], y + shape.at[1], z + shape.at[2]]);
+        }
+      }
+    }
+    return vertices;
+  }
+
+  function iconProjection(vertex) {
+    const [x, y, z] = vertex;
+    return { x: (x - z) * .86, y: (x + z) * .3 - y * 1.05 };
+  }
+
+  function convexHull(points) {
+    if (points.length < 3) return points;
+    const sorted = [...points].sort((a, b) => a.x - b.x || a.y - b.y);
+    const cross = (origin, a, b) => (a.x - origin.x) * (b.y - origin.y)
+      - (a.y - origin.y) * (b.x - origin.x);
+    const lower = [];
+    for (const point of sorted) {
+      while (lower.length > 1 && cross(lower.at(-2), lower.at(-1), point) <= 0) lower.pop();
+      lower.push(point);
+    }
+    const upper = [];
+    for (const point of sorted.reverse()) {
+      while (upper.length > 1 && cross(upper.at(-2), upper.at(-1), point) <= 0) upper.pop();
+      upper.push(point);
+    }
+    lower.pop();
+    upper.pop();
+    return lower.concat(upper);
+  }
+
+  function drawPartIcon(canvas, definition) {
+    const width = canvas.width;
+    const height = canvas.height;
+    const projectedShapes = definition.shapes.map(shape => iconShapeVertices(shape).map(iconProjection));
+    const points = projectedShapes.flat();
+    const minX = Math.min(...points.map(point => point.x));
+    const maxX = Math.max(...points.map(point => point.x));
+    const minY = Math.min(...points.map(point => point.y));
+    const maxY = Math.max(...points.map(point => point.y));
+    const scale = Math.min((width - 18) / Math.max(maxX - minX, .1), (height - 14) / Math.max(maxY - minY, .1));
+    const centreX = (minX + maxX) / 2;
+    const centreY = (minY + maxY) / 2;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 1.5;
+
+    for (const pointsForShape of projectedShapes) {
+      const hull = convexHull(pointsForShape);
+      if (!hull.length) continue;
+      ctx.beginPath();
+      hull.forEach((point, index) => {
+        const x = width / 2 + (point.x - centreX) * scale;
+        const y = height / 2 + (point.y - centreY) * scale;
+        if (index) ctx.lineTo(x, y);
+        else ctx.moveTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = '#171613';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(243,241,234,.74)';
+      ctx.stroke();
+    }
+  }
+
+  function updatePartsTray() {
+    if (!partsRail) return;
+    for (const button of partsRail.querySelectorAll('[data-part-family]')) {
+      const family = button.dataset.partFamily;
+      const total = BLOCKS.filter(definition => pieceFamily(definition.name) === family).length;
+      const remaining = pieces.length
+        ? pieces.filter(piece => pieceFamily(piece.name) === family && piece.inTray).length
+        : total;
+      button.disabled = remaining === 0 || !mobilePartsMode || !!spawnMotion;
+      button.setAttribute('aria-label', `Insert ${family}, ${remaining} remaining`);
+      const count = button.querySelector('.parts-tray__count');
+      if (count) count.textContent = String(remaining);
+    }
+  }
+
+  function setupPartsTray() {
+    if (!partsRail) return;
+    partsRail.replaceChildren();
+    for (const family of PART_FAMILIES) {
+      const definition = definitionForFamily(family);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'parts-tray__part';
+      button.dataset.partFamily = family;
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'parts-tray__icon';
+      canvas.width = 128;
+      canvas.height = 72;
+      canvas.setAttribute('aria-hidden', 'true');
+      drawPartIcon(canvas, definition);
+
+      const name = document.createElement('span');
+      name.className = 'parts-tray__name';
+      name.textContent = family;
+      const count = document.createElement('span');
+      count.className = 'parts-tray__count';
+
+      button.append(canvas, name, count);
+      partsRail.append(button);
+    }
+    updatePartsTray();
   }
 
   function disposeChallengeVisual(visual) {
@@ -490,6 +652,46 @@ Promise.all([
     }
   }
 
+  function currentChallengeScore(now = performance.now()) {
+    if (challengeFinalScore != null) return challengeFinalScore;
+    const elapsed = Math.max(0, Math.floor((now - challengeStartedAt) / 1000) - 12);
+    const timePenalty = Math.min(620, elapsed * 2);
+    return Math.max(100, CHALLENGE_BASE_SCORE - HINT_COSTS[challengeHintUsedLevel] - timePenalty);
+  }
+
+  function paintChallengeScore(now = performance.now(), force = false) {
+    if (!challengeScore) return;
+    const score = activeChallengeIndex < 0 ? null : currentChallengeScore(now);
+    if (!force && score === challengeLastScorePaint) return;
+    challengeLastScorePaint = score;
+    challengeScore.hidden = score == null;
+    if (score == null) return;
+    challengeScore.textContent = String(score);
+    challengeScore.setAttribute('aria-label', `Current score ${score}`);
+  }
+
+  function resetChallengeAttempt() {
+    challengeHintLevel = 0;
+    challengeHintUsedLevel = 0;
+    challengeGuideEnabled = false;
+    challengeStartedAt = performance.now();
+    challengeFinalScore = null;
+    challengeLastScorePaint = -1;
+  }
+
+  function saveChallengeScore() {
+    if (activeChallengeIndex < 0) return;
+    const score = currentChallengeScore();
+    challengeFinalScore = score;
+    try {
+      const key = `sudu-blocks-best-${activeChallengeIndex + 1}`;
+      const previous = Number(localStorage.getItem(key) || 0);
+      if (score > previous) localStorage.setItem(key, String(score));
+      if (challengeScore) challengeScore.title = `Best ${Math.max(previous, score)}`;
+    } catch (error) {}
+    paintChallengeScore(performance.now(), true);
+  }
+
   function updateChallengePanel() {
     const challenge = CHALLENGES[activeChallengeIndex] || null;
     challengeButtons.forEach((button, index) => {
@@ -505,9 +707,10 @@ Promise.all([
       if (challengeCue) challengeCue.textContent = 'Use the full kit without a target.';
       if (challengeGuide) {
         challengeGuide.disabled = true;
-        challengeGuide.textContent = 'guide off';
+        challengeGuide.textContent = 'hint';
         challengeGuide.setAttribute('aria-pressed', 'false');
       }
+      paintChallengeScore(performance.now(), true);
       setChallengeStatus('arrange freely');
       return;
     }
@@ -515,12 +718,18 @@ Promise.all([
     if (challengeIndex) challengeIndex.textContent = String(activeChallengeIndex + 1).padStart(2, '0') + ' / 10';
     if (challengeLevel) challengeLevel.textContent = challenge.level;
     if (challengeTitle) challengeTitle.textContent = challenge.title;
-    if (challengeCue) challengeCue.textContent = challenge.cue;
+    if (challengeCue) {
+      const families = [...new Set(challenge.targets.map(target => target.family))].join(', ');
+      if (challengeHintLevel === 1) challengeCue.textContent = `${challenge.cue} Pieces: ${families}.`;
+      else if (challengeHintLevel === 2) challengeCue.textContent = `${challenge.cue} The light model marks exact positions.`;
+      else challengeCue.textContent = challenge.cue;
+    }
     if (challengeGuide) {
       challengeGuide.disabled = false;
-      challengeGuide.textContent = challengeGuideEnabled ? 'guide on' : 'guide off';
+      challengeGuide.textContent = challengeHintLevel === 0 ? 'hint' : challengeHintLevel === 1 ? 'hint +' : 'hide hint';
       challengeGuide.setAttribute('aria-pressed', String(challengeGuideEnabled));
     }
+    paintChallengeScore(performance.now(), true);
     setChallengeStatus(challengeComplete ? 'complete · choose the next' : 'build the model', challengeComplete);
   }
 
@@ -532,6 +741,8 @@ Promise.all([
     const challenge = CHALLENGES[activeChallengeIndex] || null;
     if (!challenge) {
       challengeGuideGroup.visible = false;
+      challengeLedger?.classList.remove('is-preview-open');
+      challengePreviewHideAt = 0;
       updateChallengePanel();
       return;
     }
@@ -547,13 +758,14 @@ Promise.all([
       if (bounds && challengePreviewCamera) {
         const centre = new THREE.Vector3(bounds.centreX, bounds.centreY, bounds.centreZ);
         const span = Math.max(bounds.width, bounds.height, bounds.depth, 3);
-        const direction = new THREE.Vector3(1, .72, 1).normalize().multiplyScalar(span * 2.25);
+        const direction = new THREE.Vector3(1, .72, 1).normalize().multiplyScalar(span * 2.85);
         challengePreviewCamera.position.copy(centre).add(direction);
         challengePreviewCamera.lookAt(centre);
       }
     }
 
     if (challengeGuideEnabled) {
+      challengeGuideMaterial.opacity = challengeHintLevel === 1 ? .1 : .22;
       challengeGuideVisual = createChallengeVisual(challenge, challengeGuideMaterial);
       challengeGuideGroup.add(challengeGuideVisual.group);
       challengeGuideGroup.visible = true;
@@ -567,6 +779,10 @@ Promise.all([
 
   function startChallengeSpin() {
     if (!challengePreviewVisual) return;
+    if (mobilePartsMode && challengeLedger) {
+      challengeLedger.classList.add('is-preview-open');
+      challengePreviewHideAt = performance.now() + (reducedMotion ? 2200 : 4200);
+    }
     if (reducedMotion) {
       challengePreviewVisual.group.rotation.y += Math.PI / 2;
       challengeSpinState = null;
@@ -574,7 +790,7 @@ Promise.all([
     }
     challengeSpinState = {
       start: performance.now(),
-      duration: 4400,
+      duration: 3600,
       from: challengePreviewVisual.group.rotation.y
     };
   }
@@ -593,6 +809,11 @@ Promise.all([
       if (progress >= 1) challengeSpinState = null;
     }
 
+    if (mobilePartsMode && challengePreviewHideAt && now >= challengePreviewHideAt) {
+      challengeLedger?.classList.remove('is-preview-open');
+      challengePreviewHideAt = 0;
+    }
+
     challengePreviewRenderer.render(challengePreviewScene, challengePreviewCamera);
   }
 
@@ -600,13 +821,16 @@ Promise.all([
     activeChallengeIndex = index;
     challengeMatchedTime = 0;
     challengeComplete = false;
+    resetChallengeAttempt();
     rebuild();
     startChallengeSpin();
   }
 
   function toggleChallengeGuide() {
     if (activeChallengeIndex < 0) return;
-    challengeGuideEnabled = !challengeGuideEnabled;
+    challengeHintLevel = (challengeHintLevel + 1) % 3;
+    challengeHintUsedLevel = Math.max(challengeHintUsedLevel, challengeHintLevel);
+    challengeGuideEnabled = challengeHintLevel > 0;
     refreshChallengeVisuals();
   }
 
@@ -632,6 +856,7 @@ Promise.all([
       let best = null;
 
       for (const piece of unused) {
+        if (piece.inTray || piece.spawning) continue;
         if (pieceFamily(piece.name) !== target.family) continue;
         const position = bodyPosition(piece);
         const distance = position.distanceTo(expected);
@@ -665,7 +890,7 @@ Promise.all([
   function matchChallenge(challenge, requireStable = false) {
     if (!challenge?.targets.length) return null;
     const anchor = challenge.targets[0];
-    const anchorPieces = pieces.filter(piece => pieceFamily(piece.name) === anchor.family);
+    const anchorPieces = pieces.filter(piece => !piece.inTray && !piece.spawning && pieceFamily(piece.name) === anchor.family);
     const axis = new THREE.Vector3(0, 1, 0);
 
     for (const anchorPiece of anchorPieces) {
@@ -710,6 +935,7 @@ Promise.all([
     }
 
     challengeComplete = true;
+    saveChallengeScore();
     setChallengeStatus('complete · choose the next', true);
   }
 
@@ -728,13 +954,13 @@ Promise.all([
   }
 
   function configureCamera() {
-    const phone = innerWidth < 641;
+    const phone = innerWidth <= MOBILE_BREAKPOINT;
     const tablet = innerWidth < 980;
     orbitMinRadius = phone ? 21 : tablet ? 20 : 19;
     orbitMaxRadius = phone ? 40 : tablet ? 41 : 42;
 
     if (!cameraConfigured) {
-      orbitRadius = phone ? 29 : tablet ? 30 : MODEL_RADIUS;
+      orbitRadius = phone ? MOBILE_MODEL_RADIUS : tablet ? 30 : MODEL_RADIUS;
       orbitTargetRadius = orbitRadius;
       cameraConfigured = true;
     } else {
@@ -914,7 +1140,7 @@ Promise.all([
     let best = null;
 
     for (const target of pieces) {
-      if (target === piece) continue;
+      if (target === piece || target.inTray || target.spawning) continue;
       const targetPosition = bodyPosition(target);
       const targetRotation = bodyRotation(target);
       const targetUp = new THREE.Vector3(0, 1, 0).applyQuaternion(targetRotation);
@@ -1044,6 +1270,8 @@ Promise.all([
 
   function selectPiece(piece) {
     if (selected && selected !== piece) releaseSelected();
+    if (piece.inTray) setPieceInTray(piece, false);
+    for (const collider of piece.colliders) collider.setEnabled(true);
     if (piece.hold) releaseHold(piece.hold);
     wakeTouchingCluster(piece);
     selected = piece;
@@ -1074,7 +1302,7 @@ Promise.all([
     for (let index = 0; index < order.length; index += 1) {
       const parent = order[index];
       for (const candidate of pieces) {
-        if (parents.has(candidate)) continue;
+        if (parents.has(candidate) || candidate.inTray || candidate.spawning) continue;
         const relation = contactRelation(parent, candidate);
         if (!relation) continue;
         parents.set(candidate, { parent, relation });
@@ -1330,8 +1558,102 @@ Promise.all([
       .setRestitution(0);
   }
 
+  function setPieceInTray(piece, inTray) {
+    piece.inTray = inTray;
+    piece.spawning = false;
+    piece.group.visible = !inTray;
+    for (const collider of piece.colliders) collider.setEnabled(!inTray);
+    if (inTray) {
+      if (piece.hold) releaseHold(piece.hold);
+      piece.body.setBodyType(RAPIER.RigidBodyType.Fixed, true);
+      piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+    }
+  }
+
+  function findMobileStagingPosition(piece) {
+    const candidates = [
+      [0, -.6], [2.4, -.6], [-2.4, -.6], [0, 1.8], [0, -3],
+      [4.8, -.6], [-4.8, -.6], [2.4, 1.8], [-2.4, 1.8]
+    ];
+    const rotation = piece.homeRotation;
+
+    for (const [x, z] of candidates) {
+      const position = new THREE.Vector3(x, piece.halfHeight + FLOOR_LEVEL, z);
+      const bounds = getWorldBounds(piece.shapes, position, rotation);
+      const occupied = pieces.some(target => {
+        if (target === piece || target.inTray || target.spawning) return false;
+        const targetBounds = getWorldBounds(target.shapes, bodyPosition(target), bodyRotation(target));
+        return overlap(bounds.minX, bounds.maxX, targetBounds.minX, targetBounds.maxX) > .16
+          && overlap(bounds.minZ, bounds.maxZ, targetBounds.minZ, targetBounds.maxZ) > .16;
+      });
+      if (!occupied) return position;
+    }
+
+    return new THREE.Vector3(0, piece.halfHeight + FLOOR_LEVEL, -.6);
+  }
+
+  function finishSpawnMotion() {
+    if (!spawnMotion) return;
+    const { piece, target } = spawnMotion;
+    piece.body.setTranslation(target, true);
+    piece.targetPosition.copy(target);
+    piece.controlPosition.copy(target);
+    piece.spawning = false;
+    for (const collider of piece.colliders) collider.setEnabled(true);
+    spawnMotion = null;
+    selectPiece(piece);
+    setInstruction('move · turn · release to place');
+    updatePartsTray();
+  }
+
+  function updateSpawnMotion(now) {
+    if (!spawnMotion) return;
+    const progress = THREE.MathUtils.clamp(
+      (now - spawnMotion.startedAt) / (spawnMotion.duration * 1000),
+      0,
+      1
+    );
+    const eased = reducedMotion ? 1 : 1 - Math.pow(1 - progress, 3);
+    const position = spawnMotion.start.clone().lerp(spawnMotion.target, eased);
+    spawnMotion.piece.body.setNextKinematicTranslation(position);
+    spawnMotion.piece.body.setNextKinematicRotation(spawnMotion.piece.homeRotation);
+    if (progress >= 1) finishSpawnMotion();
+  }
+
+  function spawnPieceFromTray(family) {
+    if (!mobilePartsMode || spawnMotion || clusterSettle) return;
+    const piece = pieces.find(candidate => candidate.inTray && pieceFamily(candidate.name) === family);
+    if (!piece) return;
+    if (selected) releaseSelected();
+
+    const target = findMobileStagingPosition(piece);
+    target.y = suggestedCarryHeight(piece, target.x, target.z, target.y);
+    const start = target.clone();
+    start.y += 4.2;
+    setPieceInTray(piece, false);
+    piece.spawning = true;
+    piece.body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased, true);
+    piece.body.setTranslation(start, true);
+    piece.body.setRotation(piece.homeRotation, true);
+    piece.targetRotation.copy(piece.homeRotation);
+    piece.controlRotation.copy(piece.homeRotation);
+    for (const collider of piece.colliders) collider.setEnabled(false);
+    spawnMotion = {
+      piece,
+      start,
+      target,
+      startedAt: performance.now(),
+      duration: SPAWN_DURATION
+    };
+    setInstruction(`${family} · placing`);
+    updatePartsTray();
+  }
+
   function rebuild() {
+    resetChallengeAttempt();
     clusterSettle = null;
+    spawnMotion = null;
     challengeMatchedTime = 0;
     challengeComplete = false;
     holds = [];
@@ -1342,7 +1664,7 @@ Promise.all([
     last = performance.now();
     topView = false;
     orbitTargetElevation = MODEL_ELEVATION;
-    orbitTargetRadius = innerWidth < 641 ? 29 : innerWidth < 980 ? 30 : MODEL_RADIUS;
+    orbitTargetRadius = mobilePartsMode ? MOBILE_MODEL_RADIUS : innerWidth < 980 ? 30 : MODEL_RADIUS;
     if (viewButton) viewButton.textContent = 'top';
 
     world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
@@ -1414,7 +1736,7 @@ Promise.all([
       }
 
       scene.add(group);
-      pieces.push({
+      const piece = {
         name: definition.name,
         halfHeight: definition.halfHeight,
         body,
@@ -1429,11 +1751,16 @@ Promise.all([
         controlRotation: rotation.clone(),
         homePosition: new THREE.Vector3(...definition.position),
         homeRotation: rotation.clone(),
-        hold: null
-      });
+        hold: null,
+        inTray: false,
+        spawning: false
+      };
+      pieces.push(piece);
+      if (mobilePartsMode) setPieceInTray(piece, true);
     }
 
     updateSelectionUI();
+    updatePartsTray();
     setInstruction(DEFAULT_INSTRUCTION);
     refreshChallengeVisuals();
   }
@@ -1449,7 +1776,10 @@ Promise.all([
 
   function hitPiece(event) {
     setRay(event.clientX, event.clientY);
-    const hit = raycaster.intersectObjects(meshes, false)[0];
+    const hit = raycaster.intersectObjects(meshes, false).find(candidate => {
+      const piece = pieces[candidate.object.userData.pieceIndex];
+      return piece && !piece.inTray && !piece.spawning && piece.group.visible;
+    });
     return hit ? { piece: pieces[hit.object.userData.pieceIndex], hit } : null;
   }
 
@@ -1468,7 +1798,7 @@ Promise.all([
     const supports = new Set();
 
     for (const target of pieces) {
-      if (target === piece) continue;
+      if (target === piece || target.inTray || target.spawning) continue;
       const targetBounds = getWorldBounds(target.shapes, bodyPosition(target), bodyRotation(target));
       const overlapX = overlap(movingBounds.minX, movingBounds.maxX, targetBounds.minX, targetBounds.maxX);
       const overlapZ = overlap(movingBounds.minZ, movingBounds.maxZ, targetBounds.minZ, targetBounds.maxZ);
@@ -1505,7 +1835,7 @@ Promise.all([
     for (let pass = 0; pass < pieces.length; pass += 1) {
       let raised = false;
       for (const target of pieces) {
-        if (target === piece || ignored.has(target)) continue;
+        if (target === piece || target.inTray || target.spawning || ignored.has(target)) continue;
         const targetBounds = getWorldBounds(target.shapes, bodyPosition(target), bodyRotation(target));
         const overlapsX = movingBounds.maxX + CARRY_LOOKAHEAD >= targetBounds.minX
           && movingBounds.minX - CARRY_LOOKAHEAD <= targetBounds.maxX;
@@ -1746,7 +2076,9 @@ Promise.all([
     orbitVelocityAzimuth = 0;
     orbitVelocityElevation = 0;
     orbitTargetElevation = topView ? TOP_ELEVATION : MODEL_ELEVATION;
-    orbitTargetRadius = THREE.MathUtils.clamp(topView ? TOP_RADIUS : MODEL_RADIUS, orbitMinRadius, orbitMaxRadius);
+    const modelRadius = mobilePartsMode ? MOBILE_MODEL_RADIUS : MODEL_RADIUS;
+    const topRadius = mobilePartsMode ? MOBILE_TOP_RADIUS : TOP_RADIUS;
+    orbitTargetRadius = THREE.MathUtils.clamp(topView ? topRadius : modelRadius, orbitMinRadius, orbitMaxRadius);
     if (viewButton) viewButton.textContent = topView ? 'model' : 'top';
   }
 
@@ -1762,6 +2094,11 @@ Promise.all([
   challengeSpin?.addEventListener('click', startChallengeSpin);
   challengeGuide?.addEventListener('click', toggleChallengeGuide);
   challengeReset?.addEventListener('click', rebuild);
+  partsRail?.addEventListener('click', event => {
+    const button = event.target.closest('[data-part-family]');
+    if (!button || button.disabled) return;
+    spawnPieceFromTray(button.dataset.partFamily);
+  });
 
   stage.addEventListener('keydown', event => {
     if (!selected) return;
@@ -1857,7 +2194,7 @@ Promise.all([
   }
 
   function limitBodyMotion(piece) {
-    if (piece === selected) return;
+    if (piece === selected || piece.inTray || piece.spawning) return;
 
     const velocity = piece.body.linvel();
     const horizontalSpeed = Math.hypot(velocity.x, velocity.z);
@@ -1887,6 +2224,11 @@ Promise.all([
   }
 
   function recoverFallenPiece(piece) {
+    if (mobilePartsMode) {
+      setPieceInTray(piece, true);
+      updatePartsTray();
+      return;
+    }
     if (piece.hold) releaseHold(piece.hold);
     const position = piece.homePosition.clone();
     position.y = suggestedCarryHeight(piece, position.x, position.z, position.y);
@@ -1915,6 +2257,7 @@ Promise.all([
     last = now;
     accumulator += delta;
     updateOrbit(delta);
+    updateSpawnMotion(now);
     updateCarry(delta);
     updateSelectedControls(delta);
     updateClusterSettle(delta);
@@ -1938,6 +2281,7 @@ Promise.all([
     }
 
     updateChallengeProgress(delta);
+    paintChallengeScore(now);
     renderer.render(scene, camera);
     updateChallengePreview(now);
   }
@@ -1954,6 +2298,12 @@ Promise.all([
 
   function handleResize() {
     clearInteraction();
+    const nextMobilePartsMode = innerWidth <= MOBILE_BREAKPOINT;
+    if (nextMobilePartsMode !== mobilePartsMode) {
+      mobilePartsMode = nextMobilePartsMode;
+      if (partsTray) partsTray.setAttribute('aria-hidden', String(!mobilePartsMode));
+      rebuild();
+    }
     resize();
   }
 
@@ -1988,6 +2338,8 @@ Promise.all([
   document.addEventListener('turbo:before-cache', destroy, { once: true });
   addEventListener('pagehide', destroy, { once: true });
 
+  setupPartsTray();
+  if (partsTray) partsTray.setAttribute('aria-hidden', String(!mobilePartsMode));
   resize();
   rebuild();
   startChallengeSpin();
