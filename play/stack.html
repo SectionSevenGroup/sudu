@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>STACK — SuDu Studio</title>
+  <meta name="description" content="STACK, an interactive architectural study by SuDu Studio.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://sudu.studio/play/stack">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/stack/stack.css?v=75a">
+</head>
+<body>
+  <main class="stack-study" aria-labelledby="stack-title">
+    <header class="stack-header">
+      <a class="stack-mark" href="/" aria-label="SuDu Studio home"><img src="/images/sudu-mark.png" alt="SuDu Studio"></a>
+      <h1 id="stack-title">STACK</h1>
+    </header>
+
+    <div id="stack-stage" class="stack-stage" aria-label="Interactive block tower. Pull from an end to extract, use a side to nudge laterally, and lift a free block toward the guide at the top." tabindex="0">
+      <p class="stack-loading" aria-live="polite">assembling</p>
+    </div>
+
+    <div id="stack-cue-shield" class="stack-cue-shield" aria-hidden="true"></div>
+
+    <aside class="stack-players" aria-label="Players">
+      <form id="stack-player-form" class="stack-player-form" autocomplete="off">
+        <input id="stack-player-input" class="stack-player-input" type="text" maxlength="18" placeholder="name" aria-label="Player name">
+        <button class="stack-player-add" type="submit" aria-label="Add player">+</button>
+      </form>
+      <ol id="stack-player-list" class="stack-player-list" aria-live="polite"></ol>
+      <div id="stack-result" class="stack-result" hidden aria-live="assertive">
+        <span class="stack-result-kicker">game over</span>
+        <span class="stack-result-line"><strong id="stack-result-name" class="stack-result-name"></strong><span id="stack-result-state" class="stack-result-state"></span></span>
+      </div>
+    </aside>
+
+    <div class="stack-note" aria-live="polite">
+      <span id="move-count"></span>
+      <button id="stack-help" class="stack-help" type="button" aria-label="Show controls">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7h14M5 12h14M5 17h14"/>
+          <path class="stack-help-accent" d="M17 7h2M5 12h2M10 17h4"/>
+        </svg>
+      </button>
+      <button id="again" type="button">reset</button>
+    </div>
+    <p class="stack-instruction">pull clear · keep holding</p>
+  </main>
+
+  <script src="/stack/players.js?v=72i" defer></script>
+  <script src="/stack/mobile.js?v=75a" defer></script>
+  <script type="module" src="/stack/stack.js?v=74a"></script>
+</body>
+</html>
