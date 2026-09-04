@@ -6,8 +6,8 @@ const instruction = document.querySelector('.stack-instruction');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 Promise.all([
-  import('https://esm.sh/three@0.180.0'),
-  import('https://esm.sh/@dimforge/rapier3d-compat@0.19.0')
+  import('/stack/vendor/three-shim.js'),
+  import('/stack/vendor/rapier-shim.js')
 ]).then(async ([THREE, RAPIER]) => {
   await RAPIER.init();
   loading.remove();
