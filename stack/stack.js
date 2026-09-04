@@ -1,5 +1,5 @@
 import { blockTilt, createCollapseMonitor } from './game-state.js?v=72i';
-import { createTutorial } from './tutorial3d.js?v=72k';
+import { createTutorial } from './tutorial3d.js?v=74a';
 
 const stage = document.querySelector('#stack-stage');
 const loading = stage.querySelector('.stack-loading');
@@ -31,7 +31,7 @@ Promise.all([
   const CONTACT_GAP = .006;
 
   // Grip authority is intentionally asymmetric: END grips own axial extraction,
-  // SIDE grips own lateral nudging, and TOP grips only test/wiggle the piece.
+  // SIDE grips own lateral nudging, and TOP grips own bounded vertical effort.
   // Secondary directions are real physics, but deliberately weaker.
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf3f1ea);
@@ -784,25 +784,24 @@ Promise.all([
     const sideSpeed = velocity.dot(axes.side);
     const upSpeed = velocity.dot(axes.up);
 
-    const longCap = 72 * p.end + 10 * p.side + 18 * p.top;
-    const sideCap = 9 * p.end + 30 * p.side + 18 * p.top;
-    const upCap = 1.0 * p.end + 1.0 * p.side + 2.4 * p.top;
+    const weight = body.mass() * 9.81;
+    const longCap = 72 * p.end + 10 * p.side;
+    const sideCap = 9 * p.end + 30 * p.side;
+    // Enough upward effort to lift one unloaded block. Contacts and the
+    // weight above still resist a trapped block; downward effort is gentler.
+    const upCap = 1.0 * p.end + 1.0 * p.side + weight * (upError >= 0 ? 1.6 : .65) * p.top;
 
-    const longStiffness = 100 * p.end + 25 * p.side + 40 * p.top;
-    const sideStiffness = 28 * p.end + 65 * p.side + 40 * p.top;
-    const upStiffness = 8 * p.end + 8 * p.side + 16 * p.top;
+    const longStiffness = 100 * p.end + 25 * p.side;
+    const sideStiffness = 28 * p.end + 65 * p.side;
+    const upStiffness = 8 * p.end + 8 * p.side + weight * 14 * p.top;
 
     const longDamping = 22 * p.end + 12 * p.side + 16 * p.top;
     const sideDamping = 12 * p.end + 20 * p.side + 16 * p.top;
-    const upDamping = 6.0;
+    const upDamping = 6 * (p.end + p.side) + body.mass() * 14 * p.top;
 
     const longForce = forceComponent(longError, longSpeed, longStiffness, longDamping, longCap, MAX_PULL_ERROR);
     const sideForce = forceComponent(sideError, sideSpeed, sideStiffness, sideDamping, sideCap, MAX_SIDE_ERROR);
-    let upForce = forceComponent(upError, upSpeed, upStiffness, upDamping, upCap, MAX_TOP_ERROR);
-
-    // A top grip can test/rock a block, but the mouse cannot become a hydraulic press.
-    // Gravity/contact geometry may still move the block vertically on their own.
-    if (upForce < 0) upForce *= 1 - .94 * p.top;
+    const upForce = forceComponent(upError, upSpeed, upStiffness, upDamping, upCap, MAX_TOP_ERROR);
 
     const impulse = axes.long.clone().multiplyScalar(longForce)
       .addScaledVector(axes.side, sideForce)

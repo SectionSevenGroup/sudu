@@ -27,12 +27,16 @@ A side grip primarily controls motion across the block width.
 
 ### Top face
 
-A top grip is for testing and wiggling a block.
+A top grip applies an upward pull or a downward push, normal to the top face.
 
-- Moderate horizontal authority in both principal horizontal directions.
-- Almost no direct vertical authority.
-- Downward pointer motion must not turn into a hydraulic press on the tower.
-- Small vertical changes may still occur naturally through rocking, gaps, rotation and collision geometry.
+- A centred top grip has no horizontal pulling authority.
+- Upward effort is capped at 1.6 times the held block's own weight, enough to lift an unloaded piece while the load above can resist a trapped piece.
+- Downward effort is capped at 0.65 times its weight. Supporting wood prevents further downward motion without visible compression.
+- The block remains dynamic, with real collisions and torque at the contact point. Release restores unassisted gravity.
+
+### Tutorial directions
+
+Each sequence starts just outside the centre of the highlighted face and extends along its outward normal: lengthwise from the end, across the width from the side, and vertically above the top. Three fixed chevrons fade one by one. Their geometry sits proud of the wood in the block's actual 3D orientation, never painted onto another face.
 
 ### Edges and corners
 
@@ -157,7 +161,7 @@ A good interaction pass should allow the following without special knowledge:
 2. Grab near the edge of that end and see a small natural yaw as the block resists.
 3. Re-grab a half-extracted piece and push it back into its original course.
 4. Grab the middle of a long side and nudge the piece sideways without easily extracting it lengthwise.
-5. Grab the top and test/wiggle the block without being able to drive it downward through the tower.
+5. Grab the top to pull upward or push downward. An unloaded piece can lift; supporting or overlying wood resists movement without squashing.
 6. Pull a block fully free, continue holding, lift toward the top target and feel it align automatically.
 7. Release in the top capture region and watch the block settle naturally into its new course.
 8. Miss the placement area, drop the block, click it again and recover it.

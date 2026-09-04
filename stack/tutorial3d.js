@@ -52,9 +52,12 @@ export function createTutorial(THREE, { stage, getBlocks, camera, isGameOver, is
     });
   }
 
-  function makeChevrons(along, across, origin, height) {
+  function makeChevrons(along, across, faceCentre, height) {
     const width = height * .74;
     const pitch = width + height * .30;
+    // The whole strip is outside its source face. Its first tail leaves a
+    // deliberate air gap, and the sequence runs out along the face normal.
+    const origin = faceCentre.clone().addScaledVector(along, .12 + width / 2);
     // One flat, continuous six-point silhouette. Squared ends, matched arms
     // and an exact central notch, with no overlapping rods or rounded joins.
     const geometry = planarGeometry([
@@ -71,7 +74,7 @@ export function createTutorial(THREE, { stage, getBlocks, camera, isGameOver, is
     for (let i = 0; i < 3; i++) {
       const material = cueMaterial();
       const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.copy(origin).addScaledVector(along, (i - 1) * pitch);
+      mesh.position.copy(origin).addScaledVector(along, i * pitch);
       mesh.renderOrder = 12;
       group.add(mesh);
       materials.push(material);
@@ -86,7 +89,7 @@ export function createTutorial(THREE, { stage, getBlocks, camera, isGameOver, is
     const long = new THREE.Vector3(1, 0, 0);
     const cross = new THREE.Vector3(0, 0, 1);
     let faceOrigin, faceAlong, faceAcross, faceWidth, faceHeight;
-    let arrowOrigin, arrowAlong, arrowAcross, arrowHeight;
+    let arrowAlong, arrowAcross;
 
     if (type === 'end') {
       faceOrigin = new THREE.Vector3(endSign * 1.501, 0, 0);
@@ -94,35 +97,30 @@ export function createTutorial(THREE, { stage, getBlocks, camera, isGameOver, is
       faceAcross = up;
       faceWidth = .89;
       faceHeight = .346;
-      // The end grip pulls along the block's length. Draw that direction at
-      // mid-block on its exposed long face, in the face's actual perspective.
-      arrowOrigin = new THREE.Vector3(0, 0, sideSign * .462);
+      // End: pull/push lengthwise, directly out from the end-face centre.
       arrowAlong = long.clone().multiplyScalar(endSign);
       arrowAcross = up;
-      arrowHeight = .23;
     } else if (type === 'side') {
       faceOrigin = new THREE.Vector3(0, 0, sideSign * .461);
       faceAlong = long;
       faceAcross = up;
       faceWidth = 2.94;
       faceHeight = .346;
-      // A side nudge runs across the width, visible on the centred end face.
-      arrowOrigin = new THREE.Vector3(endSign * 1.502, 0, 0);
+      // Side: pull/push across the width, directly out from the side centre.
       arrowAlong = cross.clone().multiplyScalar(sideSign);
       arrowAcross = up;
-      arrowHeight = .23;
     } else {
       faceOrigin = new THREE.Vector3(0, .181, 0);
       faceAlong = long;
       faceAcross = cross;
       faceWidth = 2.94;
       faceHeight = .89;
-      // An intact top grip tests horizontal movement; it does not lift the
-      // tower. Keep the cue flat on the top face and centred in both axes.
-      arrowOrigin = new THREE.Vector3(0, .182, 0);
-      arrowAlong = long.clone().multiplyScalar(endSign);
-      arrowAcross = cross;
-      arrowHeight = .32;
+      // Top: pull/push vertically, above the top-face centre. Pick a block
+      // axis for the upright plane, keeping real perspective without a
+      // camera-facing billboard or a flattened graphic on the wood.
+      arrowAlong = up;
+      const localCamera = block.worldToLocal(camera.position.clone());
+      arrowAcross = Math.abs(localCamera.z) >= Math.abs(localCamera.x) ? long : cross;
     }
 
     const faceGeometry = planarGeometry([
@@ -136,7 +134,7 @@ export function createTutorial(THREE, { stage, getBlocks, camera, isGameOver, is
     face.position.copy(faceOrigin);
     face.renderOrder = 11;
     block.add(face);
-    const arrows = makeChevrons(arrowAlong, arrowAcross, arrowOrigin, arrowHeight);
+    const arrows = makeChevrons(arrowAlong, arrowAcross, faceOrigin, .30);
     block.add(arrows.group);
     return { block, face, faceMaterial, arrows };
   }
