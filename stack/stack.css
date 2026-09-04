@@ -2,6 +2,7 @@
   --stack-paper: #f3f1ea;
   --stack-ink: #24231f;
   --stack-accent: #ef5b2a;
+  --stack-inset: clamp(20px, 4.5vw, 64px);
 }
 
 * {
@@ -20,6 +21,7 @@ body {
 
 body {
   font-family: 'Urbanist', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -37,35 +39,42 @@ input {
   -webkit-user-select: none;
 }
 
+/* Exact SuDu site header geometry: same rail, mark height and vertical band. */
 .stack-header {
   position: fixed;
-  inset: 0 0 auto 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 34px var(--stack-inset) 30px;
+  background: rgba(243, 241, 234, .94);
+  border-bottom: 1px solid rgba(36, 35, 31, .13);
   pointer-events: none;
 }
 
 .stack-mark {
-  position: fixed;
-  top: 22px;
-  left: 42px;
+  display: flex;
+  align-items: flex-end;
   pointer-events: auto;
 }
 
 .stack-mark img {
   display: block;
-  width: 43px;
-  height: auto;
+  width: auto;
+  height: 38px;
 }
 
 .stack-header h1 {
-  position: fixed;
-  top: 27px;
-  right: 46px;
   margin: 0;
-  font-size: 10px;
-  font-weight: 600;
+  padding-bottom: 3px;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: .12em;
+  letter-spacing: 0;
 }
 
 .stack-instruction,
@@ -81,13 +90,13 @@ input {
 }
 
 .stack-instruction {
-  left: 42px;
+  left: var(--stack-inset);
   bottom: 25px;
   margin: 0;
 }
 
 .stack-note {
-  right: 44px;
+  right: var(--stack-inset);
   bottom: 24px;
   display: flex;
   align-items: center;
@@ -179,7 +188,7 @@ input {
 /* Player ledger. It is a quiet turn ledger, not a scoreboard. */
 .stack-players {
   top: 50%;
-  left: 42px;
+  left: var(--stack-inset);
   width: 148px;
   transform: translateY(-50%);
   z-index: 130;
@@ -339,33 +348,21 @@ body.stack-cue-open .stack-note {
 }
 
 @media (max-width: 760px) {
-  .stack-mark {
-    top: 18px;
-    left: 22px;
-  }
-
-  .stack-mark img {
-    width: 39px;
-  }
-
-  .stack-header h1 {
-    top: 22px;
-    right: 22px;
+  .stack-header {
+    padding-left: var(--stack-inset);
+    padding-right: var(--stack-inset);
   }
 
   .stack-instruction {
-    left: 22px;
     bottom: 20px;
   }
 
   .stack-note {
-    right: 22px;
     bottom: 19px;
   }
 
   .stack-players {
-    top: 74px;
-    left: 22px;
+    top: 118px;
     width: 118px;
     transform: none;
   }
