@@ -10,18 +10,19 @@ if (!shield || !stage) {
 }
 
 const ACCENT = 0xef5b2a;
-const PHASE_MS = reducedMotion ? 1050 : 1650;
+const PHASE_MS = reducedMotion ? 1100 : 1750;
+const INITIAL_DELAY_MS = reducedMotion ? 250 : 550;
 const registry = {
   blocks: [],
-  camera: null,
-  renderer: null
+  camera: null
 };
 
 const originalSceneAdd = THREE.Scene.prototype.add;
-const originalRender = THREE.WebGLRenderer.prototype.render;
+const originalLookAt = THREE.PerspectiveCamera.prototype.lookAt;
 
-// Capture the actual block groups created by stack.js. The tutorial never
-// redraws the tower. It adds a temporary face layer directly to a real block.
+// Capture the actual block groups and actual camera used by stack.js.
+// The cue is physically parented to a real block face, so it inherits the
+// block's true perspective, scale, settling and occlusion.
 if (!window.__stackLiveCuePatched) {
   window.__stackLiveCuePatched = true;
 
@@ -33,10 +34,12 @@ if (!window.__stackLiveCuePatched) {
     return originalSceneAdd.apply(this, objects);
   };
 
-  THREE.WebGLRenderer.prototype.render = function (scene, camera) {
-    registry.camera = camera;
-    registry.renderer = this;
-    return originalRender.call(this, scene, camera);
+  // WebGLRenderer.render is an instance method in this Three build, so a
+  // prototype patch there never saw the live camera. Camera.lookAt is called
+  // by STACK on setup and every orbit frame, making it the reliable hook.
+  THREE.PerspectiveCamera.prototype.lookAt = function (...args) {
+    registry.camera = this;
+    return originalLookAt.apply(this, args);
   };
 }
 
@@ -49,6 +52,7 @@ let running = false;
 let activeCue = null;
 let frameId = 0;
 let initialPlayed = false;
+let initialTimer = 0;
 
 function blockAt(course, slot) {
   return registry.blocks[course * 3 + slot] || null;
@@ -56,9 +60,10 @@ function blockAt(course, slot) {
 
 function screenPoint(world) {
   const projected = world.clone().project(registry.camera);
+  const rect = stage.getBoundingClientRect();
   return {
-    x: (projected.x * .5 + .5) * innerWidth,
-    y: (-projected.y * .5 + .5) * innerHeight
+    x: rect.left + (projected.x * .5 + .5) * rect.width,
+    y: rect.top + (-projected.y * .5 + .5) * rect.height
   };
 }
 
@@ -81,17 +86,17 @@ function makeHighlight(type, group) {
 
   if (type === 'end') {
     const sign = visibleSign(group, 'x', 1.5);
-    geometry = new THREE.BoxGeometry(.026, .348, .90);
-    position = new THREE.Vector3(sign * 1.515, 0, 0);
+    geometry = new THREE.BoxGeometry(.028, .346, .89);
+    position = new THREE.Vector3(sign * 1.518, 0, 0);
     normal = new THREE.Vector3(sign, 0, 0);
   } else if (type === 'side') {
     const sign = visibleSign(group, 'z', .46);
-    geometry = new THREE.BoxGeometry(2.96, .348, .026);
-    position = new THREE.Vector3(0, 0, sign * .468);
+    geometry = new THREE.BoxGeometry(2.94, .346, .028);
+    position = new THREE.Vector3(0, 0, sign * .472);
     normal = new THREE.Vector3(0, 0, sign);
   } else {
-    geometry = new THREE.BoxGeometry(2.96, .026, .90);
-    position = new THREE.Vector3(0, .188, 0);
+    geometry = new THREE.BoxGeometry(2.94, .028, .89);
+    position = new THREE.Vector3(0, .192, 0);
     normal = new THREE.Vector3(0, 1, 0);
   }
 
@@ -120,6 +125,8 @@ function chevronMarkup(type) {
 function removeActiveCue() {
   if (!activeCue) return;
   activeCue.group.remove(activeCue.mesh);
+  activeCue.mesh.geometry.dispose();
+  activeCue.material.dispose();
   activeCue = null;
   chevron.style.opacity = '0';
 }
@@ -135,8 +142,8 @@ function updateCue(now, startTime) {
   if (!activeCue || !registry.camera) return;
 
   const phase = Math.min(1, Math.max(0, (now - startTime) / PHASE_MS));
-  const pulse = reducedMotion ? .82 : Math.sin(Math.PI * phase);
-  activeCue.material.opacity = .10 + pulse * .44;
+  const pulse = reducedMotion ? .88 : Math.sin(Math.PI * phase);
+  activeCue.material.opacity = .18 + pulse * .48;
 
   const centreWorld = activeCue.group.localToWorld(activeCue.localCentre.clone());
   const outwardLocal = activeCue.localCentre.clone().addScaledVector(activeCue.localNormal, .82);
@@ -149,15 +156,15 @@ function updateCue(now, startTime) {
   dx /= length;
   dy /= length;
 
-  const offset = activeCue.type === 'top' ? 30 : 27;
-  const travel = reducedMotion ? 0 : (activeCue.type === 'top' ? pulse * 7 : Math.sin(phase * Math.PI * 2) * 3);
+  const offset = activeCue.type === 'top' ? 34 : 30;
+  const travel = reducedMotion ? 0 : (activeCue.type === 'top' ? pulse * 8 : Math.sin(phase * Math.PI * 2) * 4);
   const x = centre.x + dx * offset;
   const y = centre.y + dy * offset;
   const angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
   chevron.style.left = `${x}px`;
   chevron.style.top = `${y}px`;
-  chevron.style.opacity = `${.26 + pulse * .74}`;
+  chevron.style.opacity = `${.38 + pulse * .62}`;
   chevron.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateX(${travel}px)`;
 }
 
@@ -171,13 +178,12 @@ function stopTutorial() {
 }
 
 function playStep(step) {
-  // These are deliberately visible, exposed faces in the default camera:
-  // an end on a front corner block, the long side of a front-row block, then
-  // the top face of an upper block. The highlight is physically parented to
-  // that exact live block so perspective and any tiny settling stay correct.
   const targets = [
+    // A genuinely exposed end face around mid-height.
     { type: 'end', block: blockAt(13, 2) },
+    // A visible long face on the front side of the tower.
     { type: 'side', block: blockAt(12, 2) },
+    // A real upper top face for the lift cue.
     { type: 'top', block: blockAt(23, 1) }
   ];
   const target = targets[step];
@@ -215,15 +221,20 @@ function startTutorial() {
 }
 
 function waitForTower() {
-  if (!initialPlayed && startTutorial()) {
+  if (initialPlayed) return;
+
+  if (registry.camera && registry.blocks.filter(Boolean).length >= 72) {
     initialPlayed = true;
+    initialTimer = window.setTimeout(() => startTutorial(), INITIAL_DELAY_MS);
     return;
   }
+
   requestAnimationFrame(waitForTower);
 }
 
 help?.addEventListener('click', event => {
   event.preventDefault();
+  window.clearTimeout(initialTimer);
   if (!startTutorial()) requestAnimationFrame(startTutorial);
 });
 
