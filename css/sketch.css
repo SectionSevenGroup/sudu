@@ -243,6 +243,8 @@ html.xh * { cursor: none !important; }
 .trace-bar > .context-label { margin-right: 2px; }
 .trace-layers { flex: 1 1 auto; }
 .trace-layer {
+  display: flex;
+  align-items: center;
   flex: 0 0 auto;
   border-right: .5px solid var(--rule);
 }
@@ -251,7 +253,11 @@ html.xh * { cursor: none !important; }
 .trace-layer .trace-select { padding-right: 8px; }
 .trace-layer .trace-select::after { right: 8px; left: 10px; }
 .trace-layer .trace-visible,
-.trace-layer .trace-remove {
+.trace-layer .trace-remove,
+.trace-layer .trace-lock,
+.trace-layer .trace-order,
+.trace-layer .trace-copy,
+.trace-layer .trace-scale {
   min-width: 30px;
   padding: 0 7px;
   color: var(--faint);
@@ -259,11 +265,24 @@ html.xh * { cursor: none !important; }
 }
 .trace-layer.is-hidden .trace-select { opacity: .34; text-decoration: line-through; }
 .trace-layer.is-hidden .trace-visible { color: var(--ink); }
+.trace-layer.is-locked .trace-select::before {
+  margin-right: 5px;
+  content: '·';
+}
+.trace-opacity {
+  width: 58px;
+  height: 1px;
+  margin: 0 8px;
+  padding: 12px 0;
+  accent-color: var(--ink);
+  cursor: ew-resize;
+}
+.trace-import,
 .trace-add {
-  margin-left: auto;
   padding-right: 0 !important;
   color: var(--ink) !important;
 }
+.trace-import { margin-left: auto; padding-right: 12px !important; }
 .sketch-toolbar,
 .sketch-workspace-footer {
   display: flex;
@@ -461,6 +480,13 @@ button:disabled { cursor: default !important; opacity: .28; }
   border-radius: 0;
   transform: translate(-50%, -50%) rotate(45deg);
 }
+.draw-stage[data-tool='pan'] .draw-cursor {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border-style: dashed;
+}
+.draw-stage[data-tool='pan'].is-panning .draw-cursor { transform: translate(-50%, -50%) scale(.76); }
 .draw-stage[data-tool='door'] .draw-cursor,
 .draw-stage[data-tool='window'] .draw-cursor { width: 8px; height: 8px; }
 .draw-scale {
@@ -479,10 +505,41 @@ button:disabled { cursor: default !important; opacity: .28; }
   pointer-events: none;
 }
 
+.sketch-view {
+  position: absolute;
+  z-index: 7;
+  right: 12px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  border: .5px solid var(--rule-strong);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+.sketch-view button,
+.sketch-view output {
+  display: grid;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 9px;
+  place-items: center;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.sketch-view button { cursor: pointer; }
+.sketch-view button + output,
+.sketch-view output + button,
+.sketch-view button + button { border-left: .5px solid var(--rule); }
+.sketch-view button:hover { color: var(--ink); }
+
 .scale-mark {
   position: relative;
   display: block;
-  width: 28px;
+  width: var(--dot-screen, 28px);
   height: 9px;
   border-top: .75px solid currentColor;
 }
@@ -602,6 +659,7 @@ button:disabled { cursor: default !important; opacity: .28; }
 }
 
 .sketch-workspace-footer [data-action='screenshot'],
+.sketch-workspace-footer [data-action='pdf'],
 .sketch-workspace-footer [data-action='send'] { color: var(--ink); }
 
 .send-panel {
@@ -754,6 +812,8 @@ html.dm .sketch-header {
   .floor-references { border-top: .5px solid var(--rule); }
   .trace-bar { overflow: hidden; }
   .trace-bar > .context-label { display: none; }
+  .trace-opacity, .trace-copy, .trace-order { display: none; }
+  .trace-import { margin-left: 0; }
   .sketch-toolbar { align-items: stretch; flex-direction: column; gap: 0; padding: 8px 0; }
   .sketch-tools, .sketch-actions { overflow-x: auto; }
   .sketch-toolbar button { flex: 0 0 auto; padding-top: 12px; padding-bottom: 12px; }
@@ -766,6 +826,7 @@ html.dm .sketch-header {
   .stencil-options { flex: 1 1 auto; border-left: .5px solid var(--rule); }
   .stencil-panel button { min-height: 42px; }
   .draw-stage { height: 64svh; min-height: 440px; }
+  .draw-scale { bottom: 48px; }
   .sketch-ruler { width: min(68vw, 320px); }
   .sketch-workspace-footer { align-items: flex-start; flex-direction: column; gap: 0; padding-top: 12px; }
   .sketch-workspace-footer p { min-height: 22px; }

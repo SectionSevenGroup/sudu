@@ -24,6 +24,9 @@
   var stencilCategoryButtons = Array.prototype.slice.call(document.querySelectorAll('[data-stencil-category]'));
   var stencilStyleButtons = Array.prototype.slice.call(document.querySelectorAll('[data-stencil-style]'));
   var floorButtons = Array.prototype.slice.call(document.querySelectorAll('[data-floor]'));
+  var underlayInput = document.getElementById('underlayInput');
+  var projectInput = document.getElementById('projectInput');
+  var zoomLevel = document.getElementById('zoomLevel');
   var siteXhair = null;
   // The stage also carries data-tool so CSS can style the active cursor.
   // Only actual toolbar buttons belong in this collection; otherwise pointer
@@ -36,7 +39,6 @@
 
   var INK = '#171613';
   var PAPER = '#F3F1EA';
-  var SOLID_BLACK = '#171613';
   var GRID = 'rgba(23,22,19,0.26)';
   var FLOOR_ORDER = ['basement', 'main', 'second'];
   var FLOOR_LABELS = { basement: 'Basement', main: 'Main', second: 'Second' };
@@ -60,10 +62,23 @@
   var doorFlip = false;
   var rulerDrag = null;
   var rulerState = { visible: false, x: 0.5, y: 0.5, angle: 0 };
-  var STORAGE_KEY = 'sudu-sketch-v2';
+  var STORAGE_KEY = 'sudu-sketch-v3';
+  var PREVIOUS_STORAGE_KEY = 'sudu-sketch-v2';
   var LEGACY_STORAGE_KEY = 'sudu-sketch-v1';
   var RULER_KEY = 'sudu-sketch-ruler-v1';
   var GRID_SPACING = 28;
+  var WORLD_DOTS_X = 64;
+  var WORLD_DOTS_Y = 48;
+  var WORLD_WIDTH = WORLD_DOTS_X * GRID_SPACING;
+  var WORLD_HEIGHT = WORLD_DOTS_Y * GRID_SPACING;
+  var DOT_FEET = 2;
+  var camera = { x: 0, y: 0, scale: 1, fitted: false };
+  var pointers = new Map();
+  var gesture = null;
+  var panDrag = null;
+  var spaceHeld = false;
+  var imageCache = new Map();
+  var objectSerial = 0;
   var allowedTypes = ['pen', 'line', 'room', 'door', 'window', 'area', 'stencil', 'note'];
   var stencilCategory = 'cars';
   var stencilId = 'car-sedan';
@@ -88,7 +103,8 @@
     window: 'Click for a 4′ window or drag a custom opening.',
     area: 'Drag a rectangle to shade an area.',
     stencil: 'Choose a plan template, then click the grid to place it.',
-    edit: 'Select a wall, room, area or template. Drag anchors to resize; drag a template to move it.',
+    edit: 'Select any object. Drag to move it or use a diamond anchor to reshape it.',
+    pan: 'Drag the drawing to move around. Pinch or scroll to zoom.',
     note: 'Select a point on the plan, then type a note.',
     erase: 'Select a line, room, opening, area, template or note to remove it.'
   };
@@ -97,11 +113,24 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function makeObjectId(type) {
+    objectSerial += 1;
+    return String(type || 'object').slice(0, 8) + '-' + Date.now().toString(36) + '-' + objectSerial.toString(36);
+  }
+
+  function ensureObjectId(object) {
+    if (object && !object.id) object.id = makeObjectId(object.type);
+    return object;
+  }
+
   function makeLayer(id, name, layerObjects) {
     return {
       id: id,
       name: name,
       visible: true,
+      locked: false,
+      opacity: 1,
+      underlay: null,
       objects: layerObjects || [],
       undoStack: [],
       redoStack: []
@@ -124,7 +153,7 @@
     if (!Array.isArray(value)) return [];
     return value.filter(function (item) {
       return item && allowedTypes.indexOf(item.type) !== -1;
-    }).slice(-200);
+    }).slice(-200).map(ensureObjectId);
   }
 
   function floorState(key) {
@@ -161,7 +190,7 @@
   }
 
   function floorHasDrawing(key) {
-    return floorState(key).layers.some(function (layer) { return layer.objects.length > 0; });
+    return floorState(key).layers.some(function (layer) { return layer.objects.length > 0 || Boolean(layer.underlay); });
   }
 
   function visibleObjectsForFloor(key) {
@@ -179,7 +208,7 @@
   }
 
   function currentSceneHasDrawing() {
-    if (visibleObjectsForFloor(activeFloor).length) return true;
+    if (activeFloorState().layers.some(function (layer) { return layer.visible && (layer.objects.length || layer.underlay); })) return true;
     var refs = activeFloorState().references;
     var below = refs.below && adjacentFloor('below');
     var above = refs.above && adjacentFloor('above');
@@ -198,12 +227,21 @@
             id: layer.id,
             name: layer.name,
             visible: layer.visible,
+            locked: layer.locked,
+            opacity: layer.opacity,
+            underlay: layer.underlay,
             objects: layer.objects
           };
         })
       };
     });
-    return { version: 2, activeFloor: activeFloor, traceSerial: traceSerial, floors: savedFloors };
+    return {
+      version: 3,
+      units: { feetPerDot: DOT_FEET, dots: [WORLD_DOTS_X, WORLD_DOTS_Y] },
+      activeFloor: activeFloor,
+      traceSerial: traceSerial,
+      floors: savedFloors
+    };
   }
 
   function persistDrawing() {
@@ -223,8 +261,8 @@
   function loadSaved() {
     resetFloors();
     try {
-      var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      if (saved && saved.version === 2 && saved.floors) {
+      var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(PREVIOUS_STORAGE_KEY) || 'null');
+      if (saved && (saved.version === 2 || saved.version === 3) && saved.floors) {
         FLOOR_ORDER.forEach(function (key) {
           var source = saved.floors[key];
           if (!source || !Array.isArray(source.layers)) return;
@@ -233,9 +271,21 @@
             var name = String(layer.name || (index ? 'Trace ' + index : 'Drawing')).slice(0, 32);
             var clean = makeLayer(id, name, cleanObjects(layer.objects));
             clean.visible = layer.visible !== false;
+            clean.locked = Boolean(layer.locked);
+            clean.opacity = Math.max(0.08, Math.min(1, Number(layer.opacity) || 1));
+            clean.underlay = layer.underlay && typeof layer.underlay.src === 'string'
+              ? {
+                  name: String(layer.underlay.name || 'Imported trace').slice(0, 64),
+                  src: layer.underlay.src,
+                  x: Number(layer.underlay.x) || 0,
+                  y: Number(layer.underlay.y) || 0,
+                  width: Math.max(0.02, Number(layer.underlay.width) || 1),
+                  height: Math.max(0.02, Number(layer.underlay.height) || 1)
+                }
+              : null;
             return clean;
           });
-          if (!layers.length || layers[0].id !== 'base') layers.unshift(makeLayer('base', 'Drawing', []));
+          if (!layers.some(function (layer) { return layer.id === 'base'; })) layers.unshift(makeLayer('base', 'Drawing', []));
           floors[key].layers = layers;
           floors[key].activeLayerId = layers.some(function (layer) { return layer.id === source.activeLayerId; })
             ? source.activeLayerId
@@ -281,6 +331,7 @@
   }
 
   function remember(previous) {
+    objects.forEach(ensureObjectId);
     undoStack.push(previous);
     if (undoStack.length > 80) undoStack.shift();
     redoStack.length = 0;
@@ -292,11 +343,13 @@
     var hasDrawing = objects.length > 0;
     var hasProjectDrawing = FLOOR_ORDER.some(floorHasDrawing);
     var hasSceneDrawing = currentSceneHasDrawing();
+    var locked = activeLayerState().locked;
     actionButtons.undo.disabled = undoStack.length === 0;
     actionButtons.redo.disabled = redoStack.length === 0;
-    actionButtons.clear.disabled = !hasDrawing;
+    actionButtons.clear.disabled = !hasDrawing || locked;
     actionButtons.save.disabled = !hasProjectDrawing;
     actionButtons.screenshot.disabled = !hasSceneDrawing;
+    actionButtons.pdf.disabled = !hasSceneDrawing;
     actionButtons.send.disabled = !hasSceneDrawing;
     actionButtons.ruler.classList.toggle('is-active', rulerState.visible);
     actionButtons.ruler.setAttribute('aria-pressed', rulerState.visible ? 'true' : 'false');
@@ -312,6 +365,7 @@
       group.setAttribute('data-layer', layer.id);
       group.classList.toggle('is-active', floor.activeLayerId === layer.id);
       group.classList.toggle('is-hidden', !layer.visible);
+      group.classList.toggle('is-locked', layer.locked);
 
       var select = document.createElement('button');
       select.type = 'button';
@@ -329,6 +383,63 @@
       visible.setAttribute('aria-pressed', layer.visible ? 'true' : 'false');
       visible.textContent = layer.visible ? 'On' : 'Off';
       group.appendChild(visible);
+
+      var lock = document.createElement('button');
+      lock.type = 'button';
+      lock.className = 'trace-lock';
+      lock.setAttribute('data-layer-lock', layer.id);
+      lock.setAttribute('aria-label', (layer.locked ? 'Unlock ' : 'Lock ') + layer.name);
+      lock.setAttribute('aria-pressed', layer.locked ? 'true' : 'false');
+      lock.textContent = layer.locked ? 'Lock' : 'Free';
+      group.appendChild(lock);
+
+      var opacity = document.createElement('input');
+      opacity.type = 'range';
+      opacity.className = 'trace-opacity';
+      opacity.min = '8';
+      opacity.max = '100';
+      opacity.value = String(Math.round(layer.opacity * 100));
+      opacity.setAttribute('data-layer-opacity', layer.id);
+      opacity.setAttribute('aria-label', layer.name + ' opacity');
+      group.appendChild(opacity);
+
+      if (layer.underlay) {
+        var calibrate = document.createElement('button');
+        calibrate.type = 'button';
+        calibrate.className = 'trace-scale';
+        calibrate.setAttribute('data-layer-scale', layer.id);
+        calibrate.setAttribute('aria-label', 'Set the real width of ' + layer.name);
+        calibrate.textContent = 'Scale';
+        group.appendChild(calibrate);
+      }
+
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'trace-copy';
+      copy.setAttribute('data-layer-copy', layer.id);
+      copy.setAttribute('aria-label', 'Duplicate ' + layer.name);
+      copy.textContent = 'Copy';
+      group.appendChild(copy);
+
+      if (floor.layers.length > 1) {
+        var up = document.createElement('button');
+        up.type = 'button';
+        up.className = 'trace-order';
+        up.setAttribute('data-layer-order', layer.id);
+        up.setAttribute('data-direction', 'up');
+        up.setAttribute('aria-label', 'Move ' + layer.name + ' up');
+        up.textContent = '↑';
+        group.appendChild(up);
+
+        var down = document.createElement('button');
+        down.type = 'button';
+        down.className = 'trace-order';
+        down.setAttribute('data-layer-order', layer.id);
+        down.setAttribute('data-direction', 'down');
+        down.setAttribute('aria-label', 'Move ' + layer.name + ' down');
+        down.textContent = '↓';
+        group.appendChild(down);
+      }
 
       if (layer.id !== 'base') {
         var remove = document.createElement('button');
@@ -432,6 +543,135 @@
     render();
   }
 
+  function toggleLayerLock(id) {
+    var layer = layerState(activeFloorState(), id);
+    if (!layer) return;
+    layer.locked = !layer.locked;
+    resetDrawingInteraction();
+    scheduleSave();
+    updateActions();
+    render();
+    setHint(layer.name + (layer.locked ? ' locked.' : ' unlocked.'));
+  }
+
+  function setLayerOpacity(id, value) {
+    var layer = layerState(activeFloorState(), id);
+    if (!layer) return;
+    layer.opacity = Math.max(0.08, Math.min(1, Number(value) / 100));
+    scheduleSave();
+    render();
+  }
+
+  function calibrateUnderlay(id) {
+    var layer = layerState(activeFloorState(), id);
+    if (!layer || !layer.underlay) return;
+    var currentFeet = Math.round(layer.underlay.width * WORLD_DOTS_X * DOT_FEET);
+    var answer = window.prompt('How many feet wide is this imported trace?', String(currentFeet));
+    var feet = Number(answer);
+    if (!answer || !Number.isFinite(feet) || feet <= 0) return;
+    var oldWidth = layer.underlay.width;
+    var oldHeight = layer.underlay.height;
+    var centreX = layer.underlay.x + oldWidth / 2;
+    var centreY = layer.underlay.y + oldHeight / 2;
+    layer.underlay.width = feet / (WORLD_DOTS_X * DOT_FEET);
+    layer.underlay.height = oldHeight * layer.underlay.width / oldWidth;
+    layer.underlay.x = centreX - layer.underlay.width / 2;
+    layer.underlay.y = centreY - layer.underlay.height / 2;
+    scheduleSave();
+    render();
+    setHint('Imported trace calibrated to ' + feet + '′ wide.');
+  }
+
+  function renameLayer(id) {
+    var layer = layerState(activeFloorState(), id);
+    if (!layer) return;
+    var next = window.prompt('Layer name', layer.name);
+    if (!next || !next.trim()) return;
+    layer.name = next.trim().slice(0, 32);
+    scheduleSave();
+    renderTraceControls();
+    setHint('Layer renamed ' + layer.name + '.');
+  }
+
+  function duplicateLayer(id) {
+    var floor = activeFloorState();
+    if (floor.layers.length >= 12) return;
+    var source = layerState(floor, id);
+    if (!source) return;
+    traceSerial += 1;
+    var copy = makeLayer('trace-' + Date.now().toString(36) + '-' + traceSerial, source.name + ' copy', clone(source.objects));
+    copy.visible = source.visible;
+    copy.locked = false;
+    copy.opacity = source.opacity;
+    copy.underlay = source.underlay ? clone(source.underlay) : null;
+    var index = floor.layers.indexOf(source);
+    floor.layers.splice(index + 1, 0, copy);
+    floor.activeLayerId = copy.id;
+    bindActiveLayer();
+    resetDrawingInteraction();
+    scheduleSave();
+    updateActions();
+    render();
+    setHint(copy.name + ' added.');
+  }
+
+  function reorderLayer(id, direction) {
+    var floor = activeFloorState();
+    var index = floor.layers.findIndex(function (layer) { return layer.id === id; });
+    if (index < 0) return;
+    var next = direction === 'up' ? index + 1 : index - 1;
+    if (next < 0 || next >= floor.layers.length) return;
+    var moved = floor.layers.splice(index, 1)[0];
+    floor.layers.splice(next, 0, moved);
+    scheduleSave();
+    renderTraceControls();
+    render();
+  }
+
+  function importUnderlay(file) {
+    if (!file || !/^image\/(png|jpeg|webp)$/.test(file.type)) {
+      setHint('Import a PNG, JPG or WebP trace image.');
+      return;
+    }
+    var url = URL.createObjectURL(file);
+    var image = new Image();
+    image.onload = function () {
+      var maxSide = 1800;
+      var scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+      var buffer = document.createElement('canvas');
+      buffer.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      buffer.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      var bufferContext = buffer.getContext('2d');
+      bufferContext.drawImage(image, 0, 0, buffer.width, buffer.height);
+      var source = buffer.toDataURL('image/jpeg', 0.82);
+      URL.revokeObjectURL(url);
+
+      var floor = activeFloorState();
+      traceSerial += 1;
+      var layer = makeLayer('trace-' + Date.now().toString(36) + '-' + traceSerial, file.name.replace(/\.[^.]+$/, '').slice(0, 28) || 'Imported trace', []);
+      var imageAspect = buffer.width / buffer.height;
+      var worldAspect = WORLD_WIDTH / WORLD_HEIGHT;
+      if (imageAspect > worldAspect) {
+        layer.underlay = { name: file.name, src: source, x: 0.04, y: (1 - (0.92 * worldAspect / imageAspect)) / 2, width: 0.92, height: 0.92 * worldAspect / imageAspect };
+      } else {
+        layer.underlay = { name: file.name, src: source, x: (1 - (0.92 * imageAspect / worldAspect)) / 2, y: 0.04, width: 0.92 * imageAspect / worldAspect, height: 0.92 };
+      }
+      layer.opacity = 0.45;
+      layer.locked = true;
+      floor.layers.splice(1, 0, layer);
+      imageCache.set(source, image);
+      scheduleSave();
+      updateActions();
+      render();
+      setHint('Trace imported and locked. Adjust its opacity in Layers.');
+    };
+    image.onerror = function () {
+      URL.revokeObjectURL(url);
+      setHint('That image could not be opened.');
+    };
+    image.src = url;
+  }
+
   function removeTrace(id) {
     if (id === 'base') return;
     var floor = activeFloorState();
@@ -466,26 +706,79 @@
     canvas.style.width = cssWidth + 'px';
     canvas.style.height = cssHeight + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!camera.fitted) fitView();
+    else clampCamera();
     positionRuler();
     render();
   }
 
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function clampCamera() {
+    var padding = Math.min(84, Math.min(cssWidth, cssHeight) * 0.18);
+    var drawnWidth = WORLD_WIDTH * camera.scale;
+    var drawnHeight = WORLD_HEIGHT * camera.scale;
+    camera.x = drawnWidth <= cssWidth
+      ? (cssWidth - drawnWidth) / 2
+      : clamp(camera.x, cssWidth - drawnWidth - padding, padding);
+    camera.y = drawnHeight <= cssHeight
+      ? (cssHeight - drawnHeight) / 2
+      : clamp(camera.y, cssHeight - drawnHeight - padding, padding);
+    updateZoomLevel();
+  }
+
+  function fitView() {
+    if (!cssWidth || !cssHeight) return;
+    var margin = Math.min(28, cssWidth * 0.03);
+    camera.scale = clamp(Math.min((cssWidth - margin * 2) / WORLD_WIDTH, (cssHeight - margin * 2) / WORLD_HEIGHT), 0.18, 3.5);
+    camera.x = (cssWidth - WORLD_WIDTH * camera.scale) / 2;
+    camera.y = (cssHeight - WORLD_HEIGHT * camera.scale) / 2;
+    camera.fitted = true;
+    updateZoomLevel();
+    render();
+  }
+
+  function zoomAt(nextScale, screenX, screenY) {
+    var oldScale = camera.scale;
+    var next = clamp(nextScale, 0.18, 4.5);
+    var worldX = (screenX - camera.x) / oldScale;
+    var worldY = (screenY - camera.y) / oldScale;
+    camera.scale = next;
+    camera.x = screenX - worldX * next;
+    camera.y = screenY - worldY * next;
+    camera.fitted = true;
+    clampCamera();
+    render();
+  }
+
+  function updateZoomLevel() {
+    if (zoomLevel) zoomLevel.textContent = Math.round(camera.scale * 100) + '%';
+    stage.style.setProperty('--dot-screen', Math.max(8, GRID_SPACING * camera.scale) + 'px');
+    if (rulerState.visible) positionRuler();
+  }
+
+  function screenPoint(point) {
+    return {
+      x: camera.x + point.x * WORLD_WIDTH * camera.scale,
+      y: camera.y + point.y * WORLD_HEIGHT * camera.scale
+    };
+  }
+
   function pointFromEvent(event, snap) {
     var rect = canvas.getBoundingClientRect();
-    var x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
-    var y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
+    var x = clamp((event.clientX - rect.left - camera.x) / camera.scale, 0, WORLD_WIDTH);
+    var y = clamp((event.clientY - rect.top - camera.y) / camera.scale, 0, WORLD_HEIGHT);
     if (snap) {
-      var spacing = GRID_SPACING;
-      var offsetX = (rect.width % spacing) / 2;
-      var offsetY = (rect.height % spacing) / 2;
-      x = Math.round((x - offsetX) / spacing) * spacing + offsetX;
-      y = Math.round((y - offsetY) / spacing) * spacing + offsetY;
+      x = Math.round(x / GRID_SPACING) * GRID_SPACING;
+      y = Math.round(y / GRID_SPACING) * GRID_SPACING;
     }
-    return { x: x / rect.width, y: y / rect.height };
+    return { x: x / WORLD_WIDTH, y: y / WORLD_HEIGHT };
   }
 
   function px(point) {
-    return { x: point.x * cssWidth, y: point.y * cssHeight };
+    return { x: point.x * WORLD_WIDTH, y: point.y * WORLD_HEIGHT };
   }
 
   function constrainToRuler(start, end) {
@@ -496,13 +789,13 @@
     var uy = Math.sin(radians);
     var distance = (b.x - a.x) * ux + (b.y - a.y) * uy;
     return {
-      x: Math.max(0, Math.min(1, (a.x + ux * distance) / cssWidth)),
-      y: Math.max(0, Math.min(1, (a.y + uy * distance) / cssHeight))
+      x: Math.max(0, Math.min(1, (a.x + ux * distance) / WORLD_WIDTH)),
+      y: Math.max(0, Math.min(1, (a.y + uy * distance) / WORLD_HEIGHT))
     };
   }
 
   function drawGrid(target, width, height) {
-    var outputScale = cssWidth ? width / cssWidth : 1;
+    var outputScale = width / WORLD_WIDTH;
     var spacing = GRID_SPACING * outputScale;
     var offsetX = (width % spacing) / 2;
     var offsetY = (height % spacing) / 2;
@@ -519,6 +812,7 @@
   }
 
   function drawOpening(target, object, width, height, outputScale) {
+    object = resolvedOpening(object);
     var baseAlpha = target.globalAlpha;
     var start = { x: object.start.x * width, y: object.start.y * height };
     var end = { x: object.end.x * width, y: object.end.y * height };
@@ -597,6 +891,17 @@
     target.strokeStyle = INK;
     target.lineWidth = 0.75 * outputScale;
     target.strokeRect(x, y, w, h);
+    if (w > 70 * outputScale && h > 42 * outputScale) {
+      var widthFeet = Math.abs(object.end.x - object.start.x) * WORLD_DOTS_X * DOT_FEET;
+      var heightFeet = Math.abs(object.end.y - object.start.y) * WORLD_DOTS_Y * DOT_FEET;
+      var squareFeet = Math.round(widthFeet * heightFeet);
+      target.globalAlpha = baseAlpha * 0.68;
+      target.fillStyle = INK;
+      target.font = '600 ' + Math.max(9, 10 * outputScale) + 'px Urbanist, sans-serif';
+      target.textAlign = 'center';
+      target.textBaseline = 'middle';
+      target.fillText(squareFeet.toLocaleString() + ' SF', x + w / 2, y + h / 2);
+    }
     target.restore();
   }
 
@@ -630,10 +935,10 @@
   function drawStencilGlyph(target, id, width, height, filled, outputScale) {
     var w = Math.max(12, Math.abs(width));
     var h = Math.max(12, Math.abs(height));
-    var detail = filled ? '#F3F1EA' : INK;
+    var detail = filled ? PAPER : INK;
     target.save();
     target.strokeStyle = INK;
-    target.fillStyle = filled ? SOLID_BLACK : INK;
+    target.fillStyle = INK;
     target.lineWidth = Math.max(1, 1.35 * outputScale);
     target.lineCap = 'round';
     target.lineJoin = 'round';
@@ -739,8 +1044,8 @@
     var swap = Math.abs(quarterTurns) % 2 === 1;
     var width = Math.abs(Number(object.width) || 0.08);
     var height = Math.abs(Number(object.height) || 0.08);
-    var shownWidth = swap ? height * cssHeight / cssWidth : width;
-    var shownHeight = swap ? width * cssWidth / cssHeight : height;
+    var shownWidth = swap ? height * WORLD_HEIGHT / WORLD_WIDTH : width;
+    var shownHeight = swap ? width * WORLD_WIDTH / WORLD_HEIGHT : height;
     return {
       left: object.point.x - shownWidth / 2,
       right: object.point.x + shownWidth / 2,
@@ -768,7 +1073,7 @@
 
   function drawObject(target, object, width, height) {
     var toPx = function (point) { return { x: point.x * width, y: point.y * height }; };
-    var outputScale = cssWidth ? width / cssWidth : 1;
+    var outputScale = width / WORLD_WIDTH;
     target.save();
     target.strokeStyle = INK;
     target.fillStyle = INK;
@@ -806,6 +1111,17 @@
       var roomEnd = toPx(object.end);
       target.lineWidth = 2.1 * outputScale;
       target.strokeRect(roomStart.x, roomStart.y, roomEnd.x - roomStart.x, roomEnd.y - roomStart.y);
+      var roomWidth = Math.abs(roomEnd.x - roomStart.x);
+      var roomHeight = Math.abs(roomEnd.y - roomStart.y);
+      if (roomWidth > 70 * outputScale && roomHeight > 42 * outputScale) {
+        var roomWidthFeet = Math.round(Math.abs(object.end.x - object.start.x) * WORLD_DOTS_X * DOT_FEET);
+        var roomHeightFeet = Math.round(Math.abs(object.end.y - object.start.y) * WORLD_DOTS_Y * DOT_FEET);
+        target.globalAlpha *= 0.58;
+        target.font = '600 ' + Math.max(9, 10 * outputScale) + 'px Urbanist, sans-serif';
+        target.textAlign = 'center';
+        target.textBaseline = 'middle';
+        target.fillText(roomWidthFeet + '′ × ' + roomHeightFeet + '′', (roomStart.x + roomEnd.x) / 2, (roomStart.y + roomEnd.y) / 2);
+      }
     }
 
     if (object.type === 'door' || object.type === 'window') {
@@ -837,12 +1153,13 @@
   }
 
   function isResizableObject(object) {
-    return object && ['line', 'room', 'area', 'stencil'].indexOf(object.type) !== -1;
+    return object && ['line', 'room', 'door', 'window', 'area', 'stencil'].indexOf(object.type) !== -1;
   }
 
   function objectAnchors(object) {
+    if (object && (object.type === 'door' || object.type === 'window')) object = resolvedOpening(object);
     if (!isResizableObject(object)) return [];
-    if (object.type === 'line') {
+    if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
       return [
         { name: 'start', point: object.start },
         { name: 'end', point: object.end }
@@ -872,7 +1189,7 @@
   }
 
   function drawSelection(target, object) {
-    if (!isResizableObject(object)) return;
+    if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object);
     var anchors = objectAnchors(object);
     target.save();
     target.strokeStyle = INK;
@@ -880,7 +1197,7 @@
     target.globalAlpha = 0.46;
     target.setLineDash([5, 5]);
 
-    if (object.type === 'line') {
+    if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
       var lineStart = px(object.start);
       var lineEnd = px(object.end);
       target.beginPath();
@@ -890,12 +1207,12 @@
     } else if (object.type === 'stencil') {
       var bounds = stencilBounds(object);
       target.strokeRect(
-        bounds.left * cssWidth,
-        bounds.top * cssHeight,
-        (bounds.right - bounds.left) * cssWidth,
-        (bounds.bottom - bounds.top) * cssHeight
+        bounds.left * WORLD_WIDTH,
+        bounds.top * WORLD_HEIGHT,
+        (bounds.right - bounds.left) * WORLD_WIDTH,
+        (bounds.bottom - bounds.top) * WORLD_HEIGHT
       );
-    } else {
+    } else if (object.start && object.end) {
       var start = px(object.start);
       var end = px(object.end);
       target.strokeRect(
@@ -903,6 +1220,14 @@
         Math.min(start.y, end.y),
         Math.abs(end.x - start.x),
         Math.abs(end.y - start.y)
+      );
+    } else {
+      var box = objectBounds(object);
+      target.strokeRect(
+        box.left * WORLD_WIDTH,
+        box.top * WORLD_HEIGHT,
+        (box.right - box.left) * WORLD_WIDTH,
+        (box.bottom - box.top) * WORLD_HEIGHT
       );
     }
 
@@ -927,10 +1252,30 @@
     target.restore();
   }
 
+  function objectBounds(object) {
+    if (object.type === 'stencil') return stencilBounds(object);
+    if (object.start && object.end) {
+      return {
+        left: Math.min(object.start.x, object.end.x),
+        right: Math.max(object.start.x, object.end.x),
+        top: Math.min(object.start.y, object.end.y),
+        bottom: Math.max(object.start.y, object.end.y)
+      };
+    }
+    if (object.type === 'pen' && object.points.length) {
+      var xs = object.points.map(function (point) { return point.x; });
+      var ys = object.points.map(function (point) { return point.y; });
+      return { left: Math.min.apply(null, xs), right: Math.max.apply(null, xs), top: Math.min.apply(null, ys), bottom: Math.max.apply(null, ys) };
+    }
+    var point = object.point || { x: 0, y: 0 };
+    var noteWidth = object.type === 'note' ? Math.max(70, String(object.text || '').length * 8) / WORLD_WIDTH : 0.02;
+    return { left: point.x - 0.006, right: point.x + noteWidth, top: point.y - 0.012, bottom: point.y + 0.012 };
+  }
+
   function drawFloorOutline(target, key, width, height, direction) {
     var outlineObjects = visibleObjectsForFloor(key);
     if (!outlineObjects.length) return;
-    var outputScale = cssWidth ? width / cssWidth : 1;
+    var outputScale = width / WORLD_WIDTH;
     target.save();
     target.strokeStyle = INK;
     target.fillStyle = INK;
@@ -944,6 +1289,7 @@
 
     outlineObjects.forEach(function (object) {
       if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
+        if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object);
         target.beginPath();
         target.moveTo(object.start.x * width, object.start.y * height);
         target.lineTo(object.end.x * width, object.end.y * height);
@@ -960,6 +1306,32 @@
     target.restore();
   }
 
+  function imageForUnderlay(source) {
+    if (!source) return null;
+    if (imageCache.has(source)) return imageCache.get(source);
+    var image = new Image();
+    image.decoding = 'async';
+    image.onload = render;
+    image.src = source;
+    imageCache.set(source, image);
+    return image;
+  }
+
+  function drawUnderlay(target, underlay, width, height) {
+    if (!underlay || !underlay.src) return;
+    var image = imageForUnderlay(underlay.src);
+    if (!image || !image.complete || !image.naturalWidth) return;
+    target.save();
+    target.drawImage(
+      image,
+      underlay.x * width,
+      underlay.y * height,
+      underlay.width * width,
+      underlay.height * height
+    );
+    target.restore();
+  }
+
   function drawScene(target, width, height, includeInteraction) {
     target.fillStyle = PAPER;
     target.fillRect(0, 0, width, height);
@@ -973,20 +1345,23 @@
 
     var floor = activeFloorState();
     floor.layers.forEach(function (layer) {
-      if (!layer.visible || layer.id === floor.activeLayerId) return;
+      if (!layer.visible || !layer.underlay) return;
       target.save();
-      target.globalAlpha = 0.34;
+      target.globalAlpha = layer.opacity;
+      drawUnderlay(target, layer.underlay, width, height);
+      target.restore();
+    });
+    floor.layers.forEach(function (layer) {
+      if (!layer.visible) return;
+      target.save();
+      target.globalAlpha = layer.opacity * (layer.id === floor.activeLayerId ? 1 : 0.82);
       layer.objects.forEach(function (object) { drawObject(target, object, width, height); });
       target.restore();
     });
-    var activeLayer = activeLayerState();
-    if (activeLayer.visible) {
-      activeLayer.objects.forEach(function (object) { drawObject(target, object, width, height); });
-    }
 
     if (!includeInteraction) return;
     if (active) drawObject(target, active, width, height);
-    if (tool === 'edit' && selectedIndex >= 0 && objects[selectedIndex]) {
+    if (tool === 'edit' && !activeLayerState().locked && selectedIndex >= 0 && objects[selectedIndex]) {
       drawSelection(target, objects[selectedIndex]);
     }
   }
@@ -995,7 +1370,13 @@
     if (!cssWidth || !cssHeight) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cssWidth, cssHeight);
-    drawScene(ctx, cssWidth, cssHeight, true);
+    ctx.fillStyle = PAPER;
+    ctx.fillRect(0, 0, cssWidth, cssHeight);
+    ctx.save();
+    ctx.translate(camera.x, camera.y);
+    ctx.scale(camera.scale, camera.scale);
+    drawScene(ctx, WORLD_WIDTH, WORLD_HEIGHT, true);
+    ctx.restore();
   }
 
   function selectedStencilObject() {
@@ -1144,7 +1525,7 @@
   }
 
   function openNoteComposer(point) {
-    var screen = px(point);
+    var screen = screenPoint(point);
     notePoint = point;
     noteComposer.style.left = Math.min(screen.x + 10, Math.max(10, cssWidth - 270)) + 'px';
     noteComposer.style.top = Math.max(24, Math.min(screen.y, cssHeight - 24)) + 'px';
@@ -1157,7 +1538,7 @@
     var text = noteInput.value.trim();
     if (text && notePoint) {
       var previous = clone(objects);
-      objects.push({ type: 'note', point: notePoint, text: text.slice(0, 80) });
+      objects.push({ id: makeObjectId('note'), type: 'note', point: notePoint, text: text.slice(0, 80) });
       remember(previous);
     }
     closeNoteComposer();
@@ -1165,21 +1546,97 @@
   }
 
   function screenDistance(a, b) {
-    return Math.hypot((a.x - b.x) * cssWidth, (a.y - b.y) * cssHeight);
+    return Math.hypot((a.x - b.x) * WORLD_WIDTH * camera.scale, (a.y - b.y) * WORLD_HEIGHT * camera.scale);
   }
 
   function wallSegments() {
     var segments = [];
     visibleObjectsForFloor(activeFloor).forEach(function (object) {
-      if (object.type === 'line') segments.push([object.start, object.end]);
+      ensureObjectId(object);
+      if (object.type === 'line') segments.push({ start: object.start, end: object.end, hostId: object.id, hostEdge: 0 });
       if (object.type === 'room') {
         var a = object.start;
         var b = object.end;
         var corners = [a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }];
-        for (var i = 0; i < 4; i++) segments.push([corners[i], corners[(i + 1) % 4]]);
+        for (var i = 0; i < 4; i++) segments.push({ start: corners[i], end: corners[(i + 1) % 4], hostId: object.id, hostEdge: i });
       }
     });
     return segments;
+  }
+
+  function objectById(id, floorKey) {
+    var found = null;
+    floorState(floorKey || activeFloor).layers.some(function (layer) {
+      found = layer.objects.find(function (object) { return object.id === id; }) || null;
+      return Boolean(found);
+    });
+    return found;
+  }
+
+  function segmentForHost(hostId, edge, floorKey) {
+    var host = objectById(hostId, floorKey);
+    if (!host) return null;
+    if (host.type === 'line') return { start: host.start, end: host.end };
+    if (host.type === 'room') {
+      var a = host.start;
+      var b = host.end;
+      var corners = [a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }];
+      var index = clamp(Number(edge) || 0, 0, 3);
+      return { start: corners[index], end: corners[(index + 1) % 4] };
+    }
+    return null;
+  }
+
+  function resolvedOpening(object, floorKey) {
+    if (!object || !object.hostId) return object;
+    var segment = segmentForHost(object.hostId, object.hostEdge, floorKey);
+    if (!segment) return object;
+    var a = px(segment.start);
+    var b = px(segment.end);
+    var dx = b.x - a.x;
+    var dy = b.y - a.y;
+    var length = Math.hypot(dx, dy);
+    if (!length) return object;
+    var ux = dx / length;
+    var uy = dy / length;
+    var openingLength = Math.min(length, Math.max(GRID_SPACING * 0.5, Number(object.lengthDots || (object.type === 'door' ? 1.5 : 2)) * GRID_SPACING));
+    var halfFraction = openingLength / length / 2;
+    var position = clamp(Number(object.position) || 0.5, halfFraction, 1 - halfFraction);
+    var centre = { x: a.x + dx * position, y: a.y + dy * position };
+    var copy = Object.assign({}, object);
+    copy.start = { x: (centre.x - ux * openingLength / 2) / WORLD_WIDTH, y: (centre.y - uy * openingLength / 2) / WORLD_HEIGHT };
+    copy.end = { x: (centre.x + ux * openingLength / 2) / WORLD_WIDTH, y: (centre.y + uy * openingLength / 2) / WORLD_HEIGHT };
+    return copy;
+  }
+
+  function attachOpening(opening, point) {
+    if (!opening) return opening;
+    var centre = px(point || {
+      x: (opening.start.x + opening.end.x) / 2,
+      y: (opening.start.y + opening.end.y) / 2
+    });
+    var closest = null;
+    wallSegments().forEach(function (segment) {
+      if (segment.hostId === opening.id) return;
+      var a = px(segment.start);
+      var b = px(segment.end);
+      var dx = b.x - a.x;
+      var dy = b.y - a.y;
+      var lengthSquared = dx * dx + dy * dy;
+      if (!lengthSquared) return;
+      var t = clamp(((centre.x - a.x) * dx + (centre.y - a.y) * dy) / lengthSquared, 0, 1);
+      var projected = { x: a.x + dx * t, y: a.y + dy * t };
+      var distance = Math.hypot(centre.x - projected.x, centre.y - projected.y);
+      if (!closest || distance < closest.distance) closest = { distance: distance, segment: segment, position: t };
+    });
+    if (!closest || closest.distance > GRID_SPACING * 1.35) return opening;
+    var start = px(opening.start);
+    var end = px(opening.end);
+    opening.hostId = closest.segment.hostId;
+    opening.hostEdge = closest.segment.hostEdge;
+    opening.position = closest.position;
+    opening.lengthDots = Math.max(0.5, Math.hypot(end.x - start.x, end.y - start.y) / GRID_SPACING);
+    return opening;
   }
 
   function openingFromClick(type, point, flip) {
@@ -1188,8 +1645,8 @@
     var closest = null;
 
     wallSegments().forEach(function (segment) {
-      var a = px(segment[0]);
-      var b = px(segment[1]);
+      var a = px(segment.start);
+      var b = px(segment.end);
       var dx = b.x - a.x;
       var dy = b.y - a.y;
       var lengthSquared = dx * dx + dy * dy;
@@ -1203,7 +1660,10 @@
         closest = {
           distance: distance,
           point: projected,
-          direction: { x: dx / segmentLength, y: dy / segmentLength }
+          direction: { x: dx / segmentLength, y: dy / segmentLength },
+          hostId: segment.hostId,
+          hostEdge: segment.hostEdge,
+          position: t
         };
       }
     });
@@ -1216,14 +1676,24 @@
     var openingLength = GRID_SPACING * (type === 'door' ? 1.5 : 2);
     var half = openingLength / 2;
     var start = {
-      x: Math.max(0, Math.min(cssWidth, centre.x - direction.x * half)) / cssWidth,
-      y: Math.max(0, Math.min(cssHeight, centre.y - direction.y * half)) / cssHeight
+      x: Math.max(0, Math.min(WORLD_WIDTH, centre.x - direction.x * half)) / WORLD_WIDTH,
+      y: Math.max(0, Math.min(WORLD_HEIGHT, centre.y - direction.y * half)) / WORLD_HEIGHT
     };
     var end = {
-      x: Math.max(0, Math.min(cssWidth, centre.x + direction.x * half)) / cssWidth,
-      y: Math.max(0, Math.min(cssHeight, centre.y + direction.y * half)) / cssHeight
+      x: Math.max(0, Math.min(WORLD_WIDTH, centre.x + direction.x * half)) / WORLD_WIDTH,
+      y: Math.max(0, Math.min(WORLD_HEIGHT, centre.y + direction.y * half)) / WORLD_HEIGHT
     };
-    return { type: type, start: start, end: end, flip: Boolean(flip) };
+    return {
+      id: makeObjectId(type),
+      type: type,
+      start: start,
+      end: end,
+      flip: Boolean(flip),
+      hostId: closest && closest.distance <= GRID_SPACING * 1.25 ? closest.hostId : null,
+      hostEdge: closest && closest.distance <= GRID_SPACING * 1.25 ? closest.hostEdge : null,
+      position: closest && closest.distance <= GRID_SPACING * 1.25 ? closest.position : null,
+      lengthDots: type === 'door' ? 1.5 : 2
+    };
   }
 
   function smoothStroke(points) {
@@ -1265,7 +1735,7 @@
     var lengthSquared = dx * dx + dy * dy;
     var t = lengthSquared ? ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSquared : 0;
     t = Math.max(0, Math.min(1, t));
-    return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+    return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy)) * camera.scale;
   }
 
   function pointInsideRect(point, start, end) {
@@ -1274,6 +1744,7 @@
   }
 
   function hitObject(object, point) {
+        if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object, key);
     if (object.type === 'pen') {
       for (var i = 1; i < object.points.length; i++) {
         if (distanceToSegment(point, object.points[i - 1], object.points[i]) < 16) return true;
@@ -1298,7 +1769,8 @@
     if (object.type === 'note') {
       var p = px(point);
       var n = px(object.point);
-      return p.x >= n.x - 8 && p.x <= n.x + Math.max(70, object.text.length * 8) && Math.abs(p.y - n.y) < 16;
+      var tolerance = 16 / Math.max(0.18, camera.scale);
+      return p.x >= n.x - tolerance && p.x <= n.x + Math.max(70, object.text.length * 8) + tolerance && Math.abs(p.y - n.y) < tolerance;
     }
     return false;
   }
@@ -1313,24 +1785,38 @@
 
   function selectableObjectAt(point) {
     for (var i = objects.length - 1; i >= 0; i--) {
-      if (isResizableObject(objects[i]) && hitObject(objects[i], point)) return i;
+      if (hitObject(objects[i], point)) return i;
     }
     return -1;
   }
 
   function beginResize(event, index, anchor) {
     canvas.setPointerCapture(event.pointerId);
+    var previous = clone(objects);
+    var object = objects[index];
+    if (object && (object.type === 'door' || object.type === 'window') && object.hostId) {
+      var resolved = resolvedOpening(object);
+      object.start = resolved.start;
+      object.end = resolved.end;
+      delete object.hostId;
+      delete object.hostEdge;
+      delete object.position;
+    }
     resizeDrag = {
       index: index,
       handle: anchor.name,
       opposite: anchor.opposite ? clone(anchor.opposite) : null,
-      previous: clone(objects),
+      previous: previous,
       changed: false
     };
     setHint('Drag the anchor. It snaps to the 2′ dot grid.');
   }
 
   function beginEdit(event) {
+    if (activeLayerState().locked) {
+      setHint('This layer is locked. Unlock it in Layers to edit.');
+      return;
+    }
     var point = pointFromEvent(event, false);
     var anchor = selectedIndex >= 0 && objects[selectedIndex]
       ? hitAnchor(objects[selectedIndex], point)
@@ -1340,7 +1826,7 @@
       return;
     }
 
-    if (selectedIndex >= 0 && objects[selectedIndex] && objects[selectedIndex].type === 'stencil' && hitObject(objects[selectedIndex], point)) {
+    if (selectedIndex >= 0 && objects[selectedIndex] && hitObject(objects[selectedIndex], point)) {
       beginMove(event, selectedIndex, point);
       return;
     }
@@ -1352,12 +1838,10 @@
         stencilId = spec.id;
         stencilCategory = spec.category;
         renderStencilChoices();
-        beginMove(event, selectedIndex, point);
-        return;
       }
       anchor = hitAnchor(objects[selectedIndex], point);
       if (anchor) beginResize(event, selectedIndex, anchor);
-      else setHint('Selected. Drag a diamond anchor to resize.');
+      else beginMove(event, selectedIndex, point);
       updateStencilPanel();
     } else {
       setHint(toolHints.edit);
@@ -1369,14 +1853,24 @@
   function beginMove(event, index, point) {
     var object = objects[index];
     canvas.setPointerCapture(event.pointerId);
+    var previous = clone(objects);
+    if ((object.type === 'door' || object.type === 'window') && object.hostId) {
+      var resolved = resolvedOpening(object);
+      object.start = resolved.start;
+      object.end = resolved.end;
+      delete object.hostId;
+      delete object.hostEdge;
+      delete object.position;
+    }
     moveDrag = {
       index: index,
-      previous: clone(objects),
-      offset: { x: object.point.x - point.x, y: object.point.y - point.y },
+      previous: previous,
+      start: clone(point),
+      original: clone(object),
       changed: false
     };
     updateStencilPanel();
-    setHint('Drag to move. Release to snap the template to the 2′ grid.');
+    setHint('Drag to move. Release to snap to the 2′ grid.');
     render();
   }
 
@@ -1384,19 +1878,19 @@
     if (!resizeDrag || !objects[resizeDrag.index]) return;
     var point = pointFromEvent(event, true);
     var object = objects[resizeDrag.index];
-    if (object.type === 'line') {
+    if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
       object[resizeDrag.handle] = point;
     } else if (object.type === 'stencil') {
       var centre = {
         x: (resizeDrag.opposite.x + point.x) / 2,
         y: (resizeDrag.opposite.y + point.y) / 2
       };
-      var shownWidth = Math.max(GRID_SPACING / cssWidth, Math.abs(point.x - resizeDrag.opposite.x));
-      var shownHeight = Math.max(GRID_SPACING / cssHeight, Math.abs(point.y - resizeDrag.opposite.y));
+      var shownWidth = Math.max(GRID_SPACING / WORLD_WIDTH, Math.abs(point.x - resizeDrag.opposite.x));
+      var shownHeight = Math.max(GRID_SPACING / WORLD_HEIGHT, Math.abs(point.y - resizeDrag.opposite.y));
       object.point = centre;
       if (stencilBounds(object).swap) {
-        object.width = shownHeight * cssHeight / cssWidth;
-        object.height = shownWidth * cssWidth / cssHeight;
+        object.width = shownHeight * WORLD_HEIGHT / WORLD_WIDTH;
+        object.height = shownWidth * WORLD_WIDTH / WORLD_HEIGHT;
       } else {
         object.width = shownWidth;
         object.height = shownHeight;
@@ -1412,10 +1906,17 @@
   function moveSelected(event) {
     if (!moveDrag || !objects[moveDrag.index]) return;
     var point = pointFromEvent(event, true);
-    objects[moveDrag.index].point = {
-      x: Math.max(0, Math.min(1, point.x + moveDrag.offset.x)),
-      y: Math.max(0, Math.min(1, point.y + moveDrag.offset.y))
+    var object = objects[moveDrag.index];
+    var original = moveDrag.original;
+    var dx = point.x - moveDrag.start.x;
+    var dy = point.y - moveDrag.start.y;
+    var shiftPoint = function (source) {
+      return { x: clamp(source.x + dx, 0, 1), y: clamp(source.y + dy, 0, 1) };
     };
+    if (original.point) object.point = shiftPoint(original.point);
+    if (original.start) object.start = shiftPoint(original.start);
+    if (original.end) object.end = shiftPoint(original.end);
+    if (original.points) object.points = original.points.map(shiftPoint);
     moveDrag.changed = true;
     render();
   }
@@ -1424,10 +1925,12 @@
     if (!moveDrag) return;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     var previous = moveDrag.previous;
+    var movedObject = objects[moveDrag.index];
+    if (movedObject && (movedObject.type === 'door' || movedObject.type === 'window')) attachOpening(movedObject);
     var changed = moveDrag.changed && JSON.stringify(previous) !== JSON.stringify(objects);
     moveDrag = null;
     if (changed) remember(previous);
-    setHint(changed ? 'Template moved.' : 'Template selected. Drag it to move or use an anchor to resize.', changed ? 1500 : 0);
+    setHint(changed ? 'Object moved.' : 'Object selected. Drag it to move or use an anchor to reshape it.', changed ? 1500 : 0);
     render();
   }
 
@@ -1435,6 +1938,8 @@
     if (!resizeDrag) return;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     var previous = resizeDrag.previous;
+    var resizedObject = objects[resizeDrag.index];
+    if (resizedObject && (resizedObject.type === 'door' || resizedObject.type === 'window')) attachOpening(resizedObject);
     var changed = resizeDrag.changed && JSON.stringify(previous) !== JSON.stringify(objects);
     resizeDrag = null;
     if (changed) remember(previous);
@@ -1454,23 +1959,107 @@
     }
   }
 
+  function pointerScreen(event) {
+    var rect = canvas.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  function beginPan(event) {
+    var point = pointerScreen(event);
+    canvas.setPointerCapture(event.pointerId);
+    panDrag = { pointerId: event.pointerId, x: point.x, y: point.y, cameraX: camera.x, cameraY: camera.y };
+    stage.classList.add('is-panning');
+  }
+
+  function movePan(event) {
+    if (!panDrag || panDrag.pointerId !== event.pointerId) return false;
+    var point = pointerScreen(event);
+    camera.x = panDrag.cameraX + point.x - panDrag.x;
+    camera.y = panDrag.cameraY + point.y - panDrag.y;
+    camera.fitted = true;
+    clampCamera();
+    render();
+    return true;
+  }
+
+  function endPan(event) {
+    if (!panDrag || panDrag.pointerId !== event.pointerId) return false;
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    panDrag = null;
+    stage.classList.remove('is-panning');
+    return true;
+  }
+
+  function beginGesture() {
+    var values = Array.from(pointers.values());
+    if (values.length < 2) return;
+    var a = values[0];
+    var b = values[1];
+    var centre = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    gesture = {
+      distance: Math.max(1, Math.hypot(b.x - a.x, b.y - a.y)),
+      scale: camera.scale,
+      worldX: (centre.x - camera.x) / camera.scale,
+      worldY: (centre.y - camera.y) / camera.scale
+    };
+    active = null;
+    resizeDrag = null;
+    moveDrag = null;
+    panDrag = null;
+    stage.classList.add('is-panning');
+  }
+
+  function moveGesture() {
+    if (!gesture || pointers.size < 2) return false;
+    var values = Array.from(pointers.values());
+    var a = values[0];
+    var b = values[1];
+    var centre = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    var distance = Math.max(1, Math.hypot(b.x - a.x, b.y - a.y));
+    camera.scale = clamp(gesture.scale * distance / gesture.distance, 0.18, 4.5);
+    camera.x = centre.x - gesture.worldX * camera.scale;
+    camera.y = centre.y - gesture.worldY * camera.scale;
+    camera.fitted = true;
+    clampCamera();
+    render();
+    return true;
+  }
+
   function onPointerDown(event) {
-    if (event.button !== undefined && event.button !== 0) return;
+    if (event.pointerType === 'touch') {
+      pointers.set(event.pointerId, pointerScreen(event));
+      if (pointers.size >= 2) {
+        canvas.setPointerCapture(event.pointerId);
+        beginGesture();
+        return;
+      }
+    }
+    if (event.button !== undefined && event.button !== 0 && event.button !== 1) return;
+    if (tool === 'pan' || spaceHeld || event.button === 1) { beginPan(event); return; }
+    if (activeLayerState().locked) {
+      setHint('This layer is locked. Select or unlock a drawing layer.');
+      return;
+    }
     if (tool === 'edit') { beginEdit(event); return; }
     canvas.setPointerCapture(event.pointerId);
     var snap = ['line', 'room', 'door', 'window', 'area', 'stencil'].indexOf(tool) !== -1;
     var point = pointFromEvent(event, snap);
-    if (tool === 'erase') { eraseAt(point); return; }
+    if (tool === 'erase') {
+      eraseAt(point);
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      return;
+    }
     if (tool === 'note') { openNoteComposer(point); return; }
     if (tool === 'stencil') {
       var spec = stencilSpec(stencilId);
       var previous = clone(objects);
       objects.push({
+        id: makeObjectId('stencil'),
         type: 'stencil',
         stencil: spec.id,
         point: point,
-        width: spec.dots[0] * GRID_SPACING / cssWidth,
-        height: spec.dots[1] * GRID_SPACING / cssHeight,
+        width: spec.dots[0] * GRID_SPACING / WORLD_WIDTH,
+        height: spec.dots[1] * GRID_SPACING / WORLD_HEIGHT,
         rotation: stencilRotation,
         filled: stencilFilled
       });
@@ -1481,16 +2070,21 @@
       render();
       return;
     }
-    if (tool === 'pen') active = { type: 'pen', points: [point] };
-    if (tool === 'line') active = { type: 'line', start: point, end: point };
-    if (tool === 'room') active = { type: 'room', start: point, end: point };
-    if (tool === 'door') active = { type: 'door', start: point, end: point, flip: event.shiftKey ? !doorFlip : doorFlip };
-    if (tool === 'window') active = { type: 'window', start: point, end: point };
-    if (tool === 'area') active = { type: 'area', start: point, end: point };
+    if (tool === 'pen') active = { id: makeObjectId('pen'), type: 'pen', points: [point] };
+    if (tool === 'line') active = { id: makeObjectId('line'), type: 'line', start: point, end: point };
+    if (tool === 'room') active = { id: makeObjectId('room'), type: 'room', start: point, end: point };
+    if (tool === 'door') active = { id: makeObjectId('door'), type: 'door', start: point, end: point, flip: event.shiftKey ? !doorFlip : doorFlip };
+    if (tool === 'window') active = { id: makeObjectId('window'), type: 'window', start: point, end: point };
+    if (tool === 'area') active = { id: makeObjectId('area'), type: 'area', start: point, end: point };
     render();
   }
 
   function onPointerMove(event) {
+    if (event.pointerType === 'touch' && pointers.has(event.pointerId)) {
+      pointers.set(event.pointerId, pointerScreen(event));
+      if (moveGesture()) return;
+    }
+    if (movePan(event)) return;
     if (resizeDrag) { moveResize(event); return; }
     if (moveDrag) { moveSelected(event); return; }
     if (!active) return;
@@ -1508,6 +2102,18 @@
   }
 
   function onPointerUp(event) {
+    if (event.pointerType === 'touch') {
+      pointers.delete(event.pointerId);
+      if (gesture) {
+        if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+        if (pointers.size < 2) {
+          gesture = null;
+          stage.classList.remove('is-panning');
+        }
+        return;
+      }
+    }
+    if (endPan(event)) return;
     if (resizeDrag) { finishResize(event); return; }
     if (moveDrag) { finishMove(event); return; }
     if (!active) return;
@@ -1520,6 +2126,7 @@
     if (valid) {
       var previous = clone(objects);
       if (active.type === 'pen') active.points = smoothStroke(active.points);
+      if (active.type === 'door' || active.type === 'window') attachOpening(active);
       objects.push(clone(active));
       if (objects.length > 200) objects.shift();
       remember(previous);
@@ -1529,6 +2136,7 @@
   }
 
   function undo() {
+    if (activeLayerState().locked) { setHint('Unlock this layer to change it.'); return; }
     if (!undoStack.length) return;
     selectedIndex = -1;
     redoStack.push(clone(objects));
@@ -1540,6 +2148,7 @@
   }
 
   function redo() {
+    if (activeLayerState().locked) { setHint('Unlock this layer to change it.'); return; }
     if (!redoStack.length) return;
     selectedIndex = -1;
     undoStack.push(clone(objects));
@@ -1551,7 +2160,7 @@
   }
 
   function clearDrawing() {
-    if (!objects.length) return;
+    if (!objects.length || activeLayerState().locked) return;
     if (!window.confirm('Clear ' + activeLayerState().name + ' on the ' + FLOOR_LABELS[activeFloor].toLowerCase() + ' floor?')) return;
     var previous = clone(objects);
     setObjects([]);
@@ -1565,18 +2174,53 @@
     if (!FLOOR_ORDER.some(floorHasDrawing)) return;
     persistDrawing();
     persistRuler();
+    var blob = new Blob([JSON.stringify(serializeWorkspace(), null, 2)], { type: 'application/json' });
+    var link = document.createElement('a');
+    var url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = 'sudu-sketch-project.sudusketch';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     if (window.suduHaptics) window.suduHaptics.tick(10);
-    setHint('Saved on this device.', 1800);
+    setHint('Project file saved. Your work also stays on this device.', 2200);
   }
 
-  function exportCanvas(callback) {
+  function openProject(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var project = JSON.parse(String(reader.result || ''));
+        if (!project || !project.floors || (project.version !== 2 && project.version !== 3)) throw new Error('Unsupported project');
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(project));
+        loadSaved();
+        camera.fitted = false;
+        fitView();
+        updateActions();
+        render();
+        setHint('Project opened.');
+      } catch (error) {
+        setHint('That is not a valid SuDu sketch project.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function exportSurface() {
     var width = 1800;
-    var height = Math.round(width * cssHeight / cssWidth);
+    var height = Math.round(width * WORLD_HEIGHT / WORLD_WIDTH);
     var out = document.createElement('canvas');
     out.width = width;
     out.height = height;
     var outCtx = out.getContext('2d');
     drawScene(outCtx, width, height, false);
+    return out;
+  }
+
+  function exportCanvas(callback) {
+    var out = exportSurface();
     out.toBlob(callback, 'image/png', 0.94);
   }
 
@@ -1595,13 +2239,60 @@
     });
   }
 
+  function capturePDF() {
+    var surface = exportSurface();
+    var encoded = surface.toDataURL('image/jpeg', 0.93).split(',')[1];
+    var binary = atob(encoded);
+    var imageBytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) imageBytes[i] = binary.charCodeAt(i);
+
+    var parts = [];
+    var offsets = [0];
+    var length = 0;
+    var encoder = new TextEncoder();
+    var pushText = function (value) {
+      var bytes = encoder.encode(value);
+      parts.push(bytes);
+      length += bytes.length;
+    };
+    var pushBytes = function (bytes) { parts.push(bytes); length += bytes.length; };
+    var beginObject = function (number) { offsets[number] = length; pushText(number + ' 0 obj\n'); };
+
+    pushText('%PDF-1.4\n%SuDu\n');
+    beginObject(1); pushText('<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+    beginObject(2); pushText('<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
+    beginObject(3); pushText('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n');
+    beginObject(4);
+    pushText('<< /Type /XObject /Subtype /Image /Width ' + surface.width + ' /Height ' + surface.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + imageBytes.length + ' >>\nstream\n');
+    pushBytes(imageBytes);
+    pushText('\nendstream\nendobj\n');
+    var commands = 'q\n720 0 0 540 36 36 cm\n/Im0 Do\nQ\n';
+    beginObject(5); pushText('<< /Length ' + commands.length + ' >>\nstream\n' + commands + 'endstream\nendobj\n');
+    var xref = length;
+    pushText('xref\n0 6\n0000000000 65535 f \n');
+    for (var number = 1; number <= 5; number++) pushText(String(offsets[number]).padStart(10, '0') + ' 00000 n \n');
+    pushText('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF');
+
+    var blob = new Blob(parts, { type: 'application/pdf' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = 'sudu-' + activeFloor + '-floor-sketch.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    setHint('PDF saved.', 1800);
+  }
+
   function positionRuler() {
     ruler.hidden = !rulerState.visible;
     ruler.style.left = (rulerState.x * 100) + '%';
     ruler.style.top = (rulerState.y * 100) + '%';
     ruler.style.transform = 'translate(-50%, -50%) rotate(' + rulerState.angle + 'deg)';
     var shown = Math.round(((rulerState.angle % 180) + 180) % 180);
-    rulerAngle.textContent = shown + '°';
+    var feet = Math.max(2, Math.round((ruler.offsetWidth / Math.max(0.01, camera.scale) / GRID_SPACING) * DOT_FEET));
+    rulerAngle.textContent = shown + '° · ' + feet + '′';
   }
 
   function toggleRuler() {
@@ -1728,16 +2419,37 @@
   traceLayers.addEventListener('click', function (event) {
     var select = event.target.closest('[data-layer-select]');
     var visible = event.target.closest('[data-layer-visible]');
+    var lock = event.target.closest('[data-layer-lock]');
+    var copy = event.target.closest('[data-layer-copy]');
+    var order = event.target.closest('[data-layer-order]');
+    var scale = event.target.closest('[data-layer-scale]');
     var remove = event.target.closest('[data-layer-remove]');
     if (select) selectLayer(select.getAttribute('data-layer-select'));
     if (visible) toggleLayerVisibility(visible.getAttribute('data-layer-visible'));
+    if (lock) toggleLayerLock(lock.getAttribute('data-layer-lock'));
+    if (copy) duplicateLayer(copy.getAttribute('data-layer-copy'));
+    if (order) reorderLayer(order.getAttribute('data-layer-order'), order.getAttribute('data-direction'));
+    if (scale) calibrateUnderlay(scale.getAttribute('data-layer-scale'));
     if (remove) removeTrace(remove.getAttribute('data-layer-remove'));
+  });
+  traceLayers.addEventListener('dblclick', function (event) {
+    var select = event.target.closest('[data-layer-select]');
+    if (select) renameLayer(select.getAttribute('data-layer-select'));
+  });
+  traceLayers.addEventListener('input', function (event) {
+    var opacity = event.target.closest('[data-layer-opacity]');
+    if (opacity) setLayerOpacity(opacity.getAttribute('data-layer-opacity'), opacity.value);
   });
 
   canvas.addEventListener('pointerdown', onPointerDown);
   canvas.addEventListener('pointermove', onPointerMove);
   canvas.addEventListener('pointerup', onPointerUp);
   canvas.addEventListener('pointercancel', onPointerUp);
+  canvas.addEventListener('wheel', function (event) {
+    event.preventDefault();
+    var point = pointerScreen(event);
+    zoomAt(camera.scale * Math.exp(-event.deltaY * 0.0015), point.x, point.y);
+  }, { passive: false });
   stage.addEventListener('pointermove', function (event) {
     var rect = stage.getBoundingClientRect();
     cursor.style.left = (event.clientX - rect.left) + 'px';
@@ -1762,13 +2474,32 @@
   actionButtons.redo.addEventListener('click', redo);
   actionButtons.clear.addEventListener('click', clearDrawing);
   actionButtons.save.addEventListener('click', saveDrawing);
+  actionButtons['open-project'].addEventListener('click', function () { projectInput.click(); });
+  actionButtons['import-underlay'].addEventListener('click', function () { underlayInput.click(); });
+  actionButtons['zoom-in'].addEventListener('click', function () { zoomAt(camera.scale * 1.22, cssWidth / 2, cssHeight / 2); });
+  actionButtons['zoom-out'].addEventListener('click', function () { zoomAt(camera.scale / 1.22, cssWidth / 2, cssHeight / 2); });
+  actionButtons['fit-view'].addEventListener('click', fitView);
   actionButtons.screenshot.addEventListener('click', captureScreenshot);
+  actionButtons.pdf.addEventListener('click', capturePDF);
   actionButtons.send.addEventListener('click', openSendPanel);
   actionButtons['close-send'].addEventListener('click', closeSendPanel);
   form.addEventListener('submit', submitForm);
+  underlayInput.addEventListener('change', function () {
+    importUnderlay(underlayInput.files && underlayInput.files[0]);
+    underlayInput.value = '';
+  });
+  projectInput.addEventListener('change', function () {
+    openProject(projectInput.files && projectInput.files[0]);
+    projectInput.value = '';
+  });
 
   document.addEventListener('keydown', function (event) {
     if (event.target && /input|textarea/i.test(event.target.tagName)) return;
+    if (event.code === 'Space') {
+      event.preventDefault();
+      spaceHeld = true;
+      return;
+    }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
       event.preventDefault();
       if (event.shiftKey) redo(); else undo();
@@ -1783,10 +2514,13 @@
       toggleRuler();
       return;
     }
-    var keyTools = { p: 'pen', l: 'line', r: 'room', d: 'door', w: 'window', a: 'area', t: 'stencil', v: 'edit', n: 'note', e: 'erase' };
+    var keyTools = { p: 'pen', l: 'line', r: 'room', d: 'door', w: 'window', a: 'area', t: 'stencil', v: 'edit', h: 'pan', n: 'note', e: 'erase' };
     if (keyTools[event.key.toLowerCase()]) setTool(keyTools[event.key.toLowerCase()]);
     var floorKeys = { '1': 'basement', '2': 'main', '3': 'second' };
     if (floorKeys[event.key]) selectFloor(floorKeys[event.key]);
+  });
+  document.addEventListener('keyup', function (event) {
+    if (event.code === 'Space') spaceHeld = false;
   });
 
   window.addEventListener('scroll', function () {
