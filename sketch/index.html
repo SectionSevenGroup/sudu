@@ -15,7 +15,7 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-<link rel="stylesheet" href="/css/sketch.css?v=87b92871">
+<link rel="stylesheet" href="/css/sketch.css?v=sketch-v3">
 <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 </head>
 <body>
@@ -57,6 +57,7 @@
       <div class="trace-bar" aria-label="Trace layers">
         <span class="context-label" data-i18n="sketch.layers">Layers</span>
         <div id="traceLayers" class="trace-layers"></div>
+        <button type="button" class="trace-import" data-action="import-underlay">Import trace</button>
         <button type="button" class="trace-add" data-action="add-trace" data-i18n="sketch.traceAdd">Trace +</button>
       </div>
 
@@ -70,6 +71,7 @@
           <button type="button" class="tool-button" data-tool="area" aria-pressed="false" aria-keyshortcuts="A" data-i18n="sketch.tool.area">Area</button>
           <button type="button" class="tool-button" data-tool="stencil" aria-pressed="false" aria-keyshortcuts="T" data-i18n="sketch.tool.stencil">Templates</button>
           <button type="button" class="tool-button" data-tool="edit" aria-pressed="false" aria-keyshortcuts="V" data-i18n="sketch.tool.edit">Edit</button>
+          <button type="button" class="tool-button" data-tool="pan" aria-pressed="false" aria-keyshortcuts="H">Pan</button>
           <button type="button" class="tool-button" data-tool="note" aria-pressed="false" aria-keyshortcuts="N" data-i18n="sketch.tool.note">Note</button>
           <button type="button" class="tool-button" data-tool="erase" aria-pressed="false" aria-keyshortcuts="E" data-i18n="sketch.tool.erase">Erase</button>
         </div>
@@ -97,7 +99,7 @@
       </div>
 
       <div id="drawStage" class="draw-stage" data-tool="pen">
-        <canvas id="sketchCanvas" tabindex="0" aria-label="Layered dot-grid drawing surface. Choose a floor and trace layer, then draw with a mouse, pen or finger. Choose Edit to move and resize walls, rooms, areas and templates with their anchors."></canvas>
+        <canvas id="sketchCanvas" tabindex="0" aria-label="Layered architectural drawing surface. Each dot is two feet. Draw with mouse, pen or finger. Pan with the Pan tool or two fingers, and pinch or scroll to zoom."></canvas>
         <div id="drawCursor" class="draw-cursor" aria-hidden="true"></div>
         <label id="noteComposer" class="note-composer" hidden>
           <span class="sr-only" data-i18n="sketch.noteLabel">Note text</span>
@@ -113,13 +115,24 @@
           <span class="scale-mark" aria-hidden="true"><i></i></span>
           <span data-i18n="sketch.scale">2′ per dot</span>
         </div>
+        <div class="sketch-view" aria-label="Drawing view controls">
+          <button type="button" data-action="zoom-out" aria-label="Zoom out">−</button>
+          <output id="zoomLevel" aria-live="polite">100%</output>
+          <button type="button" data-action="zoom-in" aria-label="Zoom in">+</button>
+          <button type="button" data-action="fit-view">Fit</button>
+        </div>
       </div>
+
+      <input id="underlayInput" class="sketch-file-input" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+      <input id="projectInput" class="sketch-file-input" type="file" accept="application/json,.sudusketch" hidden>
 
       <div class="sketch-workspace-footer">
         <p id="toolHint" aria-live="polite">Draw freely with the pen.</p>
         <div>
-          <button type="button" data-action="save" disabled data-i18n="sketch.save">Save</button>
+          <button type="button" data-action="open-project">Open</button>
+          <button type="button" data-action="save" disabled data-i18n="sketch.save">Save project</button>
           <button type="button" data-action="screenshot" disabled data-i18n="sketch.screenshot">Screenshot</button>
+          <button type="button" data-action="pdf" disabled>PDF</button>
           <button type="button" data-action="send" disabled hidden data-i18n="sketch.sendButton">Send to SuDu</button>
         </div>
       </div>
@@ -183,6 +196,6 @@
   <script src="/i18n.js?v=cbd5fce2" defer></script>
   <script src="/js/audio-player.js?v=5e49f639" defer></script>
   <script type="module" src="/js/haptics.js?v=c60c698e"></script>
-  <script src="/js/sketch.js?v=e1c9f0d8" defer></script>
+  <script src="/js/sketch.js?v=sketch-v3" defer></script>
 </body>
 </html>
