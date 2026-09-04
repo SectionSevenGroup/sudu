@@ -41,3 +41,7 @@ https://www.sudu.studio/*    https://sudu.studio/:splat    301!
 /portfolio.html       /work       301
 /contact-us           /contact    301
 /contact-us.html      /contact    301
+
+# --- previous MASSING play route --------------------------------------------
+/play/massing      /play/blocks/          301!
+/play/massing/*    /play/blocks/:splat    301!
