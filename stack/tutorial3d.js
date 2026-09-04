@@ -4,6 +4,7 @@ const shield = document.querySelector('#stack-cue-shield');
 const help = document.querySelector('#stack-help');
 const again = document.querySelector('#again');
 const stage = document.querySelector('#stack-stage');
+const moveLabel = document.querySelector('#move-count');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (!shield || !stage) {
@@ -15,6 +16,7 @@ const PHASE_MS = reducedMotion ? 1100 : 1750;
 const INITIAL_DELAY_MS = reducedMotion ? 250 : 550;
 const registry = {
   blocks: [],
+  starts: [],
   camera: null
 };
 
@@ -30,7 +32,14 @@ if (!window.__stackLiveCuePatched) {
   THREE.Scene.prototype.add = function (...objects) {
     for (const object of objects) {
       const blockIndex = object?.children?.[0]?.userData?.blockIndex;
-      if (Number.isInteger(blockIndex)) registry.blocks[blockIndex] = object;
+      if (Number.isInteger(blockIndex)) {
+        registry.blocks[blockIndex] = object;
+        registry.starts[blockIndex] = {
+          x: object.position.x,
+          y: object.position.y,
+          z: object.position.z
+        };
+      }
     }
     return originalSceneAdd.apply(this, objects);
   };
@@ -46,6 +55,8 @@ let activeCue = null;
 let frameId = 0;
 let initialPlayed = false;
 let initialTimer = 0;
+let interactionSeen = false;
+let collapseReported = false;
 
 function blockAt(course, slot) {
   return registry.blocks[course * 3 + slot] || null;
@@ -203,7 +214,7 @@ function stopTutorial() {
   removeActiveCue();
   shield.classList.remove('is-active');
   document.body.classList.remove('stack-cue-open');
-  stage.focus({ preventScroll: true });
+  if (!document.body.classList.contains('stack-game-over')) stage.focus({ preventScroll: true });
 }
 
 function playStep(step) {
@@ -237,6 +248,7 @@ function playStep(step) {
 }
 
 function startTutorial() {
+  if (document.body.classList.contains('stack-game-over')) return false;
   if (!registry.camera || registry.blocks.filter(Boolean).length < 72) return false;
   stopTutorial();
   running = true;
@@ -258,14 +270,57 @@ function waitForTower() {
   requestAnimationFrame(waitForTower);
 }
 
+function countFallenBlocks() {
+  let fallen = 0;
+
+  registry.blocks.forEach((block, index) => {
+    const start = registry.starts[index];
+    if (!block || !start) return;
+
+    const p = block.position;
+    const q = block.quaternion;
+    const qAngle = 2 * Math.acos(Math.min(1, Math.abs(q.w)));
+
+    if (
+      p.y < start.y - 1.1 ||
+      Math.abs(p.x) > 4.8 ||
+      Math.abs(p.z) > 4.8 ||
+      (p.y < 2.5 && qAngle > .72)
+    ) fallen++;
+  });
+
+  return fallen;
+}
+
+function monitorTower() {
+  const moves = Number.parseInt(moveLabel?.textContent, 10) || 0;
+  const fallen = countFallenBlocks();
+
+  if (!collapseReported && (interactionSeen || moves > 0) && fallen > 5) {
+    collapseReported = true;
+    stopTutorial();
+    window.dispatchEvent(new CustomEvent('stack:collapse', {
+      detail: { moves, fallen }
+    }));
+  }
+
+  requestAnimationFrame(monitorTower);
+}
+
 help?.addEventListener('click', event => {
   event.preventDefault();
   window.clearTimeout(initialTimer);
   if (!startTutorial()) requestAnimationFrame(startTutorial);
 });
 
+stage.addEventListener('pointerdown', () => {
+  if (!running && !document.body.classList.contains('stack-game-over')) interactionSeen = true;
+});
+
 again?.addEventListener('click', () => {
   window.clearTimeout(initialTimer);
+  collapseReported = false;
+  interactionSeen = false;
   if (running) stopTutorial();
 });
 
@@ -274,3 +329,4 @@ document.addEventListener('keydown', event => {
 });
 
 requestAnimationFrame(waitForTower);
+requestAnimationFrame(monitorTower);
