@@ -102,6 +102,11 @@
   function showResult() {
     if (!result || !resultName || !resultState) return;
 
+    if (!players.length) {
+      result.hidden = true;
+      return;
+    }
+
     if (winnerIndex != null && players[winnerIndex]) {
       resultName.textContent = players[winnerIndex];
       resultState.textContent = 'wins';
@@ -123,11 +128,13 @@
 
     if (players.length) {
       if (turnInProgress && turnOwnerIndex != null) {
-        // The current player was physically manipulating the tower when it fell.
+        // The player physically manipulating the tower when sustained failure
+        // was confirmed loses. The last completed player wins.
         loserIndex = turnOwnerIndex;
         winnerIndex = lastSuccessfulIndex;
       } else {
-        // No new turn had started, so the last placement itself caused the fall.
+        // If the collapse is confirmed during settling after a completed move,
+        // that last mover loses and the successful player before them wins.
         loserIndex = lastSuccessfulIndex ?? activeIndex;
         winnerIndex = previousSuccessfulIndex;
       }
@@ -184,7 +191,9 @@
   const moveObserver = new MutationObserver(syncScoreAndTurns);
   moveObserver.observe(moveCount, { childList: true, characterData: true, subtree: true });
 
-  window.addEventListener('stack:collapse', endGame);
+  // Only the sustained visual/structural detector may end the game. Older
+  // instantaneous collapse signals are deliberately ignored.
+  window.addEventListener('stack:gamecollapse', endGame);
   reset?.addEventListener('click', resetGameState);
 
   render();
