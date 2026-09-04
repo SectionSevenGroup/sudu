@@ -22,6 +22,14 @@
       <p class="stack-loading" aria-live="polite">assembling</p>
     </div>
 
+    <aside class="stack-players" aria-label="Players">
+      <form id="stack-player-form" class="stack-player-form" autocomplete="off">
+        <input id="stack-player-input" class="stack-player-input" type="text" maxlength="18" placeholder="name" aria-label="Player name">
+        <button class="stack-player-add" type="submit" aria-label="Add player">+</button>
+      </form>
+      <ol id="stack-player-list" class="stack-player-list" aria-live="polite"></ol>
+    </aside>
+
     <div class="stack-note" aria-live="polite">
       <span id="move-count"></span>
       <button id="stack-help" class="stack-help" type="button" aria-label="Show controls">
@@ -34,61 +42,35 @@
     </div>
     <p class="stack-instruction">pull clear · keep holding</p>
 
-    <section id="stack-intro" class="stack-intro is-open" aria-label="Stack controls" aria-modal="true" role="dialog">
-      <div class="stack-intro-set" aria-hidden="true">
-        <svg class="stack-cue stack-cue-end" viewBox="0 0 240 160">
-          <g class="cue-block">
-            <path class="cue-top" d="M55 61 71 47h112l-16 14Z"/>
-            <path class="cue-side" d="M55 61h112v42H55Z"/>
-            <path class="cue-face cue-accent" d="m167 61 16-14v42l-16 14Z"/>
-          </g>
-          <g class="cue-chevron cue-chevron-x">
-            <path d="m192 68 10 7-10 7"/>
-            <path d="m207 68 10 7-10 7"/>
-            <path class="cue-faint" d="m151 68-10 7 10 7"/>
-          </g>
-        </svg>
-
-        <svg class="stack-cue stack-cue-side" viewBox="0 0 240 160">
-          <g class="cue-block">
-            <path class="cue-top" d="M55 61 71 47h112l-16 14Z"/>
-            <path class="cue-side cue-accent" d="M55 61h112v42H55Z"/>
-            <path class="cue-face" d="m167 61 16-14v42l-16 14Z"/>
-          </g>
-          <g class="cue-chevron cue-chevron-y">
-            <path d="m103 38 7-10 7 10"/>
-            <path d="m103 117 7 10 7-10"/>
-          </g>
-        </svg>
-
-        <svg class="stack-cue stack-cue-top" viewBox="0 0 240 160">
-          <g class="cue-ghost" transform="translate(0 -24)">
-            <path d="M55 61 71 47h112l-16 14Z"/>
-            <path d="M55 61h112v42H55Z"/>
-            <path d="m167 61 16-14v42l-16 14Z"/>
-          </g>
-          <g class="cue-block">
-            <path class="cue-top cue-accent" d="M55 85 71 71h112l-16 14Z"/>
-            <path class="cue-side" d="M55 85h112v42H55Z"/>
-            <path class="cue-face" d="m167 85 16-14v42l-16 14Z"/>
-          </g>
-          <g class="cue-chevron cue-chevron-up">
-            <path d="m103 61 7-10 7 10"/>
-            <path d="M110 51v18"/>
-          </g>
+    <section id="stack-intro" class="stack-intro" aria-hidden="true">
+      <div class="stack-tower-cue stack-tower-cue-end" data-stack-cue="end" aria-hidden="true">
+        <i class="stack-face-highlight"></i>
+        <svg class="stack-face-chevron" viewBox="0 0 52 30">
+          <path d="m8 6 10 9L8 24"/>
+          <path d="m25 6 10 9-10 9"/>
         </svg>
       </div>
 
-      <button id="stack-start" class="stack-start" type="button" aria-label="Start STACK">
-        <svg viewBox="0 0 42 42" aria-hidden="true">
-          <path d="m16 12 10 9-10 9"/>
-          <path d="m23 12 10 9-10 9"/>
+      <div class="stack-tower-cue stack-tower-cue-side" data-stack-cue="side" aria-hidden="true">
+        <i class="stack-face-highlight"></i>
+        <svg class="stack-face-chevron" viewBox="0 0 62 30">
+          <path d="m19 6-10 9 10 9"/>
+          <path d="m43 6 10 9-10 9"/>
         </svg>
-      </button>
+      </div>
+
+      <div class="stack-tower-cue stack-tower-cue-top" data-stack-cue="top" aria-hidden="true">
+        <i class="stack-face-highlight"></i>
+        <svg class="stack-face-chevron" viewBox="0 0 34 48">
+          <path d="m7 19 10-10 10 10"/>
+          <path d="M17 9v28"/>
+        </svg>
+      </div>
     </section>
   </main>
 
   <script src="/stack/intro.js" defer></script>
+  <script src="/stack/players.js" defer></script>
   <script type="module" src="/stack/stack.js"></script>
 </body>
 </html>
