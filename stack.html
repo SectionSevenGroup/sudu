@@ -9,7 +9,7 @@
   <link rel="canonical" href="https://sudu.studio/stack">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/fonts.css">
-  <link rel="stylesheet" href="/stack/stack.css">
+  <link rel="stylesheet" href="/stack/stack.css?v=72h">
 </head>
 <body>
   <main class="stack-study" aria-labelledby="stack-title">
@@ -30,13 +30,11 @@
         <button class="stack-player-add" type="submit" aria-label="Add player">+</button>
       </form>
       <ol id="stack-player-list" class="stack-player-list" aria-live="polite"></ol>
+      <div id="stack-result" class="stack-result" hidden aria-live="assertive">
+        <span class="stack-result-kicker">game over</span>
+        <span class="stack-result-line"><strong id="stack-result-name" class="stack-result-name"></strong><span id="stack-result-state" class="stack-result-state"></span></span>
+      </div>
     </aside>
-
-    <div id="stack-result" class="stack-result" hidden aria-live="assertive">
-      <span class="stack-result-kicker">game over</span>
-      <strong id="stack-result-name" class="stack-result-name"></strong>
-      <span id="stack-result-state" class="stack-result-state"></span>
-    </div>
 
     <div class="stack-note" aria-live="polite">
       <span id="move-count"></span>
@@ -51,8 +49,8 @@
     <p class="stack-instruction">pull clear · keep holding</p>
   </main>
 
-  <script src="/stack/players.js" defer></script>
-  <script type="module" src="/stack/tutorial3d.js"></script>
-  <script type="module" src="/stack/stack.js"></script>
+  <script src="/stack/players.js?v=72h" defer></script>
+  <script type="module" src="/stack/tutorial3d.js?v=72h"></script>
+  <script type="module" src="/stack/stack.js?v=72h"></script>
 </body>
 </html>
