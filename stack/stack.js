@@ -1,5 +1,5 @@
 import { blockTilt, createCollapseMonitor } from './game-state.js?v=72i';
-import { createTutorial } from './tutorial3d.js?v=72i';
+import { createTutorial } from './tutorial3d.js?v=72k';
 
 const stage = document.querySelector('#stack-stage');
 const loading = stage.querySelector('.stack-loading');
@@ -9,7 +9,7 @@ const instruction = document.querySelector('.stack-instruction');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 Promise.all([
-  import('/stack/vendor/three-shim.js'),
+  import('/stack/vendor/three-shim.js?v=72k'),
   import('/stack/vendor/rapier-shim.js')
 ]).then(async ([THREE, RAPIER]) => {
   await RAPIER.init();

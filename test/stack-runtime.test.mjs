@@ -96,7 +96,7 @@ async function runtime() {
   const source = await readFile(new URL('../stack/stack.js', import.meta.url), 'utf8');
   await run(source.replace(/^import .*;\n/gm, '')
     .replace('Promise.all([', 'return Promise.all([')
-    .replace("import('/stack/vendor/three-shim.js')", 'Promise.resolve(deps.THREE)')
+    .replace("import('/stack/vendor/three-shim.js?v=72k')", 'Promise.resolve(deps.THREE)')
     .replace("import('/stack/vendor/rapier-shim.js')", 'Promise.resolve(deps.RAPIER)'));
   assert.deepEqual(errors, [], 'runtime initialises');
   function advance(seconds, hz = 60) {

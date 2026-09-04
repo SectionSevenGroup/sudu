@@ -26,120 +26,130 @@ export function createTutorial(THREE, { stage, getBlocks, camera, isGameOver, is
     return camera.position.distanceTo(plusWorld) <= camera.position.distanceTo(minusWorld) ? 1 : -1;
   }
 
-  function barBetween(a, b, thickness, material) {
-    const direction = b.clone().sub(a);
-    const length = direction.length();
-    const midpoint = a.clone().add(b).multiplyScalar(.5);
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-    mesh.position.copy(midpoint);
-    mesh.scale.set(length, thickness, thickness);
-    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), direction.normalize());
-    mesh.renderOrder = 12;
-    return mesh;
+  function planarGeometry(points, along, across, indices) {
+    const vertices = points.flatMap(([u, v]) => [
+      along.x * u + across.x * v,
+      along.y * u + across.y * v,
+      along.z * u + across.z * v
+    ]);
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+    return geometry;
   }
 
-  function makeDoubleChevron(direction, perpendicular, origin, scale, material) {
+  function cueMaterial() {
+    return new THREE.MeshBasicMaterial({
+      color: ACCENT,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthTest: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1
+    });
+  }
+
+  function makeChevrons(along, across, origin, height) {
+    const width = height * .74;
+    const pitch = width + height * .30;
+    // One flat, continuous six-point silhouette. Squared ends, matched arms
+    // and an exact central notch, with no overlapping rods or rounded joins.
+    const geometry = planarGeometry([
+      [-.5 * width, .5 * height],
+      [-.18 * width, .5 * height],
+      [.5 * width, 0],
+      [-.18 * width, -.5 * height],
+      [-.5 * width, -.5 * height],
+      [.18 * width, 0]
+    ], along, across, [0, 1, 5, 1, 2, 5, 5, 2, 3, 5, 3, 4]);
     const group = new THREE.Group();
-    const parts = [];
-    const dir = direction.clone().normalize();
-    const perp = perpendicular.clone().normalize();
-    const headDepth = scale * .34;
-    const halfHeight = scale * .28;
-    const thickness = scale * .125;
-    const spacing = scale * .31;
-
-    for (let i = 0; i < 2; i++) {
-      const tip = origin.clone().addScaledVector(dir, i * spacing);
-      const centreBack = tip.clone().addScaledVector(dir, -headDepth);
-      const upper = centreBack.clone().addScaledVector(perp, halfHeight);
-      const lower = centreBack.clone().addScaledVector(perp, -halfHeight);
-      const upperBar = barBetween(upper, tip, thickness, material);
-      const lowerBar = barBetween(lower, tip, thickness, material);
-      group.add(upperBar, lowerBar);
-      parts.push(upperBar, lowerBar);
+    group.name = 'stack-face-chevrons';
+    const materials = [];
+    for (let i = 0; i < 3; i++) {
+      const material = cueMaterial();
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.copy(origin).addScaledVector(along, (i - 1) * pitch);
+      mesh.renderOrder = 12;
+      group.add(mesh);
+      materials.push(material);
     }
-
-    return { group, parts };
+    return { group, geometry, materials };
   }
 
   function makeCue(type, block) {
-    let faceGeometry;
-    let facePosition;
-    let direction;
-    let perpendicular;
-    let arrowOrigin;
-    let arrowScale;
+    const endSign = visibleSign(block, 'x', 1.5);
+    const sideSign = visibleSign(block, 'z', .46);
+    const up = new THREE.Vector3(0, 1, 0);
+    const long = new THREE.Vector3(1, 0, 0);
+    const cross = new THREE.Vector3(0, 0, 1);
+    let faceOrigin, faceAlong, faceAcross, faceWidth, faceHeight;
+    let arrowOrigin, arrowAlong, arrowAcross, arrowHeight;
 
     if (type === 'end') {
-      const sign = visibleSign(block, 'x', 1.5);
-      direction = new THREE.Vector3(sign, 0, 0);
-      perpendicular = new THREE.Vector3(0, 1, 0);
-      faceGeometry = new THREE.BoxGeometry(.028, .346, .89);
-      facePosition = new THREE.Vector3(sign * 1.518, 0, 0);
-      arrowOrigin = facePosition.clone().addScaledVector(direction, .32);
-      arrowScale = .52;
+      faceOrigin = new THREE.Vector3(endSign * 1.501, 0, 0);
+      faceAlong = cross;
+      faceAcross = up;
+      faceWidth = .89;
+      faceHeight = .346;
+      // The end grip pulls along the block's length. Draw that direction at
+      // mid-block on its exposed long face, in the face's actual perspective.
+      arrowOrigin = new THREE.Vector3(0, 0, sideSign * .462);
+      arrowAlong = long.clone().multiplyScalar(endSign);
+      arrowAcross = up;
+      arrowHeight = .23;
     } else if (type === 'side') {
-      const sign = visibleSign(block, 'z', .46);
-      direction = new THREE.Vector3(0, 0, sign);
-      perpendicular = new THREE.Vector3(0, 1, 0);
-      faceGeometry = new THREE.BoxGeometry(2.94, .346, .028);
-      facePosition = new THREE.Vector3(0, 0, sign * .472);
-      arrowOrigin = facePosition.clone().addScaledVector(direction, .28);
-      arrowScale = .48;
+      faceOrigin = new THREE.Vector3(0, 0, sideSign * .461);
+      faceAlong = long;
+      faceAcross = up;
+      faceWidth = 2.94;
+      faceHeight = .346;
+      // A side nudge runs across the width, visible on the centred end face.
+      arrowOrigin = new THREE.Vector3(endSign * 1.502, 0, 0);
+      arrowAlong = cross.clone().multiplyScalar(sideSign);
+      arrowAcross = up;
+      arrowHeight = .23;
     } else {
-      direction = new THREE.Vector3(0, 1, 0);
-      perpendicular = new THREE.Vector3(1, 0, 0);
-      faceGeometry = new THREE.BoxGeometry(2.94, .028, .89);
-      facePosition = new THREE.Vector3(0, .192, 0);
-      arrowOrigin = facePosition.clone().addScaledVector(direction, .34);
-      arrowScale = .52;
+      faceOrigin = new THREE.Vector3(0, .181, 0);
+      faceAlong = long;
+      faceAcross = cross;
+      faceWidth = 2.94;
+      faceHeight = .89;
+      // An intact top grip tests horizontal movement; it does not lift the
+      // tower. Keep the cue flat on the top face and centred in both axes.
+      arrowOrigin = new THREE.Vector3(0, .182, 0);
+      arrowAlong = long.clone().multiplyScalar(endSign);
+      arrowAcross = cross;
+      arrowHeight = .32;
     }
 
-    const faceMaterial = new THREE.MeshBasicMaterial({
-      color: ACCENT,
-      transparent: true,
-      opacity: 0,
-      depthTest: true,
-      depthWrite: false
-    });
-    const arrowMaterial = new THREE.MeshBasicMaterial({
-      color: ACCENT,
-      transparent: true,
-      opacity: 0,
-      depthTest: true,
-      depthWrite: false
-    });
-
+    const faceGeometry = planarGeometry([
+      [-faceWidth / 2, -faceHeight / 2],
+      [faceWidth / 2, -faceHeight / 2],
+      [faceWidth / 2, faceHeight / 2],
+      [-faceWidth / 2, faceHeight / 2]
+    ], faceAlong, faceAcross, [0, 1, 2, 0, 2, 3]);
+    const faceMaterial = cueMaterial();
     const face = new THREE.Mesh(faceGeometry, faceMaterial);
-    face.position.copy(facePosition);
+    face.position.copy(faceOrigin);
     face.renderOrder = 11;
     block.add(face);
-
-    const arrows = makeDoubleChevron(direction, perpendicular, arrowOrigin, arrowScale, arrowMaterial);
+    const arrows = makeChevrons(arrowAlong, arrowAcross, arrowOrigin, arrowHeight);
     block.add(arrows.group);
-
-    return {
-      type,
-      block,
-      face,
-      faceMaterial,
-      arrowMaterial,
-      arrowGroup: arrows.group,
-      arrowParts: arrows.parts,
-      arrowBase: arrows.group.position.clone(),
-      direction
-    };
+    return { block, face, faceMaterial, arrows };
   }
 
   function removeActiveCue() {
     if (!activeCue) return;
 
     activeCue.block.remove(activeCue.face);
-    activeCue.block.remove(activeCue.arrowGroup);
+    activeCue.block.remove(activeCue.arrows.group);
     activeCue.face.geometry.dispose();
-    activeCue.arrowParts.forEach(part => part.geometry.dispose());
+    activeCue.arrows.geometry.dispose();
     activeCue.faceMaterial.dispose();
-    activeCue.arrowMaterial.dispose();
+    activeCue.arrows.materials.forEach(material => material.dispose());
     activeCue = null;
   }
 
@@ -151,13 +161,25 @@ export function createTutorial(THREE, { stage, getBlocks, camera, isGameOver, is
   function updateCue(now, startTime) {
     if (!activeCue) return;
 
-    const phase = Math.min(1, Math.max(0, (now - startTime) / PHASE_MS));
-    const pulse = reducedMotion ? .88 : Math.sin(Math.PI * phase);
-    const travel = reducedMotion ? 0 : Math.sin(phase * Math.PI * 2) * .055;
+    if (reducedMotion) {
+      activeCue.faceMaterial.opacity = .16;
+      activeCue.arrows.materials.forEach(material => { material.opacity = .88; });
+      return;
+    }
 
-    activeCue.faceMaterial.opacity = .16 + pulse * .50;
-    activeCue.arrowMaterial.opacity = .44 + pulse * .56;
-    activeCue.arrowGroup.position.copy(activeCue.arrowBase).addScaledVector(activeCue.direction, travel);
+    const elapsed = now - startTime;
+    const envelope = THREE.MathUtils.smoothstep(elapsed, 0, 180)
+      * (1 - THREE.MathUtils.smoothstep(elapsed, PHASE_MS - 260, PHASE_MS));
+    activeCue.faceMaterial.opacity = .18 * envelope;
+    activeCue.arrows.materials.forEach((material, index) => {
+      const local = elapsed - 120 - index * 320;
+      const fadeIn = THREE.MathUtils.smoothstep(local, 0, 180);
+      const fadeOut = 1 - THREE.MathUtils.smoothstep(local, 280, 700);
+      material.opacity = .94 * fadeIn * fadeOut;
+    });
+    // Position, scale and orientation never animate. Only opacity travels
+    // from the first chevron to the third, along the block's physical axis.
+
   }
 
   function stopTutorial() {
