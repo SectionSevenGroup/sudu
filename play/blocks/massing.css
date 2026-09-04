@@ -22,6 +22,13 @@ body {
   font-family: 'Urbanist', Arial, sans-serif;
 }
 
+#suduBar,
+html.dm #suduBar {
+  --ground: var(--massing-paper);
+  --ink: var(--massing-ink);
+  color: var(--massing-ink) !important;
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;
@@ -132,7 +139,7 @@ a {
 #massing-stage {
   position: absolute;
   top: 0;
-  right: clamp(264px, 22vw, 320px);
+  right: clamp(224px, 19vw, 272px);
   bottom: 0;
   left: 0;
   cursor: grab;
@@ -213,9 +220,9 @@ a {
   bottom: 68px;
   z-index: 90;
   display: grid;
-  width: clamp(218px, 18vw, 260px);
+  width: clamp(192px, 16vw, 226px);
   min-height: 420px;
-  grid-template-rows: auto auto minmax(150px, 1fr) auto auto auto;
+  grid-template-rows: auto auto 154px auto auto auto;
   align-content: stretch;
   padding-left: 18px;
   border-left: 1px solid rgba(36, 35, 31, .18);
@@ -244,6 +251,19 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.challenge-ledger__tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.challenge-score {
+  color: rgba(36, 35, 31, .46);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .055em;
 }
 
 .challenge-ledger__head {
@@ -294,9 +314,13 @@ a {
 
 .challenge-preview {
   position: relative;
-  min-height: 150px;
+  min-height: 0;
   overflow: hidden;
   border-bottom: 1px solid rgba(36, 35, 31, .18);
+}
+
+.parts-tray {
+  display: none;
 }
 
 .challenge-preview canvas {
@@ -464,5 +488,338 @@ a {
 
   .challenge-actions {
     gap: 10px;
+  }
+}
+
+/* The phone is a compact workbench: finite parts above, model in the middle,
+   challenge and manipulation controls below. */
+@media (max-width: 640px) {
+  .massing-header {
+    z-index: 220;
+    align-items: center;
+    padding: 20px 16px 14px;
+    background: linear-gradient(to bottom, var(--massing-paper) 70%, rgba(243, 241, 234, 0));
+  }
+
+  .massing-mark img {
+    height: 32px;
+  }
+
+  .massing-header h1 {
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .parts-tray {
+    position: fixed;
+    top: 66px;
+    right: 0;
+    left: 0;
+    z-index: 210;
+    display: grid;
+    height: 76px;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: stretch;
+    border-top: 1px solid rgba(36, 35, 31, .11);
+    border-bottom: 1px solid rgba(36, 35, 31, .16);
+    background: rgba(243, 241, 234, .96);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .parts-tray__label {
+    display: grid;
+    place-items: center;
+    border-right: 1px solid rgba(36, 35, 31, .13);
+    color: rgba(36, 35, 31, .52);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  .parts-tray__rail {
+    display: flex;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .parts-tray__rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .parts-tray__part {
+    position: relative;
+    display: grid;
+    width: 70px;
+    min-width: 70px;
+    height: 75px;
+    grid-template-rows: 48px 1fr;
+    place-items: center;
+    margin: 0;
+    padding: 3px 5px 5px;
+    scroll-snap-align: start;
+    border: 0;
+    border-right: 1px solid rgba(36, 35, 31, .12);
+    border-radius: 0;
+    background: transparent;
+    color: var(--massing-ink);
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .parts-tray__part:focus-visible {
+    outline: 1px solid var(--massing-accent);
+    outline-offset: -3px;
+  }
+
+  .parts-tray__part:active:not(:disabled) {
+    background: rgba(36, 35, 31, .055);
+  }
+
+  .parts-tray__part:disabled {
+    opacity: .2;
+  }
+
+  .parts-tray__icon {
+    display: block;
+    width: 58px;
+    height: 36px;
+  }
+
+  .parts-tray__name {
+    align-self: start;
+    width: 100%;
+    overflow: hidden;
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .parts-tray__count {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    min-width: 14px;
+    color: rgba(36, 35, 31, .52);
+    font-size: 9px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  #massing-stage {
+    inset: 0;
+  }
+
+  .massing-instruction {
+    display: none;
+  }
+
+  .massing-note {
+    right: 12px;
+    bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    z-index: 205;
+    justify-content: flex-end;
+    gap: 4px;
+    max-width: none;
+    pointer-events: none;
+  }
+
+  #massing-selection,
+  #again {
+    display: none;
+  }
+
+  #massing-turn,
+  #massing-up,
+  #massing-down,
+  #massing-view {
+    display: inline-grid;
+  }
+
+  .massing-action {
+    min-width: 44px;
+    min-height: 40px;
+    place-items: center;
+    padding: 0 8px;
+    border: 1px solid rgba(36, 35, 31, .2);
+    background: rgba(243, 241, 234, .88);
+    font-size: 10px;
+    pointer-events: auto;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .massing-action:disabled {
+    border-color: rgba(36, 35, 31, .09);
+    opacity: .24;
+  }
+
+  .challenge-ledger {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    z-index: 215;
+    display: grid;
+    width: auto;
+    height: 62px;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 30px 26px;
+    gap: 0 10px;
+    padding: 3px 12px 1px;
+    border: 0;
+    border-top: 1px solid rgba(36, 35, 31, .16);
+    background: rgba(243, 241, 234, .96);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .challenge-ledger__head {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+    padding: 0;
+  }
+
+  .challenge-ledger__head > span:first-child {
+    display: none;
+  }
+
+  .challenge-ledger__tools {
+    gap: 10px;
+  }
+
+  .challenge-score {
+    min-width: 28px;
+    font-size: 9px;
+    text-align: right;
+  }
+
+  #challenge-free {
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 9px;
+  }
+
+  .challenge-numbers {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    min-width: 0;
+    overflow-x: auto;
+    border: 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .challenge-numbers::-webkit-scrollbar {
+    display: none;
+  }
+
+  .challenge-numbers button {
+    width: 34px;
+    min-width: 34px;
+    min-height: 28px;
+    border: 0;
+    font-size: 9px;
+    scroll-snap-align: center;
+  }
+
+  .challenge-numbers button[aria-selected="true"] {
+    box-shadow: inset 0 -1px 0 var(--massing-accent);
+  }
+
+  .challenge-preview {
+    position: fixed;
+    right: 12px;
+    bottom: calc(122px + env(safe-area-inset-bottom, 0px));
+    width: 150px;
+    height: 150px;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid rgba(36, 35, 31, .16);
+    background: rgba(243, 241, 234, .97);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px) scale(.96);
+    transform-origin: bottom right;
+    transition: opacity .22s ease, transform .22s ease, visibility 0s linear .22s;
+    pointer-events: none;
+  }
+
+  .challenge-ledger.is-preview-open .challenge-preview {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .challenge-copy {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .challenge-copy h2 {
+    overflow: hidden;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .challenge-meta,
+  .challenge-copy > p:last-child,
+  .challenge-status {
+    display: none;
+  }
+
+  .challenge-actions {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .challenge-actions button {
+    min-height: 24px;
+    padding: 0 0 1px;
+    font-size: 9.5px;
+  }
+}
+
+@media (max-width: 390px) {
+  .massing-action {
+    min-width: 40px;
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
+  .challenge-actions {
+    gap: 7px;
+  }
+
+  .challenge-actions button {
+    font-size: 9px;
   }
 }

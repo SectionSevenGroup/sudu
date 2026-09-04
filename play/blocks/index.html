@@ -10,6 +10,8 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/fonts.css">
   <link rel="stylesheet" href="/play/blocks/massing.css">
+  <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
+  <script src="/js/audio-player.js?v=5e49f639" defer></script>
 </head>
 <body>
   <main class="massing-study" aria-labelledby="massing-title">
@@ -21,7 +23,10 @@
     <aside id="challenge-ledger" class="challenge-ledger" aria-label="Building challenges">
       <div class="challenge-ledger__head">
         <span>challenges</span>
-        <button id="challenge-free" type="button" aria-pressed="false">free</button>
+        <div class="challenge-ledger__tools">
+          <span id="challenge-score" class="challenge-score" aria-label="Current score">1000</span>
+          <button id="challenge-free" type="button" aria-pressed="false">free</button>
+        </div>
       </div>
 
       <div class="challenge-numbers" role="tablist" aria-label="Choose a challenge">
@@ -46,13 +51,18 @@
       </div>
 
       <div class="challenge-actions">
-        <button id="challenge-spin" type="button">spin</button>
-        <button id="challenge-guide" type="button" aria-pressed="false">guide off</button>
+        <button id="challenge-spin" type="button">show</button>
+        <button id="challenge-guide" type="button" aria-pressed="false">hint</button>
         <button id="challenge-reset" type="button">reset</button>
       </div>
 
       <p id="challenge-status" class="challenge-status" aria-live="polite">build the model</p>
     </aside>
+
+    <nav id="parts-tray" class="parts-tray" aria-label="Building pieces">
+      <div class="parts-tray__label" aria-hidden="true">pieces</div>
+      <div id="parts-rail" class="parts-tray__rail"></div>
+    </nav>
 
     <div id="massing-stage" class="massing-stage" aria-label="Interactive architectural massing table. Drag to move a block across the plan. Scroll to change its height. Release on the alignment outline to place it. Double-click touching blocks to align and hold them for eight seconds." tabindex="0">
       <p class="massing-loading" aria-live="polite">laying out the kit</p>
