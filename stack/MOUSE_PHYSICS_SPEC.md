@@ -1,320 +1,157 @@
-# STACK / Mouse + Grip Physics Specification
+# STACK Mouse Physics Specification
 
-Status: implementation authority for mouse manipulation prototype
-Date: 30 August 2026
-Implementation: first face-aware grip pass active on PR #19
+STACK treats the pointer as a hand contacting a physical block, not as a generic object manipulator.
 
-## Intent
+## Core interaction principle
 
-The mouse represents a hand contacting a particular part of a wooden block. Selecting a block must not grant unconstrained control of the whole rigid body.
+The surface and exact point that the player grabs determine which force directions are available and how much authority the pointer has.
 
-The point and surface that the visitor touches determine the directions in which meaningful force can be applied. Rapier remains responsible for the resulting motion, friction, collision, rotation and instability.
+### End face
 
-The interaction should therefore feel like touching a real block rather than dragging a 3D UI object.
+An end-face grip primarily controls motion along the block's long axis.
 
-## 1. Governing rule
+- Strong in/out authority for extraction and reinsertion.
+- Very limited lateral authority.
+- Very limited vertical authority.
+- Off-centre end grabs may create small yaw or rocking because force is applied at the actual grip point.
+- The small secondary motion should come from real torque and contact response, not a visual wobble animation.
 
-**Grip surface -> plausible force directions -> rigid-body response.**
+### Long side
 
-Never fake a secondary movement solely as animation if the same effect can arise from a small real force applied through the selected point.
+A side grip primarily controls motion across the block width.
 
-For intact/tower blocks, user input is force-based and the block remains dynamic.
+- Stronger lateral nudge authority.
+- Weak longitudinal authority.
+- Very limited vertical authority.
+- A side grip should feel useful for testing or correcting a piece, not like a second extraction handle.
 
-Detached/free blocks may enter the existing assisted carry state.
+### Top face
 
-## 2. End-face grip
+A top grip is for testing and wiggling a block.
 
-Primary intent: pull or push the block along its long axis.
+- Moderate horizontal authority in both principal horizontal directions.
+- Almost no direct vertical authority.
+- Downward pointer motion must not turn into a hydraulic press on the tower.
+- Small vertical changes may still occur naturally through rocking, gaps, rotation and collision geometry.
 
-Behaviour:
+### Edges and corners
 
-- strong force authority along the long axis;
-- both outward and inward motion are allowed;
-- only weak lateral authority;
-- essentially no direct vertical authority;
-- force is applied through the actual selected point, so an off-centre grip can create a small real yaw/rocking response;
-- neighbouring blocks and friction remain free to resist, deflect or bind the selected block.
+Grip behaviour blends continuously between END, SIDE and TOP.
 
-The visual result may therefore include a little lateral motion or rotation, but that movement must be produced physically rather than by cosmetic offset.
+There must be no abrupt invisible threshold where moving a few pixels changes the interaction mode. Edge/corner grabs combine weighted surface authority and naturally generate more torque because they are farther from the rigid-body centre.
 
-A block that clears the tower axially while held from an end may transition into carry.
+## Force application
 
-## 3. Long-side grip
+- Capture the actual 3D hit point at pointer down.
+- Store that grip point in block-local coordinates.
+- Reconstruct the world-space grip point from the body's current pose every physics step.
+- Compute the spring/damper error at the grip point.
+- Resolve the error along the block's current local long, side and up axes.
+- Weight the available force in each axis by the grip surface profile.
+- Apply impulse at the actual grip point where the physics API permits it.
+- If direct impulse-at-point support is unavailable, reproduce the same result using centre impulse plus torque impulse.
 
-Primary intent: nudge the block sideways.
+This makes subtle yaw, rocking and lateral movement emerge physically from an off-centre grab.
 
-Behaviour:
+## Intact block manipulation
 
-- strong force authority across the block width;
-- weak authority along its long axis;
-- essentially no direct vertical authority;
-- an off-centre side grip may naturally introduce yaw;
-- lateral movement remains subject to compression from neighbouring blocks and load from above.
+An intact block remains a dynamic rigid body throughout manipulation.
 
-A side grip must not behave like an extraction handle. If lateral motion happens to dislodge a block completely, it becomes carryable after release/re-grab rather than automatically teleporting into carry.
+The pointer does not teleport it, lock its rotation, disable collisions or overwrite its transform. It applies bounded physical impulses and the surrounding tower decides how much movement is possible.
 
-## 4. Top-face grip
+Force caps and error caps prevent fast pointer movement from storing arbitrary spring energy.
 
-Primary intent: test/wiggle/rock the block.
+## Extraction
 
-Behaviour:
+A block becomes genuinely extracted only when its displacement from its original course clears the supporting tower footprint.
 
-- moderate horizontal authority in both local horizontal axes;
-- no meaningful user-driven downward force;
-- only extremely small upward compliance, if any;
-- vertical movement should arise mainly from real contact geometry, rocking, gaps and gravity;
-- force applied away from the centre should naturally create small pitch/roll/yaw responses.
+- Clearance is measured from the block's stored home position and home long axis.
+- Partial extraction does not reset the reference position.
+- Re-grabbing a partially extracted block still knows where its original course is.
+- Pulling outward and pushing inward are equally valid physical gestures.
+- Automatic transition into carry mode is reserved primarily for an end-face extraction, where that handoff is intuitive.
+- A block detached by side/top manipulation becomes re-grabbable, but does not unexpectedly jump into carry while the player is still testing it.
 
-Dragging downward on screen must not allow the visitor to artificially compress the whole tower through the selected block.
+## Detached / loose pieces
 
-## 5. Bottom face
+A block is considered detached when it is clearly extracted, has fallen away from its original course, or is lying on the ground away from its home position.
 
-An intact tower block's underside is normally inaccessible.
+Detached blocks may be clicked on any visible face and picked up into carry mode.
 
-If a bottom face is visible because the block is already detached/fallen, use detached-piece carry behaviour rather than inventing a separate manipulation mode.
+## Carry
 
-## 6. Edge + corner grips
+Carry mode exists only after a block is physically free.
 
-Do not use hard pixel boundaries between end/side/top behaviour.
+- The body becomes kinematic while held so a loose piece can be transported in 3D.
+- Carry speed is capped so the held block cannot act as an infinite-mass battering ram.
+- Camera zoom is disabled during an active grip/carry so changing projection cannot corrupt the hand/block relationship.
+- Right mouse remains reserved for forced orbit when no block is actively held.
 
-Near an edge or corner, calculate continuous weights for END / SIDE / TOP based on the actual local hit position.
+## Assisted top placement
 
-Examples:
+Top placement is intentionally easier than extraction.
 
-- end + side edge -> mostly axial pull with more lateral compliance;
-- end + top edge -> axial pull with slightly more rocking;
-- top + side edge -> horizontal wiggle biased sideways;
-- corner -> blended low-authority manipulation.
+The challenge of STACK is choosing and extracting a viable block without destabilising the tower. It is not precision 3D CAD alignment after the block is already free.
 
-The same point should remain stable for the duration of the grip. Do not reclassify the face every frame.
+- A faint outline indicates the next legal slot on the top course whenever a loose/carryable block exists.
+- The player only needs to lift the free block into a generous capture volume around that slot.
+- Inside the capture volume, position and orientation are progressively magnetised toward the correct alternating course and slot.
+- The magnetism must be strong enough that the player clearly feels the intended placement, without snapping a distant block across the scene.
+- Release inside the accepted placement region completes the placement.
+- On release, the block returns to dynamic physics slightly above the target with small bounded residual velocity so it settles physically rather than being permanently teleported/frozen into place.
+- A missed release away from the capture region simply leaves the block free and re-grabbable.
+- The placement guide becomes visually stronger while the held block is inside the capture region.
 
-## 7. Actual grip point
+## Friction and fit
 
-Store the selected point in block-local coordinates at pointer-down.
+Difficulty should come primarily from gravity, course loading and imperfect contact geometry rather than artificially sticky blocks.
 
-At every physics step:
+Target deterministic friction distribution:
 
-1. transform that local point by the current rigid-body pose;
-2. find the error between that physical grip point and the mouse target point;
-3. decompose the error into the block's current local long / side / up axes;
-4. limit each component according to END / SIDE / TOP grip weights;
-5. apply the resulting impulse **at the physical grip point**.
+- approximately 30% loose: coefficient 0.08–0.20
+- approximately 60% normal: coefficient 0.22–0.42
+- approximately 10% tight: coefficient 0.44–0.58
 
-This makes small rotation/rocking a consequence of moment arm rather than a visual trick.
+Small dimensional, yaw, density and damping variation remain. Lower blocks naturally become harder to move because they carry more normal load from the courses above.
 
-If `applyImpulseAtPoint` is unavailable, apply the linear impulse at the centre plus the equivalent `r x impulse` torque impulse.
+## Placement state update
 
-## 8. Force limits
+Once a block has been placed on top:
 
-Mouse distance is not unlimited force.
+- update its course index;
+- update its home position;
+- update its home long axis;
+- clear free/carryable state;
+- treat it exactly like any other tower block for future extraction.
 
-Each axis uses:
+## Pointer lifecycle safety
 
-- bounded spring error;
-- velocity damping;
-- a strict maximum force;
-- lower authority for secondary directions.
+No browser event may leave a block in an impossible interaction state.
 
-A large/fast mouse gesture therefore increases intent only up to a physical cap. It must not launch a loaded block across the scene.
+- Pointer up: finish grip/carry normally.
+- Pointer cancel: safely release/drop the block.
+- Resize during interaction: release active manipulation before recalculating camera geometry.
+- Visibility/tab change: release pointer capture and return carried pieces to dynamic physics.
+- Reset: clear all active pointer and carry state before rebuilding the world.
 
-Initial target hierarchy:
+## Camera conflict rules
 
-- END axial force: highest;
-- SIDE lateral force: medium;
-- TOP horizontal wiggle: lower;
-- secondary END/SIDE cross-axis force: low;
-- direct vertical force: near zero.
+- Left drag on a block manipulates the block.
+- Left drag on empty space orbits the camera.
+- Right drag forces orbit, even when the pointer starts above a block, unless a block is already actively held.
+- Wheel/trackpad zoom is ignored during active manipulation.
 
-Exact constants are tuning values, not game rules.
+## Acceptance feel
 
-## 9. Friction + fit remain authoritative
+A good interaction pass should allow the following without special knowledge:
 
-Loose / normal / tight variation remains physical.
-
-The grip model must not make every block equally movable.
-
-A user may:
-
-- test a block from the top and feel little movement;
-- nudge it from the side;
-- pull the end and discover that it is loose;
-- find another block genuinely bound by load/friction.
-
-Opening gaps elsewhere must continue to alter behaviour naturally through the rigid-body simulation.
-
-## 10. Partial extraction + re-grab
-
-Re-grabbing never resets the block's physical home reference.
-
-If an exposed end is selected, pushing it inward must work immediately from the actual selected point.
-
-A partially extracted block remains a normal dynamic tower block until genuinely clear.
-
-No early kinematic handoff while it is still touching neighbouring courses.
-
-## 11. Detached/free pieces
-
-Once clearly detached:
-
-- clicking any visible surface may pick it up;
-- it enters assisted carry;
-- carry must preserve enough inertia/physical consequence to feel like an object, not a cursor icon;
-- carry speed is capped to avoid an effectively infinite-mass kinematic projectile.
-
-## 12. Carry + placement
-
-Near the next top slot:
-
-- orientation assistance may increase progressively;
-- position assistance may bias toward the legal slot;
-- release must return the block to dynamic physics slightly above/near the intended pose;
-- do not zero all physical character by teleporting and freezing it exactly in place;
-- a gentle release should settle quietly;
-- a poor/heavy release may move neighbouring blocks or fail.
-
-## 13. Camera conflict
-
-Gesture routing stays raycast-first:
-
-- left-drag block -> manipulate block;
-- left-drag empty space -> orbit;
-- right-drag anywhere -> force orbit.
-
-While a block is actively gripped/carrying:
-
-- wheel/trackpad zoom input is ignored;
-- orbit does not move;
-- camera projection therefore cannot change underneath the grip and cause a jump.
-
-## 14. Pointer + lifecycle edge cases
-
-Must handle:
-
-- pointerup;
-- pointercancel;
-- pointer leaving canvas while captured;
-- browser/tab visibility change;
-- reset during/after interaction;
-- resize during an active interaction;
-- right-click orbit without context menu;
-- rapid click/re-grab of a moving block.
-
-On cancellation/visibility loss:
-
-- release pointer capture;
-- clear drag/orbit CSS state;
-- return a carried kinematic block to a safe dynamic/free state;
-- never leave a block frozen in mid-air.
-
-Reset must clear interaction state before rebuilding the world.
-
-## 15. Release velocity
-
-For intact END/SIDE/TOP manipulation, the block retains the velocity produced by the solver. Do not add a mouse-throw impulse on release.
-
-For carried pieces, retain a bounded fraction of actual carry velocity on release so dropping/placing feels physical.
-
-Clamp pathological carry release speeds.
-
-## 16. No cosmetic cheating
-
-Allowed:
-
-- real tiny yaw from off-centre force;
-- real rocking against neighbouring blocks;
-- real vertical rise from a corner riding over another surface;
-- real rebound/contact response.
-
-Avoid:
-
-- manually translating the render mesh independently of the rigid body;
-- fake wiggle animation;
-- visual offsets that do not exist in Rapier;
-- snapping the rigid body while still embedded in the tower.
-
-## 17. Mouse QA matrix
-
-### End centre
-
-- pull out;
-- stop;
-- push back in;
-- movement remains primarily axial.
-
-### End near edge
-
-- pull axially;
-- small genuine yaw/lateral compliance appears;
-- no large sideways dragging.
-
-### Side centre
-
-- left/right mouse motion nudges sideways;
-- axial extraction authority is weak.
-
-### Side near end
-
-- blended side/end behaviour;
-- no abrupt interaction-mode switch.
-
-### Top centre
-
-- horizontal mouse movement tests/wiggles the block;
-- dragging down does not compress it vertically.
-
-### Top near corner
-
-- block can rock slightly through real moment arm;
-- no cartoon wobble.
-
-### Tight block
-
-- mouse can build intent only to force cap;
-- neighbouring tower reacts physically;
-- no huge stored spring release.
-
-### Loose block
-
-- gives more readily under the same grip;
-- remains governed by friction/load rather than a scripted loose animation.
-
-### Partial extraction
-
-- re-grab exposed end;
-- push inward cleanly;
-- no centre/grab-point jump.
-
-### Carry
-
-- pick detached piece from floor;
-- move through scene;
-- accidental tower contact has bounded consequences;
-- no off-screen launches from ordinary mouse speed.
-
-### Placement
-
-- approach top target;
-- assistance is perceptible but restrained;
-- release returns to dynamic physics;
-- imperfect placement remains possible.
-
-### Camera
-
-- right-drag orbits even over block;
-- empty-space left-drag orbits;
-- wheel zoom does not alter camera while a block is held.
-
-## 18. Acceptance condition
-
-The user should be able to infer the interaction from the object itself:
-
-- grab the end -> pull/push;
-- grab the side -> nudge sideways;
-- grab the top -> test/wiggle;
-- free the piece -> lift/place.
-
-The block should never feel like a generic draggable 3D object.
-
-## 19. Prototype gate
-
-The face-aware grip model is not considered approved merely because it compiles or deploys. It requires direct mouse testing of the QA matrix above on the Netlify preview. The first pass should be tuned by feel before any further game systems, sound or visual embellishment are added.
+1. Grab the centre of an end and pull mostly straight out.
+2. Grab near the edge of that end and see a small natural yaw as the block resists.
+3. Re-grab a half-extracted piece and push it back into its original course.
+4. Grab the middle of a long side and nudge the piece sideways without easily extracting it lengthwise.
+5. Grab the top and test/wiggle the block without being able to drive it downward through the tower.
+6. Pull a block fully free, continue holding, lift toward the top target and feel it align automatically.
+7. Release in the top capture region and watch the block settle naturally into its new course.
+8. Miss the placement area, drop the block, click it again and recover it.
+9. Orbit and zoom normally when not holding anything.
+10. Reset at any time without a frozen or orphaned body.

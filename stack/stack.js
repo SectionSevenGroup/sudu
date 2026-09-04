@@ -24,6 +24,8 @@ Promise.all([
   const MAX_SIDE_ERROR = .30;
   const MAX_TOP_ERROR = .18;
   const REGRAB_CLEARANCE_MARGIN = .24;
+  const PLACEMENT_CAPTURE_RADIUS = 2.8;
+  const PLACEMENT_RELEASE_RADIUS = 3.05;
 
   // Grip authority is intentionally asymmetric: END grips own axial extraction,
   // SIDE grips own lateral nudging, and TOP grips only test/wiggle the piece.
@@ -160,8 +162,8 @@ Promise.all([
 
     if (carrying) {
       const desiredDistance = active.carryDesired.distanceTo(pose.position);
-      const candidate = active.placementCandidate || desiredDistance < 2.0;
-      placementMaterial.opacity = candidate ? .48 : .24;
+      const candidate = active.placementCandidate || desiredDistance < PLACEMENT_CAPTURE_RADIUS;
+      placementMaterial.opacity = candidate ? .58 : .24;
     } else {
       placementMaterial.opacity = .16;
     }
@@ -225,14 +227,16 @@ Promise.all([
 
         let friction;
         let fit;
-        if (frictionRoll < .22) {
-          friction = .12 + (frictionRoll / .22) * .16;
+        // Difficulty should come primarily from real loading and imperfect contact,
+        // not from an artificially sticky material model.
+        if (frictionRoll < .30) {
+          friction = .08 + (frictionRoll / .30) * .12;
           fit = 'loose';
-        } else if (frictionRoll < .80) {
-          friction = .30 + ((frictionRoll - .22) / .58) * .24;
+        } else if (frictionRoll < .90) {
+          friction = .22 + ((frictionRoll - .30) / .60) * .20;
           fit = 'normal';
         } else {
-          friction = .56 + ((frictionRoll - .80) / .20) * .22;
+          friction = .44 + ((frictionRoll - .90) / .10) * .14;
           fit = 'tight';
         }
 
@@ -457,7 +461,7 @@ Promise.all([
       lastClientX: clientX,
       lastClientY: clientY
     };
-    setInstruction('lift to outline · release');
+    setInstruction('lift above tower · release');
     updatePlacementGuide();
     stage.classList.add('is-dragging');
   }
@@ -487,14 +491,22 @@ Promise.all([
         active.carryDesired.copy(active.carryOrigin).add(carryPoint.clone().sub(active.carryGrabPoint));
         const pose = nextPlacementPose();
         const distance = active.carryDesired.distanceTo(pose.position);
-        const snap = 1 - THREE.MathUtils.smoothstep(distance, .45, 2.55);
-        if (snap > 0) active.carryDesired.lerp(pose.position, snap * .84);
-        if (distance < 2.0) active.placementCandidate = true;
-        else if (distance > 2.75) active.placementCandidate = false;
-        const orient = active.carryDesired.y > pose.position.y - 1.8
-          ? THREE.MathUtils.clamp((active.carryDesired.y - (pose.position.y - 1.8)) / 1.8, 0, 1)
+        const snap = 1 - THREE.MathUtils.smoothstep(distance, .55, PLACEMENT_CAPTURE_RADIUS);
+
+        // The user only needs to bring a loose piece into the top capture volume.
+        // From there STACK handles the fussy 3D alignment, while release still
+        // returns the block to real dynamics for a short physical settle.
+        if (snap > 0) {
+          active.carryDesired.lerp(pose.position, snap * .94);
+          active.carryRotation.slerp(pose.rotation, .20 + snap * .48);
+        }
+        if (distance < PLACEMENT_CAPTURE_RADIUS) active.placementCandidate = true;
+        else if (distance > PLACEMENT_CAPTURE_RADIUS + .65) active.placementCandidate = false;
+
+        const orient = active.carryDesired.y > pose.position.y - 2.0
+          ? THREE.MathUtils.clamp((active.carryDesired.y - (pose.position.y - 2.0)) / 2.0, 0, 1)
           : 0;
-        active.carryRotation.slerp(pose.rotation, orient * .24);
+        active.carryRotation.slerp(pose.rotation, orient * .30);
         updatePlacementGuide();
       }
       return;
@@ -592,7 +604,7 @@ Promise.all([
 
       if (held.mode === 'grip' && isDetached(held.block)) {
         held.block.carryable = true;
-        setInstruction('click free block · lift to outline');
+        setInstruction('click free block · lift above tower');
       }
 
       if (held.mode === 'carry') {
@@ -603,22 +615,24 @@ Promise.all([
         const currentDistance = current.distanceTo(pose.position);
         const desiredDistance = held.carryDesired.distanceTo(pose.position);
         const canPlace = !cancelled && (
-          currentDistance < 1.55 ||
-          (held.placementCandidate && desiredDistance < 2.15 && currentDistance < 2.35)
+          currentDistance < 2.10 ||
+          (held.placementCandidate && desiredDistance < PLACEMENT_CAPTURE_RADIUS && currentDistance < PLACEMENT_RELEASE_RADIUS)
         );
 
         body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
 
         if (canPlace) {
           const releaseVelocity = held.carryVelocity.clone();
-          if (releaseVelocity.length() > 1.45) releaseVelocity.setLength(1.45);
-          releaseVelocity.y = THREE.MathUtils.clamp(releaseVelocity.y, -1.0, .16);
+          if (releaseVelocity.length() > .75) releaseVelocity.setLength(.75);
+          releaseVelocity.x *= .35;
+          releaseVelocity.z *= .35;
+          releaseVelocity.y = THREE.MathUtils.clamp(releaseVelocity.y, -.55, .06);
 
-          const releasePosition = current.clone().lerp(pose.position, .84);
-          releasePosition.y = Math.max(releasePosition.y, pose.position.y + .04);
+          const releasePosition = current.clone().lerp(pose.position, .96);
+          releasePosition.y = Math.max(releasePosition.y, pose.position.y + .055);
 
           const releaseRotation = new THREE.Quaternion(q.x, q.y, q.z, q.w);
-          releaseRotation.slerp(pose.rotation, .90);
+          releaseRotation.slerp(pose.rotation, .985);
 
           body.setTranslation(releasePosition, true);
           body.setRotation(releaseRotation, true);
@@ -644,7 +658,7 @@ Promise.all([
           body.wakeUp();
           held.block.free = true;
           held.block.carryable = true;
-          setInstruction('click free block · lift to outline');
+          setInstruction('click free block · lift above tower');
         }
       }
 

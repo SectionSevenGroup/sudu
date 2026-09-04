@@ -1,19 +1,382 @@
-@font-face{font-family:Galano;src:url('/fonts/galano-regular.woff2') format('woff2');font-display:swap}
-:root{color-scheme:light;--paper:#f3f1ea;--ink:#171613;--quiet:#67655d}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:Galano,Urbanist,Arial,sans-serif}
-body{overflow:hidden}
-.stack-study{position:relative;width:100%;height:100svh;min-height:500px}
-.stack-header{position:absolute;z-index:2;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:30px clamp(20px,4.5vw,64px);pointer-events:none}
-.stack-mark{pointer-events:auto}.stack-mark img{display:block;width:auto;height:25px}
-h1{margin:0;font:400 11px/1 Galano,sans-serif;letter-spacing:.14em}
-.stack-stage{position:absolute;inset:0;outline:0;touch-action:none;cursor:grab}
-.stack-stage canvas{display:block;width:100%;height:100%;touch-action:none}
-.stack-stage.is-hovering canvas{cursor:grab}.stack-stage.is-dragging canvas,.stack-stage.is-orbiting canvas{cursor:grabbing}
-.stack-loading{position:absolute;top:50%;left:50%;margin:0;transform:translate(-50%,-50%);font-size:10px;letter-spacing:.1em;color:var(--quiet)}
-.stack-note,.stack-instruction{position:absolute;z-index:2;bottom:max(28px,env(safe-area-inset-bottom));margin:0;font-size:10px;letter-spacing:.08em;color:var(--quiet)}
-.stack-note{right:clamp(20px,4.5vw,64px);z-index:5;display:flex;align-items:center;gap:14px;pointer-events:auto}
-.stack-instruction{left:clamp(20px,4.5vw,64px)}
-#again{border:0;border-bottom:1px solid currentColor;padding:0 0 2px;background:transparent;color:inherit;font:inherit;letter-spacing:inherit;cursor:pointer;white-space:nowrap}
-@media(max-width:640px){.stack-header{padding-top:max(22px,env(safe-area-inset-top));}.stack-mark img{height:21px}.stack-instruction{max-width:150px;line-height:1.5}.stack-study{min-height:420px}}
-@media(prefers-reduced-motion:reduce){.stack-loading{display:none}}
+:root {
+  --stack-paper: #f3f1ea;
+  --stack-ink: #24231f;
+  --stack-accent: #ef5b2a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--stack-paper);
+  color: var(--stack-ink);
+}
+
+body {
+  font-family: 'Urbanist', Arial, sans-serif;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stack-study {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--stack-paper);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stack-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 120;
+  pointer-events: none;
+}
+
+.stack-mark {
+  position: fixed;
+  top: 22px;
+  left: 42px;
+  pointer-events: auto;
+}
+
+.stack-mark img {
+  display: block;
+  width: 43px;
+  height: auto;
+}
+
+.stack-header h1 {
+  position: fixed;
+  top: 27px;
+  right: 46px;
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: .12em;
+}
+
+.stack-instruction,
+.stack-note,
+.stack-loading {
+  position: fixed;
+  z-index: 20;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: .055em;
+  color: rgba(36, 35, 31, .72);
+}
+
+.stack-instruction {
+  left: 42px;
+  bottom: 25px;
+  margin: 0;
+}
+
+.stack-note {
+  right: 44px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+#move-count:empty {
+  display: none;
+}
+
+#again {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(36, 35, 31, .45);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+#again:hover,
+#again:focus-visible {
+  color: #111;
+  border-bottom-color: #111;
+  outline: none;
+}
+
+.stack-help {
+  width: 18px;
+  height: 18px;
+  padding: 1px;
+  border: 0;
+  background: transparent;
+  color: rgba(36, 35, 31, .58);
+  cursor: pointer;
+}
+
+.stack-help svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.15;
+  stroke-linecap: square;
+}
+
+.stack-help .stack-help-accent {
+  stroke: var(--stack-accent);
+  stroke-width: 1.65;
+}
+
+.stack-help:hover,
+.stack-help:focus-visible {
+  color: var(--stack-ink);
+  outline: none;
+}
+
+#stack-stage {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+#stack-stage.is-hovering {
+  cursor: pointer;
+}
+
+#stack-stage.is-dragging,
+#stack-stage.is-orbiting {
+  cursor: grabbing;
+}
+
+#stack-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.stack-loading {
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* Visual-only preface. The game exists below it, but receives no pointer input
+   until the chevron control dismisses this layer. */
+.stack-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  place-items: center;
+  padding: clamp(88px, 12vh, 132px) clamp(24px, 6vw, 96px) clamp(44px, 8vh, 80px);
+  background: rgba(243, 241, 234, .985);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 260ms ease, visibility 0s linear 260ms;
+}
+
+.stack-intro.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 220ms ease;
+}
+
+.stack-intro-set {
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 250px));
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 5vw, 82px);
+  width: min(100%, 940px);
+}
+
+.stack-cue {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.stack-cue path {
+  vector-effect: non-scaling-stroke;
+}
+
+.cue-block path {
+  fill: var(--stack-paper);
+  stroke: var(--stack-ink);
+  stroke-width: 1.05;
+  stroke-linejoin: miter;
+}
+
+.cue-block .cue-top {
+  fill: #f7f5ef;
+}
+
+.cue-block .cue-accent {
+  fill: color-mix(in srgb, var(--stack-accent) 22%, var(--stack-paper));
+  stroke: var(--stack-accent);
+  stroke-width: 1.45;
+}
+
+.cue-ghost path {
+  fill: none;
+  stroke: rgba(36, 35, 31, .22);
+  stroke-width: .9;
+  stroke-dasharray: 2.5 4;
+}
+
+.cue-chevron path {
+  fill: none;
+  stroke: var(--stack-accent);
+  stroke-width: 1.55;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.cue-chevron .cue-faint {
+  opacity: .38;
+}
+
+.stack-intro.is-open .cue-chevron-x {
+  animation: stack-cue-x 920ms cubic-bezier(.2,.7,.25,1) 180ms 2;
+}
+
+.stack-intro.is-open .cue-chevron-y {
+  animation: stack-cue-y 920ms cubic-bezier(.2,.7,.25,1) 300ms 2;
+}
+
+.stack-intro.is-open .cue-chevron-up {
+  animation: stack-cue-up 920ms cubic-bezier(.2,.7,.25,1) 420ms 2;
+}
+
+@keyframes stack-cue-x {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+@keyframes stack-cue-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes stack-cue-up {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.stack-start {
+  grid-row: 3;
+  align-self: start;
+  width: 48px;
+  height: 48px;
+  margin-top: clamp(28px, 5vh, 54px);
+  padding: 0;
+  border: 1px solid rgba(36, 35, 31, .34);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--stack-accent);
+  cursor: pointer;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.stack-start svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.stack-start:hover,
+.stack-start:focus-visible {
+  border-color: var(--stack-accent);
+  transform: translateX(2px);
+  outline: none;
+}
+
+body.stack-intro-open .stack-instruction,
+body.stack-intro-open .stack-note {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack-intro,
+  .stack-start {
+    transition: none;
+  }
+
+  .stack-intro.is-open .cue-chevron-x,
+  .stack-intro.is-open .cue-chevron-y,
+  .stack-intro.is-open .cue-chevron-up {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .stack-mark {
+    top: 18px;
+    left: 22px;
+  }
+
+  .stack-mark img {
+    width: 39px;
+  }
+
+  .stack-header h1 {
+    top: 22px;
+    right: 22px;
+  }
+
+  .stack-instruction {
+    left: 22px;
+    bottom: 20px;
+  }
+
+  .stack-note {
+    right: 22px;
+    bottom: 19px;
+  }
+
+  .stack-intro {
+    grid-template-rows: 1fr auto 1fr;
+    padding: 78px 24px 34px;
+  }
+
+  .stack-intro-set {
+    grid-template-columns: 1fr;
+    gap: 0;
+    width: min(78vw, 270px);
+  }
+
+  .stack-cue {
+    margin: -10px 0;
+  }
+
+  .stack-start {
+    width: 44px;
+    height: 44px;
+    margin-top: 18px;
+  }
+}
