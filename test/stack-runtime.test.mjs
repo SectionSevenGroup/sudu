@@ -215,3 +215,48 @@ test('held-block travel follows the same fixed physics speed at 30, 60 and 144 H
   distances.forEach(distance => assert.ok(Math.abs(distance - 1.6) < .04, `travel was ${distance}`));
   assert.ok(Math.max(...distances) - Math.min(...distances) < .03);
 });
+
+test('wood contacts start settled and an assisted placement lands without a drop or rebound', async () => {
+  const r = await runtime();
+  const bodies = [];
+  r.worlds[0].bodies.forEach(body => { if (body.isDynamic()) bodies.push(body); });
+  const top = bodies[70];
+  const firstHeight = top.translation().y;
+  r.advance(2);
+  assert.ok(Math.abs(firstHeight - top.translation().y) < .002, 'no startup concertina');
+
+  // Present an extracted piece beside the top and complete the actual pointer
+  // carry/placement path. The guide must follow settled physical support.
+  const loose = bodies[41];
+  loose.setTranslation({ x: -3.6, y: 8.8, z: 4 }, true);
+  loose.setLinvel({ x: 0, y: 0, z: 0 }, true);
+  r.advance(.05);
+  const at = r.point(r.groups()[41], new THREE.Vector3());
+  r.pointer('pointerdown', at);
+  assert.ok(loose.isKinematic());
+  const target = new THREE.Vector3(0, top.translation().y + .366, -.98);
+  const destination = r.point({ localToWorld: () => target });
+  r.pointer('pointermove', destination);
+  r.advance(2);
+  r.pointer('pointerup', destination);
+  assert.equal(r.elements['#move-count'].textContent, '1 move');
+  assert.ok(loose.isDynamic());
+  assert.equal(loose.linvel().y, 0, 'placement does not add an upward kick');
+
+  const placedHeight = loose.translation().y;
+  const supportHeight = top.translation().y;
+  let low = placedHeight;
+  let high = placedHeight;
+  let lowestSupport = supportHeight;
+  for (let i = 0; i < 180; i++) {
+    r.advance(1 / 120, 120);
+    low = Math.min(low, loose.translation().y);
+    high = Math.max(high, loose.translation().y);
+    lowestSupport = Math.min(lowestSupport, top.translation().y);
+  }
+  assert.ok(placedHeight - low < .02, 'block is placed on wood, not above an air gap');
+  assert.ok(high - placedHeight < .002, 'no visible upward rebound');
+  assert.ok(supportHeight - lowestSupport < .006, 'support does not visibly compress');
+  assert.equal(r.document.body.classList.contains('stack-game-over'), false);
+  r.window.dispatchEvent(event('pagehide', { persisted: false }));
+});

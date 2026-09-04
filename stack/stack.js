@@ -28,6 +28,7 @@ Promise.all([
   const REGRAB_CLEARANCE_MARGIN = .24;
   const PLACEMENT_CAPTURE_RADIUS = 2.8;
   const PLACEMENT_RELEASE_RADIUS = 3.05;
+  const CONTACT_GAP = .006;
 
   // Grip authority is intentionally asymmetric: END grips own axial extraction,
   // SIDE grips own lateral nudging, and TOP grips only test/wiggle the piece.
@@ -155,7 +156,22 @@ Promise.all([
     const turn = course % 2 === 1;
     const cross = (slot - 1) * .98;
     const angle = turn ? Math.PI / 2 : 0;
-    const position = new THREE.Vector3(turn ? cross : 0, BASE_Y + course * COURSE_STEP + .025, turn ? 0 : cross);
+    // Build on the physical top surface, not the original construction spacing.
+    // The initial gaps close under gravity; reusing their nominal height made
+    // every placed block drop through a growing air gap onto the tower.
+    const supports = blocks.filter(block => block.course === course - 1 && !block.free && block !== active?.block);
+    let top = BASE_Y + (course - 1) * .36 + .18;
+    if (supports.length) {
+      top = Math.max(...supports.map(block => {
+        const { x, y, z, w } = block.body.rotation();
+        const halfHeight = Math.abs(2 * (x * y + w * z)) * block.length / 2
+          + Math.abs(1 - 2 * (x * x + z * z)) * block.height / 2
+          + Math.abs(2 * (y * z - w * x)) * block.width / 2;
+        return block.body.translation().y + halfHeight;
+      }));
+    }
+    const heldHalfHeight = (active?.block.height ?? .36) / 2;
+    const position = new THREE.Vector3(turn ? cross : 0, top + heldHalfHeight + CONTACT_GAP, turn ? 0 : cross);
     const rotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
     return { course, slot, position, rotation };
   }
@@ -236,9 +252,16 @@ Promise.all([
     stage.classList.remove('is-hovering');
 
     world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
+    // Tall stacks need firmer, better-converged contacts than Rapier's general
+    // game defaults. Keep restitution at zero: wood can slide and tip, not flex.
+    world.timestep = PHYSICS_STEP;
+    world.numSolverIterations = 12;
+    world.numInternalPgsIterations = 2;
+    world.integrationParameters.contact_natural_frequency = 120;
+    world.integrationParameters.normalizedAllowedLinearError = .0001;
     const ground = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -.20, 0));
     world.createCollider(
-      RAPIER.ColliderDesc.cuboid(GROUND_HALF_EXTENT, .18, GROUND_HALF_EXTENT).setFriction(.72),
+      RAPIER.ColliderDesc.cuboid(GROUND_HALF_EXTENT, .18, GROUND_HALF_EXTENT).setFriction(.72).setRestitution(0),
       ground
     );
 
@@ -281,8 +304,9 @@ Promise.all([
           RAPIER.RigidBodyDesc.dynamic()
             .setTranslation(x, y, z)
             .setRotation(rotation)
-            .setLinearDamping(.055 + noise(seed + 6) * .05)
-            .setAngularDamping(.09 + noise(seed + 7) * .06)
+            .setLinearDamping(.22 + noise(seed + 6) * .05)
+            .setAngularDamping(.45 + noise(seed + 7) * .08)
+            .setCcdEnabled(true)
         );
 
         world.createCollider(
@@ -338,6 +362,19 @@ Promise.all([
         });
       }
     }
+    // Assemble into real contact before showing the tower, avoiding a visible
+    // concertina as all 24 construction gaps close at the start of each game.
+    for (let step = 0; step < 240; step++) world.step();
+    for (const item of blocks) {
+      const p = item.body.translation();
+      const q = item.body.rotation();
+      item.group.position.set(p.x, p.y, p.z);
+      item.group.quaternion.set(q.x, q.y, q.z, q.w);
+      item.homePosition.copy(item.group.position);
+      item.homeAxis.set(1, 0, 0).applyQuaternion(item.group.quaternion).setY(0).normalize();
+      item.startY = p.y;
+    }
+    last = performance.now();
     emit('reset');
   }
 
@@ -653,7 +690,6 @@ Promise.all([
       if (held.mode === 'carry') {
         const pose = nextPlacementPose();
         const p = body.translation();
-        const q = body.rotation();
         const current = new THREE.Vector3(p.x, p.y, p.z);
         const currentDistance = current.distanceTo(pose.position);
         const desiredDistance = held.carryDesired.distanceTo(pose.position);
@@ -665,21 +701,11 @@ Promise.all([
         body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
 
         if (canPlace) {
-          const releaseVelocity = held.carryVelocity.clone();
-          if (releaseVelocity.length() > .75) releaseVelocity.setLength(.75);
-          releaseVelocity.x *= .35;
-          releaseVelocity.z *= .35;
-          releaseVelocity.y = THREE.MathUtils.clamp(releaseVelocity.y, -.55, .06);
-
-          const releasePosition = current.clone().lerp(pose.position, .96);
-          releasePosition.y = Math.max(releasePosition.y, pose.position.y + .055);
-
-          const releaseRotation = new THREE.Quaternion(q.x, q.y, q.z, q.w);
-          releaseRotation.slerp(pose.rotation, .985);
-
-          body.setTranslation(releasePosition, true);
-          body.setRotation(releaseRotation, true);
-          body.setLinvel({ x: releaseVelocity.x, y: releaseVelocity.y, z: releaseVelocity.z }, true);
+          body.setTranslation(pose.position, true);
+          body.setRotation(pose.rotation, true);
+          // The assisted hand has placed the block on its support. Releasing
+          // that hand must not add a flick, upward kick or another drop.
+          body.setLinvel({ x: 0, y: 0, z: 0 }, true);
           body.setAngvel({ x: 0, y: 0, z: 0 }, true);
           body.wakeUp();
 
@@ -766,9 +792,9 @@ Promise.all([
     const sideStiffness = 28 * p.end + 65 * p.side + 40 * p.top;
     const upStiffness = 8 * p.end + 8 * p.side + 16 * p.top;
 
-    const longDamping = 11 * p.end + 5 * p.side + 7 * p.top;
-    const sideDamping = 5 * p.end + 9 * p.side + 7 * p.top;
-    const upDamping = 3.0;
+    const longDamping = 22 * p.end + 12 * p.side + 16 * p.top;
+    const sideDamping = 12 * p.end + 20 * p.side + 16 * p.top;
+    const upDamping = 6.0;
 
     const longForce = forceComponent(longError, longSpeed, longStiffness, longDamping, longCap, MAX_PULL_ERROR);
     const sideForce = forceComponent(sideError, sideSpeed, sideStiffness, sideDamping, sideCap, MAX_SIDE_ERROR);

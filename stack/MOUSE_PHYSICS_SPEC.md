@@ -98,7 +98,8 @@ The challenge of STACK is choosing and extracting a viable block without destabi
 - Inside the capture volume, position and orientation are progressively magnetised toward the correct alternating course and slot.
 - The magnetism must be strong enough that the player clearly feels the intended placement, without snapping a distant block across the scene.
 - Release inside the accepted placement region completes the placement.
-- On release, the block returns to dynamic physics slightly above the target with small bounded residual velocity so it settles physically rather than being permanently teleported/frozen into place.
+- The guide follows the actual settled top surface, including the support blocks' dimensions and tilt, rather than their original construction heights.
+- On accepted release, the block returns to dynamic physics at the guide with zero release velocity and a tiny contact clearance. It settles without a flick, upward kick or drop from an artificial air gap.
 - A missed release away from the capture region simply leaves the block free and re-grabbable.
 - The placement guide becomes visually stronger while the held block is inside the capture region.
 
@@ -113,6 +114,13 @@ Target deterministic friction distribution:
 - approximately 10% tight: coefficient 0.44–0.58
 
 Small dimensional, yaw, density and damping variation remain. Lower blocks naturally become harder to move because they carry more normal load from the courses above.
+
+## Rigid wood contact
+
+- Blocks retain their shape. Movement comes from sliding, contact and tipping, never visible squash or elastic bending.
+- Contacts use zero restitution, a firmer contact solver and tighter penetration tolerance.
+- The construction gaps settle before the tower is first rendered or shown after reset.
+- The hand response is damped to avoid a springy return when the pointer stops.
 
 ## Placement state update
 
