@@ -22,6 +22,8 @@
       <p class="stack-loading" aria-live="polite">assembling</p>
     </div>
 
+    <div id="stack-cue-shield" class="stack-cue-shield" aria-hidden="true"></div>
+
     <aside class="stack-players" aria-label="Players">
       <form id="stack-player-form" class="stack-player-form" autocomplete="off">
         <input id="stack-player-input" class="stack-player-input" type="text" maxlength="18" placeholder="name" aria-label="Player name">
@@ -41,36 +43,10 @@
       <button id="again" type="button">reset</button>
     </div>
     <p class="stack-instruction">pull clear · keep holding</p>
-
-    <section id="stack-intro" class="stack-intro" aria-hidden="true">
-      <div class="stack-tower-cue stack-tower-cue-end" data-stack-cue="end" aria-hidden="true">
-        <i class="stack-face-highlight"></i>
-        <svg class="stack-face-chevron" viewBox="0 0 52 30">
-          <path d="m8 6 10 9L8 24"/>
-          <path d="m25 6 10 9-10 9"/>
-        </svg>
-      </div>
-
-      <div class="stack-tower-cue stack-tower-cue-side" data-stack-cue="side" aria-hidden="true">
-        <i class="stack-face-highlight"></i>
-        <svg class="stack-face-chevron" viewBox="0 0 62 30">
-          <path d="m19 6-10 9 10 9"/>
-          <path d="m43 6 10 9-10 9"/>
-        </svg>
-      </div>
-
-      <div class="stack-tower-cue stack-tower-cue-top" data-stack-cue="top" aria-hidden="true">
-        <i class="stack-face-highlight"></i>
-        <svg class="stack-face-chevron" viewBox="0 0 34 48">
-          <path d="m7 19 10-10 10 10"/>
-          <path d="M17 9v28"/>
-        </svg>
-      </div>
-    </section>
   </main>
 
-  <script src="/stack/intro.js" defer></script>
   <script src="/stack/players.js" defer></script>
+  <script type="module" src="/stack/tutorial3d.js"></script>
   <script type="module" src="/stack/stack.js"></script>
 </body>
 </html>
