@@ -7,6 +7,18 @@ const upButton = document.querySelector('#massing-up');
 const downButton = document.querySelector('#massing-down');
 const viewButton = document.querySelector('#massing-view');
 const again = document.querySelector('#again');
+const challengeLedger = document.querySelector('#challenge-ledger');
+const challengePreview = document.querySelector('#challenge-preview');
+const challengeButtons = [...document.querySelectorAll('[data-challenge]')];
+const challengeFree = document.querySelector('#challenge-free');
+const challengeIndex = document.querySelector('#challenge-index');
+const challengeLevel = document.querySelector('#challenge-level');
+const challengeTitle = document.querySelector('#challenge-title');
+const challengeCue = document.querySelector('#challenge-cue');
+const challengeSpin = document.querySelector('#challenge-spin');
+const challengeGuide = document.querySelector('#challenge-guide');
+const challengeReset = document.querySelector('#challenge-reset');
+const challengeStatus = document.querySelector('#challenge-status');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const DEFAULT_INSTRUCTION = 'drag · scroll lifts · double-click aligns';
 
@@ -137,6 +149,118 @@ Promise.all([
     { name: 'mono pitch', halfHeight: .9, position: [12.8, .94, 7.2], shapes: [profile('ramp', [3.6, 1.8, 2.4])] }
   ];
 
+  const challengeTarget = (family, position, rotation = 0) => ({ family, position, rotation });
+  const CHALLENGES = [
+    {
+      title: 'plinth',
+      level: 'foundation',
+      cue: 'Centre three diminishing masses into one stable stack.',
+      targets: [
+        challengeTarget('long mass', [0, .64, 0]),
+        challengeTarget('double unit', [0, 1.84, 0]),
+        challengeTarget('unit', [0, 3.04, 0])
+      ]
+    },
+    {
+      title: 'bay',
+      level: 'support',
+      cue: 'Bridge a clear opening with one thin roof plate.',
+      targets: [
+        challengeTarget('double unit', [-1.5, .64, 0]),
+        challengeTarget('double unit', [1.5, .64, 0]),
+        challengeTarget('slab', [0, 1.39, 0])
+      ]
+    },
+    {
+      title: 'court',
+      level: 'void',
+      cue: 'Close the open mass to make one calm central void.',
+      targets: [
+        challengeTarget('U mass', [0, .64, -.6]),
+        challengeTarget('long mass', [0, .64, 1.8])
+      ]
+    },
+    {
+      title: 'portico',
+      level: 'span',
+      cue: 'Raise a broad plate on two slender supports.',
+      targets: [
+        challengeTarget('column', [-2.1, 1.84, 0]),
+        challengeTarget('column', [2.1, 1.84, 0]),
+        challengeTarget('beam', [0, 3.94, 0]),
+        challengeTarget('slab', [0, 4.39, 0])
+      ]
+    },
+    {
+      title: 'house',
+      level: 'section',
+      cue: 'Join a tall room and a low wing beneath two roofs.',
+      targets: [
+        challengeTarget('room mass', [0, 1.24, 0]),
+        challengeTarget('gable roof', [0, 3.34, 0]),
+        challengeTarget('long mass', [-4.2, .64, 0]),
+        challengeTarget('slab', [-4.2, 1.39, 0])
+      ]
+    },
+    {
+      title: 'bridge',
+      level: 'load path',
+      cue: 'Carry a platform cleanly across two upright cores.',
+      targets: [
+        challengeTarget('core', [-2.1, 1.84, 0]),
+        challengeTarget('core', [2.1, 1.84, 0]),
+        challengeTarget('long mass', [0, 4.24, 0]),
+        challengeTarget('slab', [0, 4.99, 0])
+      ]
+    },
+    {
+      title: 'cantilever',
+      level: 'balance',
+      cue: 'Offset the beam, then counterbalance it before the hold releases.',
+      targets: [
+        challengeTarget('core', [0, 1.84, 0]),
+        challengeTarget('long mass', [1.2, 4.24, 0]),
+        challengeTarget('room mass', [-.6, 6.04, 0])
+      ]
+    },
+    {
+      title: 'rotunda',
+      level: 'alignment',
+      cue: 'Centre four unlike profiles into one vertical composition.',
+      targets: [
+        challengeTarget('round tower', [0, 1.84, 0]),
+        challengeTarget('slab', [0, 3.79, 0]),
+        challengeTarget('room mass', [0, 5.14, 0]),
+        challengeTarget('gable roof', [0, 7.24, 0])
+      ]
+    },
+    {
+      title: 'court gate',
+      level: 'order',
+      cue: 'Bind a low court to a tall threshold and canopy.',
+      targets: [
+        challengeTarget('U mass', [0, .64, -1.2]),
+        challengeTarget('column', [-2.1, 1.84, .9]),
+        challengeTarget('column', [2.1, 1.84, .9]),
+        challengeTarget('beam', [0, 3.94, .9]),
+        challengeTarget('slab', [0, 4.39, .9])
+      ]
+    },
+    {
+      title: 'habitat',
+      level: 'synthesis',
+      cue: 'Build the asymmetrical tower from its counterweight outward.',
+      targets: [
+        challengeTarget('core', [0, 1.84, 0]),
+        challengeTarget('long mass', [1.2, 4.24, 0]),
+        challengeTarget('room mass', [0, 6.04, 0]),
+        challengeTarget('slab', [.6, 7.39, 0]),
+        challengeTarget('frame', [.6, 9.34, 0]),
+        challengeTarget('mono pitch', [.6, 12.04, 0])
+      ]
+    }
+  ];
+
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf3f1ea);
 
@@ -182,6 +306,17 @@ Promise.all([
   let accumulator = 0;
   let animationFrame = 0;
   let destroyed = false;
+  let activeChallengeIndex = 0;
+  let challengeGuideEnabled = false;
+  let challengePreviewRenderer = null;
+  let challengePreviewScene = null;
+  let challengePreviewCamera = null;
+  let challengePreviewVisual = null;
+  let challengeGuideVisual = null;
+  let challengeSpinState = null;
+  let challengeMatchedTime = 0;
+  let challengeComplete = false;
+  let challengeStatusText = 'build the model';
 
   const faceMaterial = new THREE.MeshBasicMaterial({
     color: 0xf3f1ea,
@@ -196,6 +331,26 @@ Promise.all([
   const heldMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: .56 });
   const snapMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: .72, depthTest: false });
   const ghostMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .12 });
+  const challengeGuideMaterial = new THREE.LineBasicMaterial({
+    color: 0xef5b2a,
+    transparent: true,
+    opacity: .18,
+    depthTest: false
+  });
+  const challengePreviewEdgeMaterial = new THREE.LineBasicMaterial({
+    color: 0x24231f,
+    transparent: true,
+    opacity: .78
+  });
+  const challengePreviewFaceMaterial = new THREE.MeshBasicMaterial({
+    color: 0xf3f1ea,
+    transparent: true,
+    opacity: .34,
+    side: THREE.DoubleSide,
+    polygonOffset: true,
+    polygonOffsetFactor: 1,
+    polygonOffsetUnits: 1
+  });
   const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xf3f1ea });
 
   const floorGeometry = new THREE.BoxGeometry(44, .08, 40);
@@ -213,6 +368,350 @@ Promise.all([
   snapGuide.visible = false;
   snapGuide.renderOrder = 8;
   scene.add(snapGuide);
+
+  const challengeGuideGroup = new THREE.Group();
+  challengeGuideGroup.visible = false;
+  challengeGuideGroup.renderOrder = 7;
+  scene.add(challengeGuideGroup);
+
+  if (challengePreview) {
+    challengePreviewScene = new THREE.Scene();
+    challengePreviewCamera = new THREE.PerspectiveCamera(30, 1, .1, 100);
+    challengePreviewRenderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: 'low-power'
+    });
+    challengePreviewRenderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    challengePreviewRenderer.setClearColor(0x000000, 0);
+    challengePreviewRenderer.outputColorSpace = THREE.SRGBColorSpace;
+    challengePreview.append(challengePreviewRenderer.domElement);
+  }
+
+  function pieceFamily(name) {
+    return name.replace(/ \d{2}$/, '');
+  }
+
+  function definitionForFamily(family) {
+    return BLOCKS.find(definition => pieceFamily(definition.name) === family);
+  }
+
+  function disposeChallengeVisual(visual) {
+    if (!visual) return null;
+    visual.group.removeFromParent();
+    for (const geometry of visual.geometries) geometry.dispose();
+    return null;
+  }
+
+  function createChallengeVisual(challenge, edge, face = null) {
+    const group = new THREE.Group();
+    const geometries = [];
+
+    for (const target of challenge.targets) {
+      const definition = definitionForFamily(target.family);
+      if (!definition) continue;
+      const pieceGroup = new THREE.Group();
+      pieceGroup.position.set(...target.position);
+      pieceGroup.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), target.rotation);
+
+      for (const shape of definition.shapes) {
+        const geometry = createShapeGeometry(shape);
+        const outlineGeometry = new THREE.EdgesGeometry(geometry, 18);
+        geometries.push(geometry, outlineGeometry);
+
+        if (face) {
+          const surface = new THREE.Mesh(geometry, face);
+          surface.position.set(...shape.at);
+          pieceGroup.add(surface);
+        }
+
+        const outline = new THREE.LineSegments(outlineGeometry, edge);
+        outline.position.set(...shape.at);
+        outline.renderOrder = 7;
+        pieceGroup.add(outline);
+      }
+
+      group.add(pieceGroup);
+    }
+
+    return { group, geometries };
+  }
+
+  function getChallengeBounds(challenge) {
+    const rotation = new THREE.Quaternion();
+    let bounds = null;
+
+    for (const target of challenge.targets) {
+      const definition = definitionForFamily(target.family);
+      if (!definition) continue;
+      rotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), target.rotation);
+      const targetBounds = getWorldBounds(
+        definition.shapes,
+        new THREE.Vector3(...target.position),
+        rotation
+      );
+      if (!bounds) {
+        bounds = { ...targetBounds };
+        continue;
+      }
+      bounds.minX = Math.min(bounds.minX, targetBounds.minX);
+      bounds.maxX = Math.max(bounds.maxX, targetBounds.maxX);
+      bounds.minY = Math.min(bounds.minY, targetBounds.minY);
+      bounds.maxY = Math.max(bounds.maxY, targetBounds.maxY);
+      bounds.minZ = Math.min(bounds.minZ, targetBounds.minZ);
+      bounds.maxZ = Math.max(bounds.maxZ, targetBounds.maxZ);
+    }
+
+    if (!bounds) return null;
+    bounds.centreX = (bounds.minX + bounds.maxX) / 2;
+    bounds.centreY = (bounds.minY + bounds.maxY) / 2;
+    bounds.centreZ = (bounds.minZ + bounds.maxZ) / 2;
+    bounds.width = bounds.maxX - bounds.minX;
+    bounds.height = bounds.maxY - bounds.minY;
+    bounds.depth = bounds.maxZ - bounds.minZ;
+    return bounds;
+  }
+
+  function resizeChallengePreview() {
+    if (!challengePreviewRenderer || !challengePreviewCamera || !challengePreview) return;
+    const width = Math.max(1, challengePreview.clientWidth);
+    const height = Math.max(1, challengePreview.clientHeight);
+    challengePreviewRenderer.setSize(width, height, false);
+    challengePreviewCamera.aspect = width / height;
+    challengePreviewCamera.updateProjectionMatrix();
+  }
+
+  function setChallengeStatus(text, complete = false) {
+    if (challengeStatusText === text && challengeStatus?.classList.contains('is-complete') === complete) return;
+    challengeStatusText = text;
+    if (challengeStatus) {
+      challengeStatus.textContent = text;
+      challengeStatus.classList.toggle('is-complete', complete);
+    }
+  }
+
+  function updateChallengePanel() {
+    const challenge = CHALLENGES[activeChallengeIndex] || null;
+    challengeButtons.forEach((button, index) => {
+      button.setAttribute('aria-selected', String(index === activeChallengeIndex));
+    });
+    challengeFree?.setAttribute('aria-pressed', String(!challenge));
+    if (challengeLedger) challengeLedger.classList.toggle('is-free', !challenge);
+
+    if (!challenge) {
+      if (challengeIndex) challengeIndex.textContent = 'free';
+      if (challengeLevel) challengeLevel.textContent = 'open study';
+      if (challengeTitle) challengeTitle.textContent = 'free build';
+      if (challengeCue) challengeCue.textContent = 'Use the full kit without a target.';
+      if (challengeGuide) {
+        challengeGuide.disabled = true;
+        challengeGuide.textContent = 'guide off';
+        challengeGuide.setAttribute('aria-pressed', 'false');
+      }
+      setChallengeStatus('arrange freely');
+      return;
+    }
+
+    if (challengeIndex) challengeIndex.textContent = String(activeChallengeIndex + 1).padStart(2, '0') + ' / 10';
+    if (challengeLevel) challengeLevel.textContent = challenge.level;
+    if (challengeTitle) challengeTitle.textContent = challenge.title;
+    if (challengeCue) challengeCue.textContent = challenge.cue;
+    if (challengeGuide) {
+      challengeGuide.disabled = false;
+      challengeGuide.textContent = challengeGuideEnabled ? 'guide on' : 'guide off';
+      challengeGuide.setAttribute('aria-pressed', String(challengeGuideEnabled));
+    }
+    setChallengeStatus(challengeComplete ? 'complete · choose the next' : 'build the model', challengeComplete);
+  }
+
+  function refreshChallengeVisuals() {
+    challengePreviewVisual = disposeChallengeVisual(challengePreviewVisual);
+    challengeGuideVisual = disposeChallengeVisual(challengeGuideVisual);
+    challengeGuideGroup.clear();
+
+    const challenge = CHALLENGES[activeChallengeIndex] || null;
+    if (!challenge) {
+      challengeGuideGroup.visible = false;
+      updateChallengePanel();
+      return;
+    }
+
+    if (challengePreviewScene) {
+      challengePreviewVisual = createChallengeVisual(
+        challenge,
+        challengePreviewEdgeMaterial,
+        challengePreviewFaceMaterial
+      );
+      challengePreviewScene.add(challengePreviewVisual.group);
+      const bounds = getChallengeBounds(challenge);
+      if (bounds && challengePreviewCamera) {
+        const centre = new THREE.Vector3(bounds.centreX, bounds.centreY, bounds.centreZ);
+        const span = Math.max(bounds.width, bounds.height, bounds.depth, 3);
+        const direction = new THREE.Vector3(1, .72, 1).normalize().multiplyScalar(span * 2.25);
+        challengePreviewCamera.position.copy(centre).add(direction);
+        challengePreviewCamera.lookAt(centre);
+      }
+    }
+
+    if (challengeGuideEnabled) {
+      challengeGuideVisual = createChallengeVisual(challenge, challengeGuideMaterial);
+      challengeGuideGroup.add(challengeGuideVisual.group);
+      challengeGuideGroup.visible = true;
+    } else {
+      challengeGuideGroup.visible = false;
+    }
+
+    resizeChallengePreview();
+    updateChallengePanel();
+  }
+
+  function startChallengeSpin() {
+    if (!challengePreviewVisual) return;
+    if (reducedMotion) {
+      challengePreviewVisual.group.rotation.y += Math.PI / 2;
+      challengeSpinState = null;
+      return;
+    }
+    challengeSpinState = {
+      start: performance.now(),
+      duration: 4400,
+      from: challengePreviewVisual.group.rotation.y
+    };
+  }
+
+  function updateChallengePreview(now) {
+    if (!challengePreviewRenderer || !challengePreviewScene || !challengePreviewCamera) return;
+
+    if (challengeSpinState && challengePreviewVisual) {
+      const progress = THREE.MathUtils.clamp(
+        (now - challengeSpinState.start) / challengeSpinState.duration,
+        0,
+        1
+      );
+      const eased = progress * progress * (3 - 2 * progress);
+      challengePreviewVisual.group.rotation.y = challengeSpinState.from + eased * Math.PI * 2;
+      if (progress >= 1) challengeSpinState = null;
+    }
+
+    challengePreviewRenderer.render(challengePreviewScene, challengePreviewCamera);
+  }
+
+  function chooseChallenge(index) {
+    activeChallengeIndex = index;
+    challengeMatchedTime = 0;
+    challengeComplete = false;
+    rebuild();
+    startChallengeSpin();
+  }
+
+  function toggleChallengeGuide() {
+    if (activeChallengeIndex < 0) return;
+    challengeGuideEnabled = !challengeGuideEnabled;
+    refreshChallengeVisuals();
+  }
+
+  function yawFromQuaternion(rotation) {
+    const longAxis = new THREE.Vector3(1, 0, 0).applyQuaternion(rotation);
+    return Math.atan2(-longAxis.z, longAxis.x);
+  }
+
+  function angleDistance(a, b) {
+    return Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+  }
+
+  const ORIENTATION_FREE_FAMILIES = new Set(['unit', 'column', 'core', 'round tower']);
+
+  function matchChallengeAtTransform(challenge, quarterTurn, translation, requireStable) {
+    const unused = new Set(pieces);
+    const matched = [];
+    const axis = new THREE.Vector3(0, 1, 0);
+
+    for (const target of challenge.targets) {
+      const expected = new THREE.Vector3(...target.position).applyAxisAngle(axis, quarterTurn).add(translation);
+      const expectedYaw = target.rotation + quarterTurn;
+      let best = null;
+
+      for (const piece of unused) {
+        if (pieceFamily(piece.name) !== target.family) continue;
+        const position = bodyPosition(piece);
+        const distance = position.distanceTo(expected);
+        if (distance > .36) continue;
+
+        const rotation = bodyRotation(piece);
+        const up = new THREE.Vector3(0, 1, 0).applyQuaternion(rotation);
+        if (up.y < .965) continue;
+        if (!ORIENTATION_FREE_FAMILIES.has(target.family)
+          && angleDistance(yawFromQuaternion(rotation), expectedYaw) > .18) continue;
+
+        if (requireStable) {
+          if (piece.hold || !piece.body.isDynamic()) continue;
+          const velocity = piece.body.linvel();
+          const angularVelocity = piece.body.angvel();
+          if (Math.hypot(velocity.x, velocity.y, velocity.z) > .12) continue;
+          if (Math.hypot(angularVelocity.x, angularVelocity.y, angularVelocity.z) > .18) continue;
+        }
+
+        if (!best || distance < best.distance) best = { piece, distance };
+      }
+
+      if (!best) return null;
+      unused.delete(best.piece);
+      matched.push(best.piece);
+    }
+
+    return matched;
+  }
+
+  function matchChallenge(challenge, requireStable = false) {
+    if (!challenge?.targets.length) return null;
+    const anchor = challenge.targets[0];
+    const anchorPieces = pieces.filter(piece => pieceFamily(piece.name) === anchor.family);
+    const axis = new THREE.Vector3(0, 1, 0);
+
+    for (const anchorPiece of anchorPieces) {
+      for (let turn = 0; turn < 4; turn += 1) {
+        const quarterTurn = turn * Math.PI / 2;
+        const rotatedAnchor = new THREE.Vector3(...anchor.position).applyAxisAngle(axis, quarterTurn);
+        const translation = bodyPosition(anchorPiece).sub(rotatedAnchor);
+        if (Math.abs(translation.y) > .26) continue;
+        const match = matchChallengeAtTransform(challenge, quarterTurn, translation, requireStable);
+        if (match) return match;
+      }
+    }
+
+    return null;
+  }
+
+  function updateChallengeProgress(delta) {
+    if (activeChallengeIndex < 0 || challengeComplete || active || selected || clusterSettle) {
+      challengeMatchedTime = 0;
+      return;
+    }
+
+    const challenge = CHALLENGES[activeChallengeIndex];
+    const shapeMatch = matchChallenge(challenge, false);
+    if (!shapeMatch) {
+      challengeMatchedTime = 0;
+      if (challengeStatusText !== 'build the model') setChallengeStatus('build the model');
+      return;
+    }
+
+    const stableMatch = matchChallenge(challenge, true);
+    if (!stableMatch) {
+      challengeMatchedTime = 0;
+      setChallengeStatus('structure found · let it settle');
+      return;
+    }
+
+    challengeMatchedTime += delta;
+    if (challengeMatchedTime < 1.15) {
+      setChallengeStatus('testing balance');
+      return;
+    }
+
+    challengeComplete = true;
+    setChallengeStatus('complete · choose the next', true);
+  }
 
   function setInstruction(text) {
     if (instruction) instruction.textContent = text;
@@ -252,6 +751,7 @@ Promise.all([
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     configureCamera();
+    resizeChallengePreview();
   }
 
   function setPieceEdges(piece, material) {
@@ -832,6 +1332,8 @@ Promise.all([
 
   function rebuild() {
     clusterSettle = null;
+    challengeMatchedTime = 0;
+    challengeComplete = false;
     holds = [];
     releaseSelected(false);
     disposePieces();
@@ -933,6 +1435,7 @@ Promise.all([
 
     updateSelectionUI();
     setInstruction(DEFAULT_INSTRUCTION);
+    refreshChallengeVisuals();
   }
 
   function setRay(clientX, clientY) {
@@ -1252,6 +1755,13 @@ Promise.all([
   downButton?.addEventListener('click', () => liftSelected(-1));
   viewButton?.addEventListener('click', toggleView);
   again?.addEventListener('click', rebuild);
+  challengeButtons.forEach(button => {
+    button.addEventListener('click', () => chooseChallenge(Number(button.dataset.challenge)));
+  });
+  challengeFree?.addEventListener('click', () => chooseChallenge(-1));
+  challengeSpin?.addEventListener('click', startChallengeSpin);
+  challengeGuide?.addEventListener('click', toggleChallengeGuide);
+  challengeReset?.addEventListener('click', rebuild);
 
   stage.addEventListener('keydown', event => {
     if (!selected) return;
@@ -1427,7 +1937,9 @@ Promise.all([
       }
     }
 
+    updateChallengeProgress(delta);
     renderer.render(scene, camera);
+    updateChallengePreview(now);
   }
 
   function clearInteraction() {
@@ -1460,6 +1972,13 @@ Promise.all([
     document.removeEventListener('turbo:before-cache', destroy);
     removeEventListener('pagehide', destroy);
     disposePieces();
+    challengePreviewVisual = disposeChallengeVisual(challengePreviewVisual);
+    challengeGuideVisual = disposeChallengeVisual(challengeGuideVisual);
+    challengePreviewRenderer?.dispose();
+    challengePreviewRenderer?.domElement.remove();
+    challengeGuideMaterial.dispose();
+    challengePreviewEdgeMaterial.dispose();
+    challengePreviewFaceMaterial.dispose();
     renderer.dispose();
     renderer.domElement.remove();
   }
@@ -1471,6 +1990,7 @@ Promise.all([
 
   resize();
   rebuild();
+  startChallengeSpin();
   animationFrame = requestAnimationFrame(frame);
 }).catch(error => {
   console.error(error);

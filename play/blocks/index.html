@@ -18,6 +18,42 @@
       <h1 id="massing-title">MASSING</h1>
     </header>
 
+    <aside id="challenge-ledger" class="challenge-ledger" aria-label="Building challenges">
+      <div class="challenge-ledger__head">
+        <span>challenges</span>
+        <button id="challenge-free" type="button" aria-pressed="false">free</button>
+      </div>
+
+      <div class="challenge-numbers" role="tablist" aria-label="Choose a challenge">
+        <button type="button" role="tab" data-challenge="0" aria-selected="true">01</button>
+        <button type="button" role="tab" data-challenge="1" aria-selected="false">02</button>
+        <button type="button" role="tab" data-challenge="2" aria-selected="false">03</button>
+        <button type="button" role="tab" data-challenge="3" aria-selected="false">04</button>
+        <button type="button" role="tab" data-challenge="4" aria-selected="false">05</button>
+        <button type="button" role="tab" data-challenge="5" aria-selected="false">06</button>
+        <button type="button" role="tab" data-challenge="6" aria-selected="false">07</button>
+        <button type="button" role="tab" data-challenge="7" aria-selected="false">08</button>
+        <button type="button" role="tab" data-challenge="8" aria-selected="false">09</button>
+        <button type="button" role="tab" data-challenge="9" aria-selected="false">10</button>
+      </div>
+
+      <div id="challenge-preview" class="challenge-preview" aria-label="Rotating model of the selected challenge"></div>
+
+      <div class="challenge-copy">
+        <p class="challenge-meta"><span id="challenge-index">01 / 10</span><span id="challenge-level">foundation</span></p>
+        <h2 id="challenge-title">plinth</h2>
+        <p id="challenge-cue">Centre three diminishing masses into one stable stack.</p>
+      </div>
+
+      <div class="challenge-actions">
+        <button id="challenge-spin" type="button">spin</button>
+        <button id="challenge-guide" type="button" aria-pressed="false">guide off</button>
+        <button id="challenge-reset" type="button">reset</button>
+      </div>
+
+      <p id="challenge-status" class="challenge-status" aria-live="polite">build the model</p>
+    </aside>
+
     <div id="massing-stage" class="massing-stage" aria-label="Interactive architectural massing table. Drag to move a block across the plan. Scroll to change its height. Release on the alignment outline to place it. Double-click touching blocks to align and hold them for eight seconds." tabindex="0">
       <p class="massing-loading" aria-live="polite">laying out the kit</p>
     </div>
