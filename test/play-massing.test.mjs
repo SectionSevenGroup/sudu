@@ -41,6 +41,32 @@ test('MASSING previews aligned stacking and places automatically on release', as
   assert.match(script, /selected\.body\.setTranslation\(selected\.targetPosition, true\)/);
 });
 
+test('MASSING softly aligns only the joined cluster on double click', async () => {
+  const [page, script] = await Promise.all([
+    read('play/massing/index.html'),
+    read('play/massing/massing.js')
+  ]);
+
+  assert.match(page, /double-click group to align/);
+  assert.match(script, /addEventListener\('dblclick'/);
+  assert.match(script, /function contactRelation/);
+  assert.match(script, /function findTouchingCluster/);
+  assert.match(script, /function alignTouchingCluster/);
+  assert.match(script, /function updateClusterSettle/);
+  assert.match(script, /progress \* progress \* \(3 - 2 \* progress\)/);
+  assert.match(script, /RigidBodyType\.KinematicPositionBased/);
+  assert.match(script, /item\.piece\.body\.sleep\(\)/);
+});
+
+test('MASSING draws its grid directly on the continuous cream floor', async () => {
+  const script = await read('play/massing/massing.js');
+
+  assert.match(script, /scene\.background = new THREE\.Color\(0xf3f1ea\)/);
+  assert.match(script, /floorMaterial = new THREE\.MeshBasicMaterial\(\{ color: 0xf3f1ea \}\)/);
+  assert.match(script, /new THREE\.GridHelper\(14\.4, 24/);
+  assert.doesNotMatch(script, /padMaterial|padMesh|padEdges/);
+});
+
 test('MASSING uses a coherent architectural kit of parts', async () => {
   const [script, shim] = await Promise.all([
     read('play/massing/massing.js'),

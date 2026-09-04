@@ -8,6 +8,7 @@ const downButton = document.querySelector('#massing-down');
 const viewButton = document.querySelector('#massing-view');
 const again = document.querySelector('#again');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DEFAULT_INSTRUCTION = 'drag · double-click group to align';
 
 if (!stage || !loading) throw new Error('MASSING stage is unavailable.');
 
@@ -23,6 +24,11 @@ Promise.all([
   const GRID = MODULE / 2;
   const EDGE_RADIUS = .025;
   const SNAP_GAP = .014;
+  const ALIGN_GAP = .004;
+  const CONTACT_CAPTURE = .28;
+  const CONTACT_OVERLAP = .12;
+  const ALIGN_CAPTURE = MODULE * .55;
+  const ALIGN_DURATION = .72;
   const DRAG_THRESHOLD = 5;
   const MIN_CARRY_SPEED = 1.25;
   const MAX_CARRY_SPEED = 8;
@@ -157,6 +163,7 @@ Promise.all([
   let active = null;
   let selected = null;
   let snapCandidate = null;
+  let clusterSettle = null;
   let hovered = null;
   let last = performance.now();
   let accumulator = 0;
@@ -175,25 +182,15 @@ Promise.all([
   const selectedMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: 1 });
   const snapMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: .72, depthTest: false });
   const ghostMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .12 });
-  const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xf1efe8 });
-  const padMaterial = new THREE.MeshBasicMaterial({ color: 0xf7f5ef, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-  const padEdgeMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .18 });
+  const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xf3f1ea });
 
   const floorGeometry = new THREE.BoxGeometry(44, .08, 40);
   const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
   floorMesh.position.set(0, -.08, -1.5);
   scene.add(floorMesh);
 
-  const padGeometry = new THREE.BoxGeometry(14.4, .035, 14.4);
-  const padMesh = new THREE.Mesh(padGeometry, padMaterial);
-  padMesh.position.set(0, -.01, 0);
-  scene.add(padMesh);
-  const padEdges = new THREE.LineSegments(new THREE.EdgesGeometry(padGeometry, 18), padEdgeMaterial);
-  padEdges.position.copy(padMesh.position);
-  scene.add(padEdges);
-
   const grid = new THREE.GridHelper(14.4, 24, 0x24231f, 0x24231f);
-  grid.position.set(0, .014, 0);
+  grid.position.set(0, -.032, 0);
   grid.material.transparent = true;
   grid.material.opacity = .075;
   scene.add(grid);
@@ -327,8 +324,10 @@ Promise.all([
     }
 
     bounds.centreX = (bounds.minX + bounds.maxX) / 2;
+    bounds.centreY = (bounds.minY + bounds.maxY) / 2;
     bounds.centreZ = (bounds.minZ + bounds.maxZ) / 2;
     bounds.width = bounds.maxX - bounds.minX;
+    bounds.height = bounds.maxY - bounds.minY;
     bounds.depth = bounds.maxZ - bounds.minZ;
     return bounds;
   }
@@ -340,6 +339,51 @@ Promise.all([
 
   function overlap(minA, maxA, minB, maxB) {
     return Math.max(0, Math.min(maxA, maxB) - Math.max(minA, minB));
+  }
+
+  const AXES = {
+    x: { min: 'minX', centre: 'centreX', max: 'maxX', size: 'width', perpendicular: ['y', 'z'] },
+    y: { min: 'minY', centre: 'centreY', max: 'maxY', size: 'height', perpendicular: ['x', 'z'] },
+    z: { min: 'minZ', centre: 'centreZ', max: 'maxZ', size: 'depth', perpendicular: ['x', 'y'] }
+  };
+
+  function axisOverlap(boundsA, boundsB, axis) {
+    const keys = AXES[axis];
+    return overlap(boundsA[keys.min], boundsA[keys.max], boundsB[keys.min], boundsB[keys.max]);
+  }
+
+  function contactRelation(pieceA, pieceB) {
+    const boundsA = getWorldBounds(pieceA.shapes, bodyPosition(pieceA), bodyRotation(pieceA));
+    const boundsB = getWorldBounds(pieceB.shapes, bodyPosition(pieceB), bodyRotation(pieceB));
+    let best = null;
+
+    for (const [axis, keys] of Object.entries(AXES)) {
+      const perpendicularEnough = keys.perpendicular.every(perpendicular => {
+        const amount = axisOverlap(boundsA, boundsB, perpendicular);
+        const minimumSize = Math.min(boundsA[AXES[perpendicular].size], boundsB[AXES[perpendicular].size]);
+        return amount >= Math.min(CONTACT_OVERLAP, minimumSize * .24);
+      });
+      if (!perpendicularEnough) continue;
+
+      const positiveGap = Math.abs(boundsB[keys.min] - boundsA[keys.max]);
+      const negativeGap = Math.abs(boundsA[keys.min] - boundsB[keys.max]);
+      const direction = positiveGap <= negativeGap ? 1 : -1;
+      const gap = Math.min(positiveGap, negativeGap);
+      if (gap > CONTACT_CAPTURE) continue;
+      if (!best || gap < best.gap) best = { axis, direction, gap };
+    }
+
+    return best;
+  }
+
+  function nearestAlignmentShift(referenceBounds, movingBounds, axis) {
+    const keys = AXES[axis];
+    const shifts = [
+      referenceBounds[keys.min] - movingBounds[keys.min],
+      referenceBounds[keys.centre] - movingBounds[keys.centre],
+      referenceBounds[keys.max] - movingBounds[keys.max]
+    ];
+    return shifts.reduce((best, shift) => Math.abs(shift) < Math.abs(best) ? shift : best, shifts[0]);
   }
 
   function findSnapCandidate(piece, position = piece.targetPosition) {
@@ -444,7 +488,7 @@ Promise.all([
     active = null;
     clearSnapGuide();
     stage.classList.remove('is-dragging');
-    setInstruction('drag a block · release on the outline');
+    setInstruction(DEFAULT_INSTRUCTION);
     updateSelectionUI();
   }
 
@@ -468,6 +512,111 @@ Promise.all([
     updateSnapCandidate();
     if (!snapCandidate) setInstruction('turn · lift · drag near a block');
     updateSelectionUI();
+  }
+
+  function findTouchingCluster(root) {
+    const order = [root];
+    const parents = new Map([[root, null]]);
+
+    for (let index = 0; index < order.length; index += 1) {
+      const parent = order[index];
+      for (const candidate of pieces) {
+        if (parents.has(candidate)) continue;
+        const relation = contactRelation(parent, candidate);
+        if (!relation) continue;
+        parents.set(candidate, { parent, relation });
+        order.push(candidate);
+      }
+    }
+
+    return { order, parents };
+  }
+
+  function alignedAnchorPlan(piece) {
+    const rotation = uprightRotation(piece);
+    const position = bodyPosition(piece);
+    position.x = Math.round(position.x / GRID) * GRID;
+    position.z = Math.round(position.z / GRID) * GRID;
+    const bounds = getWorldBounds(piece.shapes, position, rotation);
+    const level = .04 + Math.round((bounds.minY - .04) / GRID) * GRID;
+    position.y += level - bounds.minY;
+    return { position, rotation };
+  }
+
+  function alignedChildPlan(piece, parentPlan, relation) {
+    const rotation = uprightRotation(piece);
+    const position = bodyPosition(piece);
+    const parentBounds = getWorldBounds(parentPlan.piece.shapes, parentPlan.position, parentPlan.rotation);
+    const movingBounds = getWorldBounds(piece.shapes, position, rotation);
+    const axis = AXES[relation.axis];
+    const contactShift = relation.direction > 0
+      ? parentBounds[axis.max] + ALIGN_GAP - movingBounds[axis.min]
+      : parentBounds[axis.min] - ALIGN_GAP - movingBounds[axis.max];
+    position[relation.axis] += contactShift;
+
+    for (const perpendicular of axis.perpendicular) {
+      const shift = nearestAlignmentShift(parentBounds, movingBounds, perpendicular);
+      if (Math.abs(shift) <= ALIGN_CAPTURE) position[perpendicular] += shift;
+    }
+
+    return { position, rotation };
+  }
+
+  function finishClusterSettle() {
+    if (!clusterSettle) return;
+    const completed = clusterSettle;
+    clusterSettle = null;
+
+    for (const item of completed.items) {
+      item.piece.body.setTranslation(item.targetPosition, true);
+      item.piece.body.setRotation(item.targetRotation, true);
+      item.piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      item.piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      item.piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      item.piece.body.sleep();
+      item.piece.group.position.copy(item.targetPosition);
+      item.piece.group.quaternion.copy(item.targetRotation);
+      setPieceEdges(item.piece, item.piece === hovered ? hoverMaterial : edgeMaterial);
+    }
+
+    setInstruction(DEFAULT_INSTRUCTION);
+  }
+
+  function alignTouchingCluster(root) {
+    if (!root || clusterSettle) return;
+    if (selected) releaseSelected(false);
+    setHover(null);
+
+    const cluster = findTouchingCluster(root);
+    const plans = new Map();
+    const items = [];
+
+    for (const piece of cluster.order) {
+      const connection = cluster.parents.get(piece);
+      const plan = connection
+        ? alignedChildPlan(piece, { piece: connection.parent, ...plans.get(connection.parent) }, connection.relation)
+        : alignedAnchorPlan(piece);
+      plans.set(piece, plan);
+
+      const startPosition = bodyPosition(piece);
+      const startRotation = bodyRotation(piece);
+      piece.body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased, true);
+      piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      setPieceEdges(piece, selectedMaterial);
+      items.push({
+        piece,
+        startPosition,
+        startRotation,
+        targetPosition: plan.position,
+        targetRotation: plan.rotation,
+        displayPosition: startPosition.clone(),
+        displayRotation: startRotation.clone()
+      });
+    }
+
+    clusterSettle = { elapsed: 0, duration: reducedMotion ? .01 : ALIGN_DURATION, items };
+    setInstruction(cluster.order.length > 1 ? 'soft-aligning joined blocks' : 'soft-aligning block');
   }
 
   function disposePieces() {
@@ -598,6 +747,7 @@ Promise.all([
   }
 
   function rebuild() {
+    clusterSettle = null;
     releaseSelected(false);
     disposePieces();
     setHover(null);
@@ -679,7 +829,7 @@ Promise.all([
     }
 
     updateSelectionUI();
-    setInstruction('drag a block · release on the outline');
+    setInstruction(DEFAULT_INSTRUCTION);
   }
 
   function setRay(clientX, clientY) {
@@ -763,12 +913,13 @@ Promise.all([
 
   renderer.domElement.addEventListener('wheel', event => {
     event.preventDefault();
-    if (active || orbitGesture) return;
+    if (active || orbitGesture || clusterSettle) return;
     const delta = THREE.MathUtils.clamp(event.deltaY, -120, 120);
     orbitTargetRadius = THREE.MathUtils.clamp(orbitTargetRadius + delta * .018, orbitMinRadius, orbitMaxRadius);
   }, { passive: false });
 
   renderer.domElement.addEventListener('pointermove', event => {
+    if (clusterSettle) return;
     if (active && event.pointerId === active.pointerId) {
       event.preventDefault();
       if (Math.hypot(event.clientX - active.startX, event.clientY - active.startY) >= DRAG_THRESHOLD) {
@@ -806,6 +957,7 @@ Promise.all([
   });
 
   renderer.domElement.addEventListener('pointerdown', event => {
+    if (clusterSettle) return;
     if (event.isPrimary === false) return;
     if (event.pointerType === 'mouse' && ![0, 2].includes(event.button)) return;
     const forceOrbit = event.pointerType === 'mouse' && event.button === 2;
@@ -834,6 +986,14 @@ Promise.all([
     orbitTargetElevation = orbitElevation;
     orbitGesture = { pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };
     stage.classList.add('is-orbiting');
+  });
+
+  renderer.domElement.addEventListener('dblclick', event => {
+    if (event.button !== 0 || clusterSettle) return;
+    const info = hitPiece(event);
+    if (!info) return;
+    event.preventDefault();
+    alignTouchingCluster(info.piece);
   });
 
   renderer.domElement.addEventListener('pointerup', event => finishPointer(event, false));
@@ -924,6 +1084,22 @@ Promise.all([
     }
   }
 
+  function updateClusterSettle(delta) {
+    if (!clusterSettle) return;
+    clusterSettle.elapsed += delta;
+    const progress = THREE.MathUtils.clamp(clusterSettle.elapsed / clusterSettle.duration, 0, 1);
+    const eased = progress * progress * (3 - 2 * progress);
+
+    for (const item of clusterSettle.items) {
+      item.displayPosition.lerpVectors(item.startPosition, item.targetPosition, eased);
+      item.displayRotation.copy(item.startRotation).slerp(item.targetRotation, eased);
+      item.piece.body.setNextKinematicTranslation(item.displayPosition);
+      item.piece.body.setNextKinematicRotation(item.displayRotation);
+    }
+
+    if (progress >= 1) finishClusterSettle();
+  }
+
   function updateOrbit(delta) {
     if (!orbitGesture && !reducedMotion) {
       const frameScale = Math.min(1.5, delta * 60);
@@ -993,6 +1169,7 @@ Promise.all([
     updateOrbit(delta);
     updateCarry(delta);
     updateSelectedControls(delta);
+    updateClusterSettle(delta);
 
     while (accumulator >= PHYSICS_STEP) {
       world.timestep = PHYSICS_STEP;
