@@ -142,6 +142,10 @@
       if (winnerIndex === loserIndex) winnerIndex = null;
     }
 
+    // stack.js historically clears this label when its own collapse detector
+    // fires. Re-author the recorded score here so the final state always keeps it.
+    if (handledMoves > 0) moveCount.textContent = scoreLabel(handledMoves);
+
     turnInProgress = false;
     turnOwnerIndex = null;
     document.body.classList.add('stack-game-over');
