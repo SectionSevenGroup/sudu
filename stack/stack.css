@@ -359,25 +359,14 @@ input {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Tutorial colour and chevrons are rendered in the real Three.js scene. This
-   transparent layer pauses tower input while cues run and after game over. */
+/* Tutorial colour and game-state graphics are visual only. They never sit
+   between the pointer and the Rapier/Three interaction surface. */
 .stack-cue-shield {
   position: fixed;
   inset: 0;
   z-index: 15;
-  pointer-events: none;
+  pointer-events: none !important;
   background: transparent;
-}
-
-.stack-cue-shield.is-active,
-body.stack-game-over .stack-cue-shield {
-  pointer-events: auto;
-  cursor: default;
-}
-
-body.stack-cue-open #stack-stage,
-body.stack-game-over #stack-stage {
-  cursor: default;
 }
 
 body.stack-cue-open .stack-instruction,
