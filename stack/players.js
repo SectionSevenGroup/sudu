@@ -3,7 +3,6 @@
   const input = document.querySelector('#stack-player-input');
   const list = document.querySelector('#stack-player-list');
   const moveCount = document.querySelector('#move-count');
-  const reset = document.querySelector('#again');
   const stage = document.querySelector('#stack-stage');
   const result = document.querySelector('#stack-result');
   const resultName = document.querySelector('#stack-result-name');
@@ -22,7 +21,6 @@
   let winnerIndex = null;
   let loserIndex = null;
   let gameOver = false;
-  let resetting = false;
 
   function render() {
     list.replaceChildren();
@@ -32,6 +30,7 @@
       item.className = 'stack-player';
       item.textContent = name;
       item.classList.toggle('is-active', !gameOver && index === activeIndex);
+      if (!gameOver && index === activeIndex) item.setAttribute('aria-current', 'true');
       item.classList.toggle('is-winner', gameOver && index === winnerIndex);
       item.classList.toggle('is-loser', gameOver && index === loserIndex);
       list.append(item);
@@ -69,28 +68,12 @@
     render();
   }
 
-  function syncScoreAndTurns() {
-    const raw = moveCount.textContent.trim();
-
-    // The score is part of the game record. Collapse may never erase it.
-    if (!raw) {
-      if (handledMoves > 0 && !resetting) moveCount.textContent = scoreLabel(handledMoves);
-      return;
-    }
-
-    const nextMoves = Number.parseInt(raw, 10) || 0;
-
-    if (nextMoves < handledMoves) {
-      if (resetting) handledMoves = nextMoves;
-      else moveCount.textContent = scoreLabel(handledMoves);
-      return;
-    }
-
-    if (nextMoves > handledMoves) {
-      const completedTurns = nextMoves - handledMoves;
-      handledMoves = nextMoves;
-      for (let i = 0; i < completedTurns; i++) completeSuccessfulTurn();
-    }
+  function handlePlacement(event) {
+    if (gameOver) return;
+    const nextMoves = event.detail.moves;
+    if (!Number.isInteger(nextMoves) || nextMoves <= handledMoves) return;
+    handledMoves = nextMoves;
+    completeSuccessfulTurn();
   }
 
   function markTurnStart() {
@@ -123,7 +106,6 @@
 
   function endGame() {
     if (gameOver) return;
-    syncScoreAndTurns();
     gameOver = true;
 
     if (players.length) {
@@ -156,7 +138,6 @@
   }
 
   function resetGameState() {
-    resetting = true;
     gameOver = false;
     activeIndex = 0;
     handledMoves = 0;
@@ -169,10 +150,6 @@
     document.body.classList.remove('stack-game-over');
     if (result) result.hidden = true;
     render();
-    window.setTimeout(() => {
-      resetting = false;
-      syncScoreAndTurns();
-    }, 180);
   }
 
   form.addEventListener('submit', event => {
@@ -180,21 +157,10 @@
     addPlayer(input.value);
   });
 
-  // Bubble phase runs after stack.js has decided whether the pointer actually
-  // grabbed a block and applied .is-dragging, so orbiting never starts a turn.
-  stage.addEventListener('pointerdown', () => {
-    requestAnimationFrame(() => {
-      if (stage.classList.contains('is-dragging')) markTurnStart();
-    });
-  });
-
-  const moveObserver = new MutationObserver(syncScoreAndTurns);
-  moveObserver.observe(moveCount, { childList: true, characterData: true, subtree: true });
-
-  // Only the sustained visual/structural detector may end the game. Older
-  // instantaneous collapse signals are deliberately ignored.
+  window.addEventListener('stack:turnstart', markTurnStart);
+  window.addEventListener('stack:placed', handlePlacement);
   window.addEventListener('stack:gamecollapse', endGame);
-  reset?.addEventListener('click', resetGameState);
+  window.addEventListener('stack:reset', resetGameState);
 
   render();
 })();

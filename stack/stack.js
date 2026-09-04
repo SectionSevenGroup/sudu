@@ -1,3 +1,6 @@
+import { blockTilt, createCollapseMonitor } from './game-state.js?v=72i';
+import { createTutorial } from './tutorial3d.js?v=72i';
+
 const stage = document.querySelector('#stack-stage');
 const loading = stage.querySelector('.stack-loading');
 const moveLabel = document.querySelector('#move-count');
@@ -10,7 +13,6 @@ Promise.all([
   import('/stack/vendor/rapier-shim.js')
 ]).then(async ([THREE, RAPIER]) => {
   await RAPIER.init();
-  loading.remove();
 
   const INITIAL_COURSES = 24;
   const COURSE_STEP = .385;
@@ -75,6 +77,17 @@ Promise.all([
   let last = performance.now();
   let accumulator = 0;
   let collapsed = false;
+  let tutorial;
+  let frameId = 0;
+  let disposed = false;
+  const collapseMonitor = createCollapseMonitor();
+  const listeners = new AbortController();
+  function listen(target, event, handler, options = {}) {
+    target.addEventListener(event, handler, { ...options, signal: listeners.signal });
+  }
+  function emit(type, detail = {}) {
+    window.dispatchEvent(new CustomEvent(`stack:${type}`, { detail }));
+  }
 
   const boxGeometry = new THREE.BoxGeometry(3, .36, .92);
   const faceMaterial = new THREE.MeshBasicMaterial({ color: 0xf3f1ea, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
@@ -148,6 +161,10 @@ Promise.all([
   }
 
   function updatePlacementGuide() {
+    if (collapsed) {
+      placementGuide.visible = false;
+      return;
+    }
     const hasLoosePiece = blocks.some(block => block.free || block.carryable);
     const carrying = active && active.mode === 'carry';
     if (!carrying && !hasLoosePiece) {
@@ -175,8 +192,8 @@ Promise.all([
   }
 
   function clearInteraction(dropCarry = true) {
+    const pointerId = active?.pointerId ?? orbitGesture?.pointerId;
     if (active) {
-      releaseCapture(active.pointerId);
       if (dropCarry && active.mode === 'carry') {
         const body = active.block.body;
         body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
@@ -187,15 +204,25 @@ Promise.all([
         active.block.carryable = true;
       }
     }
-    if (orbitGesture) releaseCapture(orbitGesture.pointerId);
     active = null;
     orbitGesture = null;
+    releaseCapture(pointerId);
+    orbitVelocityAzimuth = 0;
+    orbitVelocityElevation = 0;
+    orbitTargetAzimuth = orbitAzimuth;
+    orbitTargetElevation = orbitElevation;
+    orbitTargetRadius = orbitRadius;
     stage.classList.remove('is-dragging', 'is-orbiting');
     updatePlacementGuide();
   }
 
   function rebuild() {
+    tutorial?.stop();
     clearInteraction(false);
+    world?.free();
+    accumulator = 0;
+    last = performance.now();
+    collapseMonitor.reset();
     for (const item of blocks) scene.remove(item.group);
     blocks = [];
     meshes.length = 0;
@@ -311,6 +338,7 @@ Promise.all([
         });
       }
     }
+    emit('reset');
   }
 
   function setRay(clientX, clientY) {
@@ -424,7 +452,7 @@ Promise.all([
     const fromHome = position.clone().sub(block.homePosition);
     const axial = Math.abs(fromHome.dot(block.homeAxis));
     const horizontal = Math.hypot(fromHome.x, fromHome.z);
-    const tilt = 2 * Math.acos(Math.min(1, Math.abs(rotation.w)));
+    const tilt = blockTilt(rotation);
     const dropped = position.y < block.homePosition.y - .50;
     const onFloorAwayFromHome = position.y < .55 && horizontal > .75;
     const clearlyExtracted = axial > block.clearanceDistance - REGRAB_CLEARANCE_MARGIN;
@@ -466,9 +494,9 @@ Promise.all([
     stage.classList.add('is-dragging');
   }
 
-  renderer.domElement.addEventListener('contextmenu', event => event.preventDefault());
+  listen(renderer.domElement, 'contextmenu', event => event.preventDefault());
 
-  renderer.domElement.addEventListener('wheel', event => {
+  listen(renderer.domElement, 'wheel', event => {
     event.preventDefault();
     if (active || orbitGesture) return;
     const delta = THREE.MathUtils.clamp(event.deltaY, -120, 120);
@@ -479,7 +507,7 @@ Promise.all([
     );
   }, { passive: false });
 
-  renderer.domElement.addEventListener('pointermove', event => {
+  listen(renderer.domElement, 'pointermove', event => {
     if (active && event.pointerId === active.pointerId) {
       active.lastClientX = event.clientX;
       active.lastClientY = event.clientY;
@@ -543,9 +571,11 @@ Promise.all([
     if (event.pointerType === 'mouse') setHover(hitBlockInfo(event)?.block || null);
   });
 
-  renderer.domElement.addEventListener('pointerdown', event => {
+  listen(renderer.domElement, 'pointerdown', event => {
     if (event.isPrimary === false) return;
     if (event.pointerType === 'mouse' && ![0, 2].includes(event.button)) return;
+    // A second mouse button must not replace an existing hand or orphan a carry.
+    if (active || orbitGesture) return;
 
     const forceOrbit = event.pointerType === 'mouse' && event.button === 2;
     const info = forceOrbit ? null : hitBlockInfo(event);
@@ -553,6 +583,18 @@ Promise.all([
     renderer.domElement.setPointerCapture(event.pointerId);
 
     if (info) {
+      // Stop residual camera easing before fixing the world-space grip plane.
+      orbitVelocityAzimuth = 0;
+      orbitVelocityElevation = 0;
+      orbitTargetAzimuth = orbitAzimuth;
+      orbitTargetElevation = orbitElevation;
+      orbitTargetRadius = orbitRadius;
+      if (collapseMonitor.arm(blocks)) {
+        // The initial construction gaps settle under gravity before the first
+        // hand arrives. Measure later drops from that settled height.
+        for (const item of blocks) item.homePosition.y = item.body.translation().y;
+      }
+      if (!collapsed) emit('turnstart');
       const block = info.block;
       if (block.free || block.carryable || isDetached(block)) {
         block.carryable = true;
@@ -604,6 +646,7 @@ Promise.all([
 
       if (held.mode === 'grip' && isDetached(held.block)) {
         held.block.carryable = true;
+        held.block.free = true;
         setInstruction('click free block · lift above tower');
       }
 
@@ -614,7 +657,7 @@ Promise.all([
         const current = new THREE.Vector3(p.x, p.y, p.z);
         const currentDistance = current.distanceTo(pose.position);
         const desiredDistance = held.carryDesired.distanceTo(pose.position);
-        const canPlace = !cancelled && (
+        const canPlace = !cancelled && !collapsed && (
           currentDistance < 2.10 ||
           (held.placementCandidate && desiredDistance < PLACEMENT_CAPTURE_RADIUS && currentDistance < PLACEMENT_RELEASE_RADIUS)
         );
@@ -646,9 +689,11 @@ Promise.all([
           held.block.startY = pose.position.y;
           held.block.homePosition.copy(pose.position);
           held.block.homeAxis.set(1, 0, 0).applyQuaternion(pose.rotation).setY(0).normalize();
+          collapseMonitor.placed(held.block, pose.position.y);
           placedCount++;
           moves++;
           moveLabel.textContent = `${moves} ${moves === 1 ? 'move' : 'moves'}`;
+          emit('placed', { moves, blockIndex: blocks.indexOf(held.block) });
           setInstruction('pull clear · keep holding');
         } else {
           const releaseVelocity = held.carryVelocity.clone();
@@ -682,13 +727,14 @@ Promise.all([
     }
   }
 
-  renderer.domElement.addEventListener('pointerup', event => finishPointer(event, false));
-  renderer.domElement.addEventListener('pointercancel', event => finishPointer(event, true));
-  renderer.domElement.addEventListener('pointerleave', () => {
+  listen(renderer.domElement, 'pointerup', event => finishPointer(event, false));
+  listen(renderer.domElement, 'pointercancel', event => finishPointer(event, true));
+  listen(renderer.domElement, 'lostpointercapture', event => finishPointer(event, true));
+  listen(renderer.domElement, 'pointerleave', () => {
     if (!active && !orbitGesture) setHover(null);
   });
 
-  again.addEventListener('click', rebuild);
+  listen(again, 'click', rebuild);
 
   function forceComponent(error, speed, stiffness, damping, cap, errorCap) {
     const boundedError = THREE.MathUtils.clamp(error, -errorCap, errorCap);
@@ -801,7 +847,8 @@ Promise.all([
   }
 
   function frame(now) {
-    requestAnimationFrame(frame);
+    if (disposed) return;
+    frameId = requestAnimationFrame(frame);
     if (document.hidden) {
       last = now;
       return;
@@ -812,17 +859,23 @@ Promise.all([
     accumulator += delta;
 
     updateOrbit(delta);
-    updateCarry(delta);
     updatePlacementGuide();
 
     while (accumulator >= PHYSICS_STEP) {
       applyGripImpulse();
+      // One bounded carry target per physics step, at every display refresh rate.
+      updateCarry(PHYSICS_STEP);
       world.timestep = PHYSICS_STEP;
       world.step();
+      const failure = collapseMonitor.step(blocks, active?.block, PHYSICS_STEP);
+      if (!collapsed && failure) {
+        collapsed = true;
+        tutorial?.stop();
+        emit('gamecollapse', failure);
+      }
       accumulator -= PHYSICS_STEP;
     }
 
-    let fallen = 0;
     for (const item of blocks) {
       const p = item.body.translation();
       const q = item.body.rotation();
@@ -831,37 +884,53 @@ Promise.all([
 
       if (!item.free && !item.carryable && isDetached(item)) item.carryable = true;
 
-      const qAngle = 2 * Math.acos(Math.min(1, Math.abs(q.w)));
-      if (!item.free && (
-        p.y < item.startY - 1.1 ||
-        Math.abs(p.x) > 4.8 ||
-        Math.abs(p.z) > 4.8 ||
-        (p.y < 2.5 && qAngle > .72)
-      )) fallen++;
     }
-
-    if (!collapsed && moves > 0 && fallen > 5) {
-      collapsed = true;
-      moveLabel.textContent = '';
-    }
-
+    tutorial?.update(now);
     renderer.render(scene, camera);
   }
 
-  addEventListener('resize', () => {
+  listen(window, 'resize', () => {
     if (active || orbitGesture) clearInteraction(true);
     resize();
   }, { passive: true });
 
-  document.addEventListener('visibilitychange', () => {
+  function pauseInteraction() {
+    tutorial?.stop();
+    clearInteraction(true);
+    accumulator = 0;
+    last = performance.now();
+  }
+
+  listen(window, 'blur', pauseInteraction);
+  listen(document, 'visibilitychange', () => {
     if (document.hidden) clearInteraction(true);
+    accumulator = 0;
     last = performance.now();
   });
 
+  listen(window, 'pagehide', event => {
+    pauseInteraction();
+    if (event.persisted) return;
+    disposed = true;
+    cancelAnimationFrame(frameId);
+    listeners.abort();
+    tutorial?.dispose();
+    world.free();
+    boxGeometry.dispose();
+    edgeGeometry.dispose();
+    [faceMaterial, edgeMaterial, hoverMaterial, ghostMaterial, placementMaterial].forEach(material => material.dispose());
+    renderer.dispose();
+  });
+  listen(window, 'pageshow', () => { last = performance.now(); });
+
   resize();
   rebuild();
-  requestAnimationFrame(frame);
+  tutorial = createTutorial(THREE, { stage, getBlocks: () => blocks, camera,
+    isGameOver: () => collapsed, isInteracting: () => !!(active || orbitGesture), reducedMotion });
+  loading.remove();
+  frameId = requestAnimationFrame(frame);
 }).catch(error => {
   console.error(error);
   loading.textContent = 'unable to assemble';
+  if (!loading.isConnected) stage.append(loading);
 });
