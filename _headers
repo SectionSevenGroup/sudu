@@ -22,6 +22,13 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# MASSING shares STACK's local Three/Rapier runtime and therefore needs the
+# same narrowly scoped WebAssembly compilation permission.
+/play/massing/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
 # Control is private. It is never indexed, never cached and never framed, and
 # its page may only talk to its own origin.
 /control/*

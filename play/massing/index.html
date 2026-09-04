@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>MASSING | SuDu Studio</title>
+  <meta name="description" content="MASSING, an interactive architectural study by SuDu Studio.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://sudu.studio/play/massing/">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/play/massing/massing.css">
+</head>
+<body>
+  <main class="massing-study" aria-labelledby="massing-title">
+    <header class="massing-header">
+      <a class="massing-mark" href="/" aria-label="SuDu Studio home"><img src="/images/sudu-mark.png" alt="SuDu Studio"></a>
+      <h1 id="massing-title">MASSING</h1>
+    </header>
+
+    <div id="massing-stage" class="massing-stage" aria-label="Interactive architectural massing table. Drag to move a block across the plan. Scroll to change its height. Release on the alignment outline to place it. Double-click touching blocks to align and hold them for eight seconds." tabindex="0">
+      <p class="massing-loading" aria-live="polite">laying out the kit</p>
+    </div>
+
+    <p class="massing-instruction">drag · scroll lifts · double-click aligns</p>
+
+    <div class="massing-note" aria-live="polite">
+      <span id="massing-selection"></span>
+      <button id="massing-turn" class="massing-action" type="button" disabled>turn</button>
+      <button id="massing-up" class="massing-action" type="button" disabled>up</button>
+      <button id="massing-down" class="massing-action" type="button" disabled>down</button>
+      <button id="massing-view" class="massing-action" type="button">top</button>
+      <button id="again" type="button">reset</button>
+    </div>
+  </main>
+
+  <script type="module" src="/play/massing/massing.js"></script>
+</body>
+</html>
