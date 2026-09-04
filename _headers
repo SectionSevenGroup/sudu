@@ -22,6 +22,14 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# The canonical STACK page now lives under /play/stack.html after the legacy
+# /stack redirect, so the same narrowly scoped WebAssembly permission must
+# apply to the final document URL as well.
+/play/stack*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
 # BLOCKS shares STACK's local Three/Rapier runtime and therefore needs the
 # same narrowly scoped WebAssembly compilation permission.
 /play/blocks/*
