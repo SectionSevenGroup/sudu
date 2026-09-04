@@ -18,3 +18,6 @@ export const LineBasicMaterial = THREE.LineBasicMaterial;
 export const LineSegments = THREE.LineSegments;
 export const Group = THREE.Group;
 export const Mesh = THREE.Mesh;
+export const BufferGeometry = THREE.BufferGeometry;
+export const Float32BufferAttribute = THREE.Float32BufferAttribute;
+export const DoubleSide = THREE.DoubleSide;

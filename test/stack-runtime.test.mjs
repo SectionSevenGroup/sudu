@@ -96,7 +96,7 @@ async function runtime() {
   const source = await readFile(new URL('../stack/stack.js', import.meta.url), 'utf8');
   await run(source.replace(/^import .*;\n/gm, '')
     .replace('Promise.all([', 'return Promise.all([')
-    .replace("import('/stack/vendor/three-shim.js')", 'Promise.resolve(deps.THREE)')
+    .replace("import('/stack/vendor/three-shim.js?v=72k')", 'Promise.resolve(deps.THREE)')
     .replace("import('/stack/vendor/rapier-shim.js')", 'Promise.resolve(deps.RAPIER)'));
   assert.deepEqual(errors, [], 'runtime initialises');
   function advance(seconds, hz = 60) {
@@ -257,6 +257,40 @@ test('wood contacts start settled and an assisted placement lands without a drop
   assert.ok(placedHeight - low < .02, 'block is placed on wood, not above an air gap');
   assert.ok(high - placedHeight < .002, 'no visible upward rebound');
   assert.ok(supportHeight - lowestSupport < .006, 'support does not visibly compress');
+  assert.equal(r.document.body.classList.contains('stack-game-over'), false);
+  r.window.dispatchEvent(event('pagehide', { persisted: false }));
+});
+
+test('a top-face grip pushes against support and lifts vertically as a dynamic wooden block', async () => {
+  const r = await runtime();
+  const bodies = [];
+  r.worlds[0].bodies.forEach(body => { if (body.isDynamic()) bodies.push(body); });
+  const top = bodies[70];
+  const initial = { ...top.translation() };
+  const supports = bodies.map(body => ({ ...body.translation() }));
+  const at = r.point(r.groups()[70], new THREE.Vector3(0, .18, 0));
+
+  r.pointer('pointerdown', at);
+  r.pointer('pointermove', { clientX: at.clientX, clientY: at.clientY + 200 });
+  r.advance(2);
+  assert.ok(initial.y - top.translation().y < .003, 'supporting wood resists a downward push');
+  assert.ok(top.isDynamic(), 'contact remains physical');
+  r.pointer('pointerup', at);
+
+  const lift = r.point(r.groups()[70], new THREE.Vector3(0, .18, 0));
+  r.pointer('pointerdown', lift);
+  r.pointer('pointermove', { clientX: lift.clientX, clientY: lift.clientY - 100 });
+  r.advance(1);
+  const raised = top.translation();
+  assert.ok(raised.y - initial.y > .3, 'the top gesture actually lifts an unloaded piece');
+  assert.ok(Math.hypot(raised.x - initial.x, raised.z - initial.z) < .05, 'top pull does not slide along a horizontal face');
+  assert.ok(top.isDynamic(), 'lifting does not bypass collisions with kinematic carry');
+  bodies.forEach((body, index) => {
+    if (index !== 70) assert.ok(Math.abs(body.translation().y - supports[index].y) < .006, 'the rest of the tower stays settled');
+  });
+  r.pointer('pointerup', lift);
+  r.advance(2);
+  assert.ok(Math.abs(top.translation().y - initial.y) < .006, 'release returns the piece to its support under gravity');
   assert.equal(r.document.body.classList.contains('stack-game-over'), false);
   r.window.dispatchEvent(event('pagehide', { persisted: false }));
 });
