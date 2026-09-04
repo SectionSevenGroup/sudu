@@ -1,0 +1,25 @@
+import { THREE } from '/stack/vendor/stack-deps.js';
+
+export const Scene = THREE.Scene;
+export const Color = THREE.Color;
+export const WebGLRenderer = THREE.WebGLRenderer;
+export const SRGBColorSpace = THREE.SRGBColorSpace;
+export const MathUtils = THREE.MathUtils;
+export const PerspectiveCamera = THREE.PerspectiveCamera;
+export const Raycaster = THREE.Raycaster;
+export const Vector2 = THREE.Vector2;
+export const Vector3 = THREE.Vector3;
+export const Plane = THREE.Plane;
+export const Quaternion = THREE.Quaternion;
+export const BoxGeometry = THREE.BoxGeometry;
+export const CylinderGeometry = THREE.CylinderGeometry;
+export const BufferGeometry = THREE.BufferGeometry;
+export const Float32BufferAttribute = THREE.Float32BufferAttribute;
+export const DoubleSide = THREE.DoubleSide;
+export const MeshBasicMaterial = THREE.MeshBasicMaterial;
+export const EdgesGeometry = THREE.EdgesGeometry;
+export const LineBasicMaterial = THREE.LineBasicMaterial;
+export const LineSegments = THREE.LineSegments;
+export const Group = THREE.Group;
+export const Mesh = THREE.Mesh;
+export const GridHelper = THREE.GridHelper;
