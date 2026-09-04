@@ -21,7 +21,7 @@ const originalSceneAdd = THREE.Scene.prototype.add;
 const originalRender = THREE.WebGLRenderer.prototype.render;
 
 // Capture the actual block groups created by stack.js. The tutorial never
-// redraws the tower. It adds a temporary highlight directly to a real block.
+// redraws the tower. It adds a temporary face layer directly to a real block.
 if (!window.__stackLiveCuePatched) {
   window.__stackLiveCuePatched = true;
 
@@ -99,12 +99,12 @@ function makeHighlight(type, group) {
     color: ACCENT,
     transparent: true,
     opacity: 0,
-    depthTest: false,
+    depthTest: true,
     depthWrite: false
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.copy(position);
-  mesh.renderOrder = 100;
+  mesh.renderOrder = 10;
   group.add(mesh);
 
   return { type, group, mesh, material, localCentre: position, localNormal: normal };
@@ -136,7 +136,7 @@ function updateCue(now, startTime) {
 
   const phase = Math.min(1, Math.max(0, (now - startTime) / PHASE_MS));
   const pulse = reducedMotion ? .82 : Math.sin(Math.PI * phase);
-  activeCue.material.opacity = .12 + pulse * .42;
+  activeCue.material.opacity = .10 + pulse * .44;
 
   const centreWorld = activeCue.group.localToWorld(activeCue.localCentre.clone());
   const outwardLocal = activeCue.localCentre.clone().addScaledVector(activeCue.localNormal, .82);
@@ -171,9 +171,13 @@ function stopTutorial() {
 }
 
 function playStep(step) {
+  // These are deliberately visible, exposed faces in the default camera:
+  // an end on a front corner block, the long side of a front-row block, then
+  // the top face of an upper block. The highlight is physically parented to
+  // that exact live block so perspective and any tiny settling stay correct.
   const targets = [
     { type: 'end', block: blockAt(13, 2) },
-    { type: 'side', block: blockAt(12, 0) },
+    { type: 'side', block: blockAt(12, 2) },
     { type: 'top', block: blockAt(23, 1) }
   ];
   const target = targets[step];
