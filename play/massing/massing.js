@@ -8,7 +8,7 @@ const downButton = document.querySelector('#massing-down');
 const viewButton = document.querySelector('#massing-view');
 const again = document.querySelector('#again');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const DEFAULT_INSTRUCTION = 'drag · double-click group to align';
+const DEFAULT_INSTRUCTION = 'drag · scroll lifts · double-click aligns';
 
 if (!stage || !loading) throw new Error('MASSING stage is unavailable.');
 
@@ -29,6 +29,9 @@ Promise.all([
   const CONTACT_OVERLAP = .12;
   const ALIGN_CAPTURE = MODULE * .55;
   const ALIGN_DURATION = .72;
+  const HOLD_DURATION = 8000;
+  const CARRY_CLEARANCE = .38;
+  const CARRY_LOOKAHEAD = .22;
   const DRAG_THRESHOLD = 5;
   const MIN_CARRY_SPEED = 1.25;
   const MAX_CARRY_SPEED = 8;
@@ -164,6 +167,7 @@ Promise.all([
   let selected = null;
   let snapCandidate = null;
   let clusterSettle = null;
+  let holds = [];
   let hovered = null;
   let last = performance.now();
   let accumulator = 0;
@@ -180,6 +184,7 @@ Promise.all([
   const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .72 });
   const hoverMaterial = new THREE.LineBasicMaterial({ color: 0x171613, transparent: true, opacity: 1 });
   const selectedMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: 1 });
+  const heldMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: .56 });
   const snapMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: .72, depthTest: false });
   const ghostMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .12 });
   const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xf3f1ea });
@@ -244,9 +249,13 @@ Promise.all([
     for (const edge of piece.edges) edge.material = material;
   }
 
+  function restingEdgeMaterial(piece) {
+    return piece.hold ? heldMaterial : edgeMaterial;
+  }
+
   function setHover(piece) {
     if (hovered === piece) return;
-    if (hovered && hovered !== selected) setPieceEdges(hovered, edgeMaterial);
+    if (hovered && hovered !== selected) setPieceEdges(hovered, restingEdgeMaterial(hovered));
     hovered = piece;
     if (hovered && hovered !== selected) setPieceEdges(hovered, hoverMaterial);
     stage.classList.toggle('is-hovering', !!hovered);
@@ -483,7 +492,7 @@ Promise.all([
     selected.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     selected.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
     selected.body.wakeUp();
-    setPieceEdges(selected, selected === hovered ? hoverMaterial : edgeMaterial);
+    setPieceEdges(selected, selected === hovered ? hoverMaterial : restingEdgeMaterial(selected));
     selected = null;
     active = null;
     clearSnapGuide();
@@ -492,8 +501,17 @@ Promise.all([
     updateSelectionUI();
   }
 
+  function detachPieceFromHold(piece) {
+    const hold = piece.hold;
+    if (!hold) return;
+    hold.pieces.delete(piece);
+    piece.hold = null;
+    if (!hold.pieces.size) holds = holds.filter(candidate => candidate !== hold);
+  }
+
   function selectPiece(piece) {
     if (selected && selected !== piece) releaseSelected();
+    detachPieceFromHold(piece);
     selected = piece;
     const position = bodyPosition(piece);
     const rotation = uprightRotation(piece);
@@ -566,20 +584,56 @@ Promise.all([
     if (!clusterSettle) return;
     const completed = clusterSettle;
     clusterSettle = null;
+    const hold = {
+      pieces: new Set(completed.items.map(item => item.piece)),
+      releaseAt: performance.now() + HOLD_DURATION
+    };
+    holds.push(hold);
 
     for (const item of completed.items) {
       item.piece.body.setTranslation(item.targetPosition, true);
       item.piece.body.setRotation(item.targetRotation, true);
-      item.piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      item.piece.body.setBodyType(RAPIER.RigidBodyType.Fixed, true);
       item.piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
       item.piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
-      item.piece.body.sleep();
+      item.piece.hold = hold;
       item.piece.group.position.copy(item.targetPosition);
       item.piece.group.quaternion.copy(item.targetRotation);
-      setPieceEdges(item.piece, item.piece === hovered ? hoverMaterial : edgeMaterial);
+      setPieceEdges(item.piece, item.piece === hovered ? hoverMaterial : heldMaterial);
     }
 
-    setInstruction(DEFAULT_INSTRUCTION);
+    setInstruction('held 8s · add a counterbalance');
+  }
+
+  function updateHolds(now) {
+    let longestRemaining = 0;
+
+    for (const hold of [...holds]) {
+      const remaining = hold.releaseAt - now;
+      if (remaining > 0) {
+        longestRemaining = Math.max(longestRemaining, remaining);
+        continue;
+      }
+
+      holds = holds.filter(candidate => candidate !== hold);
+      for (const piece of hold.pieces) {
+        if (piece.hold !== hold) continue;
+        piece.hold = null;
+        piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+        piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+        piece.body.wakeUp();
+        setPieceEdges(piece, piece === hovered ? hoverMaterial : edgeMaterial);
+      }
+    }
+
+    if (!active && !selected && !clusterSettle) {
+      if (longestRemaining > 0) {
+        setInstruction(`held ${Math.ceil(longestRemaining / 1000)}s · add a counterbalance`);
+      } else {
+        setInstruction(DEFAULT_INSTRUCTION);
+      }
+    }
   }
 
   function alignTouchingCluster(root) {
@@ -592,6 +646,7 @@ Promise.all([
     const items = [];
 
     for (const piece of cluster.order) {
+      detachPieceFromHold(piece);
       const connection = cluster.parents.get(piece);
       const plan = connection
         ? alignedChildPlan(piece, { piece: connection.parent, ...plans.get(connection.parent) }, connection.relation)
@@ -748,6 +803,7 @@ Promise.all([
 
   function rebuild() {
     clusterSettle = null;
+    holds = [];
     releaseSelected(false);
     disposePieces();
     setHover(null);
@@ -824,7 +880,8 @@ Promise.all([
         targetPosition: new THREE.Vector3(...definition.position),
         targetRotation: rotation.clone(),
         controlPosition: new THREE.Vector3(...definition.position),
-        controlRotation: rotation.clone()
+        controlRotation: rotation.clone(),
+        hold: null
       });
     }
 
@@ -857,10 +914,40 @@ Promise.all([
     return Math.abs(value - snapped) <= tolerance ? snapped : value;
   }
 
+  function suggestedCarryHeight(piece, x, z, baseY, levelOffset = 0) {
+    const planPosition = new THREE.Vector3(x, 0, z);
+    const movingBounds = getWorldBounds(piece.shapes, planPosition, piece.targetRotation);
+    let height = Math.max(baseY + levelOffset, .04 - movingBounds.minY);
+
+    for (const target of pieces) {
+      if (target === piece) continue;
+      const targetBounds = getWorldBounds(target.shapes, bodyPosition(target), bodyRotation(target));
+      const overlapsX = movingBounds.maxX + CARRY_LOOKAHEAD >= targetBounds.minX
+        && movingBounds.minX - CARRY_LOOKAHEAD <= targetBounds.maxX;
+      const overlapsZ = movingBounds.maxZ + CARRY_LOOKAHEAD >= targetBounds.minZ
+        && movingBounds.minZ - CARRY_LOOKAHEAD <= targetBounds.maxZ;
+      if (!overlapsX || !overlapsZ) continue;
+      height = Math.max(height, targetBounds.maxY + CARRY_CLEARANCE - movingBounds.minY);
+    }
+
+    return height;
+  }
+
+  function refreshActiveCarryHeight() {
+    if (!active) return;
+    active.carryDesired.y = suggestedCarryHeight(
+      active.piece,
+      active.carryDesired.x,
+      active.carryDesired.z,
+      active.baseY,
+      active.levelOffset
+    );
+  }
+
   function beginCarry(piece, event) {
     selectPiece(piece);
     const origin = piece.targetPosition.clone();
-    carryPlane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(new THREE.Vector3()), origin);
+    carryPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), origin);
     setRay(event.clientX, event.clientY);
     const grabPoint = raycaster.ray.intersectPlane(carryPlane, carryPoint) ? carryPoint.clone() : origin.clone();
 
@@ -873,7 +960,10 @@ Promise.all([
       carryOrigin: origin,
       carryGrabPoint: grabPoint,
       carryDesired: origin.clone(),
-      carryPosition: origin.clone()
+      carryPosition: origin.clone(),
+      baseY: origin.y,
+      levelOffset: 0,
+      wheelAccumulator: 0
     };
     stage.classList.add('is-dragging');
   }
@@ -913,7 +1003,24 @@ Promise.all([
 
   renderer.domElement.addEventListener('wheel', event => {
     event.preventDefault();
-    if (active || orbitGesture || clusterSettle) return;
+    if (clusterSettle) return;
+    if (active) {
+      active.wheelAccumulator += event.deltaY;
+      const steps = Math.trunc(Math.abs(active.wheelAccumulator) / 45);
+      if (steps) {
+        const direction = Math.sign(active.wheelAccumulator);
+        active.levelOffset = THREE.MathUtils.clamp(
+          active.levelOffset - direction * steps * GRID,
+          -12,
+          12
+        );
+        active.wheelAccumulator -= direction * steps * 45;
+        refreshActiveCarryHeight();
+        setInstruction('scroll lifts · release on the outline');
+      }
+      return;
+    }
+    if (orbitGesture) return;
     const delta = THREE.MathUtils.clamp(event.deltaY, -120, 120);
     orbitTargetRadius = THREE.MathUtils.clamp(orbitTargetRadius + delta * .018, orbitMinRadius, orbitMaxRadius);
   }, { passive: false });
@@ -930,9 +1037,13 @@ Promise.all([
         const desired = active.carryOrigin.clone().add(carryPoint.clone().sub(active.carryGrabPoint));
         desired.x = THREE.MathUtils.clamp(snapNear(desired.x), -19, 19);
         desired.z = THREE.MathUtils.clamp(snapNear(desired.z), -18, 17);
-        desired.y = Math.max(active.piece.halfHeight + .04, desired.y);
-        const level = active.piece.halfHeight + Math.round((desired.y - active.piece.halfHeight) / GRID) * GRID;
-        if (Math.abs(desired.y - level) < .08) desired.y = level + .04;
+        desired.y = suggestedCarryHeight(
+          active.piece,
+          desired.x,
+          desired.z,
+          active.baseY,
+          active.levelOffset
+        );
         active.carryDesired.copy(desired);
       }
       return;
@@ -1011,6 +1122,11 @@ Promise.all([
 
   function liftSelected(direction) {
     if (!selected) return;
+    if (active) {
+      active.levelOffset = THREE.MathUtils.clamp(active.levelOffset + direction * GRID, -12, 12);
+      refreshActiveCarryHeight();
+      return;
+    }
     selected.controlPosition.y = Math.max(
       selected.halfHeight + .04,
       selected.controlPosition.y + direction * GRID
@@ -1170,6 +1286,7 @@ Promise.all([
     updateCarry(delta);
     updateSelectedControls(delta);
     updateClusterSettle(delta);
+    updateHolds(now);
 
     while (accumulator >= PHYSICS_STEP) {
       world.timestep = PHYSICS_STEP;

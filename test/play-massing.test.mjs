@@ -47,7 +47,7 @@ test('MASSING softly aligns only the joined cluster on double click', async () =
     read('play/massing/massing.js')
   ]);
 
-  assert.match(page, /double-click group to align/);
+  assert.match(page, /scroll lifts · double-click aligns/);
   assert.match(script, /addEventListener\('dblclick'/);
   assert.match(script, /function contactRelation/);
   assert.match(script, /function findTouchingCluster/);
@@ -55,7 +55,26 @@ test('MASSING softly aligns only the joined cluster on double click', async () =
   assert.match(script, /function updateClusterSettle/);
   assert.match(script, /progress \* progress \* \(3 - 2 \* progress\)/);
   assert.match(script, /RigidBodyType\.KinematicPositionBased/);
-  assert.match(script, /item\.piece\.body\.sleep\(\)/);
+  assert.match(script, /const HOLD_DURATION = 8000/);
+  assert.match(script, /RigidBodyType\.Fixed/);
+  assert.match(script, /function updateHolds/);
+  assert.match(script, /held 8s · add a counterbalance/);
+});
+
+test('MASSING uses a smart crane for simple up-and-over placement', async () => {
+  const [page, script] = await Promise.all([
+    read('play/massing/index.html'),
+    read('play/massing/massing.js')
+  ]);
+
+  assert.match(page, /Scroll to change its height/);
+  assert.match(script, /function suggestedCarryHeight/);
+  assert.match(script, /new THREE\.Vector3\(0, 1, 0\)/);
+  assert.match(script, /const CARRY_CLEARANCE = \.38/);
+  assert.match(script, /const CARRY_LOOKAHEAD = \.22/);
+  assert.match(script, /wheelAccumulator/);
+  assert.match(script, /levelOffset/);
+  assert.match(script, /release to align/);
 });
 
 test('MASSING draws its grid directly on the continuous cream floor', async () => {
