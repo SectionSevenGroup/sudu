@@ -19,7 +19,8 @@ Promise.all([
   loading.remove();
 
   const PHYSICS_STEP = 1 / 120;
-  const GRID = .4;
+  const MODULE = 1.2;
+  const GRID = MODULE / 2;
   const EDGE_RADIUS = .025;
   const SNAP_GAP = .014;
   const DRAG_THRESHOLD = 5;
@@ -36,53 +37,86 @@ Promise.all([
   const MAX_ELEVATION = THREE.MathUtils.degToRad(84);
   const MODEL_ELEVATION = THREE.MathUtils.degToRad(30);
   const TOP_ELEVATION = THREE.MathUtils.degToRad(84);
-  const MODEL_RADIUS = 27.5;
-  const TOP_RADIUS = 24.5;
+  const MODEL_RADIUS = 31.5;
+  const TOP_RADIUS = 29;
+
+  const box = (size, at = [0, 0, 0]) => ({ kind: 'box', at, size });
+  const cylinder = (radius, height, at = [0, 0, 0]) => ({
+    kind: 'cylinder',
+    at,
+    radius,
+    height,
+    size: [radius * 2, height, radius * 2]
+  });
+  const profile = (kind, size, at = [0, 0, 0]) => ({ kind, at, size });
 
   const BLOCKS = [
-    { name: 'bar 01', halfHeight: .6, position: [-7, .64, -9], shapes: [{ at: [0, 0, 0], size: [6, 1.2, 1.2] }] },
-    { name: 'bar 02', halfHeight: .6, position: [0, .64, -9], shapes: [{ at: [0, 0, 0], size: [6, 1.2, 1.2] }] },
-    { name: 'bar 03', halfHeight: .6, position: [7, .64, -9], shapes: [{ at: [0, 0, 0], size: [6, 1.2, 1.2] }] },
-    { name: 'plate 01', halfHeight: .2, position: [-7, .24, 8.3], shapes: [{ at: [0, 0, 0], size: [6, .4, 3.2] }] },
-    { name: 'plate 02', halfHeight: .2, position: [0, .24, 8.3], shapes: [{ at: [0, 0, 0], size: [6, .4, 3.2] }] },
-    { name: 'plate 03', halfHeight: .2, position: [7, .24, 8.3], shapes: [{ at: [0, 0, 0], size: [6, .4, 3.2] }] },
-    { name: 'room 01', halfHeight: 1.2, position: [-9.2, 1.24, -4.1], shapes: [{ at: [0, 0, 0], size: [4, 2.4, 3.2] }] },
-    { name: 'room 02', halfHeight: 1.2, position: [-9.2, 1.24, 0], shapes: [{ at: [0, 0, 0], size: [4, 2.4, 3.2] }] },
-    { name: 'room 03', halfHeight: 1.2, position: [-9.2, 1.24, 4.1], shapes: [{ at: [0, 0, 0], size: [4, 2.4, 3.2] }] },
-    { name: 'room 04', halfHeight: 1.2, position: [9.2, 1.24, -4.1], shapes: [{ at: [0, 0, 0], size: [4, 2.4, 3.2] }] },
-    { name: 'room 05', halfHeight: 1.2, position: [9.2, 1.24, 0], shapes: [{ at: [0, 0, 0], size: [4, 2.4, 3.2] }] },
-    { name: 'room 06', halfHeight: 1.2, position: [9.2, 1.24, 4.1], shapes: [{ at: [0, 0, 0], size: [4, 2.4, 3.2] }] },
-    { name: 'core 01', halfHeight: 1.6, position: [-12.4, 1.64, 7.8], shapes: [{ at: [0, 0, 0], size: [1.6, 3.2, 1.6] }] },
-    { name: 'core 02', halfHeight: 1.6, position: [12.4, 1.64, 7.8], shapes: [{ at: [0, 0, 0], size: [1.6, 3.2, 1.6] }] },
+    { name: 'wall 01', halfHeight: 1.2, position: [-8, 1.24, -15], shapes: [box([4.8, 2.4, .3])] },
+    { name: 'wall 02', halfHeight: 1.2, position: [-2.7, 1.24, -15], shapes: [box([4.8, 2.4, .3])] },
+    { name: 'beam 01', halfHeight: .3, position: [2.7, .34, -15], shapes: [box([4.8, .6, .6])] },
+    { name: 'beam 02', halfHeight: .3, position: [8, .34, -15], shapes: [box([4.8, .6, .6])] },
+
+    { name: 'long mass 01', halfHeight: .6, position: [-8, .64, -10.5], shapes: [box([4.8, 1.2, 1.2])] },
+    { name: 'long mass 02', halfHeight: .6, position: [-2.7, .64, -10.5], shapes: [box([4.8, 1.2, 1.2])] },
+    { name: 'double unit 01', halfHeight: .6, position: [2.2, .64, -10.5], shapes: [box([2.4, 1.2, 1.2])] },
+    { name: 'double unit 02', halfHeight: .6, position: [5.4, .64, -10.5], shapes: [box([2.4, 1.2, 1.2])] },
+
+    { name: 'slab 01', halfHeight: .15, position: [-7.8, .19, 10.5], shapes: [box([4.8, .3, 3.6])] },
+    { name: 'slab 02', halfHeight: .15, position: [-2.4, .19, 10.5], shapes: [box([4.8, .3, 3.6])] },
+    { name: 'room mass 01', halfHeight: 1.2, position: [3, 1.24, 10.5], shapes: [box([3.6, 2.4, 2.4])] },
+    { name: 'room mass 02', halfHeight: 1.2, position: [7.3, 1.24, 10.5], shapes: [box([3.6, 2.4, 2.4])] },
+
     {
-      name: 'portal 01',
-      halfHeight: 1.6,
-      position: [0, 1.64, -12.2],
+      name: 'L mass',
+      halfHeight: .6,
+      position: [-8, .64, 15.2],
       shapes: [
-        { at: [-2.4, 0, 0], size: [.8, 3.2, 1.2] },
-        { at: [2.4, 0, 0], size: [.8, 3.2, 1.2] },
-        { at: [0, 1.2, 0], size: [5.6, .8, 1.2] }
+        box([3.6, 1.2, 1.2], [0, 0, -1.2]),
+        box([1.2, 1.2, 2.4], [-1.2, 0, .6])
       ]
     },
     {
-      name: 'corner 01',
-      halfHeight: .8,
-      position: [-7.1, .84, -13],
+      name: 'U mass',
+      halfHeight: .6,
+      position: [-2.6, .64, 15.2],
       shapes: [
-        { at: [0, 0, -1.2], size: [5.2, 1.6, 1.2] },
-        { at: [-2, 0, .8], size: [1.2, 1.6, 4] }
+        box([4.8, 1.2, 1.2], [0, 0, -1.2]),
+        box([1.2, 1.2, 2.4], [-1.8, 0, .6]),
+        box([1.2, 1.2, 2.4], [1.8, 0, .6])
       ]
     },
     {
-      name: 'corner 02',
-      halfHeight: .8,
-      position: [7.1, .84, -13],
-      rotation: Math.PI,
+      name: 'frame',
+      halfHeight: 1.8,
+      position: [3, 1.84, 15.2],
       shapes: [
-        { at: [0, 0, -1.2], size: [5.2, 1.6, 1.2] },
-        { at: [-2, 0, .8], size: [1.2, 1.6, 4] }
+        box([.6, 3, .6], [-1.8, -.3, 0]),
+        box([.6, 3, .6], [1.8, -.3, 0]),
+        box([4.2, .6, .6], [0, 1.5, 0])
       ]
-    }
+    },
+    {
+      name: 'stair',
+      halfHeight: .9,
+      position: [8, .94, 15.2],
+      shapes: [
+        box([1.2, .6, 2.4], [-1.2, -.6, 0]),
+        box([1.2, 1.2, 2.4], [0, -.3, 0]),
+        box([1.2, 1.8, 2.4], [1.2, 0, 0])
+      ]
+    },
+
+    { name: 'unit 01', halfHeight: .6, position: [-12.8, .64, -7], shapes: [box([1.2, 1.2, 1.2])] },
+    { name: 'unit 02', halfHeight: .6, position: [-12.8, .64, -4.6], shapes: [box([1.2, 1.2, 1.2])] },
+    { name: 'column 01', halfHeight: 1.8, position: [-12.8, 1.84, -1.5], shapes: [box([.6, 3.6, .6])] },
+    { name: 'column 02', halfHeight: 1.8, position: [-12.8, 1.84, 1.5], shapes: [box([.6, 3.6, .6])] },
+    { name: 'core 01', halfHeight: 1.8, position: [-12.8, 1.84, 5.5], shapes: [box([1.2, 3.6, 1.2])] },
+
+    { name: 'core 02', halfHeight: 1.8, position: [12.8, 1.84, -7.2], shapes: [box([1.2, 3.6, 1.2])] },
+    { name: 'round tower', halfHeight: 1.8, position: [12.8, 1.84, -3.6], shapes: [cylinder(1.2, 3.6)] },
+    { name: 'quarter curve', halfHeight: .6, position: [12.8, .64, 0], shapes: [profile('sector', [2.4, 1.2, 2.4])] },
+    { name: 'gable roof', halfHeight: .9, position: [12.8, .94, 3.6], shapes: [profile('gable', [3.6, 1.8, 2.4])] },
+    { name: 'mono pitch', halfHeight: .9, position: [12.8, .94, 7.2], shapes: [profile('ramp', [3.6, 1.8, 2.4])] }
   ];
 
   const scene = new THREE.Scene();
@@ -110,8 +144,8 @@ Promise.all([
   let orbitTargetElevation = orbitElevation;
   let orbitRadius = MODEL_RADIUS;
   let orbitTargetRadius = orbitRadius;
-  let orbitMinRadius = 17;
-  let orbitMaxRadius = 36;
+  let orbitMinRadius = 19;
+  let orbitMaxRadius = 42;
   let cameraConfigured = false;
   let topView = false;
   let orbitGesture = null;
@@ -131,6 +165,7 @@ Promise.all([
 
   const faceMaterial = new THREE.MeshBasicMaterial({
     color: 0xf3f1ea,
+    side: THREE.DoubleSide,
     polygonOffset: true,
     polygonOffsetFactor: 1,
     polygonOffsetUnits: 1
@@ -144,12 +179,12 @@ Promise.all([
   const padMaterial = new THREE.MeshBasicMaterial({ color: 0xf7f5ef, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   const padEdgeMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .18 });
 
-  const floorGeometry = new THREE.BoxGeometry(36, .08, 34);
+  const floorGeometry = new THREE.BoxGeometry(44, .08, 40);
   const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
   floorMesh.position.set(0, -.08, -1.5);
   scene.add(floorMesh);
 
-  const padGeometry = new THREE.BoxGeometry(12, .035, 12);
+  const padGeometry = new THREE.BoxGeometry(14.4, .035, 14.4);
   const padMesh = new THREE.Mesh(padGeometry, padMaterial);
   padMesh.position.set(0, -.01, 0);
   scene.add(padMesh);
@@ -157,7 +192,7 @@ Promise.all([
   padEdges.position.copy(padMesh.position);
   scene.add(padEdges);
 
-  const grid = new THREE.GridHelper(12, 30, 0x24231f, 0x24231f);
+  const grid = new THREE.GridHelper(14.4, 24, 0x24231f, 0x24231f);
   grid.position.set(0, .014, 0);
   grid.material.transparent = true;
   grid.material.opacity = .075;
@@ -185,11 +220,11 @@ Promise.all([
   function configureCamera() {
     const phone = innerWidth < 641;
     const tablet = innerWidth < 980;
-    orbitMinRadius = phone ? 18.5 : tablet ? 18 : 17;
-    orbitMaxRadius = phone ? 34 : tablet ? 35 : 36;
+    orbitMinRadius = phone ? 21 : tablet ? 20 : 19;
+    orbitMaxRadius = phone ? 40 : tablet ? 41 : 42;
 
     if (!cameraConfigured) {
-      orbitRadius = phone ? 25 : tablet ? 26 : MODEL_RADIUS;
+      orbitRadius = phone ? 29 : tablet ? 30 : MODEL_RADIUS;
       orbitTargetRadius = orbitRadius;
       cameraConfigured = true;
     } else {
@@ -445,6 +480,123 @@ Promise.all([
     meshes.length = 0;
   }
 
+  function createProfileData(shape) {
+    const [width, height, depth] = shape.size;
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const halfDepth = depth / 2;
+
+    if (shape.kind === 'gable') {
+      return {
+        vertices: [
+          -halfWidth, -halfHeight, -halfDepth,
+          halfWidth, -halfHeight, -halfDepth,
+          -halfWidth, -halfHeight, halfDepth,
+          halfWidth, -halfHeight, halfDepth,
+          -halfWidth, halfHeight, 0,
+          halfWidth, halfHeight, 0
+        ],
+        indices: [
+          0, 2, 3, 0, 3, 1,
+          0, 1, 5, 0, 5, 4,
+          2, 4, 5, 2, 5, 3,
+          0, 4, 2,
+          1, 3, 5
+        ]
+      };
+    }
+
+    if (shape.kind === 'ramp') {
+      return {
+        vertices: [
+          -halfWidth, -halfHeight, -halfDepth,
+          halfWidth, -halfHeight, -halfDepth,
+          -halfWidth, -halfHeight, halfDepth,
+          halfWidth, -halfHeight, halfDepth,
+          -halfWidth, halfHeight, -halfDepth,
+          -halfWidth, halfHeight, halfDepth
+        ],
+        indices: [
+          0, 2, 3, 0, 3, 1,
+          0, 1, 4,
+          2, 5, 3,
+          0, 4, 5, 0, 5, 2,
+          1, 3, 5, 1, 5, 4
+        ]
+      };
+    }
+
+    const segments = 10;
+    const radius = Math.min(width, depth);
+    const centreX = -width / 2;
+    const centreZ = -depth / 2;
+    const plan = [[centreX, centreZ]];
+    for (let index = 0; index <= segments; index += 1) {
+      const angle = index / segments * Math.PI / 2;
+      plan.push([
+        centreX + Math.cos(angle) * radius,
+        centreZ + Math.sin(angle) * radius
+      ]);
+    }
+
+    const vertices = [];
+    for (const y of [-halfHeight, halfHeight]) {
+      for (const [x, z] of plan) vertices.push(x, y, z);
+    }
+    const layer = plan.length;
+    const indices = [];
+    for (let index = 1; index < layer - 1; index += 1) {
+      indices.push(0, index + 1, index);
+      indices.push(layer, layer + index, layer + index + 1);
+    }
+    for (let index = 1; index < layer - 1; index += 1) {
+      indices.push(index, index + 1, layer + index + 1, index, layer + index + 1, layer + index);
+    }
+    indices.push(0, 1, layer + 1, 0, layer + 1, layer);
+    indices.push(layer - 1, 0, layer, layer - 1, layer, layer * 2 - 1);
+    return { vertices, indices };
+  }
+
+  function createShapeGeometry(shape) {
+    if (shape.kind === 'cylinder') {
+      return new THREE.CylinderGeometry(shape.radius, shape.radius, shape.height, 32);
+    }
+    if (shape.kind === 'gable' || shape.kind === 'ramp' || shape.kind === 'sector') {
+      const data = createProfileData(shape);
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.vertices, 3));
+      geometry.setIndex(data.indices);
+      geometry.computeVertexNormals();
+      geometry.userData.hull = new Float32Array(data.vertices);
+      return geometry;
+    }
+    return new THREE.BoxGeometry(...shape.size);
+  }
+
+  function createShapeCollider(shape, geometry) {
+    let collider;
+    if (shape.kind === 'cylinder') {
+      collider = RAPIER.ColliderDesc.cylinder(shape.height / 2, shape.radius);
+    } else if (shape.kind === 'gable' || shape.kind === 'ramp' || shape.kind === 'sector') {
+      collider = RAPIER.ColliderDesc.convexHull(geometry.userData.hull);
+      if (!collider) throw new Error(`Unable to build ${shape.kind} collider.`);
+    } else {
+      const [width, height, depth] = shape.size;
+      collider = RAPIER.ColliderDesc.roundCuboid(
+        width / 2 - EDGE_RADIUS,
+        height / 2 - EDGE_RADIUS,
+        depth / 2 - EDGE_RADIUS,
+        EDGE_RADIUS
+      );
+    }
+
+    return collider
+      .setTranslation(...shape.at)
+      .setDensity(1.1)
+      .setFriction(.82)
+      .setRestitution(0);
+  }
+
   function rebuild() {
     releaseSelected(false);
     disposePieces();
@@ -453,12 +605,12 @@ Promise.all([
     last = performance.now();
     topView = false;
     orbitTargetElevation = MODEL_ELEVATION;
-    orbitTargetRadius = innerWidth < 641 ? 25 : innerWidth < 980 ? 26 : MODEL_RADIUS;
+    orbitTargetRadius = innerWidth < 641 ? 29 : innerWidth < 980 ? 30 : MODEL_RADIUS;
     if (viewButton) viewButton.textContent = 'top';
 
     world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
     const ground = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -.12, -1.5));
-    world.createCollider(RAPIER.ColliderDesc.cuboid(18, .08, 17).setFriction(.86), ground);
+    world.createCollider(RAPIER.ColliderDesc.cuboid(22, .08, 20).setFriction(.86), ground);
 
     for (const definition of BLOCKS) {
       const yaw = definition.rotation || 0;
@@ -480,26 +632,16 @@ Promise.all([
       const pieceIndex = pieces.length;
 
       for (const shape of definition.shapes) {
-        const [width, height, depth] = shape.size;
         const [x, y, z] = shape.at;
-        const collider = RAPIER.ColliderDesc.roundCuboid(
-          width / 2 - EDGE_RADIUS,
-          height / 2 - EDGE_RADIUS,
-          depth / 2 - EDGE_RADIUS,
-          EDGE_RADIUS
-        )
-          .setTranslation(x, y, z)
-          .setDensity(1.1)
-          .setFriction(.82)
-          .setRestitution(0);
+        const geometry = createShapeGeometry(shape);
+        const collider = createShapeCollider(shape, geometry);
         world.createCollider(collider, body);
 
-        const geometry = new THREE.BoxGeometry(width, height, depth);
         const outlineGeometry = new THREE.EdgesGeometry(geometry, 18);
         geometries.push(geometry, outlineGeometry);
         shapes.push({
           at: [x, y, z],
-          size: [width, height, depth],
+          size: [...shape.size],
           outlineGeometry
         });
 
@@ -635,8 +777,8 @@ Promise.all([
       setRay(event.clientX, event.clientY);
       if (raycaster.ray.intersectPlane(carryPlane, carryPoint)) {
         const desired = active.carryOrigin.clone().add(carryPoint.clone().sub(active.carryGrabPoint));
-        desired.x = THREE.MathUtils.clamp(snapNear(desired.x), -15.5, 15.5);
-        desired.z = THREE.MathUtils.clamp(snapNear(desired.z), -16, 15);
+        desired.x = THREE.MathUtils.clamp(snapNear(desired.x), -19, 19);
+        desired.z = THREE.MathUtils.clamp(snapNear(desired.z), -18, 17);
         desired.y = Math.max(active.piece.halfHeight + .04, desired.y);
         const level = active.piece.halfHeight + Math.round((desired.y - active.piece.halfHeight) / GRID) * GRID;
         if (Math.abs(desired.y - level) < .08) desired.y = level + .04;
@@ -717,8 +859,8 @@ Promise.all([
 
   function moveSelected(x, z) {
     if (!selected) return;
-    selected.controlPosition.x = THREE.MathUtils.clamp(selected.controlPosition.x + x * GRID, -15.5, 15.5);
-    selected.controlPosition.z = THREE.MathUtils.clamp(selected.controlPosition.z + z * GRID, -16, 15);
+    selected.controlPosition.x = THREE.MathUtils.clamp(selected.controlPosition.x + x * GRID, -19, 19);
+    selected.controlPosition.z = THREE.MathUtils.clamp(selected.controlPosition.z + z * GRID, -18, 17);
   }
 
   function toggleView() {

@@ -41,6 +41,38 @@ test('MASSING previews aligned stacking and places automatically on release', as
   assert.match(script, /selected\.body\.setTranslation\(selected\.targetPosition, true\)/);
 });
 
+test('MASSING uses a coherent architectural kit of parts', async () => {
+  const [script, shim] = await Promise.all([
+    read('play/massing/massing.js'),
+    read('play/massing/three-shim.js')
+  ]);
+
+  assert.match(script, /const MODULE = 1\.2/);
+  for (const family of [
+    'unit 01',
+    'double unit 01',
+    'long mass 01',
+    'room mass 01',
+    'slab 01',
+    'wall 01',
+    'beam 01',
+    'column 01',
+    'core 01',
+    'L mass',
+    'U mass',
+    'frame',
+    'stair',
+    'round tower',
+    'quarter curve',
+    'gable roof',
+    'mono pitch'
+  ]) assert.match(script, new RegExp(`name: '${family}'`));
+  assert.match(script, /ColliderDesc\.cylinder/);
+  assert.match(script, /ColliderDesc\.convexHull/);
+  assert.match(shim, /export const CylinderGeometry/);
+  assert.match(shim, /export const BufferGeometry/);
+});
+
 test('MASSING matches the current SuDu chrome and limits collision energy', async () => {
   const [script, style] = await Promise.all([
     read('play/massing/massing.js'),
