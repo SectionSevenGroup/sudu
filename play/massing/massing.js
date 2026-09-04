@@ -1,11 +1,10 @@
-const stage = document.querySelector('#stack-stage');
-const loading = stage?.querySelector('.stack-loading');
-const instruction = document.querySelector('.stack-instruction');
+const stage = document.querySelector('#massing-stage');
+const loading = stage?.querySelector('.massing-loading');
+const instruction = document.querySelector('.massing-instruction');
 const selectionLabel = document.querySelector('#massing-selection');
 const turnButton = document.querySelector('#massing-turn');
 const upButton = document.querySelector('#massing-up');
 const downButton = document.querySelector('#massing-down');
-const placeButton = document.querySelector('#massing-place');
 const viewButton = document.querySelector('#massing-view');
 const again = document.querySelector('#again');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -13,7 +12,7 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (!stage || !loading) throw new Error('MASSING stage is unavailable.');
 
 Promise.all([
-  import('/stack/vendor/three-shim.js'),
+  import('/play/massing/three-shim.js'),
   import('/stack/vendor/rapier-shim.js')
 ]).then(async ([THREE, RAPIER]) => {
   await RAPIER.init();
@@ -22,6 +21,8 @@ Promise.all([
   const PHYSICS_STEP = 1 / 120;
   const GRID = .4;
   const EDGE_RADIUS = .025;
+  const SNAP_GAP = .014;
+  const DRAG_THRESHOLD = 5;
   const MAX_CARRY_SPEED = 8.5;
   const MIN_ELEVATION = THREE.MathUtils.degToRad(4);
   const MAX_ELEVATION = THREE.MathUtils.degToRad(84);
@@ -113,6 +114,7 @@ Promise.all([
   let pieces = [];
   let active = null;
   let selected = null;
+  let snapCandidate = null;
   let hovered = null;
   let last = performance.now();
   let accumulator = 0;
@@ -128,6 +130,7 @@ Promise.all([
   const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .72 });
   const hoverMaterial = new THREE.LineBasicMaterial({ color: 0x171613, transparent: true, opacity: 1 });
   const selectedMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: 1 });
+  const snapMaterial = new THREE.LineBasicMaterial({ color: 0xef5b2a, transparent: true, opacity: .72, depthTest: false });
   const ghostMaterial = new THREE.LineBasicMaterial({ color: 0x24231f, transparent: true, opacity: .12 });
   const floorMaterial = new THREE.MeshBasicMaterial({ color: 0xf1efe8 });
   const padMaterial = new THREE.MeshBasicMaterial({ color: 0xf7f5ef, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
@@ -151,6 +154,11 @@ Promise.all([
   grid.material.transparent = true;
   grid.material.opacity = .075;
   scene.add(grid);
+
+  const snapGuide = new THREE.Group();
+  snapGuide.visible = false;
+  snapGuide.renderOrder = 8;
+  scene.add(snapGuide);
 
   function setInstruction(text) {
     if (instruction) instruction.textContent = text;
@@ -207,7 +215,7 @@ Promise.all([
   function updateSelectionUI() {
     const enabled = !!selected;
     if (selectionLabel) selectionLabel.textContent = selected?.name || '';
-    for (const button of [turnButton, upButton, downButton, placeButton]) {
+    for (const button of [turnButton, upButton, downButton]) {
       if (button) button.disabled = !enabled;
     }
   }
@@ -222,11 +230,168 @@ Promise.all([
     const quaternion = new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
     const longAxis = new THREE.Vector3(1, 0, 0).applyQuaternion(quaternion);
     const yaw = Math.atan2(-longAxis.z, longAxis.x);
-    return new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+    const quarterTurn = Math.PI / 2;
+    const snappedYaw = Math.round(yaw / quarterTurn) * quarterTurn;
+    return new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), snappedYaw);
   }
 
-  function releaseSelected() {
+  function clearSnapGuide() {
+    snapCandidate = null;
+    snapGuide.visible = false;
+    while (snapGuide.children.length) snapGuide.remove(snapGuide.children[0]);
+  }
+
+  function prepareSnapGuide(piece) {
+    clearSnapGuide();
+    for (const shape of piece.shapes) {
+      const outline = new THREE.LineSegments(shape.outlineGeometry, snapMaterial);
+      outline.position.set(...shape.at);
+      snapGuide.add(outline);
+    }
+  }
+
+  function getWorldBounds(shapes, position, rotation) {
+    const bounds = {
+      minX: Infinity,
+      maxX: -Infinity,
+      minY: Infinity,
+      maxY: -Infinity,
+      minZ: Infinity,
+      maxZ: -Infinity
+    };
+    const corner = new THREE.Vector3();
+
+    for (const shape of shapes) {
+      const [width, height, depth] = shape.size;
+      const [offsetX, offsetY, offsetZ] = shape.at;
+      for (const sideX of [-1, 1]) {
+        for (const sideY of [-1, 1]) {
+          for (const sideZ of [-1, 1]) {
+            corner.set(
+              offsetX + sideX * width / 2,
+              offsetY + sideY * height / 2,
+              offsetZ + sideZ * depth / 2
+            ).applyQuaternion(rotation).add(position);
+            bounds.minX = Math.min(bounds.minX, corner.x);
+            bounds.maxX = Math.max(bounds.maxX, corner.x);
+            bounds.minY = Math.min(bounds.minY, corner.y);
+            bounds.maxY = Math.max(bounds.maxY, corner.y);
+            bounds.minZ = Math.min(bounds.minZ, corner.z);
+            bounds.maxZ = Math.max(bounds.maxZ, corner.z);
+          }
+        }
+      }
+    }
+
+    bounds.centreX = (bounds.minX + bounds.maxX) / 2;
+    bounds.centreZ = (bounds.minZ + bounds.maxZ) / 2;
+    bounds.width = bounds.maxX - bounds.minX;
+    bounds.depth = bounds.maxZ - bounds.minZ;
+    return bounds;
+  }
+
+  function bodyRotation(piece) {
+    const rotation = piece.body.rotation();
+    return new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+  }
+
+  function overlap(minA, maxA, minB, maxB) {
+    return Math.max(0, Math.min(maxA, maxB) - Math.max(minA, minB));
+  }
+
+  function findSnapCandidate(piece, position = piece.targetPosition) {
+    const movingBounds = getWorldBounds(piece.shapes, position, piece.targetRotation);
+    let best = null;
+
+    for (const target of pieces) {
+      if (target === piece) continue;
+      const targetPosition = bodyPosition(target);
+      const targetRotation = bodyRotation(target);
+      const targetUp = new THREE.Vector3(0, 1, 0).applyQuaternion(targetRotation);
+      if (targetUp.y < .965) continue;
+
+      const targetBounds = getWorldBounds(target.shapes, targetPosition, targetRotation);
+      const shiftsX = [
+        targetBounds.minX - movingBounds.minX,
+        targetBounds.centreX - movingBounds.centreX,
+        targetBounds.maxX - movingBounds.maxX
+      ];
+      const shiftsZ = [
+        targetBounds.minZ - movingBounds.minZ,
+        targetBounds.centreZ - movingBounds.centreZ,
+        targetBounds.maxZ - movingBounds.maxZ
+      ];
+      const captureX = THREE.MathUtils.clamp(Math.min(movingBounds.width, targetBounds.width) * .38, .55, 1.35);
+      const captureZ = THREE.MathUtils.clamp(Math.min(movingBounds.depth, targetBounds.depth) * .38, .55, 1.35);
+      const requiredOverlapX = Math.min(.32, Math.min(movingBounds.width, targetBounds.width) * .3);
+      const requiredOverlapZ = Math.min(.32, Math.min(movingBounds.depth, targetBounds.depth) * .3);
+
+      for (const shiftX of shiftsX) {
+        if (Math.abs(shiftX) > captureX) continue;
+        for (const shiftZ of shiftsZ) {
+          if (Math.abs(shiftZ) > captureZ) continue;
+          const overlapX = overlap(
+            movingBounds.minX + shiftX,
+            movingBounds.maxX + shiftX,
+            targetBounds.minX,
+            targetBounds.maxX
+          );
+          const overlapZ = overlap(
+            movingBounds.minZ + shiftZ,
+            movingBounds.maxZ + shiftZ,
+            targetBounds.minZ,
+            targetBounds.maxZ
+          );
+          if (overlapX < requiredOverlapX || overlapZ < requiredOverlapZ) continue;
+
+          const snappedPosition = position.clone();
+          snappedPosition.x += shiftX;
+          snappedPosition.y += targetBounds.maxY - movingBounds.minY + SNAP_GAP;
+          snappedPosition.z += shiftZ;
+          const score = Math.hypot(shiftX / captureX, shiftZ / captureZ)
+            + Math.abs(snappedPosition.y - position.y) * .018;
+
+          if (!best || score < best.score) {
+            best = {
+              position: snappedPosition,
+              rotation: piece.targetRotation.clone(),
+              target,
+              score
+            };
+          }
+        }
+      }
+    }
+
+    return best;
+  }
+
+  function updateSnapCandidate(position = selected?.targetPosition) {
+    if (!selected || !position) {
+      snapCandidate = null;
+      snapGuide.visible = false;
+      return;
+    }
+
+    snapCandidate = findSnapCandidate(selected, position);
+    snapGuide.visible = !!snapCandidate;
+    if (snapCandidate) {
+      snapGuide.position.copy(snapCandidate.position);
+      snapGuide.quaternion.copy(snapCandidate.rotation);
+      setInstruction('release to align');
+    } else if (active) {
+      setInstruction('drag near a block to align');
+    }
+  }
+
+  function releaseSelected(applySnap = true) {
     if (!selected) return;
+    if (applySnap && snapCandidate) {
+      selected.targetPosition.copy(snapCandidate.position);
+      selected.targetRotation.copy(snapCandidate.rotation);
+    }
+    selected.body.setTranslation(selected.targetPosition, true);
+    selected.body.setRotation(selected.targetRotation, true);
     selected.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
     selected.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     selected.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
@@ -234,8 +399,9 @@ Promise.all([
     setPieceEdges(selected, selected === hovered ? hoverMaterial : edgeMaterial);
     selected = null;
     active = null;
+    clearSnapGuide();
     stage.classList.remove('is-dragging');
-    setInstruction('drag a block · empty space orbits');
+    setInstruction('drag a block · release on the outline');
     updateSelectionUI();
   }
 
@@ -253,11 +419,14 @@ Promise.all([
     piece.body.setNextKinematicTranslation(piece.targetPosition);
     piece.body.setNextKinematicRotation(piece.targetRotation);
     setPieceEdges(piece, selectedMaterial);
-    setInstruction('move · turn · lift · place');
+    prepareSnapGuide(piece);
+    updateSnapCandidate();
+    if (!snapCandidate) setInstruction('turn · lift · drag near a block');
     updateSelectionUI();
   }
 
   function disposePieces() {
+    clearSnapGuide();
     for (const piece of pieces) {
       scene.remove(piece.group);
       for (const geometry of piece.geometries) geometry.dispose();
@@ -267,7 +436,7 @@ Promise.all([
   }
 
   function rebuild() {
-    releaseSelected();
+    releaseSelected(false);
     disposePieces();
     setHover(null);
     accumulator = 0;
@@ -297,6 +466,7 @@ Promise.all([
       group.quaternion.copy(rotation);
       const edges = [];
       const geometries = [];
+      const shapes = [];
       const pieceIndex = pieces.length;
 
       for (const shape of definition.shapes) {
@@ -317,6 +487,11 @@ Promise.all([
         const geometry = new THREE.BoxGeometry(width, height, depth);
         const outlineGeometry = new THREE.EdgesGeometry(geometry, 18);
         geometries.push(geometry, outlineGeometry);
+        shapes.push({
+          at: [x, y, z],
+          size: [width, height, depth],
+          outlineGeometry
+        });
 
         const face = new THREE.Mesh(geometry, faceMaterial);
         face.position.set(x, y, z);
@@ -342,6 +517,7 @@ Promise.all([
         body,
         group,
         edges,
+        shapes,
         geometries,
         targetPosition: new THREE.Vector3(...definition.position),
         targetRotation: rotation.clone()
@@ -349,7 +525,7 @@ Promise.all([
     }
 
     updateSelectionUI();
-    setInstruction('drag a block · empty space orbits');
+    setInstruction('drag a block · release on the outline');
   }
 
   function setRay(clientX, clientY) {
@@ -387,6 +563,9 @@ Promise.all([
     active = {
       pointerId: event.pointerId,
       piece,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
       carryOrigin: origin,
       carryGrabPoint: grabPoint,
       carryDesired: origin.clone(),
@@ -397,11 +576,20 @@ Promise.all([
 
   function finishPointer(event, cancelled = false) {
     if (active && event.pointerId === active.pointerId) {
-      if (cancelled) active.piece.targetPosition.copy(active.carryPosition);
+      const carried = active;
+      if (!cancelled && carried.moved) {
+        carried.carryPosition.copy(carried.carryDesired);
+        carried.piece.targetPosition.copy(carried.carryDesired);
+        carried.piece.body.setNextKinematicTranslation(carried.piece.targetPosition);
+        updateSnapCandidate(carried.piece.targetPosition);
+      }
       active = null;
       stage.classList.remove('is-dragging');
       releaseCapture(event.pointerId);
       stage.focus({ preventScroll: true });
+      if (cancelled || carried.moved) releaseSelected(!cancelled);
+      else if (snapCandidate) setInstruction('drag to place · release on the outline');
+      else setInstruction('turn · lift · drag near a block');
       return;
     }
 
@@ -430,6 +618,9 @@ Promise.all([
   renderer.domElement.addEventListener('pointermove', event => {
     if (active && event.pointerId === active.pointerId) {
       event.preventDefault();
+      if (Math.hypot(event.clientX - active.startX, event.clientY - active.startY) >= DRAG_THRESHOLD) {
+        active.moved = true;
+      }
       setRay(event.clientX, event.clientY);
       if (raycaster.ray.intersectPlane(carryPlane, carryPoint)) {
         const desired = active.carryOrigin.clone().add(carryPoint.clone().sub(active.carryGrabPoint));
@@ -504,6 +695,7 @@ Promise.all([
     turn.multiply(selected.targetRotation).normalize();
     selected.targetRotation.copy(turn);
     selected.body.setNextKinematicRotation(selected.targetRotation);
+    updateSnapCandidate();
   }
 
   function liftSelected(direction) {
@@ -513,6 +705,7 @@ Promise.all([
       selected.targetPosition.y + direction * GRID
     );
     selected.body.setNextKinematicTranslation(selected.targetPosition);
+    updateSnapCandidate();
   }
 
   function moveSelected(x, z) {
@@ -520,6 +713,7 @@ Promise.all([
     selected.targetPosition.x = THREE.MathUtils.clamp(selected.targetPosition.x + x * GRID, -15.5, 15.5);
     selected.targetPosition.z = THREE.MathUtils.clamp(selected.targetPosition.z + z * GRID, -16, 15);
     selected.body.setNextKinematicTranslation(selected.targetPosition);
+    updateSnapCandidate();
   }
 
   function toggleView() {
@@ -534,7 +728,6 @@ Promise.all([
   turnButton?.addEventListener('click', rotateSelected);
   upButton?.addEventListener('click', () => liftSelected(1));
   downButton?.addEventListener('click', () => liftSelected(-1));
-  placeButton?.addEventListener('click', releaseSelected);
   viewButton?.addEventListener('click', toggleView);
   again?.addEventListener('click', rebuild);
 
@@ -563,6 +756,7 @@ Promise.all([
     active.piece.targetPosition.copy(active.carryPosition);
     active.piece.body.setNextKinematicTranslation(active.piece.targetPosition);
     active.piece.body.setNextKinematicRotation(active.piece.targetRotation);
+    updateSnapCandidate(active.piece.targetPosition);
   }
 
   function updateOrbit(delta) {

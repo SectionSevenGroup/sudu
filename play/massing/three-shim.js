@@ -1,4 +1,4 @@
-import { THREE } from './stack-deps.js';
+import { THREE } from '/stack/vendor/stack-deps.js';
 
 export const Scene = THREE.Scene;
 export const Color = THREE.Color;
@@ -18,3 +18,4 @@ export const LineBasicMaterial = THREE.LineBasicMaterial;
 export const LineSegments = THREE.LineSegments;
 export const Group = THREE.Group;
 export const Mesh = THREE.Mesh;
+export const GridHelper = THREE.GridHelper;
