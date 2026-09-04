@@ -13,6 +13,7 @@
   let pinching = false;
   let lastPinchDistance = 0;
   let cameraPrimed = false;
+  let cancellingStackPointer = false;
 
   function canvas() {
     return stage.querySelector('canvas');
@@ -27,6 +28,7 @@
   function cancelStackPointer(pointerId, point) {
     const target = canvas();
     if (!target || typeof PointerEvent !== 'function') return;
+    cancellingStackPointer = true;
     target.dispatchEvent(new PointerEvent('pointercancel', {
       bubbles: true,
       cancelable: true,
@@ -36,6 +38,7 @@
       clientX: point.x,
       clientY: point.y
     }));
+    cancellingStackPointer = false;
   }
 
   function zoomByPixels(delta) {
@@ -110,7 +113,7 @@
   }, { capture: true, passive: false });
 
   function finishTouch(event) {
-    if (event.pointerType !== 'touch') return;
+    if (event.pointerType !== 'touch' || cancellingStackPointer) return;
     const wasPinching = pinching;
     touches.delete(event.pointerId);
     if (touches.size < 2) {
