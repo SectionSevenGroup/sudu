@@ -82,10 +82,9 @@ function makeDoubleChevron(direction, perpendicular, origin, scale, material) {
   const perp = perpendicular.clone().normalize();
   const headDepth = scale * .34;
   const halfHeight = scale * .28;
-  const thickness = scale * .115;
+  const thickness = scale * .125;
   const spacing = scale * .31;
 
-  // Two solid chevrons, matching the site's heavy directional language.
   for (let i = 0; i < 2; i++) {
     const tip = origin.clone().addScaledVector(dir, i * spacing);
     const centreBack = tip.clone().addScaledVector(dir, -headDepth);
@@ -194,7 +193,7 @@ function updateCue(now, startTime) {
   const travel = reducedMotion ? 0 : Math.sin(phase * Math.PI * 2) * .055;
 
   activeCue.faceMaterial.opacity = .16 + pulse * .50;
-  activeCue.arrowMaterial.opacity = .40 + pulse * .60;
+  activeCue.arrowMaterial.opacity = .44 + pulse * .56;
   activeCue.arrowGroup.position.copy(activeCue.arrowBase).addScaledVector(activeCue.direction, travel);
 }
 
@@ -209,11 +208,8 @@ function stopTutorial() {
 
 function playStep(step) {
   const targets = [
-    // Actual exposed end face around mid-height.
     { type: 'end', block: blockAt(13, 2) },
-    // Actual visible long side face on the front half of the tower.
     { type: 'side', block: blockAt(12, 2) },
-    // Actual top face on the upper course.
     { type: 'top', block: blockAt(23, 1) }
   ];
   const target = targets[step];
