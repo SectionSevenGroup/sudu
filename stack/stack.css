@@ -198,6 +198,7 @@ input {
   width: 180px;
   transform: translateY(-50%);
   z-index: 130;
+  pointer-events: none;
   user-select: text;
   -webkit-user-select: text;
 }
@@ -208,6 +209,7 @@ input {
   align-items: end;
   gap: 10px;
   width: 100%;
+  pointer-events: auto;
   transition: opacity 180ms ease;
 }
 
@@ -393,36 +395,188 @@ body.stack-game-over .stack-instruction {
   }
 }
 
+/* Mobile is a different interface architecture, not a compressed desktop.
+   Portrait reserves the bottom edge for thumb controls and turns the player
+   ledger into a horizontal rail. The tower remains visually dominant. */
 @media (max-width: 760px) {
+  :root {
+    --stack-mobile-left: max(20px, env(safe-area-inset-left));
+    --stack-mobile-right: max(20px, env(safe-area-inset-right));
+    --stack-mobile-bottom: env(safe-area-inset-bottom);
+  }
+
   .stack-header {
-    padding-left: var(--stack-inset);
-    padding-right: var(--stack-inset);
+    padding-top: max(24px, calc(env(safe-area-inset-top) + 12px));
+    padding-right: var(--stack-mobile-right);
+    padding-bottom: 18px;
+    padding-left: var(--stack-mobile-left);
   }
 
-  .stack-instruction {
-    bottom: 20px;
-  }
-
-  .stack-note {
-    bottom: 19px;
+  .stack-mark img {
+    height: 38px;
   }
 
   .stack-players {
-    top: 118px;
-    width: 150px;
+    top: auto;
+    right: var(--stack-mobile-right);
+    bottom: calc(70px + var(--stack-mobile-bottom));
+    left: var(--stack-mobile-left);
+    width: auto;
     transform: none;
+    display: grid;
+    grid-template-columns: minmax(118px, 154px) minmax(0, 1fr);
+    grid-template-areas:
+      'form players'
+      '. result';
+    column-gap: 14px;
+    row-gap: 8px;
+    align-items: end;
+  }
+
+  .stack-player-form {
+    grid-area: form;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 0;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  /* 16px prevents iOS from auto-zooming the viewport while entering a name.
+     All persistent STACK typography remains on the SuDu 11/12/13px scale. */
+  .stack-player-input {
+    height: 44px;
+    padding: 14px 0 8px;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .stack-player-add {
+    width: 44px;
+    height: 44px;
+    font-size: 21px;
+    line-height: 44px;
   }
 
   .stack-player-list {
-    gap: 7px;
-    margin-top: 12px;
+    grid-area: players;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px 14px;
+    margin: 0;
+  }
+
+  .stack-player {
+    min-height: 16px;
+    padding-left: 14px;
+    font-size: var(--stack-support);
   }
 
   .stack-result {
-    margin-top: 14px;
+    grid-area: result;
+    justify-self: end;
+    margin: 0;
+    padding-left: 0;
   }
 
   .stack-result-name {
-    max-width: 105px;
+    max-width: 150px;
+  }
+
+  .stack-instruction {
+    left: var(--stack-mobile-left);
+    bottom: calc(18px + var(--stack-mobile-bottom));
+    margin: 0;
+    font-size: var(--stack-support);
+  }
+
+  .stack-note {
+    right: var(--stack-mobile-right);
+    bottom: calc(6px + var(--stack-mobile-bottom));
+    min-height: 44px;
+    gap: 2px;
+  }
+
+  #move-count {
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  .stack-help {
+    width: 44px;
+    height: 44px;
+    padding: 12px;
+  }
+
+  #again {
+    min-width: 54px;
+    min-height: 44px;
+    padding: 0 0 0 10px;
+    border-bottom: 0;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  body.stack-name-entry .stack-instruction,
+  body.stack-name-entry .stack-note {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  body.stack-name-entry .stack-players {
+    bottom: calc(18px + var(--stack-mobile-bottom));
+  }
+}
+
+/* Short landscape phones use the side-ledger architecture again. This leaves
+   the narrow vertical dimension almost entirely to the tower. */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 560px) {
+  :root {
+    --stack-mobile-left: max(20px, env(safe-area-inset-left));
+    --stack-mobile-right: max(20px, env(safe-area-inset-right));
+    --stack-mobile-bottom: env(safe-area-inset-bottom);
+  }
+
+  .stack-header {
+    padding-top: max(18px, calc(env(safe-area-inset-top) + 8px));
+    padding-right: var(--stack-mobile-right);
+    padding-bottom: 14px;
+    padding-left: var(--stack-mobile-left);
+  }
+
+  .stack-players {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: var(--stack-mobile-left);
+    width: 160px;
+    transform: translateY(-50%);
+    display: block;
+  }
+
+  .stack-player-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+
+  .stack-player-list {
+    display: grid;
+    justify-content: stretch;
+    gap: 7px;
+    margin-top: 10px;
+  }
+
+  .stack-result {
+    margin-top: 12px;
+  }
+
+  .stack-instruction {
+    bottom: calc(14px + var(--stack-mobile-bottom));
+  }
+
+  .stack-note {
+    bottom: calc(2px + var(--stack-mobile-bottom));
   }
 }
