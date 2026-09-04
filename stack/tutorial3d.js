@@ -4,7 +4,7 @@ const shield = document.querySelector('#stack-cue-shield');
 const help = document.querySelector('#stack-help');
 const again = document.querySelector('#again');
 const stage = document.querySelector('#stack-stage');
-const moveLabel = document.querySelector('#move-count');
+const moveCount = document.querySelector('#move-count');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (!shield || !stage) {
@@ -14,9 +14,9 @@ if (!shield || !stage) {
 const ACCENT = 0xef5b2a;
 const PHASE_MS = reducedMotion ? 1100 : 1750;
 const INITIAL_DELAY_MS = reducedMotion ? 250 : 550;
+const COLLAPSE_HOLD_MS = reducedMotion ? 650 : 850;
 const registry = {
   blocks: [],
-  starts: [],
   camera: null
 };
 
@@ -32,14 +32,7 @@ if (!window.__stackLiveCuePatched) {
   THREE.Scene.prototype.add = function (...objects) {
     for (const object of objects) {
       const blockIndex = object?.children?.[0]?.userData?.blockIndex;
-      if (Number.isInteger(blockIndex)) {
-        registry.blocks[blockIndex] = object;
-        registry.starts[blockIndex] = {
-          x: object.position.x,
-          y: object.position.y,
-          z: object.position.z
-        };
-      }
+      if (Number.isInteger(blockIndex)) registry.blocks[blockIndex] = object;
     }
     return originalSceneAdd.apply(this, objects);
   };
@@ -55,8 +48,6 @@ let activeCue = null;
 let frameId = 0;
 let initialPlayed = false;
 let initialTimer = 0;
-let interactionSeen = false;
-let collapseReported = false;
 
 function blockAt(course, slot) {
   return registry.blocks[course * 3 + slot] || null;
@@ -258,53 +249,218 @@ function startTutorial() {
   return true;
 }
 
-function waitForTower() {
-  if (initialPlayed) return;
+/* --------------------------------------------------------------------------
+   Collapse detection
 
-  if (registry.camera && registry.blocks.filter(Boolean).length >= 72) {
-    initialPlayed = true;
-    initialTimer = window.setTimeout(() => startTutorial(), INITIAL_DELAY_MS);
+   One legally moved block can be displaced a long way, so a single shift or
+   tilt must never end the game. Snapshot the settled tower, exclude pieces
+   successfully moved to the top, then require a broad structural failure to
+   remain present for a sustained interval before declaring the game over.
+---------------------------------------------------------------------------- */
+const homeSnapshots = new Map();
+const relocated = new Set();
+let homeReady = false;
+let towerInteracted = false;
+let collapseSent = false;
+let collapseCandidateSince = 0;
+let detectorFrame = 0;
+let resetCaptureTimer = 0;
+let lastMoveCount = 0;
+let initialTop = 0;
+
+function readMoveCount() {
+  return Number.parseInt(moveCount?.textContent || '', 10) || 0;
+}
+
+function captureHomes() {
+  if (registry.blocks.filter(Boolean).length < 72) return false;
+
+  homeSnapshots.clear();
+  relocated.clear();
+  initialTop = -Infinity;
+
+  registry.blocks.forEach((group, index) => {
+    if (!group) return;
+    homeSnapshots.set(index, {
+      x: group.position.x,
+      y: group.position.y,
+      z: group.position.z,
+      qx: group.quaternion.x,
+      qy: group.quaternion.y,
+      qz: group.quaternion.z,
+      qw: group.quaternion.w
+    });
+    initialTop = Math.max(initialTop, group.position.y);
+  });
+
+  homeReady = homeSnapshots.size >= 72;
+  lastMoveCount = readMoveCount();
+  return homeReady;
+}
+
+function markPlacedBlock() {
+  if (!homeReady) return;
+
+  let bestIndex = null;
+  let bestScore = .34;
+
+  registry.blocks.forEach((group, index) => {
+    if (!group || relocated.has(index)) return;
+    const home = homeSnapshots.get(index);
+    if (!home) return;
+
+    if (group.position.y < initialTop - .28) return;
+
+    const dx = group.position.x - home.x;
+    const dy = group.position.y - home.y;
+    const dz = group.position.z - home.z;
+    const distance = Math.hypot(dx, dy, dz);
+    const score = distance + Math.max(0, group.position.y - initialTop) * 1.5;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = index;
+    }
+  });
+
+  if (bestIndex != null) relocated.add(bestIndex);
+}
+
+function syncPlacedBlocks() {
+  const nextMoves = readMoveCount();
+
+  if (nextMoves > lastMoveCount) {
+    for (let move = lastMoveCount; move < nextMoves; move++) markPlacedBlock();
+    towerInteracted = true;
+  }
+
+  lastMoveCount = nextMoves;
+}
+
+function quaternionDeltaAngle(group, home) {
+  const dot = Math.abs(
+    group.quaternion.x * home.qx +
+    group.quaternion.y * home.qy +
+    group.quaternion.z * home.qz +
+    group.quaternion.w * home.qw
+  );
+  return 2 * Math.acos(Math.min(1, Math.max(0, dot)));
+}
+
+function collapseMetrics() {
+  let severe = 0;
+  let verySevere = 0;
+  let floorScatter = 0;
+  let upperSevere = 0;
+  let upperCount = 0;
+  let upperHomeX = 0;
+  let upperHomeY = 0;
+  let upperHomeZ = 0;
+  let upperNowX = 0;
+  let upperNowY = 0;
+  let upperNowZ = 0;
+
+  registry.blocks.forEach((group, index) => {
+    if (!group || relocated.has(index)) return;
+    const home = homeSnapshots.get(index);
+    if (!home) return;
+
+    const dx = group.position.x - home.x;
+    const dz = group.position.z - home.z;
+    const horizontal = Math.hypot(dx, dz);
+    const drop = home.y - group.position.y;
+    const tilt = quaternionDeltaAngle(group, home);
+    const course = Math.floor(index / 3);
+
+    const isSevere = horizontal > .90 || drop > .56 || tilt > .62;
+    const isVerySevere = horizontal > 1.45 || drop > .92 || tilt > 1.02;
+
+    if (isSevere) severe++;
+    if (isVerySevere) verySevere++;
+    if (course >= 8 && isSevere) upperSevere++;
+    if (group.position.y < .62 && home.y > 1.0) floorScatter++;
+
+    if (course >= 12) {
+      upperCount++;
+      upperHomeX += home.x;
+      upperHomeY += home.y;
+      upperHomeZ += home.z;
+      upperNowX += group.position.x;
+      upperNowY += group.position.y;
+      upperNowZ += group.position.z;
+    }
+  });
+
+  let upperShift = 0;
+  let upperDrop = 0;
+  if (upperCount) {
+    upperHomeX /= upperCount;
+    upperHomeY /= upperCount;
+    upperHomeZ /= upperCount;
+    upperNowX /= upperCount;
+    upperNowY /= upperCount;
+    upperNowZ /= upperCount;
+    upperShift = Math.hypot(upperNowX - upperHomeX, upperNowZ - upperHomeZ);
+    upperDrop = upperHomeY - upperNowY;
+  }
+
+  const failed =
+    verySevere >= 6 ||
+    (severe >= 10 && upperSevere >= 5) ||
+    (floorScatter >= 5 && severe >= 7) ||
+    (severe >= 7 && (upperShift > .80 || upperDrop > .75));
+
+  return { failed, severe, verySevere, floorScatter, upperSevere, upperShift, upperDrop };
+}
+
+function runCollapseDetector(now) {
+  detectorFrame = requestAnimationFrame(runCollapseDetector);
+
+  if (!homeReady || !towerInteracted || collapseSent || running || document.body.classList.contains('stack-game-over')) {
+    collapseCandidateSince = 0;
     return;
   }
 
-  requestAnimationFrame(waitForTower);
-}
+  syncPlacedBlocks();
+  const metrics = collapseMetrics();
 
-function countFallenBlocks() {
-  let fallen = 0;
-
-  registry.blocks.forEach((block, index) => {
-    const start = registry.starts[index];
-    if (!block || !start) return;
-
-    const p = block.position;
-    const q = block.quaternion;
-    const qAngle = 2 * Math.acos(Math.min(1, Math.abs(q.w)));
-
-    if (
-      p.y < start.y - 1.1 ||
-      Math.abs(p.x) > 4.8 ||
-      Math.abs(p.z) > 4.8 ||
-      (p.y < 2.5 && qAngle > .72)
-    ) fallen++;
-  });
-
-  return fallen;
-}
-
-function monitorTower() {
-  const moves = Number.parseInt(moveLabel?.textContent, 10) || 0;
-  const fallen = countFallenBlocks();
-
-  if (!collapseReported && (interactionSeen || moves > 0) && fallen > 5) {
-    collapseReported = true;
-    stopTutorial();
-    window.dispatchEvent(new CustomEvent('stack:collapse', {
-      detail: { moves, fallen }
-    }));
+  if (!metrics.failed) {
+    collapseCandidateSince = 0;
+    return;
   }
 
-  requestAnimationFrame(monitorTower);
+  if (!collapseCandidateSince) collapseCandidateSince = now;
+  if (now - collapseCandidateSince < COLLAPSE_HOLD_MS) return;
+
+  collapseSent = true;
+  stopTutorial();
+  window.dispatchEvent(new CustomEvent('stack:gamecollapse', { detail: metrics }));
+}
+
+stage.addEventListener('pointerdown', () => {
+  requestAnimationFrame(() => {
+    if (stage.classList.contains('is-dragging')) towerInteracted = true;
+  });
+});
+
+if (moveCount) {
+  new MutationObserver(syncPlacedBlocks).observe(moveCount, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+}
+
+function prepareInitialTower() {
+  if (!captureHomes()) {
+    requestAnimationFrame(prepareInitialTower);
+    return;
+  }
+
+  if (!initialPlayed) {
+    initialPlayed = true;
+    initialTimer = window.setTimeout(() => startTutorial(), INITIAL_DELAY_MS);
+  }
 }
 
 help?.addEventListener('click', event => {
@@ -313,20 +469,27 @@ help?.addEventListener('click', event => {
   if (!startTutorial()) requestAnimationFrame(startTutorial);
 });
 
-stage.addEventListener('pointerdown', () => {
-  if (!running && !document.body.classList.contains('stack-game-over')) interactionSeen = true;
-});
-
 again?.addEventListener('click', () => {
   window.clearTimeout(initialTimer);
-  collapseReported = false;
-  interactionSeen = false;
+  window.clearTimeout(resetCaptureTimer);
   if (running) stopTutorial();
+
+  homeReady = false;
+  towerInteracted = false;
+  collapseSent = false;
+  collapseCandidateSince = 0;
+  lastMoveCount = 0;
+  relocated.clear();
+  homeSnapshots.clear();
+
+  resetCaptureTimer = window.setTimeout(() => {
+    captureHomes();
+  }, 650);
 });
 
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && running) stopTutorial();
 });
 
-requestAnimationFrame(waitForTower);
-requestAnimationFrame(monitorTower);
+requestAnimationFrame(prepareInitialTower);
+detectorFrame = requestAnimationFrame(runCollapseDetector);
