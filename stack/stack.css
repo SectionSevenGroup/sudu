@@ -39,7 +39,7 @@ input {
   -webkit-user-select: none;
 }
 
-/* Exact SuDu site header geometry: same rail, mark height and vertical band. */
+/* Same SuDu site header geometry, without a divider on STACK. */
 .stack-header {
   position: fixed;
   top: 0;
@@ -52,7 +52,6 @@ input {
   gap: 16px;
   padding: 34px var(--stack-inset) 30px;
   background: rgba(243, 241, 234, .94);
-  border-bottom: 1px solid rgba(36, 35, 31, .13);
   pointer-events: none;
 }
 
