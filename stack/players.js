@@ -10,7 +10,7 @@
   const MAX_PLAYERS = 4;
   const players = [];
   let activeIndex = 0;
-  let lastMoves = 0;
+  let handledMoves = 0;
 
   function render() {
     list.replaceChildren();
@@ -36,15 +36,36 @@
     if (players.length < MAX_PLAYERS) input.focus({ preventScroll: true });
   }
 
-  function advanceTurn() {
+  function advanceTurn(count = 1) {
     if (players.length < 2) return;
-    activeIndex = (activeIndex + 1) % players.length;
+    activeIndex = (activeIndex + count) % players.length;
     render();
+  }
+
+  function readMoves() {
+    return Number.parseInt(moveCount.textContent, 10) || 0;
+  }
+
+  function syncTurns() {
+    const nextMoves = readMoves();
+
+    if (nextMoves < handledMoves) {
+      handledMoves = nextMoves;
+      activeIndex = 0;
+      render();
+      return;
+    }
+
+    if (nextMoves > handledMoves) {
+      const completedTurns = nextMoves - handledMoves;
+      handledMoves = nextMoves;
+      advanceTurn(completedTurns);
+    }
   }
 
   function resetTurn() {
     activeIndex = 0;
-    lastMoves = 0;
+    handledMoves = 0;
     render();
   }
 
@@ -53,21 +74,13 @@
     addPlayer(input.value);
   });
 
-  const moveObserver = new MutationObserver(() => {
-    const nextMoves = Number.parseInt(moveCount.textContent, 10) || 0;
-
-    if (nextMoves === 0) {
-      lastMoves = 0;
-      return;
-    }
-
-    if (nextMoves > lastMoves) {
-      for (let move = lastMoves; move < nextMoves; move++) advanceTurn();
-    }
-    lastMoves = nextMoves;
-  });
-
+  // Successful placement is the only action that increments #move-count.
+  // Observe it immediately and keep a tiny polling fallback so turn changes
+  // cannot be missed by browser text-node mutation differences.
+  const moveObserver = new MutationObserver(syncTurns);
   moveObserver.observe(moveCount, { childList: true, characterData: true, subtree: true });
+  setInterval(syncTurns, 120);
+
   reset?.addEventListener('click', () => requestAnimationFrame(resetTurn));
 
   render();
