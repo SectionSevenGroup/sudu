@@ -176,8 +176,7 @@ input {
   transform: translate(-50%, -50%);
 }
 
-/* Player ledger. It is intentionally not a scoreboard: just names, one
-   current-turn marker and a single add action. */
+/* Player ledger. It is a quiet turn ledger, not a scoreboard. */
 .stack-players {
   top: 50%;
   left: 42px;
@@ -281,172 +280,61 @@ input {
   transform: rotate(45deg);
 }
 
-/* The tutorial leaves the real tower fully visible. These are only registration
-   marks over faces in the untouched initial camera view. */
-.stack-intro {
+/* Tutorial cues are rendered on the real Three.js block faces. This transparent
+   layer exists only to pause pointer input while the three-face sequence runs. */
+.stack-cue-shield {
   position: fixed;
   inset: 0;
-  z-index: 100;
-  background: transparent;
+  z-index: 15;
   pointer-events: none;
+  background: transparent;
 }
 
-.stack-tower-cue {
+.stack-cue-shield.is-active {
+  pointer-events: auto;
+  cursor: default;
+}
+
+.stack-live-chevron {
   position: fixed;
+  width: 62px;
+  height: 30px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 220ms ease;
-}
-
-.stack-tower-cue.is-active {
-  opacity: 1;
-}
-
-.stack-face-highlight {
-  position: absolute;
-  display: block;
-  background: color-mix(in srgb, var(--stack-accent) 28%, transparent);
-  border: 1px solid color-mix(in srgb, var(--stack-accent) 88%, transparent);
+  color: var(--stack-accent);
   transform-origin: center;
+  will-change: left, top, opacity, transform;
 }
 
-.stack-face-chevron {
-  position: absolute;
+.stack-live-chevron.is-one-way {
+  width: 52px;
+}
+
+.stack-live-chevron svg {
   display: block;
+  width: 100%;
+  height: 100%;
   overflow: visible;
   fill: none;
-  stroke: var(--stack-accent);
-  stroke-width: 1.35;
+  stroke: currentColor;
+  stroke-width: 1.5;
   stroke-linecap: square;
   stroke-linejoin: miter;
 }
 
-.stack-tower-cue.is-active .stack-face-highlight {
-  animation: stack-face-breathe 1.55s ease-in-out both;
-}
-
-.stack-tower-cue.is-active .stack-face-chevron {
-  animation: stack-chevron-breathe 1.55s ease-in-out both;
-}
-
-/* End face, on an exposed mid-height block. */
-.stack-tower-cue-end {
-  left: calc(50% + 3.9vh);
-  top: 45.8vh;
-  width: 8.8vh;
-  height: 5vh;
-}
-
-.stack-tower-cue-end .stack-face-highlight {
-  left: 0;
-  top: 1.35vh;
-  width: 1.5vh;
-  height: 2.15vh;
-  clip-path: polygon(0 18%, 100% 0, 100% 82%, 0 100%);
-}
-
-.stack-tower-cue-end .stack-face-chevron {
-  left: 1.75vh;
-  top: .75vh;
-  width: 4.8vh;
-  height: 2.8vh;
-}
-
-/* Long side face, one course lower and toward the viewer. */
-.stack-tower-cue-side {
-  left: calc(50% - 4.8vh);
-  top: 54.3vh;
-  width: 12vh;
-  height: 5vh;
-}
-
-.stack-tower-cue-side .stack-face-highlight {
-  left: 1.95vh;
-  top: 1.45vh;
-  width: 6.7vh;
-  height: 1.75vh;
-  transform: skewY(4deg);
-}
-
-.stack-tower-cue-side .stack-face-chevron {
-  left: 0;
-  top: .6vh;
-  width: 10.6vh;
-  height: 3.2vh;
-}
-
-/* Top face, near the upper courses. */
-.stack-tower-cue-top {
-  left: calc(50% - 4.1vh);
-  top: 34.8vh;
-  width: 10vh;
-  height: 8vh;
-}
-
-.stack-tower-cue-top .stack-face-highlight {
-  left: 1.2vh;
-  top: 3.25vh;
-  width: 6.8vh;
-  height: 1.75vh;
-  clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%);
-  transform: skewX(-15deg);
-}
-
-.stack-tower-cue-top .stack-face-chevron {
-  left: 3.7vh;
-  top: 0;
-  width: 2.8vh;
-  height: 4.6vh;
-}
-
-@keyframes stack-face-breathe {
-  0%, 100% { opacity: .18; }
-  45%, 60% { opacity: .78; }
-}
-
-@keyframes stack-chevron-breathe {
-  0%, 100% { opacity: .32; transform: translate3d(0, 0, 0); }
-  45%, 60% { opacity: 1; transform: translate3d(3px, 0, 0); }
-}
-
-.stack-tower-cue-side.is-active .stack-face-chevron {
-  animation-name: stack-chevron-side;
-}
-
-.stack-tower-cue-top.is-active .stack-face-chevron {
-  animation-name: stack-chevron-top;
-}
-
-@keyframes stack-chevron-side {
-  0%, 100% { opacity: .32; transform: scaleX(.94); }
-  45%, 60% { opacity: 1; transform: scaleX(1.06); }
-}
-
-@keyframes stack-chevron-top {
-  0%, 100% { opacity: .32; transform: translateY(3px); }
-  45%, 60% { opacity: 1; transform: translateY(-3px); }
-}
-
-body.stack-intro-open #stack-stage {
+body.stack-cue-open #stack-stage {
   cursor: default;
 }
 
-body.stack-intro-open .stack-instruction,
-body.stack-intro-open .stack-note {
+body.stack-cue-open .stack-instruction,
+body.stack-cue-open .stack-note {
   opacity: 0;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stack-tower-cue,
   .stack-player {
     transition: none;
-  }
-
-  .stack-tower-cue.is-active .stack-face-highlight,
-  .stack-tower-cue.is-active .stack-face-chevron {
-    animation: none;
-    opacity: .8;
   }
 }
 
@@ -492,18 +380,7 @@ body.stack-intro-open .stack-note {
     margin-top: 9px;
   }
 
-  .stack-tower-cue-end {
-    left: calc(50% + 3.2vh);
-    top: 46.6vh;
-  }
-
-  .stack-tower-cue-side {
-    left: calc(50% - 4.4vh);
-    top: 54.8vh;
-  }
-
-  .stack-tower-cue-top {
-    left: calc(50% - 3.8vh);
-    top: 36vh;
+  .stack-live-chevron {
+    width: 52px;
   }
 }
