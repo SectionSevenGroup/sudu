@@ -74,11 +74,12 @@
     addPlayer(input.value);
   });
 
-  // Successful placement is the only action that increments #move-count.
-  // Observe it immediately and keep a tiny polling fallback so turn changes
-  // cannot be missed by browser text-node mutation differences.
+  // A successful placement is the only operation that increments #move-count,
+  // so this makes turn progression automatic and tied to a completed move.
   const moveObserver = new MutationObserver(syncTurns);
   moveObserver.observe(moveCount, { childList: true, characterData: true, subtree: true });
+
+  // Small fallback for browsers that coalesce text-node mutations.
   setInterval(syncTurns, 120);
 
   reset?.addEventListener('click', () => requestAnimationFrame(resetTurn));
