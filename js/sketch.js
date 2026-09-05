@@ -99,15 +99,30 @@
   var stencilFilled = false;
   var stencilRotation = 0;
   var STENCIL_CATEGORY_LABELS = { cars: 'car', trees: 'tree', furniture: 'furniture' };
+  // Generic plan footprints in inches, including frames, mirrors and chairs.
+  // These are planning sizes, not manufacturer-specific product drawings.
+  // Furniture scale references: IKEA KIVIK (90 × 38 in, rounded), MALM queen
+  // (84 × 66 in, rounded). Vehicle widths include an allowance for mirrors.
+  // https://www.ikea.com/us/en/p/kivik-sofa-tibbleby-beige-gray-s39440593/
+  // https://www.ikea.com/us/en/p/malm-bed-frame-white-s19931605/
   var STENCILS = [
-    { id: 'car-sedan', category: 'cars', name: 'Sedan', dots: [4, 2] },
-    { id: 'car-suv', category: 'cars', name: 'SUV', dots: [4.5, 2.2] },
-    { id: 'tree-canopy', category: 'trees', name: 'Canopy', dots: [3.2, 3.2] },
-    { id: 'tree-column', category: 'trees', name: 'Column', dots: [2, 2] },
-    { id: 'sofa', category: 'furniture', name: 'Sofa', dots: [3.5, 1.5] },
-    { id: 'bed', category: 'furniture', name: 'Bed', dots: [3.5, 2.5] },
-    { id: 'dining', category: 'furniture', name: 'Dining', dots: [3.5, 2.5] },
-    { id: 'armchair', category: 'furniture', name: 'Chair', dots: [1.7, 1.7] }
+    { id: 'car-sedan', category: 'cars', name: 'Sedan', inches: [194, 82] },
+    { id: 'car-suv', category: 'cars', name: 'SUV', inches: [198, 86] },
+    { id: 'car-pickup', category: 'cars', name: 'Pickup', inches: [232, 88] },
+    { id: 'tree-canopy', category: 'trees', name: 'Broadleaf', inches: [192, 192] },
+    { id: 'tree-column', category: 'trees', name: 'Columnar', inches: [72, 72] },
+    { id: 'tree-conifer', category: 'trees', name: 'Conifer', inches: [144, 144] },
+    { id: 'tree-shrub', category: 'trees', name: 'Shrub', inches: [48, 48] },
+    { id: 'sofa', category: 'furniture', name: 'Sofa', inches: [90, 38] },
+    { id: 'sofa-chaise', category: 'furniture', name: 'Chaise sofa', inches: [110, 64] },
+    { id: 'armchair', category: 'furniture', name: 'Lounge chair', inches: [34, 36] },
+    { id: 'coffee-table', category: 'furniture', name: 'Coffee table', inches: [48, 24] },
+    { id: 'bed', category: 'furniture', name: 'Queen bed', inches: [84, 66] },
+    { id: 'bed-king', category: 'furniture', name: 'King bed', inches: [84, 82] },
+    { id: 'bed-single', category: 'furniture', name: 'Single bed', inches: [80, 44] },
+    { id: 'dining', category: 'furniture', name: 'Dining · 6', inches: [108, 72] },
+    { id: 'dining-round', category: 'furniture', name: 'Dining · 4', inches: [84, 84] },
+    { id: 'desk', category: 'furniture', name: 'Desk + chair', inches: [60, 56] }
   ];
   var toolHints = {
     pen: 'Draw freely. Strokes smooth automatically.',
@@ -957,114 +972,227 @@
     target.closePath();
   }
 
-  function paintStencilShape(target, filled) {
-    if (filled) target.fill();
-    target.stroke();
+  function stencilDimensions(spec) {
+    return {
+      width: spec.inches[0] / (12 * WORLD_DOTS_X * DOT_FEET),
+      height: spec.inches[1] / (12 * WORLD_DOTS_Y * DOT_FEET)
+    };
+  }
+
+  function stencilSizeLabel(spec) {
+    return formatFeet(spec.inches[0] / 12) + ' × ' + formatFeet(spec.inches[1] / 12);
   }
 
   function drawStencilGlyph(target, id, width, height, filled, outputScale) {
-    var w = Math.max(12, Math.abs(width));
-    var h = Math.max(12, Math.abs(height));
+    var w = Math.max(1, Math.abs(width));
+    var h = Math.max(1, Math.abs(height));
     var detail = filled ? PAPER : INK;
+    var edgeWidth = Math.max(0.7, 1.3 * outputScale);
+    var detailWidth = Math.max(0.5, 0.75 * outputScale);
     target.save();
-    target.strokeStyle = INK;
-    target.fillStyle = INK;
-    target.lineWidth = Math.max(1, 1.35 * outputScale);
     target.lineCap = 'round';
     target.lineJoin = 'round';
 
-    if (id === 'car-sedan' || id === 'car-suv') {
-      roundedRectPath(target, -w / 2, -h * 0.42, w, h * 0.84, id === 'car-suv' ? h * 0.15 : h * 0.3);
-      paintStencilShape(target, filled);
-      target.strokeStyle = detail;
-      target.lineWidth = Math.max(1, 1.05 * outputScale);
-      roundedRectPath(target, -w * 0.22, -h * 0.31, w * 0.47, h * 0.62, h * 0.12);
+    function finish(exterior) {
+      if (exterior) {
+        target.fillStyle = filled ? INK : PAPER;
+        target.fill();
+      }
+      target.strokeStyle = exterior ? INK : detail;
+      target.lineWidth = exterior ? edgeWidth : detailWidth;
       target.stroke();
+    }
+    function path(commands, exterior) {
       target.beginPath();
-      target.moveTo(-w * 0.28, -h * 0.4);
-      target.lineTo(-w * 0.28, h * 0.4);
-      target.moveTo(w * 0.31, -h * 0.4);
-      target.lineTo(w * 0.31, h * 0.4);
-      target.stroke();
-      target.strokeStyle = INK;
-      target.lineWidth = Math.max(1.2, 2.2 * outputScale);
-      [-0.28, 0.28].forEach(function (side) {
-        target.beginPath();
-        target.moveTo(-w * 0.29, side * h * 1.5);
-        target.lineTo(-w * 0.08, side * h * 1.5);
-        target.moveTo(w * 0.08, side * h * 1.5);
-        target.lineTo(w * 0.29, side * h * 1.5);
-        target.stroke();
+      commands.forEach(function (c) {
+        if (c[0] === 'M') target.moveTo(c[1] * w, c[2] * h);
+        if (c[0] === 'L') target.lineTo(c[1] * w, c[2] * h);
+        if (c[0] === 'Q') target.quadraticCurveTo(c[1] * w, c[2] * h, c[3] * w, c[4] * h);
+        if (c[0] === 'C') target.bezierCurveTo(c[1] * w, c[2] * h, c[3] * w, c[4] * h, c[5] * w, c[6] * h);
+        if (c[0] === 'Z') target.closePath();
       });
+      finish(exterior);
+    }
+    function round(x, y, rw, rh, r, exterior) {
+      roundedRectPath(target, x * w, y * h, rw * w, rh * h, r * Math.min(w, h));
+      finish(exterior);
+    }
+    function ellipse(x, y, rx, ry, exterior) {
+      target.beginPath();
+      target.ellipse(x * w, y * h, rx * w, ry * h, 0, 0, Math.PI * 2);
+      finish(exterior);
+    }
+    function chair(x, y, cw, ch, angle) {
+      target.save();
+      target.translate(x * w, y * h);
+      target.rotate(angle);
+      roundedRectPath(target, -cw * w / 2, -ch * h / 2, cw * w, ch * h, Math.min(cw * w, ch * h) * 0.12);
+      finish(true);
+      roundedRectPath(target, -cw * w * 0.42, -ch * h * 0.43, cw * w * 0.84, ch * h * 0.18, ch * h * 0.06);
+      finish(false);
+      target.beginPath();
+      target.moveTo(-cw * w * 0.32, -ch * h * 0.12);
+      target.quadraticCurveTo(-cw * w * 0.4, ch * h * 0.33, 0, ch * h * 0.34);
+      target.quadraticCurveTo(cw * w * 0.4, ch * h * 0.33, cw * w * 0.32, -ch * h * 0.12);
+      finish(false);
+      target.restore();
     }
 
-    if (id === 'tree-canopy' || id === 'tree-column') {
-      var radius = Math.min(w, h) * (id === 'tree-column' ? 0.43 : 0.49);
-      target.beginPath();
-      target.arc(0, 0, radius, 0, Math.PI * 2);
-      paintStencilShape(target, filled);
-      target.strokeStyle = detail;
-      target.lineWidth = Math.max(1, outputScale);
-      target.beginPath();
-      target.arc(0, 0, radius * 0.68, 0, Math.PI * 2);
-      target.stroke();
-      target.beginPath();
-      target.moveTo(-radius * 0.48, 0);
-      target.lineTo(radius * 0.48, 0);
-      target.moveTo(0, -radius * 0.48);
-      target.lineTo(0, radius * 0.48);
-      target.stroke();
-      target.fillStyle = detail;
-      target.beginPath();
-      target.arc(0, 0, Math.max(1.5, radius * 0.08), 0, Math.PI * 2);
-      target.fill();
-    }
-
-    if (id === 'sofa') {
-      roundedRectPath(target, -w / 2, -h / 2, w, h, h * 0.18);
-      paintStencilShape(target, filled);
-      target.strokeStyle = detail;
-      target.lineWidth = Math.max(1, outputScale);
-      roundedRectPath(target, -w * 0.36, -h * 0.27, w * 0.72, h * 0.54, h * 0.12);
-      target.stroke();
-      target.beginPath();
-      target.moveTo(0, -h * 0.27);
-      target.lineTo(0, h * 0.27);
-      target.stroke();
-    }
-
-    if (id === 'bed') {
-      roundedRectPath(target, -w / 2, -h / 2, w, h, h * 0.06);
-      paintStencilShape(target, filled);
-      target.strokeStyle = detail;
-      target.lineWidth = Math.max(1, outputScale);
-      target.beginPath();
-      target.moveTo(-w * 0.2, -h / 2);
-      target.lineTo(-w * 0.2, h / 2);
-      target.stroke();
-      roundedRectPath(target, -w * 0.42, -h * 0.34, w * 0.16, h * 0.29, h * 0.05);
-      target.stroke();
-      roundedRectPath(target, -w * 0.42, h * 0.05, w * 0.16, h * 0.29, h * 0.05);
-      target.stroke();
-    }
-
-    if (id === 'dining') {
-      roundedRectPath(target, -w * 0.34, -h * 0.3, w * 0.68, h * 0.6, h * 0.09);
-      paintStencilShape(target, filled);
-      target.strokeStyle = INK;
-      var chairs = [[-0.42, -0.27], [-0.42, 0.27], [0.42, -0.27], [0.42, 0.27]];
-      chairs.forEach(function (chair) {
-        roundedRectPath(target, chair[0] * w - w * 0.07, chair[1] * h - h * 0.09, w * 0.14, h * 0.18, h * 0.04);
-        paintStencilShape(target, filled);
+    if (id.indexOf('car-') === 0) {
+      var pickup = id === 'car-pickup';
+      var suv = id === 'car-suv';
+      // Tyres and mirrors lie inside the declared overall footprint.
+      [-0.31, 0.29].forEach(function (x) {
+        round(x - 0.05, -0.443, 0.10, 0.07, 0.018, true);
+        round(x - 0.05, 0.373, 0.10, 0.07, 0.018, true);
       });
-    }
-
-    if (id === 'armchair') {
-      roundedRectPath(target, -w / 2, -h / 2, w, h, h * 0.18);
-      paintStencilShape(target, filled);
-      target.strokeStyle = detail;
-      roundedRectPath(target, -w * 0.28, -h * 0.29, w * 0.56, h * 0.58, h * 0.11);
-      target.stroke();
+      path([
+        ['M', -0.48, -0.24], ['C', -0.47, -0.37, -0.37, -0.421, -0.24, -0.425],
+        ['L', 0.35, -0.425], ['Q', 0.49, -0.42, 0.49, -0.29],
+        ['L', 0.49, 0.29], ['Q', 0.49, 0.42, 0.35, 0.425],
+        ['L', -0.24, 0.425], ['C', -0.37, 0.421, -0.47, 0.37, -0.48, 0.24],
+        ['Q', -0.505, 0, -0.48, -0.24], ['Z']
+      ], true);
+      [-1, 1].forEach(function (side) {
+        path([['M', -0.12, side * 0.405], ['L', -0.145, side * 0.49],
+          ['Q', -0.105, side * 0.5, -0.07, side * 0.475], ['L', -0.085, side * 0.40], ['Z']], true);
+      });
+      var rear = pickup ? 0.095 : suv ? 0.36 : 0.30;
+      path([
+        ['M', -0.21, -0.29], ['Q', -0.03, -0.375, rear, -0.31],
+        ['Q', rear + 0.03, 0, rear, 0.31], ['Q', -0.03, 0.375, -0.21, 0.29],
+        ['Q', -0.26, 0, -0.21, -0.29], ['Z']
+      ]);
+      path([
+        ['M', -0.21, -0.29], ['L', -0.10, -0.22], ['L', rear - 0.06, -0.23],
+        ['L', rear - 0.06, 0.23], ['L', -0.10, 0.22], ['L', -0.21, 0.29],
+        ['M', -0.10, -0.22], ['Q', -0.15, 0, -0.10, 0.22],
+        ['M', rear - 0.06, -0.23], ['L', rear, -0.31],
+        ['M', rear - 0.06, 0.23], ['L', rear, 0.31]
+      ]);
+      if (pickup) {
+        round(0.14, -0.33, 0.30, 0.66, 0.025);
+        [-0.22, -0.11, 0, 0.11, 0.22].forEach(function (y) {
+          path([['M', 0.18, y], ['L', 0.41, y]]);
+        });
+      } else {
+        [-1, 1].forEach(function (side) {
+          path([['M', 0.06, side * 0.235], ['L', 0.055, side * 0.35],
+            ['L', 0.05, side * 0.407], ['M', -0.02, side * 0.365], ['L', 0.025, side * 0.365]]);
+        });
+        if (suv) {
+          path([['M', -0.02, -0.19], ['L', 0.24, -0.19], ['M', -0.02, 0.19], ['L', 0.24, 0.19]]);
+        }
+      }
+      path([
+        ['M', -0.405, -0.30], ['Q', -0.32, -0.285, -0.25, -0.24],
+        ['M', -0.405, 0.30], ['Q', -0.32, 0.285, -0.25, 0.24],
+        ['M', -0.458, -0.18], ['Q', -0.48, 0, -0.458, 0.18],
+        ['M', 0.455, -0.29], ['L', 0.455, 0.29]
+      ]);
+      [-1, 1].forEach(function (side) {
+        path([['M', -0.44, side * 0.22], ['Q', -0.43, side * 0.33, -0.365, side * 0.358]]);
+        path([['M', 0.45, side * 0.25], ['L', 0.40, side * 0.36], ['L', 0.34, side * 0.36]]);
+      });
+    } else if (id.indexOf('tree-') === 0) {
+      var conifer = id === 'tree-conifer';
+      var column = id === 'tree-column';
+      var shrub = id === 'tree-shrub';
+      var count = conifer ? 76 : 120;
+      var points = [];
+      for (var i = 0; i < count; i++) {
+        var angle = i * Math.PI * 2 / count;
+        var radius = conifer
+          ? (i % 4 === 0 ? 0.48 : i % 4 === 2 ? 0.30 : 0.38) * (0.95 + 0.05 * Math.sin(i * 1.71))
+          : 0.435 + 0.026 * Math.sin(angle * (column ? 9 : 7)) + 0.018 * Math.sin(angle * 13 + 1.2) + 0.009 * Math.cos(angle * 23);
+        points.push({ x: Math.cos(angle) * radius * w, y: Math.sin(angle) * radius * h });
+      }
+      target.beginPath();
+      target.moveTo((points[0].x + points[count - 1].x) / 2, (points[0].y + points[count - 1].y) / 2);
+      points.forEach(function (p, index) {
+        var next = points[(index + 1) % count];
+        if (conifer) target.lineTo(p.x, p.y);
+        else target.quadraticCurveTo(p.x, p.y, (p.x + next.x) / 2, (p.y + next.y) / 2);
+      });
+      target.closePath();
+      finish(true);
+      var branches = conifer ? 9 : column ? 5 : 7;
+      for (var j = 0; j < branches; j++) {
+        var a = j * Math.PI * 2 / branches + 0.3;
+        var tip = conifer ? 0.33 : 0.24 + 0.04 * Math.sin(j * 2.3);
+        var bx = Math.cos(a) * tip;
+        var by = Math.sin(a) * tip;
+        path([['M', Math.cos(a - 0.4) * 0.035, Math.sin(a - 0.4) * 0.035],
+          ['Q', bx * 0.7 - by * 0.1, by * 0.7 + bx * 0.1, bx, by],
+          ['M', bx * 0.5, by * 0.5], ['L', bx * 0.72 - by * 0.26, by * 0.72 + bx * 0.26]]);
+        if (!conifer) {
+          path([['M', Math.cos(a - 0.36) * 0.35, Math.sin(a - 0.36) * 0.35],
+            ['Q', bx * 0.65, by * 0.65, Math.cos(a + 0.33) * 0.34, Math.sin(a + 0.33) * 0.34]]);
+        }
+      }
+      if (!shrub) ellipse(0, 0, column ? 0.033 : 0.02, column ? 0.033 : 0.02);
+    } else if (id === 'sofa' || id === 'sofa-chaise') {
+      var chaise = id === 'sofa-chaise';
+      if (chaise) {
+        path([['M', -0.49, -0.49], ['L', 0.49, -0.49], ['L', 0.49, 0.49],
+          ['L', 0.19, 0.49], ['L', 0.19, 0.08], ['L', -0.49, 0.08], ['Z']], true);
+        round(-0.475, -0.46, 0.075, 0.515, 0.025);
+        round(0.415, -0.46, 0.06, 0.92, 0.025);
+        round(-0.385, -0.465, 0.785, 0.12, 0.035);
+        round(-0.383, -0.32, 0.278, 0.35, 0.03);
+        round(-0.09, -0.32, 0.277, 0.35, 0.03);
+        round(0.205, -0.32, 0.19, 0.76, 0.03);
+        path([['M', 0.21, 0.07], ['L', 0.39, 0.07]]);
+      } else {
+        round(-0.49, -0.48, 0.98, 0.96, 0.07, true);
+        round(-0.475, -0.45, 0.10, 0.88, 0.035);
+        round(0.375, -0.45, 0.10, 0.88, 0.035);
+        round(-0.36, -0.455, 0.72, 0.22, 0.045);
+        [-0.36, -0.115, 0.13].forEach(function (x) { round(x, -0.205, 0.23, 0.60, 0.035); });
+      }
+    } else if (id === 'armchair') {
+      round(-0.48, -0.48, 0.96, 0.96, 0.13, true);
+      round(-0.445, -0.32, 0.13, 0.73, 0.045);
+      round(0.315, -0.32, 0.13, 0.73, 0.045);
+      path([['M', -0.31, -0.35], ['Q', 0, -0.52, 0.31, -0.35],
+        ['L', 0.29, -0.19], ['Q', 0, -0.27, -0.29, -0.19], ['Z']]);
+      round(-0.285, -0.15, 0.57, 0.57, 0.065);
+    } else if (id.indexOf('bed') === 0) {
+      round(-0.49, -0.49, 0.98, 0.98, 0.025, true);
+      round(-0.485, -0.48, 0.065, 0.96, 0.02);
+      round(-0.405, -0.445, 0.85, 0.89, 0.035);
+      var pillows = id === 'bed-single' ? [-0.28] : [-0.395, 0.045];
+      pillows.forEach(function (y) { round(-0.365, y, 0.215, id === 'bed-single' ? 0.56 : 0.35, 0.045); });
+      path([['M', -0.095, -0.437], ['Q', -0.14, 0, -0.095, 0.437],
+        ['M', -0.025, -0.437], ['Q', -0.065, 0, -0.025, 0.437],
+        ['M', 0.36, -0.43], ['L', 0.43, -0.34], ['M', 0.36, 0.43], ['L', 0.43, 0.34]]);
+    } else if (id === 'dining') {
+      [-0.18, 0.18].forEach(function (x) {
+        chair(x, -0.365, 1 / 6, 0.25, 0);
+        chair(x, 0.365, 1 / 6, 0.25, Math.PI);
+      });
+      chair(-0.405, 0, 1 / 6, 0.25, -Math.PI / 2);
+      chair(0.405, 0, 1 / 6, 0.25, Math.PI / 2);
+      round(-1 / 3, -0.25, 2 / 3, 0.50, 0.025, true);
+      round(-0.321, -0.232, 0.642, 0.464, 0.02);
+    } else if (id === 'dining-round') {
+      for (var seat = 0; seat < 4; seat++) {
+        var theta = seat * Math.PI / 2;
+        chair(Math.sin(theta) * 0.38, -Math.cos(theta) * 0.38, 0.214, 0.214, theta);
+      }
+      ellipse(0, 0, 0.286, 0.286, true);
+      ellipse(0, 0, 0.27, 0.27);
+    } else if (id === 'coffee-table') {
+      round(-0.49, -0.48, 0.98, 0.96, 0.14, true);
+      round(-0.469, -0.438, 0.938, 0.876, 0.10);
+    } else if (id === 'desk') {
+      chair(0, 0.285, 0.367, 0.38, Math.PI);
+      round(-0.49, -0.49, 0.98, 0.535, 0.02, true);
+      round(-0.19, -0.42, 0.38, 0.13, 0.015);
+      path([['M', 0, -0.29], ['L', 0, -0.235], ['M', -0.075, -0.235], ['L', 0.075, -0.235]]);
+      round(-0.17, -0.175, 0.34, 0.10, 0.01);
+      path([['M', -0.14, -0.125], ['L', 0.14, -0.125]]);
+      ellipse(0.275, -0.12, 0.028, 0.043);
     }
     target.restore();
   }
@@ -1504,25 +1632,29 @@
       button.type = 'button';
       button.className = 'stencil-choice';
       button.setAttribute('data-stencil-id', spec.id);
-      button.setAttribute('aria-label', spec.name + ' template');
+      var size = stencilSizeLabel(spec);
+      button.setAttribute('aria-label', spec.name + ' template, ' + size + ' overall');
+      button.title = spec.name + ' · ' + size + ' overall';
       button.setAttribute('aria-pressed', spec.id === stencilId ? 'true' : 'false');
       button.classList.toggle('is-active', spec.id === stencilId);
       var preview = document.createElement('canvas');
-      preview.width = 116;
-      preview.height = 72;
+      preview.width = 160;
+      preview.height = 92;
       preview.setAttribute('aria-hidden', 'true');
       var previewContext = preview.getContext('2d');
       previewContext.fillStyle = PAPER;
       previewContext.fillRect(0, 0, preview.width, preview.height);
       previewContext.translate(preview.width / 2, preview.height / 2);
-      var ratio = spec.dots[0] / spec.dots[1];
-      var shownWidth = ratio >= 1 ? 78 : 54 * ratio;
-      var shownHeight = ratio >= 1 ? 78 / ratio : 54;
-      drawStencilGlyph(previewContext, spec.id, shownWidth, shownHeight, previewFilled, 1.6);
+      var scale = Math.min(140 / spec.inches[0], 76 / spec.inches[1]);
+      drawStencilGlyph(previewContext, spec.id, spec.inches[0] * scale, spec.inches[1] * scale, previewFilled, 1.4);
       var label = document.createElement('span');
       label.textContent = spec.name;
+      var dimensions = document.createElement('span');
+      dimensions.className = 'stencil-size';
+      dimensions.textContent = size;
       button.appendChild(preview);
       button.appendChild(label);
+      button.appendChild(dimensions);
       stencilChoices.appendChild(button);
     });
     updateStencilPanel();
@@ -1544,6 +1676,9 @@
     if (tool === 'edit' && selected) {
       var previous = clone(objects);
       selected.stencil = spec.id;
+      var dimensions = stencilDimensions(spec);
+      selected.width = dimensions.width;
+      selected.height = dimensions.height;
       remember(previous);
       setHint(spec.name + ' template selected. Drag to move or use the anchors to resize.', 1800);
       render();
@@ -1906,7 +2041,7 @@
   }
 
   function hitObject(object, point) {
-        if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object, key);
+    if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object);
     if (object.type === 'pen') {
       for (var i = 1; i < object.points.length; i++) {
         if (distanceToSegment(point, object.points[i - 1], object.points[i]) < 16) return true;
@@ -2220,14 +2355,15 @@
     if (tool === 'note') { openNoteComposer(point); return; }
     if (tool === 'stencil') {
       var spec = stencilSpec(stencilId);
+      var dimensions = stencilDimensions(spec);
       var previous = clone(objects);
       objects.push({
         id: makeObjectId('stencil'),
         type: 'stencil',
         stencil: spec.id,
         point: point,
-        width: spec.dots[0] * GRID_SPACING / WORLD_WIDTH,
-        height: spec.dots[1] * GRID_SPACING / WORLD_HEIGHT,
+        width: dimensions.width,
+        height: dimensions.height,
         rotation: stencilRotation,
         filled: stencilFilled
       });

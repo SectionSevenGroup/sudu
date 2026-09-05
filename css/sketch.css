@@ -485,16 +485,20 @@ button:disabled { cursor: default !important; opacity: .28; }
 }
 .stencil-choice {
   display: grid;
-  grid-template-rows: 42px auto;
+  grid-template-rows: 46px auto auto;
   place-items: center;
-  min-width: 82px !important;
-  padding: 7px 12px 9px !important;
+  min-width: 100px !important;
+  padding: 3px 8px 10px !important;
+  gap: 2px;
+  font-size: 10px !important;
+  letter-spacing: .04em !important;
 }
 .stencil-choice canvas {
   display: block;
-  width: 58px;
-  height: 36px;
+  width: 80px;
+  height: 46px;
 }
+.stencil-size { font-size: 10px; font-variant-numeric: tabular-nums; letter-spacing: 0; white-space: nowrap; }
 .stencil-options button { min-width: 76px; }
 
 .draw-stage {
