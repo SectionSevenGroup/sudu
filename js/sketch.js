@@ -39,7 +39,6 @@
   var mobileUi = document.getElementById('mobileSketchUi');
   var mobileSheet = document.getElementById('mobileToolSheet');
   var mobileToolsToggle = document.getElementById('sketchToolsToggle');
-  var mobileMenuButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-menu]'));
   var mobileToolButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-tool]'));
   var mobileActionButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-action]'));
   var mobilePanels = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-panel]'));
@@ -1533,62 +1532,66 @@
     if (mobileUi) mobileUi.classList.remove('is-tools-open');
     if (mobileSheet) mobileSheet.hidden = true;
     mobilePanels.forEach(function (panel) { panel.hidden = true; });
-    mobileMenuButtons.forEach(function (button) { button.setAttribute('aria-expanded', 'false'); });
+    stencilPanel.hidden = true;
+    var levels = document.querySelector('#sketchLevels');
+    if (levels) levels.classList.remove('is-mobile-open');
     var traceBar = document.querySelector('.trace-bar');
     if (traceBar) traceBar.classList.remove('is-mobile-open');
     syncMobileControls();
   }
 
   function openMobilePanel(name) {
-    var traceBar = document.querySelector('.trace-bar');
-    if (traceBar) traceBar.classList.remove('is-mobile-open');
     if (mobileOpenPanel === name && mobileSheet && !mobileSheet.hidden) {
       closeMobilePanels();
       return;
     }
+    closeMobilePanels();
     mobileOpenPanel = name;
     if (mobileUi) mobileUi.classList.add('is-tools-open');
     if (mobileSheet) mobileSheet.hidden = false;
     mobilePanels.forEach(function (panel) {
       panel.hidden = panel.getAttribute('data-mobile-panel') !== name;
     });
-    mobileMenuButtons.forEach(function (button) {
-      button.setAttribute('aria-expanded', button.getAttribute('data-mobile-menu') === name ? 'true' : 'false');
-    });
     syncMobileControls();
   }
 
-  function openMobileLayers() {
-    var traceBar = document.querySelector('.trace-bar');
-    if (!traceBar) return;
-    var willOpen = !traceBar.classList.contains('is-mobile-open');
+  function openMobileSection(name) {
+    var panel = document.querySelector(name === 'levels' ? '#sketchLevels' : '.trace-bar');
+    var willOpen = name === 'templates' ? stencilPanel.hidden : panel && !panel.classList.contains('is-mobile-open');
     closeMobilePanels();
-    traceBar.classList.toggle('is-mobile-open', willOpen);
+    if (willOpen) {
+      mobileOpenPanel = name;
+      if (name === 'templates') {
+        setTool('stencil');
+        stencilPanel.hidden = false;
+      } else if (panel) panel.classList.add('is-mobile-open');
+    }
     syncMobileControls();
   }
 
   function syncMobileControls() {
     if (!mobileUi) return;
+    var floorName = document.querySelector('#mobileFloorName');
+    if (floorName) floorName.textContent = FLOOR_LABELS[activeFloor];
     if (mobileToolsToggle) {
       var isOpen = !!mobileOpenPanel || !!document.querySelector('.trace-bar.is-mobile-open') || !stencilPanel.hidden;
       mobileToolsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
-    var drawTools = ['pen', 'line', 'room', 'area'];
-    var addTools = ['door', 'window', 'note', 'stencil'];
     mobileToolButtons.forEach(function (button) {
       var on = button.getAttribute('data-mobile-tool') === tool;
       button.classList.toggle('is-active', on);
       button.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
-    mobileMenuButtons.forEach(function (button) {
-      var name = button.getAttribute('data-mobile-menu');
-      var ownsTool = (name === 'draw' && drawTools.indexOf(tool) !== -1) || (name === 'add' && addTools.indexOf(tool) !== -1);
-      button.classList.toggle('is-active', mobileOpenPanel === name || ownsTool);
-    });
     mobileActionButtons.forEach(function (button) {
       var name = button.getAttribute('data-mobile-action');
       var source = actionButtons[name];
       if (source) button.disabled = source.disabled;
+      if (['levels', 'layers', 'templates'].indexOf(name) !== -1) {
+        var expanded = name === 'templates' ? !stencilPanel.hidden : mobileOpenPanel === name;
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        if (name === 'levels') button.setAttribute('aria-label', 'Levels, current floor: ' + FLOOR_LABELS[activeFloor]);
+        if (name === 'layers') button.setAttribute('aria-label', 'Layers, active: ' + activeLayerState().name);
+      }
       button.classList.toggle('is-active', name === 'ruler' && rulerState.visible);
     });
   }
@@ -2478,23 +2481,18 @@
     }
   });
 
-  mobileMenuButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
-      openMobilePanel(button.getAttribute('data-mobile-menu'));
-    });
-  });
   mobileToolButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       var source = document.querySelector('.tool-button[data-tool="' + button.getAttribute('data-mobile-tool') + '"]');
-      if (source) source.click();
       closeMobilePanels();
+      if (source) source.click();
     });
   });
   mobileActionButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       var name = button.getAttribute('data-mobile-action');
-      if (name === 'layers') {
-        openMobileLayers();
+      if (['levels', 'layers', 'templates'].indexOf(name) !== -1) {
+        openMobileSection(name);
         return;
       }
       var source = actionButtons[name];

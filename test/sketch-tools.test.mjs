@@ -128,32 +128,57 @@ test('mobile menu state opens, switches and closes without changing drawing stat
     };
   };
   const traceBar = element();
+  const levels = element();
+  const floorName = element();
   const state = {
     mobileOpenPanel: '', mobileUi: element(), mobileSheet: element(),
     mobileToolsToggle: element(), stencilPanel: element(), tool: 'pen',
-    mobilePanels: ['draw', 'add', 'more'].map(name => element({ 'data-mobile-panel': name })),
-    mobileMenuButtons: ['draw', 'add', 'more'].map(name => element({ 'data-mobile-menu': name })),
-    mobileToolButtons: [], mobileActionButtons: [], actionButtons: {}, rulerState: { visible: false },
-    document: { querySelector: selector => selector === '.trace-bar' || traceBar.classList.contains('is-mobile-open') ? traceBar : null }
+    mobilePanels: [element({ 'data-mobile-panel': 'draw' })],
+    mobileToolButtons: [],
+    mobileActionButtons: ['undo', 'levels', 'layers', 'templates', 'clear'].map(name => element({ 'data-mobile-action': name })),
+    actionButtons: { undo: { disabled: true }, clear: { disabled: true } }, rulerState: { visible: false },
+    activeFloor: 'main', FLOOR_LABELS: { main: 'Main', basement: 'Basement' },
+    activeLayerState: () => ({ name: 'Drawing' }),
+    document: { querySelector: selector => ({ '.trace-bar': traceBar, '#sketchLevels': levels, '#mobileFloorName': floorName })[selector] || (selector === '.trace-bar.is-mobile-open' && traceBar.classList.contains('is-mobile-open') ? traceBar : null) }
   };
+  state.setTool = tool => { state.tool = tool; };
   runInNewContext(script.slice(script.indexOf('  function closeMobilePanels()'), script.indexOf('  function closeNoteComposer()')), state);
   state.openMobilePanel('draw');
   assert.equal(state.mobileToolsToggle.getAttribute('aria-expanded'), 'true');
   assert.equal(state.mobileUi.classList.contains('is-tools-open'), true);
   assert.equal(state.mobilePanels[0].hidden, false);
-  state.openMobilePanel('add');
+  state.openMobileSection('levels');
   assert.equal(state.mobilePanels[0].hidden, true);
-  assert.equal(state.mobilePanels[1].hidden, false);
+  assert.equal(levels.classList.contains('is-mobile-open'), true);
+  assert.equal(state.mobileActionButtons[1].getAttribute('aria-expanded'), 'true');
+  assert.equal(floorName.textContent, 'Main');
+  state.activeFloor = 'basement';
+  state.syncMobileControls();
+  assert.equal(floorName.textContent, 'Basement');
   state.closeMobilePanels();
   assert.equal(state.mobileToolsToggle.getAttribute('aria-expanded'), 'false');
   assert.equal(state.mobileUi.classList.contains('is-tools-open'), false);
   assert.equal(state.mobileSheet.hidden, true);
-  state.openMobileLayers();
+  state.openMobileSection('layers');
   assert.equal(traceBar.classList.contains('is-mobile-open'), true);
+  assert.equal(levels.classList.contains('is-mobile-open'), false);
   assert.equal(state.mobileToolsToggle.getAttribute('aria-expanded'), 'true');
+  state.openMobileSection('templates');
+  assert.equal(traceBar.classList.contains('is-mobile-open'), false);
+  assert.equal(state.stencilPanel.hidden, false);
+  assert.equal(state.mobileActionButtons[3].getAttribute('aria-expanded'), 'true');
+  assert.equal(state.tool, 'stencil');
+  state.openMobilePanel('draw');
+  assert.equal(state.stencilPanel.hidden, true);
+  assert.equal(state.mobileActionButtons[3].getAttribute('aria-expanded'), 'false');
+  assert.equal(state.mobileActionButtons[0].disabled, true);
+  assert.equal(state.mobileActionButtons[4].disabled, true);
+  state.actionButtons.clear.disabled = false;
+  state.syncMobileControls();
+  assert.equal(state.mobileActionButtons[4].disabled, false);
   state.closeMobilePanels();
   assert.equal(traceBar.classList.contains('is-mobile-open'), false);
-  assert.equal(state.tool, 'pen');
+  assert.equal(state.tool, 'stencil');
 });
 
 test('Sketch preserves desktop SuDu chrome and uses a mobile tools pill with top menus', async () => {
@@ -161,32 +186,63 @@ test('Sketch preserves desktop SuDu chrome and uses a mobile tools pill with top
   const page = await readFile(pageUrl, 'utf8');
   const css = await readFile(cssUrl, 'utf8');
 
-  assert.match(page, /class="mobile-master-bar"[^>]+aria-label="Main drawing tools"/);
-  assert.equal((page.match(/data-mobile-menu="(draw|add|more)"/g) || []).length, 3);
+  assert.doesNotMatch(page, /data-mobile-menu=|mobile-master-bar/);
+  const context = page.slice(page.indexOf('class="sketch-context-bar"'), page.indexOf('id="sketchLevels"'));
+  for (const name of ['undo', 'levels', 'layers', 'templates', 'clear']) assert.match(context, new RegExp('data-mobile-action="' + name + '"'));
+  assert.match(page, /id="mobileFloorName">Main</);
   assert.match(page, /data-mobile-tool="edit"/);
   assert.match(page, /class="mobile-undo-top"[^>]+data-mobile-action="undo"/);
   assert.match(page, /class="sketch-product-header"[\s\S]+alt="SuDu"[\s\S]+class="sketch-product-name">Sketch</);
   assert.doesNotMatch(page, /mobile-master-bar[\s\S]{0,500}data-mobile-action="undo"/);
   assert.match(page, /data-mobile-panel="draw"/);
-  assert.match(page, /data-mobile-panel="add"/);
-  assert.match(page, /data-mobile-panel="more"/);
+  assert.equal((page.match(/data-mobile-panel=/g) || []).length, 1);
   assert.match(script, /function openMobilePanel\(name\)/);
   assert.match(script, /function closeMobilePanels\(\)/);
   assert.match(script, /function syncMobileControls\(\)/);
-  assert.match(css, /@media \(max-width: 760px\)[\s\S]+\.mobile-master-bar/);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]+\.mobile-context-control/);
   assert.match(css, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
   const desktopCss = css.split('@media (max-width: 760px)')[0];
   assert.doesNotMatch(desktopCss, /\.sketch-header[^{}]*\{[^}]*display:\s*none/);
   assert.doesNotMatch(css, /#suduBar[^{}]*\{[^}]*display:\s*none/);
   assert.match(css, /html #suduBar #musicPill \{[^}]*position: fixed !important;[^}]*top:/);
   assert.match(css, /html #suduBar \{[^}]*backdrop-filter: none/);
-  assert.match(css, /\.mobile-master-bar \{[^}]*top: var\(--sketch-menu-top\)/);
-  assert.match(css, /\.mobile-tool-sheet \{[^}]*top: calc\(var\(--sketch-menu-top\) \+ 44px\)/);
+  assert.match(css, /\.mobile-tool-sheet \{[^}]*top: var\(--sketch-menu-top\)/);
   assert.match(page, /id="sketchToolsToggle"[^>]*aria-expanded="false"[^>]*>Tools<\/button>/);
   assert.match(css, /\.sketch-tools-pill \{[^}]*border-radius: 999px/);
   assert.match(css, /\.mobile-undo-top \{[\s\S]+display: block/);
   assert.match(css, /grid-template-columns: 76px minmax\(0, auto\) 1fr/);
   assert.match(css, /\.sketch-product-header \{[\s\S]+min-height: 54px/);
-  assert.match(css, /\.mobile-master-bar button \{[^}]*font-weight: 600/);
+  assert.match(css, /\.mobile-tool-panel button \{[^}]*min-height: 40px/);
+  assert.match(css, /\.trace-copy, \.trace-order \{ display: block; \}/);
   assert.match(css, /\.sketch-toolbar,[\s\S]+\.sketch-workspace-footer \{ display: none; \}/);
+});
+
+test('clear confirms its layer and floor, preserves other layers and can be undone', async () => {
+  const { runInNewContext } = await import('node:vm');
+  const script = await readFile(scriptUrl, 'utf8');
+  const original = [{ type: 'line' }];
+  let accepted = false;
+  let locked = false;
+  let prompt = '';
+  let undo;
+  const state = {
+    objects: original, selectedIndex: 0, activeFloor: 'main', FLOOR_LABELS: { main: 'Main' },
+    activeLayerState: () => ({ name: 'Trace 2', locked }),
+    window: { confirm: text => { prompt = text; return accepted; } },
+    clone: value => structuredClone(value), setObjects: value => { state.objects = value; },
+    updateStencilPanel() {}, remember: value => { undo = value; }, render() {}
+  };
+  runInNewContext(script.slice(script.indexOf('  function clearDrawing()'), script.indexOf('  function saveDrawing()')), state);
+  state.clearDrawing();
+  assert.equal(state.objects, original);
+  assert.equal(prompt, 'Clear Trace 2 on the main floor?');
+  accepted = true;
+  locked = true;
+  state.clearDrawing();
+  assert.equal(state.objects, original);
+  locked = false;
+  state.clearDrawing();
+  assert.equal(state.objects.length, 0);
+  assert.deepEqual(undo, original);
+  assert.equal(state.selectedIndex, -1);
 });
