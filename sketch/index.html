@@ -15,10 +15,10 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-  <link rel="stylesheet" href="/css/sketch.css?v=2e023913">
+  <link rel="stylesheet" href="/css/sketch.css?v=905bde32">
 <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 
-<link rel="stylesheet" href="/css/tool-footer.css">
+<link rel="stylesheet" href="/css/tool-footer.css?v=18366896">
 </head>
 <body>
   <header id="suduNav" class="sketch-header">
@@ -141,7 +141,7 @@
       </div>
 
       <div id="drawStage" class="draw-stage" data-tool="pen">
-        <canvas id="sketchCanvas" tabindex="0" aria-label="Layered architectural drawing surface. Each dot is two feet. Draw with mouse, pen or finger. Pan with the Pan tool or two fingers, and pinch or scroll to zoom."></canvas>
+        <canvas id="sketchCanvas" tabindex="0" aria-label="Layered architectural drawing surface. Dots are one foot apart, with larger dots at four-foot intersections. Draw with mouse, pen or finger. Pan with the Pan tool or two fingers, and pinch or scroll to zoom."></canvas>
         <div id="drawCursor" class="draw-cursor" aria-hidden="true"></div>
         <label id="noteComposer" class="note-composer" hidden>
           <span class="sr-only" data-i18n="sketch.noteLabel">Note text</span>
@@ -153,9 +153,9 @@
           </div>
           <button id="rulerRotate" class="ruler-rotate" type="button" aria-label="Rotate ruler"></button>
         </div>
-        <div class="draw-scale" aria-label="Drawing scale: two feet per dot">
-          <span class="scale-mark" aria-hidden="true"><i></i></span>
-          <span data-i18n="sketch.scale">2′ per dot</span>
+        <div class="draw-scale" aria-label="Drawing scale: one foot per dot, larger dots every four feet">
+          <span class="scale-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span data-i18n="sketch.scale">1′ grid · 4′ major</span>
         </div>
         <div class="sketch-view" aria-label="Drawing view controls">
           <button type="button" data-action="zoom-out" aria-label="Zoom out">−</button>
@@ -235,9 +235,9 @@
     <span>Alberta</span>
   </footer>
 
-  <script src="/i18n.js?v=cbd5fce2" defer></script>
+  <script src="/i18n.js?v=4e0a934b" defer></script>
   <script src="/js/audio-player.js?v=5e49f639" defer></script>
   <script type="module" src="/js/haptics.js?v=c60c698e"></script>
-  <script src="/js/sketch.js?v=b7a004f7" defer></script>
+  <script src="/js/sketch.js?v=788c8035" defer></script>
 </body>
 </html>

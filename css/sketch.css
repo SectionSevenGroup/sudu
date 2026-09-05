@@ -598,7 +598,7 @@ button:disabled { cursor: default !important; opacity: .28; }
 .scale-mark {
   position: relative;
   display: block;
-  width: var(--dot-screen, 28px);
+  width: var(--grid-major-screen, 56px);
   height: 9px;
   border-top: .75px solid currentColor;
 }
@@ -615,7 +615,9 @@ button:disabled { cursor: default !important; opacity: .28; }
 }
 .scale-mark::before { left: 0; transform: translateX(-50%); }
 .scale-mark::after { right: 0; transform: translateX(50%); }
-.scale-mark i { left: 50%; transform: translateX(-50%); }
+.scale-mark i { top: -1.5px; width: 2px; height: 2px; left: 50%; transform: translateX(-50%); }
+.scale-mark i:first-child { left: 25%; }
+.scale-mark i:last-child { left: 75%; }
 
 .note-composer {
   position: absolute;
