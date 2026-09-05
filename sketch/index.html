@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="sudu-tool-page">
+<html lang="en" class="sudu-tool-page sketch-compact-layout">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -15,7 +15,7 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-  <link rel="stylesheet" href="/css/sketch.css?v=7cf203c5">
+  <link rel="stylesheet" href="/css/sketch.css?v=fb9c3082">
 <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 
 <link rel="stylesheet" href="/css/tool-footer.css?v=18366896">
@@ -47,9 +47,10 @@
 
     <section class="sketch-workspace" aria-label="Plan sketch workspace">
       <div class="sketch-context-bar">
-        <button type="button" class="mobile-undo-top" data-mobile-action="undo" disabled aria-label="Undo last drawing action">Undo</button>
+        <button type="button" class="mobile-undo-top" data-mobile-action="undo" disabled aria-label="Undo last drawing action" title="Undo"><span aria-hidden="true">↺</span></button>
+        <button type="button" class="mobile-undo-top" data-mobile-action="redo" disabled aria-label="Redo last drawing action" title="Redo"><span aria-hidden="true">↻</span></button>
         <button type="button" class="mobile-context-control" data-mobile-action="levels" aria-expanded="false" aria-controls="sketchLevels">Levels<small id="mobileFloorName">Main</small></button>
-        <button type="button" class="mobile-context-control" data-mobile-action="layers" aria-expanded="false" aria-controls="sketchLayers">Layers</button>
+        <button type="button" class="mobile-context-control" data-mobile-action="layers" aria-expanded="false" aria-controls="sketchLayers">Layers <small id="activeLayerName">Drawing</small></button>
         <button type="button" class="mobile-context-control" data-mobile-action="templates" aria-expanded="false" aria-controls="stencilPanel">Templates</button>
         <button type="button" class="mobile-context-control" data-mobile-action="clear" disabled>Clear</button>
         <div id="sketchLevels" class="sketch-level-panel">
@@ -113,25 +114,18 @@
       </div>
 
       <div id="mobileSketchUi" class="mobile-sketch-ui" aria-label="Mobile drawing controls">
-        <button id="sketchToolsToggle" class="sketch-tools-pill" type="button" aria-expanded="false" aria-controls="mobileToolSheet">Tools</button>
+        <div class="sketch-primary-pill" role="toolbar" aria-label="Main drawing tools">
+<button type="button" data-mobile-tool="pen">Pen</button><button type="button" data-mobile-tool="line">Line</button><button type="button" data-mobile-tool="room">Room</button><button type="button" data-mobile-tool="edit">Edit</button><button type="button" data-mobile-tool="erase">Erase</button>
+        <button id="sketchToolsToggle" class="sketch-tools-pill" type="button" aria-expanded="false" aria-controls="mobileToolSheet">Add</button></div>
         <div id="mobileToolSheet" class="mobile-tool-sheet" hidden>
           <div class="mobile-tool-panel" data-mobile-panel="draw" hidden>
-            <button type="button" data-mobile-tool="pen">Pen</button>
-            <button type="button" data-mobile-tool="line">Line</button>
-            <button type="button" data-mobile-tool="room">Room</button>
             <button type="button" data-mobile-tool="area">Area</button>
             <button type="button" data-mobile-tool="door">Door</button>
             <button type="button" data-mobile-tool="window">Window</button>
             <button type="button" data-mobile-tool="note">Note</button>
-            <button type="button" data-mobile-tool="edit">Edit</button>
             <button type="button" data-mobile-tool="pan">Pan</button>
-            <button type="button" data-mobile-tool="erase">Erase</button>
             <button type="button" data-mobile-action="ruler">Ruler</button>
-            <button type="button" data-mobile-action="redo">Redo</button>
-            <button type="button" data-mobile-action="open-project">Open</button>
-            <button type="button" data-mobile-action="save">Save</button>
-            <button type="button" data-mobile-action="screenshot" aria-label="Save PNG screenshot">PNG</button>
-            <button type="button" data-mobile-action="pdf">PDF</button>
+            <button type="button" data-mobile-action="templates">Templates</button>
           </div>
         </div>
       </div>
@@ -172,6 +166,7 @@
           <button type="button" data-action="save" disabled data-i18n="sketch.save">Save project</button>
           <button type="button" data-action="screenshot" disabled data-i18n="sketch.screenshot">Screenshot</button>
           <button type="button" data-action="pdf" disabled>PDF</button>
+          <button type="button" data-mobile-action="clear" disabled>Clear</button>
           <button type="button" data-action="send" disabled hidden data-i18n="sketch.sendButton">Send to SuDu</button>
         </div>
       </div>
@@ -224,8 +219,8 @@
   </main>
 
   <script src="/i18n.js?v=4e0a934b" defer></script>
-  <script src="/js/audio-player.js?v=5e49f639" defer></script>
+  <script src="/js/audio-player.js?v=fc5236c6" defer></script>
   <script type="module" src="/js/haptics.js?v=c60c698e"></script>
-  <script src="/js/sketch.js?v=0b7b8308" defer></script>
+  <script src="/js/sketch.js?v=cf4d134b" defer></script>
 </body>
 </html>

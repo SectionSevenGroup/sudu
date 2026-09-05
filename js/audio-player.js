@@ -225,6 +225,10 @@
       }
       return;
     }
+    if (t && t.closest && t.closest('#trackPrevious')) {
+      switchTo((idx - 1 + TRACKS.length) % TRACKS.length);
+      return;
+    }
     if (t && t.closest && t.closest('#trackNext')) {
       switchTo(idx + 1);
       return;
@@ -285,6 +289,16 @@
       '<rect x="2" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect>' +
       '<rect x="5.8" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect>' +
       '<rect x="9.6" y="2" width="1.4" height="9" rx="0.7" fill="currentColor"></rect></svg>';
+    if (document.documentElement.classList.contains('sketch-compact-layout')) {
+      toggle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3M3 13h3v8H3zM18 13h3v8h-3z"/></svg>';
+      var previous = document.createElement('button');
+      previous.type = 'button';
+      previous.id = 'trackPrevious';
+      previous.setAttribute('aria-label', 'Previous track');
+      previous.title = 'Previous track';
+      previous.innerHTML = '<svg width="9" height="12" viewBox="0 0 9 12" aria-hidden="true" fill="none"><path d="M7 1.5 L2 6 L7 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      pill.appendChild(previous);
+    }
     pill.appendChild(toggle);
 
     var next = document.createElement('button');

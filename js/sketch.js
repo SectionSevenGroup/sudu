@@ -1790,6 +1790,8 @@
 
   function syncMobileControls() {
     if (!mobileUi) return;
+    var layerName = document.querySelector('#activeLayerName');
+    if (layerName) layerName.textContent = activeLayerState().name;
     var floorName = document.querySelector('#mobileFloorName');
     if (floorName) floorName.textContent = FLOOR_LABELS[activeFloor];
     if (mobileToolsToggle) {

@@ -285,7 +285,7 @@ test('Sketch preserves desktop SuDu chrome and uses a mobile tools pill with top
   assert.match(css, /html #suduBar #musicPill \{[^}]*position: fixed !important;[^}]*top:/);
   assert.match(css, /html #suduBar \{[^}]*backdrop-filter: none/);
   assert.match(css, /\.mobile-tool-sheet \{[^}]*top: var\(--sketch-menu-top\)/);
-  assert.match(page, /id="sketchToolsToggle"[^>]*aria-expanded="false"[^>]*>Tools<\/button>/);
+  assert.match(page, /id="sketchToolsToggle"[^>]*aria-expanded="false"[^>]*>Add<\/button>/);
   assert.match(css, /\.sketch-tools-pill \{[^}]*border-radius: 999px/);
   assert.match(css, /\.mobile-undo-top \{[\s\S]+display: block/);
   assert.match(css, /grid-template-columns: 76px minmax\(0, auto\) 1fr/);
