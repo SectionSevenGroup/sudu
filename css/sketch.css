@@ -106,6 +106,14 @@ html.xh * { cursor: none !important; }
 
 .sketch-header.is-scrolled { border-bottom-color: var(--chrome-rule); }
 .sketch-header img { display: block; width: auto; height: 38px; }
+.sketch-page-name {
+  margin: 0;
+  padding-bottom: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
 .sketch-header nav { display: flex; align-items: flex-end; gap: clamp(16px, 2.6vw, 30px); }
 .sketch-header nav a {
   padding-bottom: 2px;
@@ -505,6 +513,26 @@ button:disabled { cursor: default !important; opacity: .28; }
   border-bottom: .5px solid var(--rule);
   cursor: none;
   isolation: isolate;
+}
+
+@media (min-width: 761px) {
+  .sketch-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+  .sketch-intro { flex: 0 0 auto; }
+  .sketch-workspace {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+  .sketch-workspace > * { flex-shrink: 0; }
+  .draw-stage {
+    flex: 1 0 240px;
+    height: auto;
+    min-height: 240px;
+  }
 }
 
 #sketchCanvas {

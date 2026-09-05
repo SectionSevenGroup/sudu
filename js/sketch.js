@@ -711,6 +711,9 @@
   }
 
   function resize() {
+    var followFit = !camera.fitted || Math.abs(camera.scale - fittedScale(cssWidth, cssHeight)) < 0.0001;
+    var centreX = (cssWidth / 2 - camera.x) / camera.scale;
+    var centreY = (cssHeight / 2 - camera.y) / camera.scale;
     var rect = stage.getBoundingClientRect();
     cssWidth = Math.max(1, Math.round(rect.width));
     cssHeight = Math.max(1, Math.round(rect.height));
@@ -720,8 +723,12 @@
     canvas.style.width = cssWidth + 'px';
     canvas.style.height = cssHeight + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (!camera.fitted) fitView();
-    else clampCamera();
+    if (followFit) fitView();
+    else {
+      camera.x = cssWidth / 2 - centreX * camera.scale;
+      camera.y = cssHeight / 2 - centreY * camera.scale;
+      clampCamera();
+    }
     positionRuler();
     render();
   }
@@ -743,10 +750,14 @@
     updateZoomLevel();
   }
 
+  function fittedScale(width, height) {
+    var margin = Math.min(28, width * 0.03);
+    return clamp(Math.min((width - margin * 2) / WORLD_WIDTH, (height - margin * 2) / WORLD_HEIGHT), 0.18, 3.5);
+  }
+
   function fitView() {
     if (!cssWidth || !cssHeight) return;
-    var margin = Math.min(28, cssWidth * 0.03);
-    camera.scale = clamp(Math.min((cssWidth - margin * 2) / WORLD_WIDTH, (cssHeight - margin * 2) / WORLD_HEIGHT), 0.18, 3.5);
+    camera.scale = fittedScale(cssWidth, cssHeight);
     camera.x = (cssWidth - WORLD_WIDTH * camera.scale) / 2;
     camera.y = (cssHeight - WORLD_HEIGHT * camera.scale) / 2;
     camera.fitted = true;

@@ -144,6 +144,7 @@ test('Sketch keeps SuDu branding and the slim control bar without website naviga
   const css = await readFile(cssUrl, 'utf8');
 
   assert.match(page, /<header id="suduNav" class="sketch-header">/);
+  assert.match(page, /<span class="sketch-page-name">SKETCH<\/span>/);
   assert.doesNotMatch(page, /<footer class="sketch-footer">|<nav\b/);
   assert.doesNotMatch(page, /href="\/(work|studio|contact)"/);
   assert.match(page, /src="\/images\/sudu-mark.png"/);
@@ -152,6 +153,40 @@ test('Sketch keeps SuDu branding and the slim control bar without website naviga
   assert.match(css, /\.sketch-main \{\s*padding: clamp\(124px, 15vh, 164px\) var\(--sudu-inset\) var\(--sudu-chrome\);/);
   assert.match(css, /html\.dm\.dmwarm\s+\{ --paper: #C0431F; \}/);
   assert.match(css, /html\.dm:not\(\.dmwarm\) \{ --paper: #121110; \}/);
+});
+
+test('resizing the canvas refits the page but preserves a manually zoomed view', async () => {
+  const { runInNewContext } = await import('node:vm');
+  const script = await readFile(scriptUrl, 'utf8');
+  let bounds = { width: 1000, height: 400 };
+  const state = {
+    cssWidth: 0, cssHeight: 0, dpr: 1,
+    WORLD_WIDTH: 1792, WORLD_HEIGHT: 1344,
+    GRID_STEP: 14, GRID_FEET: 1, MAJOR_GRID_FEET: 4,
+    camera: { x: 0, y: 0, scale: 1, fitted: false },
+    canvas: { style: {} }, ctx: { setTransform() {} },
+    stage: { getBoundingClientRect: () => bounds, style: { setProperty() {} } },
+    window: { devicePixelRatio: 2 }, zoomLevel: {}, rulerState: { visible: false },
+    positionRuler() {}, render() {}
+  };
+  runInNewContext(script.slice(script.indexOf('  function resize()'), script.indexOf('  function pointFromEvent(')), state);
+  state.resize();
+  const initialScale = state.camera.scale;
+  bounds = { width: 1000, height: 1300 };
+  state.resize();
+  assert.ok(state.camera.scale > initialScale);
+  assert.equal(state.camera.scale, state.fittedScale(1000, 1300));
+  assert.equal(state.canvas.height, 2600);
+  assert.equal(state.canvas.style.height, '1300px');
+  state.zoomAt(1.5, 500, 650);
+  const centre = [(state.cssWidth / 2 - state.camera.x) / 1.5, (state.cssHeight / 2 - state.camera.y) / 1.5];
+  bounds = { width: 1200, height: 1100 };
+  state.resize();
+  assert.equal(state.camera.scale, 1.5);
+  assert.equal((state.cssWidth / 2 - state.camera.x) / 1.5, centre[0]);
+  assert.equal((state.cssHeight / 2 - state.camera.y) / 1.5, centre[1]);
+  assert.equal(state.WORLD_WIDTH, 1792);
+  assert.equal(state.WORLD_HEIGHT, 1344);
 });
 
 test('mobile menu state opens, switches and closes without changing drawing state', async () => {
