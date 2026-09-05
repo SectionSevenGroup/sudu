@@ -118,17 +118,12 @@ html.xh * { cursor: none !important; }
 .sketch-header nav a { color: var(--chrome-ink); }
 .sketch-header nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-#suduBar,
-.sketch-header,
-.sketch-intro,
-.sketch-footer { display: none !important; }
-
 .sketch-main {
-  padding: 0 var(--sudu-inset);
+  padding: clamp(124px, 15vh, 164px) var(--sudu-inset) clamp(76px, 8vw, 120px);
 }
 
 .sketch-product-header {
-  display: flex;
+  display: none;
   align-items: center;
   min-height: 54px;
   border-bottom: .5px solid var(--rule-strong);
@@ -155,7 +150,9 @@ html.xh * { cursor: none !important; }
   letter-spacing: .11em;
   text-transform: uppercase;
 }
-html.dm .sketch-product-brand img { filter: invert(1); }
+html.dm .sketch-product-brand img,
+html.dm .sketch-header img,
+html.dm .sketch-footer img { filter: invert(1); }
 
 .sketch-intro { margin-bottom: clamp(28px, 4vw, 54px); }
 .sketch-kicker {
@@ -191,7 +188,7 @@ html.dm .sketch-product-brand img { filter: invert(1); }
   line-height: 1.55;
 }
 
-.sketch-workspace { border-top: 0; }
+.sketch-workspace { border-top: .5px solid var(--rule-strong); }
 .sketch-context-bar,
 .trace-bar {
   display: flex;
@@ -200,15 +197,10 @@ html.dm .sketch-product-brand img { filter: invert(1); }
   border-bottom: .5px solid var(--rule);
 }
 .sketch-context-bar {
-  position: sticky;
-  z-index: 20;
-  top: 0;
   display: grid;
   grid-template-columns: 76px minmax(0, auto) 1fr;
   gap: 0;
-  background: color-mix(in srgb, var(--paper) 96%, transparent);
-  border-bottom-color: var(--rule-strong);
-  backdrop-filter: blur(14px);
+  background: var(--paper);
 }
 .floor-references { justify-self: end; }
 .floor-tabs,
@@ -245,9 +237,9 @@ html.dm .sketch-product-brand img { filter: invert(1); }
   min-height: 46px;
   padding: 0 13px;
   cursor: pointer;
-  color: color-mix(in srgb, var(--ink) 72%, transparent);
+  color: var(--muted);
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: .09em;
   text-transform: uppercase;
 }
@@ -401,6 +393,7 @@ button:disabled { cursor: default !important; opacity: .28; }
 
 .mobile-sketch-ui,
 .mobile-sheet-close { display: none; }
+.sketch-actions [data-action='undo'] { display: none; }
 .mobile-undo-top {
   position: relative;
   display: block;
@@ -867,20 +860,57 @@ html.dm .sketch-header {
   background: color-mix(in srgb, var(--dm-bg, var(--paper)) 90%, transparent);
 }
 @media (max-width: 760px) {
-  body { padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
-  .sketch-main { padding: 0 var(--sudu-inset) calc(58px + env(safe-area-inset-bottom, 0px)); }
+  :root {
+    --sketch-top: calc(60px + env(safe-area-inset-top, 0px));
+    --sketch-menu-top: calc(var(--sketch-top) + 52px);
+  }
+  body { padding-bottom: 0; }
+  .sketch-header, .sketch-intro, .sketch-footer { display: none; }
+  .sketch-main { padding: var(--sketch-top) var(--sudu-inset) var(--sudu-chrome); }
+  .sketch-product-header {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    height: var(--sketch-top);
+    min-height: 0;
+    padding: env(safe-area-inset-top, 0px) var(--sudu-inset) 0;
+    background: var(--paper);
+  }
+  .sketch-product-brand img { height: 28px; }
+  .sketch-product-name { font-weight: 600; }
+  /* Keep the real persistent controls. Only the music position changes on
+     Sketch mobile, leaving the centre of the bottom rail for the Tools pill.
+     No backdrop filter here: it would trap the fixed music control in the bar. */
+  html #suduBar {
+    border-top: .5px solid var(--rule-strong);
+    background: var(--paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html #suduBar #musicPill {
+    position: fixed !important;
+    top: calc(env(safe-area-inset-top, 0px) + 23px);
+    right: var(--sudu-inset);
+    bottom: auto;
+    left: auto;
+    transform: none;
+  }
+  html #suduBar #langSwitch { gap: 10px; }
+  html #suduBar #langSwitch button:not([hidden])~button:not([hidden])::before { left: -5px; }
   .sketch-workspace { border-top: 0; }
   .sketch-context-bar {
     position: sticky;
     z-index: 20;
-    top: 0;
+    top: var(--sketch-top);
     display: grid;
     grid-template-columns: 76px minmax(0, 1fr);
     min-height: 52px;
     padding: 0;
-    background: color-mix(in srgb, var(--paper) 96%, transparent);
+    background: var(--paper);
     border-bottom-color: var(--rule-strong);
-    backdrop-filter: blur(14px);
   }
   .mobile-undo-top {
     min-height: 52px !important;
@@ -910,7 +940,8 @@ html.dm .sketch-header {
     position: fixed;
     z-index: 10001;
     right: 0;
-    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    top: var(--sketch-menu-top);
+    bottom: auto;
     left: 0;
     display: none;
     align-items: stretch;
@@ -921,9 +952,7 @@ html.dm .sketch-header {
     overflow-y: hidden;
     border-top: .5px solid var(--rule-strong);
     border-bottom: .5px solid var(--rule-strong);
-    background: color-mix(in srgb, var(--paper) 96%, transparent);
-    box-shadow: 0 -12px 36px color-mix(in srgb, var(--ink) 9%, transparent);
-    backdrop-filter: blur(14px);
+    background: var(--paper);
   }
   .trace-bar.is-mobile-open { display: flex; }
   .trace-bar > .context-label { display: none; }
@@ -944,26 +973,56 @@ html.dm .sketch-header {
   .mobile-master-bar {
     position: fixed;
     z-index: 10002;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: grid;
+    top: var(--sketch-menu-top);
+    right: var(--sudu-inset);
+    bottom: auto;
+    left: var(--sudu-inset);
+    display: none;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    height: 58px;
-    padding: 0 var(--sudu-inset) env(safe-area-inset-bottom, 0px);
-    box-sizing: content-box;
-    border-top: .5px solid var(--rule-strong);
-    background: color-mix(in srgb, var(--paper) 95%, transparent);
-    box-shadow: 0 -8px 28px color-mix(in srgb, var(--ink) 7%, transparent);
-    backdrop-filter: blur(14px);
+    height: 44px;
+    padding: 0;
+    border-bottom: .5px solid var(--rule-strong);
+    background: var(--paper);
   }
+  .mobile-sketch-ui.is-tools-open .mobile-master-bar { display: grid; }
+  .sketch-tools-pill {
+    position: fixed;
+    z-index: 10002;
+    left: 50%;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-width: 88px;
+    height: 36px;
+    padding: 0 15px;
+    border: .5px solid var(--rule-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+  .sketch-tools-pill::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-top: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+    transform: translateY(2px) rotate(-45deg);
+  }
+  .sketch-tools-pill[aria-expanded='true']::after { transform: translateY(-2px) rotate(135deg); }
   .mobile-master-bar button {
     position: relative;
     min-width: 0;
     padding: 0 5px;
     color: color-mix(in srgb, var(--ink) 72%, transparent);
     font-size: 9px;
-    font-weight: 750;
+    font-weight: 600;
     letter-spacing: .1em;
     text-transform: uppercase;
   }
@@ -982,20 +1041,18 @@ html.dm .sketch-header {
   .mobile-tool-sheet {
     position: fixed;
     z-index: 10001;
-    right: 0;
-    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
-    left: 0;
-    border-top: .5px solid var(--rule-strong);
+    top: calc(var(--sketch-menu-top) + 44px);
+    right: var(--sudu-inset);
+    bottom: auto;
+    left: var(--sudu-inset);
     border-bottom: .5px solid var(--rule-strong);
-    background: color-mix(in srgb, var(--paper) 96%, transparent);
-    box-shadow: 0 -12px 36px color-mix(in srgb, var(--ink) 9%, transparent);
-    backdrop-filter: blur(14px);
+    background: var(--paper);
   }
   .mobile-tool-sheet[hidden] { display: none; }
   .mobile-tool-panel {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    max-height: min(44svh, 340px);
+    max-height: max(100px, min(44svh, calc(100svh - var(--sketch-menu-top) - 44px - var(--sudu-chrome))));
     overflow-y: auto;
   }
   .mobile-tool-panel[hidden] { display: none; }
@@ -1005,7 +1062,7 @@ html.dm .sketch-header {
     border-bottom: .5px solid var(--rule);
     color: color-mix(in srgb, var(--ink) 58%, transparent);
     font-size: 8px;
-    font-weight: 750;
+    font-weight: 600;
     letter-spacing: .12em;
     text-transform: uppercase;
   }
@@ -1015,7 +1072,7 @@ html.dm .sketch-header {
     padding: 8px 5px;
     color: color-mix(in srgb, var(--ink) 72%, transparent);
     font-size: 8.5px;
-    font-weight: 750;
+    font-weight: 600;
     letter-spacing: .07em;
     text-transform: uppercase;
   }
@@ -1036,16 +1093,15 @@ html.dm .sketch-header {
     position: fixed;
     z-index: 10003;
     right: 0;
-    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    top: var(--sketch-menu-top);
+    bottom: auto;
     left: 0;
     flex-wrap: wrap;
     min-height: 0;
     max-height: min(58svh, 430px);
     overflow-y: auto;
     border-top: .5px solid var(--rule-strong);
-    background: color-mix(in srgb, var(--paper) 97%, transparent);
-    box-shadow: 0 -12px 36px color-mix(in srgb, var(--ink) 9%, transparent);
-    backdrop-filter: blur(14px);
+    background: var(--paper);
   }
   .stencil-panel > .context-label { display: none; }
   .stencil-categories { width: 100%; min-height: 40px; border-right: 0; border-bottom: .5px solid var(--rule); }
@@ -1053,8 +1109,8 @@ html.dm .sketch-header {
   .stencil-choices { order: 2; width: 100%; border-top: .5px solid var(--rule); }
   .stencil-options { flex: 1 1 auto; border-left: .5px solid var(--rule); }
   .stencil-panel button { min-height: 42px; }
-  .draw-stage { height: max(420px, calc(100svh - 110px - env(safe-area-inset-bottom, 0px))); min-height: 0; }
-  .draw-scale { bottom: 48px; }
+  .draw-stage { height: max(240px, calc(100svh - var(--sketch-menu-top) - var(--sudu-chrome))); min-height: 0; }
+  .draw-scale { bottom: 18px; }
   .sketch-ruler { width: min(68vw, 320px); }
   .send-fields--two { grid-template-columns: 1fr; }
   .send-submit { align-items: flex-start; flex-direction: column; }
@@ -1065,9 +1121,6 @@ html.dm .sketch-header {
   .sketch-header img { height: 32px; }
   .sketch-header nav { gap: 14px; }
   .sketch-header nav a { font-size: 12px; }
-  .sketch-main { padding-top: max(10px, env(safe-area-inset-top, 0px)); }
-  .sketch-product-header { min-height: 48px; }
-  .sketch-product-brand img { height: 22px; }
   .draw-stage { min-height: 0; }
   .sketch-footer { align-items: flex-start; flex-direction: column; }
 }
