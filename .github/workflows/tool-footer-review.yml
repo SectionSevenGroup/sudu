@@ -1,0 +1,35 @@
+name: Tool footer review
+on:
+  push:
+    branches: [fix/tool-footer-consistency-20260905]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture reproducible review source
+        run: git archive --format=tar --output=/tmp/tool-footer-source.tar HEAD css js stack play sketch fonts i18n.js index.html images/sudu-mark.png scripts _headers _redirects netlify.toml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tool-footer-source
+          path: /tmp/tool-footer-source.tar
+          retention-days: 3
+      - uses: actions/setup-node@v4
+        if: hashFiles('scripts/check-tool-footer.mjs') != ''
+        with:
+          node-version: '22'
+      - name: Install review browsers
+        if: hashFiles('scripts/check-tool-footer.mjs') != ''
+        run: npm install --no-save --package-lock=false playwright@1.55.1 && npx playwright install --with-deps chromium webkit
+      - name: Review mobile and desktop footers
+        if: hashFiles('scripts/check-tool-footer.mjs') != ''
+        run: node scripts/check-tool-footer.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('scripts/check-tool-footer.mjs') != ''
+        with:
+          name: tool-footer-browser-review
+          path: /tmp/tool-footer-review
+          retention-days: 3
