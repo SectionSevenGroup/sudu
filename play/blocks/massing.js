@@ -1337,6 +1337,19 @@ Promise.all([
     return shifts.reduce((best, shift) => Math.abs(shift) < Math.abs(best) ? shift : best, shifts[0]);
   }
 
+  function snapPlacementClear(piece, position) {
+    // Check individual components so openings in portals remain usable.
+    const moving = piece.shapes.map(shape => getWorldBounds([shape], position, piece.targetRotation));
+    for (const other of pieces) {
+      if (other === piece || other.inTray || other.spawning) continue;
+      for (const shape of other.shapes) {
+        const bounds = getWorldBounds([shape], bodyPosition(other), bodyRotation(other));
+        if (moving.some(candidate => ['x', 'y', 'z'].every(axis => axisOverlap(candidate, bounds, axis) > .025))) return false;
+      }
+    }
+    return true;
+  }
+
   function findSnapCandidate(piece, position = piece.targetPosition) {
     const movingBounds = getWorldBounds(piece.shapes, position, piece.targetRotation);
     let best = null;
@@ -1386,6 +1399,7 @@ Promise.all([
           snappedPosition.x += shiftX;
           snappedPosition.y += targetBounds.maxY - movingBounds.minY + SNAP_GAP;
           snappedPosition.z += shiftZ;
+          if (!snapPlacementClear(piece, snappedPosition)) continue;
           const score = Math.hypot(shiftX / captureX, shiftZ / captureZ)
             + Math.abs(snappedPosition.y - position.y) * .018;
 
@@ -2093,6 +2107,19 @@ Promise.all([
     );
   }
 
+  function carrySurfacePoint(carried) {
+    // Aim directly at the visible upper surface, regardless of the pickup height.
+    // Ignore the carried block and blocks it was supporting when picked up.
+    const hit = raycaster.intersectObjects(meshes, false).find(candidate => {
+      const target = pieces[candidate.object.userData.pieceIndex];
+      if (!target || target === carried.piece || target.inTray || target.spawning
+        || !target.group.visible || carried.carryIgnore.has(target) || !candidate.face) return false;
+      const normal = candidate.face.normal.clone().transformDirection(candidate.object.matrixWorld);
+      return normal.y > .7;
+    });
+    return hit ? hit.point.clone() : null;
+  }
+
   function beginCarry(piece, event) {
     mobileSelectionReleaseAt = 0;
     selectPiece(piece);
@@ -2206,6 +2233,11 @@ Promise.all([
       setRay(event.clientX, event.clientY);
       if (raycaster.ray.intersectPlane(carryPlane, carryPoint)) {
         const desired = active.carryOrigin.clone().add(carryPoint.clone().sub(active.carryGrabPoint));
+        const surfacePoint = carrySurfacePoint(active);
+        if (surfacePoint) {
+          desired.x = surfacePoint.x + active.carryOrigin.x - active.carryGrabPoint.x;
+          desired.z = surfacePoint.z + active.carryOrigin.z - active.carryGrabPoint.z;
+        }
         desired.x = THREE.MathUtils.clamp(snapNear(desired.x), -19, 19);
         desired.z = THREE.MathUtils.clamp(snapNear(desired.z), -18, 17);
         updateCarriedSupports(active, desired.x, desired.z);
