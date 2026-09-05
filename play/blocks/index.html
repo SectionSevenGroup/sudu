@@ -70,17 +70,19 @@
       <div id="parts-rail" class="parts-tray__rail"></div>
     </nav>
 
-    <div id="massing-stage" class="massing-stage" aria-label="Interactive architectural massing table. Drag to move a block across the plan. Scroll to change its height. Release on the alignment outline to place it. Double-click touching blocks to align and hold them for eight seconds." tabindex="0">
+    <div id="massing-stage" class="massing-stage" aria-label="Interactive architectural massing table. Drag to move a block across the plan. Scroll to change its height. Release on the alignment outline to place it. Double-click or double-tap touching blocks to align and hold them for ten seconds." tabindex="0">
       <p class="massing-loading" aria-live="polite">laying out the kit</p>
     </div>
 
-    <p class="massing-instruction">drag · scroll lifts · double-click aligns</p>
+    <p class="massing-instruction">drag · scroll lifts · double-click aligns 10s</p>
 
     <div class="massing-note" aria-live="polite">
       <span id="massing-selection"></span>
       <button id="massing-turn" class="massing-action" type="button" aria-label="Rotate selected block 90 degrees" disabled>rotate</button>
       <button id="massing-up" class="massing-action" type="button" disabled>up</button>
       <button id="massing-down" class="massing-action" type="button" disabled>down</button>
+      <button id="massing-return" class="massing-action" type="button" disabled>return</button>
+      <button id="massing-undo" class="massing-action" type="button" disabled>undo</button>
       <button id="massing-view" class="massing-action" type="button">top</button>
       <button id="again" type="button">reset</button>
     </div>
