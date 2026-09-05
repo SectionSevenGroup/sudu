@@ -111,7 +111,7 @@ test('the existing SuDu template shell stays intact', async () => {
   assert.match(css, /html\.dm:not\(\.dmwarm\) \{ --paper: #121110; \}/);
 });
 
-test('mobile uses a five-part master bar with collapsible tool sheets', async () => {
+test('mobile uses a standalone app shell with top-left undo and collapsible tool sheets', async () => {
   const script = await readFile(scriptUrl, 'utf8');
   const page = await readFile(pageUrl, 'utf8');
   const css = await readFile(cssUrl, 'utf8');
@@ -119,7 +119,8 @@ test('mobile uses a five-part master bar with collapsible tool sheets', async ()
   assert.match(page, /class="mobile-master-bar"[^>]+aria-label="Main drawing tools"/);
   assert.equal((page.match(/data-mobile-menu="(draw|add|more)"/g) || []).length, 3);
   assert.match(page, /data-mobile-tool="edit"/);
-  assert.match(page, /data-mobile-action="undo"/);
+  assert.match(page, /class="mobile-undo-top"[^>]+data-mobile-action="undo"/);
+  assert.doesNotMatch(page, /mobile-master-bar[\s\S]{0,500}data-mobile-action="undo"/);
   assert.match(page, /data-mobile-panel="draw"/);
   assert.match(page, /data-mobile-panel="add"/);
   assert.match(page, /data-mobile-panel="more"/);
@@ -127,6 +128,8 @@ test('mobile uses a five-part master bar with collapsible tool sheets', async ()
   assert.match(script, /function closeMobilePanels\(\)/);
   assert.match(script, /function syncMobileControls\(\)/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]+\.mobile-master-bar/);
-  assert.match(css, /grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+  assert.match(css, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.match(css, /#suduBar,[\s\S]+\.sketch-header,[\s\S]+\.sketch-intro,[\s\S]+\.sketch-footer \{ display: none !important; \}/);
+  assert.match(css, /\.mobile-undo-top \{[\s\S]+display: block/);
   assert.match(css, /\.sketch-toolbar,[\s\S]+\.sketch-workspace-footer \{ display: none; \}/);
 });
