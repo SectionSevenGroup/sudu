@@ -139,15 +139,17 @@ test('projects persist across three floors and export project, PNG and PDF files
   assert.match(page, /data-action="pdf"/);
 });
 
-test('the existing SuDu template shell stays intact', async () => {
+test('Sketch keeps SuDu branding and the slim control bar without website navigation or a second footer', async () => {
   const page = await readFile(pageUrl, 'utf8');
   const css = await readFile(cssUrl, 'utf8');
 
   assert.match(page, /<header id="suduNav" class="sketch-header">/);
-  assert.match(page, /<footer class="sketch-footer">/);
-  assert.match(page, /href="\/work"/);
-  assert.match(page, /href="\/studio"/);
-  assert.match(page, /href="\/contact"/);
+  assert.doesNotMatch(page, /<footer class="sketch-footer">|<nav\b/);
+  assert.doesNotMatch(page, /href="\/(work|studio|contact)"/);
+  assert.match(page, /src="\/images\/sudu-mark.png"/);
+  assert.match(page, /src="\/js\/chrome-bar.js\?v=/);
+  assert.match(page, /href="\/css\/tool-footer.css\?v=/);
+  assert.match(css, /\.sketch-main \{\s*padding: clamp\(124px, 15vh, 164px\) var\(--sudu-inset\) var\(--sudu-chrome\);/);
   assert.match(css, /html\.dm\.dmwarm\s+\{ --paper: #C0431F; \}/);
   assert.match(css, /html\.dm:not\(\.dmwarm\) \{ --paper: #121110; \}/);
 });

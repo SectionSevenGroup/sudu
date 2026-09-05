@@ -119,7 +119,7 @@ html.xh * { cursor: none !important; }
 .sketch-header nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
 .sketch-main {
-  padding: clamp(124px, 15vh, 164px) var(--sudu-inset) clamp(76px, 8vw, 120px);
+  padding: clamp(124px, 15vh, 164px) var(--sudu-inset) var(--sudu-chrome);
 }
 
 .sketch-product-header {
