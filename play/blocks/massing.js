@@ -732,6 +732,7 @@ Promise.all([
       setPieceInTray(piece, saved.inTray);
       if (saved.inTray) continue;
       piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      piece.body.recomputeMassPropertiesFromColliders();
       piece.body.setTranslation({ x: saved.position[0], y: saved.position[1], z: saved.position[2] }, true);
       piece.body.setRotation({ x: saved.rotation[0], y: saved.rotation[1], z: saved.rotation[2], w: saved.rotation[3] }, true);
       piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
@@ -1431,6 +1432,7 @@ Promise.all([
     selected.body.setRotation(selected.targetRotation, true);
     setPieceCarryFriction(selected, false);
     selected.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+    selected.body.recomputeMassPropertiesFromColliders();
     selected.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     selected.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
     const released = selected;
@@ -1460,6 +1462,7 @@ Promise.all([
       if (piece.hold !== hold) continue;
       piece.hold = null;
       piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      piece.body.recomputeMassPropertiesFromColliders();
       piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
       piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
       setPieceEdges(piece, piece === hovered ? hoverMaterial : restingEdgeMaterial(piece));
@@ -1809,6 +1812,8 @@ Promise.all([
     for (const collider of piece.colliders) collider.setEnabled(true);
     setPieceCarryFriction(piece, false);
     piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+    // Tray colliders were disabled: Dynamic alone leaves Rapier with zero mass.
+    piece.body.recomputeMassPropertiesFromColliders();
     piece.body.setLinvel({ x: 0, y: -.2, z: 0 }, true);
     piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
     piece.body.wakeUp();
@@ -2335,6 +2340,7 @@ Promise.all([
       if (piece.hold) releaseHold(piece.hold);
       setPieceCarryFriction(piece, false);
       piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      piece.body.recomputeMassPropertiesFromColliders();
       piece.body.setTranslation(piece.homePosition, true);
       piece.body.setRotation(piece.homeRotation, true);
       piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
@@ -2519,6 +2525,7 @@ Promise.all([
     position.y = suggestedCarryHeight(piece, position.x, position.z, position.y);
     setPieceCarryFriction(piece, false);
     piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+    piece.body.recomputeMassPropertiesFromColliders();
     piece.body.setTranslation(position, true);
     piece.body.setRotation(piece.homeRotation, true);
     piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
