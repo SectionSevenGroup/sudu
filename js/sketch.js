@@ -49,6 +49,13 @@
   var shapeKind = 'rectangle';
   var shapeFilled = false;
   var shapeBulge = 0.5;
+  var wallPanel = document.getElementById('wallPanel');
+  var wallMode = 'single';
+  var wallChain = null;
+  var wallPress = null;
+  var trimGeometry = window.SketchTrim;
+  var trimPreview = null;
+  var trimPress = null;
 
   var INK = '#171613';
   var PAPER = '#F3F1EA';
@@ -131,6 +138,8 @@
   var toolHints = {
     pen: 'Draw freely. Strokes smooth automatically.',
     line: 'Drag between two points to draw a straight wall.',
+    wall: 'Choose Single, Continuous, Box, Arc or Circle. Drag on the grid to draw a wall.',
+    trim: 'Point at a wall section to highlight it, then click to trim. On touch, tap to preview and tap again to remove. Undo restores the cut.',
     room: 'Drag diagonally to block out a room.',
     door: 'Click for a 3′ door or drag a custom opening. Select Door again or hold Shift to reverse the swing.',
     window: 'Click for a 4′ window or drag a custom opening.',
@@ -192,7 +201,16 @@
           (item.bulge === undefined || Number.isFinite(item.bulge));
       }
       return item && allowedTypes.indexOf(item.type) !== -1;
-    }).slice(-200).map(ensureObjectId);
+    }).slice(-200).map(function (item) {
+      if (item.cuts !== undefined) {
+        item.cuts = (Array.isArray(item.cuts) ? item.cuts : []).filter(function (cut) {
+          return cut && Number.isInteger(cut.edge) && cut.edge >= 0 && cut.edge <= 3 &&
+            Number.isFinite(cut.from) && Number.isFinite(cut.to) && cut.from >= 0 && cut.to <= 1 && cut.to > cut.from;
+        }).slice(0, 800);
+        if (item.cuts.length && item.type === 'shape') item.filled = false;
+      }
+      return ensureObjectId(item);
+    });
   }
 
   function floorState(key) {
@@ -216,6 +234,8 @@
   }
 
   function bindActiveLayer() {
+    if (typeof wallChain !== 'undefined') { wallChain = null; wallPress = null; }
+    if (typeof trimPreview !== 'undefined') { trimPreview = null; trimPress = null; }
     var layer = activeLayerState();
     objects = layer.objects;
     undoStack = layer.undoStack;
@@ -1291,7 +1311,236 @@
     return [a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }, a];
   }
 
+  function wallPaths(object) {
+    var paths = [];
+    if (object.type === 'shape' && (object.kind === 'circle' || object.kind === 'arc')) {
+      paths.push({edge:0, curve:shapeCurve(object), closed:object.kind === 'circle'});
+    } else if (object.type === 'line') paths.push({edge:0, a:px(object.start), b:px(object.end)});
+    else if (object.type === 'room' || object.type === 'shape') {
+      var points = shapePoints(object);
+      for (var i = 0; i < 4; i++) paths.push({edge:i, a:px(points[i]), b:px(points[i + 1])});
+    }
+    paths.forEach(function (path) { path.object = object; path.cuts = object.cuts || []; });
+    return paths;
+  }
+
+  function traceWallPath(target, path, from, to, width, height) {
+    var start = trimGeometry.point(path, from);
+    target.moveTo(start.x * width / WORLD_WIDTH, start.y * height / WORLD_HEIGHT);
+    if (path.curve) {
+      var c = path.curve;
+      target.ellipse(c.x * width / WORLD_WIDTH, c.y * height / WORLD_HEIGHT,
+        c.radius * width / WORLD_WIDTH, c.radius * height / WORLD_HEIGHT, 0,
+        c.angle + c.sweep * from, c.angle + c.sweep * to, c.sweep < 0);
+    } else {
+      var end = trimGeometry.point(path, to);
+      target.lineTo(end.x * width / WORLD_WIDTH, end.y * height / WORLD_HEIGHT);
+    }
+  }
+
+  function drawCutWall(target, object, width, height) {
+    target.beginPath();
+    wallPaths(object).forEach(function (path) {
+      trimGeometry.ranges(path).forEach(function (range) { traceWallPath(target, path, range[0], range[1], width, height); });
+    });
+    target.stroke();
+  }
+
+  function cutWallSegments(object) {
+    var segments = [];
+    wallPaths(object).forEach(function (path) {
+      trimGeometry.ranges(path).forEach(function (range) {
+        var steps = path.curve ? 64 : 1;
+        for (var i = 0; i < steps; i++) {
+          var from = Math.max(range[0], i / steps), to = Math.min(range[1], (i + 1) / steps);
+          if (to - from < 1e-7) continue;
+          var a = trimGeometry.point(path, from), b = trimGeometry.point(path, to);
+          segments.push({start:{x:a.x / WORLD_WIDTH, y:a.y / WORLD_HEIGHT}, end:{x:b.x / WORLD_WIDTH, y:b.y / WORLD_HEIGHT},
+            hostId:object.id, hostEdge:path.curve ? i : path.edge, from:from * steps - i, to:to * steps - i});
+        }
+      });
+    });
+    return segments;
+  }
+
+  function findTrim(point) {
+    var layer = activeLayerState();
+    if (layer.locked || !layer.visible) return null;
+    var paths = [];
+    // Only this editable layer participates. Ghosts and reference traces cannot
+    // silently cut another floor or layer, and filled shapes are not wall outlines.
+    objects.forEach(function (object) {
+      if (object.filled || ['line', 'room', 'shape'].indexOf(object.type) === -1) return;
+      wallPaths(object).forEach(function (path) { paths.push(path); });
+    });
+    return trimGeometry.nearest(paths, px(point), 14 / camera.scale);
+  }
+
+  function sameTrim(a, b) {
+    return a && b && a.path.object === b.path.object && a.path.edge === b.path.edge &&
+      Math.abs(a.from - b.from) < 1e-6 && Math.abs(a.to - b.to) < 1e-6;
+  }
+
+  function drawTrimPreview() {
+    if (objects.indexOf(trimPreview.path.object) === -1) return;
+    ctx.save();
+    ctx.strokeStyle = INK;
+    ctx.fillStyle = PAPER;
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = 0.22;
+    ctx.lineWidth = 10 / camera.scale;
+    ctx.beginPath();
+    traceWallPath(ctx, trimPreview.path, trimPreview.from, trimPreview.to, WORLD_WIDTH, WORLD_HEIGHT);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 2.5 / camera.scale;
+    ctx.stroke();
+    [trimPreview.from, trimPreview.to].forEach(function (t) {
+      var p = trimGeometry.point(trimPreview.path, t);
+      ctx.beginPath(); ctx.arc(p.x, p.y, 5 / camera.scale, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function beginTrim(event) {
+    var next = findTrim(pointFromEvent(event, false));
+    trimPress = {part:next, confirm:event.pointerType !== 'touch' || sameTrim(next, trimPreview),
+      pointerId:event.pointerId, screen:pointerScreen(event), moved:false};
+    trimPreview = next;
+    canvas.setPointerCapture(event.pointerId);
+    setHint(next ? (event.pointerType === 'touch' && !trimPress.confirm ? 'Highlighted section. Tap it again to trim.' : 'Release to trim the highlighted section.')
+      : 'Choose a wall outline on this layer. Circles need two crossings; solid shapes must be switched to Outline.');
+    render();
+  }
+
+  function moveTrim(event) {
+    if (trimPress) {
+      var p = pointerScreen(event);
+      if (Math.hypot(p.x - trimPress.screen.x, p.y - trimPress.screen.y) > 8) trimPress.moved = true;
+      return;
+    }
+    if (event.pointerType === 'touch') return;
+    trimPreview = findTrim(pointFromEvent(event, false));
+    render();
+  }
+
+  function trimHasOpening(part) {
+    return activeFloorState().layers.some(function (layer) {
+      return layer.objects.some(function (object) {
+        return openingIntersectsPart(object, part);
+      });
+    });
+  }
+
+  function openingIntersectsPart(object, part) {
+    var path = part.path;
+    if (object.hostId !== path.object.id) return false;
+    var edge = Number(object.hostEdge) || 0;
+    if (!path.curve && edge !== path.edge) return false;
+    var length = path.curve ? path.curve.radius * Math.abs(path.curve.sweep) : Math.hypot(path.b.x - path.a.x, path.b.y - path.a.y);
+    var t = path.curve ? (edge + (Number(object.position) || 0)) / 64 : (Number(object.position) || 0.5);
+    var half = Math.min(0.5, Math.max(0.5, Number(object.lengthDots) || 1.5) * GRID_SPACING / length / 2);
+    if (!path.closed) t = clamp(t, half, 1 - half);
+    return [-1, 0, 1].some(function (shift) {
+      return (path.closed || shift === 0) && t + shift + half > part.from + 1e-7 && t + shift - half < part.to - 1e-7;
+    });
+  }
+
+  function openingCrossesCut(opening) {
+    var host = opening.hostId && objectById(opening.hostId);
+    if (!host || !host.cuts || !host.cuts.length) return false;
+    return wallPaths(host).some(function (path) {
+      return trimGeometry.cuts(path).some(function (cut) {
+        return openingIntersectsPart(opening, {path:path, from:cut.from, to:cut.to});
+      });
+    });
+  }
+
+  function finishTrim(event) {
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    var press = trimPress;
+    trimPress = null;
+    if (!press || press.pointerId !== event.pointerId || press.moved || !press.confirm || !press.part) return;
+    var next = findTrim(pointFromEvent(event, false));
+    if (!sameTrim(press.part, next)) return;
+    if (trimHasOpening(next)) { setHint('Move or erase the door/window on this section before trimming it.'); return; }
+    var previous = clone(objects);
+    next.path.object.cuts = trimGeometry.addCut(next.path, next.from, next.to);
+    selectedIndex = -1;
+    trimPreview = null;
+    remember(previous);
+    setHint('Wall section trimmed. Undo restores it.', 2400);
+    render();
+  }
+
+  function openWall() {
+    var continuing = tool === 'wall' && wallChain;
+    closeMobilePanels();
+    if (!continuing) setTool('wall');
+    mobileOpenPanel = 'wall';
+    wallPanel.hidden = false;
+    syncWallControls();
+  }
+
+  function syncWallControls() {
+    wallPanel.querySelectorAll('[data-wall-mode]').forEach(function (button) {
+      button.setAttribute('aria-pressed', button.getAttribute('data-wall-mode') === wallMode ? 'true' : 'false');
+    });
+    wallPanel.querySelector('[data-wall-finish]').hidden = wallMode !== 'continuous';
+    var text = wallMode === 'continuous' ? 'Click each corner. Finish or Escape ends the chain; click the first corner to close it.'
+      : wallMode === 'arc' ? 'Drag between the arc ends. Choose Edit and drag the middle anchor to bend it.'
+      : wallMode === 'circle' ? 'Drag across the circle’s bounding box. Its outline acts as a curved wall.'
+      : wallMode === 'box' ? 'Drag diagonally to draw four connected walls.' : 'Drag from the start to the end of one wall.';
+    wallPanel.querySelector('p').textContent = text;
+    setHint(text);
+  }
+
+  function beginWall(event) {
+    var point = pointFromEvent(event, true);
+    canvas.setPointerCapture(event.pointerId);
+    if (wallMode === 'continuous') {
+      var first = !wallChain;
+      if (first) wallChain = {first:point, last:point, count:0};
+      wallPress = {first:first, pointerId:event.pointerId};
+      active = {id:makeObjectId('line'), type:'line', start:clone(wallChain.last), end:point};
+    } else {
+      closeMobilePanels();
+      active = {id:makeObjectId('wall'), type:wallMode === 'single' ? 'line' : wallMode === 'box' ? 'room' : 'shape',
+        kind:wallMode, filled:false, bulge:0.5, start:point, end:point};
+    }
+    render();
+  }
+
+  function continueWall(event) {
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    if (!wallPress || wallPress.pointerId !== event.pointerId || !wallChain) return;
+    var first = wallPress.first;
+    wallPress = null;
+    if (first) return;
+    var end = pointFromEvent(event, true);
+    var closing = wallChain.count >= 2 && screenDistance(end, wallChain.first) <= 12;
+    if (closing) end = clone(wallChain.first);
+    if (rulerState.visible && !event.altKey && !closing) end = constrainToRuler(wallChain.last, end);
+    if (screenDistance(end, wallChain.last) <= 6) return;
+    var previous = clone(objects);
+    objects.push({id:makeObjectId('line'), type:'line', start:clone(wallChain.last), end:end});
+    if (objects.length > 200) objects.shift();
+    remember(previous);
+    wallChain.last = end;
+    wallChain.count++;
+    if (closing) { finishWall(); return; }
+    active = {id:makeObjectId('line'), type:'line', start:clone(end), end:clone(end)};
+    render();
+  }
+
+  function finishWall() {
+    wallChain = null; wallPress = null; active = null;
+    setHint('Wall chain finished. Click to start another.');
+    render();
+  }
+
   function drawShape(target, object, width, height, outlineOnly) {
+    if (object.cuts && object.cuts.length) { drawCutWall(target, object, width, height); return; }
     target.beginPath();
     if (object.kind === 'circle' || object.kind === 'arc') {
       var curve = shapeCurve(object);
@@ -1316,6 +1565,13 @@
     target.fillStyle = INK;
     target.lineCap = 'round';
     target.lineJoin = 'round';
+
+    if (object.cuts && object.cuts.length) {
+      target.lineWidth = 2.1 * outputScale;
+      drawCutWall(target, object, width, height);
+      target.restore();
+      return;
+    }
 
     if (object.type === 'shape') {
       target.lineWidth = 2.1 * outputScale;
@@ -1547,6 +1803,7 @@
       : [8 * outputScale, 5 * outputScale]);
 
     outlineObjects.forEach(function (object) {
+      if (object.cuts && object.cuts.length) { drawCutWall(target, object, width, height); return; }
       if (object.type === 'shape') drawShape(target, object, width, height, true);
       if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
         if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object);
@@ -1633,6 +1890,14 @@
 
   function measurementText(object) {
     if (!object || !object.start || !object.end) return '';
+    if (object.cuts && object.cuts.length) {
+      var remaining = 0;
+      wallPaths(object).forEach(function (path) {
+        var length = path.curve ? path.curve.radius * Math.abs(path.curve.sweep) : Math.hypot(path.b.x - path.a.x, path.b.y - path.a.y);
+        trimGeometry.ranges(path).forEach(function (range) { remaining += length * (range[1] - range[0]); });
+      });
+      return 'Remaining wall  ' + formatFeet(remaining / GRID_SPACING * DOT_FEET);
+    }
     // Model dimensions, independent of zoom, canvas size and screen density.
     var x = Math.abs(object.end.x - object.start.x) * WORLD_DOTS_X * DOT_FEET;
     var y = Math.abs(object.end.y - object.start.y) * WORLD_DOTS_Y * DOT_FEET;
@@ -1708,6 +1973,7 @@
     ctx.translate(camera.x, camera.y);
     ctx.scale(camera.scale, camera.scale);
     drawScene(ctx, WORLD_WIDTH, WORLD_HEIGHT, true);
+    if (tool === 'trim' && trimPreview && !activeLayerState().locked) drawTrimPreview();
     ctx.restore();
     updatePaperFeedback();
   }
@@ -1841,6 +2107,9 @@
 
   function setTool(next) {
     if (!toolHints[next]) return;
+    if (typeof wallChain !== 'undefined') { wallChain = null; wallPress = null; }
+    if (typeof trimPreview !== 'undefined') { trimPreview = null; trimPress = null; }
+    if (typeof wallPanel !== 'undefined' && wallPanel) wallPanel.hidden = true;
     if (typeof shapePanel !== 'undefined' && shapePanel) shapePanel.hidden = true;
     tool = next;
     active = null;
@@ -1867,6 +2136,7 @@
     mobilePanels.forEach(function (panel) { panel.hidden = true; });
     stencilPanel.hidden = true;
     if (typeof shapePanel !== 'undefined' && shapePanel) shapePanel.hidden = true;
+    if (typeof wallPanel !== 'undefined' && wallPanel) wallPanel.hidden = true;
     var levels = document.querySelector('#sketchLevels');
     if (levels) levels.classList.remove('is-mobile-open');
     var traceBar = document.querySelector('.trace-bar');
@@ -1971,6 +2241,11 @@
   }
 
   function changeShapeStyle(filled) {
+    var cutShape = selectedShape();
+    if (filled && cutShape && cutShape.cuts && cutShape.cuts.length) {
+      setHint('This outline has been trimmed. Undo the cuts before giving it a solid fill.');
+      return;
+    }
     var selected = selectedShape();
     shapeFilled = filled;
     if (selected && !activeLayerState().locked && Boolean(selected.filled) !== filled) {
@@ -2028,6 +2303,10 @@
     var segments = [];
     visibleObjectsForFloor(activeFloor).forEach(function (object) {
       ensureObjectId(object);
+      if (object.cuts && object.cuts.length) {
+        cutWallSegments(object).forEach(function (segment) { segments.push(segment); });
+        return;
+      }
       if (object.type === 'shape') {
         var points = shapePoints(object);
         for (var edge = 0; edge < points.length - 1; edge++) {
@@ -2131,7 +2410,7 @@
     var end = px(opening.end);
     opening.hostId = closest.segment.hostId;
     opening.hostEdge = closest.segment.hostEdge;
-    opening.position = closest.position;
+    opening.position = (closest.segment.from || 0) + closest.position * ((closest.segment.to === undefined ? 1 : closest.segment.to) - (closest.segment.from || 0));
     opening.lengthDots = Math.max(0.5, Math.hypot(end.x - start.x, end.y - start.y) / GRID_SPACING);
     return opening;
   }
@@ -2160,7 +2439,7 @@
           direction: { x: dx / segmentLength, y: dy / segmentLength },
           hostId: segment.hostId,
           hostEdge: segment.hostEdge,
-          position: t
+          position: (segment.from || 0) + t * ((segment.to === undefined ? 1 : segment.to) - (segment.from || 0))
         };
       }
     });
@@ -2241,6 +2520,9 @@
   }
 
   function hitObject(object, point) {
+    if (object.cuts && object.cuts.length) {
+      return cutWallSegments(object).some(function (segment) { return distanceToSegment(point, segment.start, segment.end) < 16; });
+    }
     if (object.type === 'shape') {
       var points = shapePoints(object);
       for (var edge = 0; edge < points.length - 1; edge++) {
@@ -2567,6 +2849,8 @@
     if (event.pointerType === 'touch') {
       pointers.set(event.pointerId, pointerScreen(event));
       if (pointers.size >= 2) {
+        if (typeof trimPress !== 'undefined') { trimPress = null; trimPreview = null; }
+        if (typeof wallChain !== 'undefined') { wallChain = null; wallPress = null; }
         canvas.setPointerCapture(event.pointerId);
         beginGesture();
         return;
@@ -2578,6 +2862,8 @@
       setHint('This layer is locked. Select or unlock a drawing layer.');
       return;
     }
+    if (tool === 'trim') { beginTrim(event); return; }
+    if (tool === 'wall') { beginWall(event); return; }
     if (tool === 'edit') { beginEdit(event); return; }
     canvas.setPointerCapture(event.pointerId);
     var snap = ['line', 'room', 'door', 'window', 'area', 'stencil', 'shape'].indexOf(tool) !== -1;
@@ -2629,6 +2915,7 @@
       if (moveGesture()) return;
     }
     if (movePan(event)) return;
+    if (tool === 'trim') { moveTrim(event); return; }
     if (resizeDrag) { moveResize(event); return; }
     if (moveDrag) { moveSelected(event); return; }
     if (!active) return;
@@ -2658,6 +2945,8 @@
       }
     }
     if (endPan(event)) return;
+    if (tool === 'trim') { finishTrim(event); return; }
+    if (tool === 'wall' && wallMode === 'continuous') { continueWall(event); return; }
     if (resizeDrag) { finishResize(event); return; }
     if (moveDrag) { finishMove(event); return; }
     if (!active) return;
@@ -2674,7 +2963,15 @@
     if (valid) {
       var previous = clone(objects);
       if (active.type === 'pen') active.points = smoothStroke(active.points);
-      if (active.type === 'door' || active.type === 'window') attachOpening(active);
+      if (active.type === 'door' || active.type === 'window') {
+        attachOpening(active);
+        if (openingCrossesCut(active)) {
+          active = null;
+          setHint('The opening overlaps a trimmed gap. Place it farther along the remaining wall.');
+          render();
+          return;
+        }
+      }
       objects.push(clone(active));
       if (objects.length > 200) objects.shift();
       remember(previous);
@@ -2684,6 +2981,8 @@
   }
 
   function onPointerCancel(event) {
+    if (typeof trimPress !== 'undefined') { trimPress = null; trimPreview = null; }
+    if (typeof wallChain !== 'undefined') { wallChain = null; wallPress = null; }
     pointers.delete(event.pointerId);
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     // A cancelled preview is never a completed drawing or an undo step.
@@ -2700,6 +2999,8 @@
   }
 
   function undo() {
+    if (typeof wallChain !== 'undefined' && wallChain) finishWall();
+    if (typeof trimPreview !== 'undefined') trimPreview = null;
     if (activeLayerState().locked) { setHint('Unlock this layer to change it.'); return; }
     if (!undoStack.length) return;
     selectedIndex = -1;
@@ -2712,6 +3013,8 @@
   }
 
   function redo() {
+    if (typeof wallChain !== 'undefined' && wallChain) finishWall();
+    if (typeof trimPreview !== 'undefined') trimPreview = null;
     if (activeLayerState().locked) { setHint('Unlock this layer to change it.'); return; }
     if (!redoStack.length) return;
     selectedIndex = -1;
@@ -2948,6 +3251,7 @@
   toolButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       var next = button.getAttribute('data-tool');
+      if (next === 'wall') { openWall(); return; }
       if (next === 'door' && tool === 'door') {
         doorFlip = !doorFlip;
         button.textContent = doorFlip ? 'Door ↺' : 'Door';
@@ -2987,6 +3291,21 @@
       button.addEventListener('click', function () { changeShapeStyle(button.getAttribute('data-shape-style') === 'solid'); });
     });
     shapePanel.querySelector('[data-shape-flip]').addEventListener('click', reverseShapeArc);
+  }
+
+  if (wallPanel) {
+    wallPanel.querySelectorAll('[data-wall-mode]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        wallMode = button.getAttribute('data-wall-mode');
+        setTool('wall');
+        mobileOpenPanel = 'wall';
+        wallPanel.hidden = false;
+        syncWallControls();
+      });
+    });
+    wallPanel.querySelector('[data-wall-finish]').addEventListener('click', finishWall);
+    wallPanel.querySelector('[data-wall-close]').addEventListener('click', function () { closeMobilePanels(); canvas.focus(); });
+    wallPanel.querySelector('[data-wall-trim]').addEventListener('click', function () { closeMobilePanels(); setTool('trim'); });
   }
 
   mobileToolButtons.forEach(function (button) {
@@ -3074,6 +3393,7 @@
   }, { passive: true });
   stage.addEventListener('pointerleave', function () {
     paperPointer.inside = false;
+    if (tool === 'trim' && !trimPress && paperPointer.type !== 'touch') { trimPreview = null; render(); }
     updatePaperFeedback();
   });
 
@@ -3114,6 +3434,8 @@
 
   document.addEventListener('keydown', function (event) {
     if (event.target && /input|textarea/i.test(event.target.tagName)) return;
+    if (event.key === 'Escape' && wallChain) { event.preventDefault(); finishWall(); return; }
+    if (event.key === 'Escape' && tool === 'trim') { trimPreview = null; trimPress = null; render(); return; }
     if (event.key === 'Escape' && (mobileOpenPanel || document.querySelector('.trace-bar.is-mobile-open') || !stencilPanel.hidden)) {
       stencilPanel.hidden = true;
       closeMobilePanels();
@@ -3138,7 +3460,8 @@
       toggleRuler();
       return;
     }
-    var keyTools = { p: 'pen', l: 'line', r: 'room', d: 'door', w: 'window', a: 'area', t: 'stencil', v: 'edit', h: 'pan', n: 'note', e: 'erase' };
+    if (event.key.toLowerCase() === 'l') { openWall(); return; }
+    var keyTools = { p: 'pen', r: 'room', d: 'door', w: 'window', a: 'area', t: 'stencil', v: 'edit', h: 'pan', n: 'note', e: 'erase', x: 'trim' };
     if (keyTools[event.key.toLowerCase()]) setTool(keyTools[event.key.toLowerCase()]);
     var floorKeys = { '1': 'basement', '2': 'main', '3': 'second' };
     if (floorKeys[event.key]) selectFloor(floorKeys[event.key]);
