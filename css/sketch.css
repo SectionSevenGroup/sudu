@@ -118,8 +118,13 @@ html.xh * { cursor: none !important; }
 .sketch-header nav a { color: var(--chrome-ink); }
 .sketch-header nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
+#suduBar,
+.sketch-header,
+.sketch-intro,
+.sketch-footer { display: none !important; }
+
 .sketch-main {
-  padding: clamp(124px, 15vh, 164px) var(--sudu-inset) clamp(76px, 8vw, 120px);
+  padding: 0 var(--sudu-inset);
 }
 
 .sketch-intro { margin-bottom: clamp(28px, 4vw, 54px); }
@@ -156,7 +161,7 @@ html.xh * { cursor: none !important; }
   line-height: 1.55;
 }
 
-.sketch-workspace { border-top: .5px solid var(--rule-strong); }
+.sketch-workspace { border-top: 0; }
 .sketch-context-bar,
 .trace-bar {
   display: flex;
@@ -165,9 +170,17 @@ html.xh * { cursor: none !important; }
   border-bottom: .5px solid var(--rule);
 }
 .sketch-context-bar {
-  justify-content: space-between;
-  gap: 24px;
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: grid;
+  grid-template-columns: 76px minmax(0, auto) 1fr;
+  gap: 0;
+  background: color-mix(in srgb, var(--paper) 96%, transparent);
+  border-bottom-color: var(--rule-strong);
+  backdrop-filter: blur(14px);
 }
+.floor-references { justify-self: end; }
 .floor-tabs,
 .floor-references,
 .trace-bar,
@@ -357,8 +370,25 @@ html.xh * { cursor: none !important; }
 button:disabled { cursor: default !important; opacity: .28; }
 
 .mobile-sketch-ui,
-.mobile-sheet-close,
-.mobile-undo-top { display: none; }
+.mobile-sheet-close { display: none; }
+.mobile-undo-top {
+  position: relative;
+  display: block;
+  min-height: 48px !important;
+  padding: 0 14px 0 0 !important;
+  border-right: .5px solid var(--rule);
+  color: var(--ink) !important;
+  text-align: left;
+}
+.mobile-undo-top:not(:disabled)::after {
+  position: absolute;
+  right: 14px;
+  bottom: 8px;
+  left: 0;
+  height: 1px;
+  background: var(--accent);
+  content: '';
+}
 
 .stencil-panel {
   display: flex;
@@ -808,10 +838,6 @@ html.dm .sketch-header {
 }
 @media (max-width: 760px) {
   body { padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
-  #suduBar,
-  .sketch-header,
-  .sketch-intro,
-  .sketch-footer { display: none !important; }
   .sketch-main { padding: 0 var(--sudu-inset) calc(58px + env(safe-area-inset-bottom, 0px)); }
   .sketch-workspace { border-top: 0; }
   .sketch-context-bar {
@@ -827,22 +853,7 @@ html.dm .sketch-header {
     backdrop-filter: blur(14px);
   }
   .mobile-undo-top {
-    position: relative;
-    display: block;
     min-height: 52px !important;
-    padding: 0 14px 0 0 !important;
-    border-right: .5px solid var(--rule);
-    color: var(--ink) !important;
-    text-align: left;
-  }
-  .mobile-undo-top:not(:disabled)::after {
-    position: absolute;
-    right: 14px;
-    bottom: 8px;
-    left: 0;
-    height: 1px;
-    background: var(--accent);
-    content: '';
   }
   .floor-tabs {
     display: grid;
