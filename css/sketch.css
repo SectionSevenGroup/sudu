@@ -357,7 +357,8 @@ html.xh * { cursor: none !important; }
 button:disabled { cursor: default !important; opacity: .28; }
 
 .mobile-sketch-ui,
-.mobile-sheet-close { display: none; }
+.mobile-sheet-close,
+.mobile-undo-top { display: none; }
 
 .stencil-panel {
   display: flex;
@@ -807,27 +808,53 @@ html.dm .sketch-header {
 }
 @media (max-width: 760px) {
   body { padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
-  .sketch-main { padding-top: 120px; }
-  .sketch-intro-grid { grid-template-columns: 1fr; gap: 24px; }
-  .sketch-intro h1 { font-size: clamp(46px, 16vw, 76px); }
-  .sketch-intro p { max-width: 34ch; }
+  #suduBar,
+  .sketch-header,
+  .sketch-intro,
+  .sketch-footer { display: none !important; }
+  .sketch-main { padding: 0 var(--sudu-inset) calc(58px + env(safe-area-inset-bottom, 0px)); }
+  .sketch-workspace { border-top: 0; }
   .sketch-context-bar {
-    display: block;
-    min-height: 44px;
+    position: sticky;
+    z-index: 20;
+    top: 0;
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    min-height: 52px;
     padding: 0;
+    background: color-mix(in srgb, var(--paper) 96%, transparent);
     border-bottom-color: var(--rule-strong);
+    backdrop-filter: blur(14px);
+  }
+  .mobile-undo-top {
+    position: relative;
+    display: block;
+    min-height: 52px !important;
+    padding: 0 14px 0 0 !important;
+    border-right: .5px solid var(--rule);
+    color: var(--ink) !important;
+    text-align: left;
+  }
+  .mobile-undo-top:not(:disabled)::after {
+    position: absolute;
+    right: 14px;
+    bottom: 8px;
+    left: 0;
+    height: 1px;
+    background: var(--accent);
+    content: '';
   }
   .floor-tabs {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     width: 100%;
-    min-height: 44px;
+    min-height: 52px;
     overflow: visible;
   }
   .floor-tabs .context-label,
   .floor-references { display: none; }
   .sketch-context-bar .floor-button {
-    min-height: 44px;
+    min-height: 52px;
     padding: 0 8px;
     text-align: center;
   }
@@ -842,7 +869,7 @@ html.dm .sketch-header {
     position: fixed;
     z-index: 10001;
     right: 0;
-    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
     left: 0;
     display: none;
     align-items: stretch;
@@ -877,12 +904,13 @@ html.dm .sketch-header {
     position: fixed;
     z-index: 10002;
     right: 0;
-    bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+    bottom: 0;
     left: 0;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     height: 58px;
-    padding: 0 var(--sudu-inset);
+    padding: 0 var(--sudu-inset) env(safe-area-inset-bottom, 0px);
+    box-sizing: content-box;
     border-top: .5px solid var(--rule-strong);
     background: color-mix(in srgb, var(--paper) 95%, transparent);
     box-shadow: 0 -8px 28px color-mix(in srgb, var(--ink) 7%, transparent);
@@ -914,7 +942,7 @@ html.dm .sketch-header {
     position: fixed;
     z-index: 10001;
     right: 0;
-    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
     left: 0;
     border-top: .5px solid var(--rule-strong);
     border-bottom: .5px solid var(--rule-strong);
@@ -967,7 +995,7 @@ html.dm .sketch-header {
     position: fixed;
     z-index: 10003;
     right: 0;
-    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
     left: 0;
     flex-wrap: wrap;
     min-height: 0;
@@ -984,7 +1012,7 @@ html.dm .sketch-header {
   .stencil-choices { order: 2; width: 100%; border-top: .5px solid var(--rule); }
   .stencil-options { flex: 1 1 auto; border-left: .5px solid var(--rule); }
   .stencil-panel button { min-height: 42px; }
-  .draw-stage { height: max(420px, calc(100svh - 154px)); min-height: 0; }
+  .draw-stage { height: max(420px, calc(100svh - 110px - env(safe-area-inset-bottom, 0px))); min-height: 0; }
   .draw-scale { bottom: 48px; }
   .sketch-ruler { width: min(68vw, 320px); }
   .send-fields--two { grid-template-columns: 1fr; }
