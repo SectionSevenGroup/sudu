@@ -15,7 +15,7 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-<link rel="stylesheet" href="/css/sketch.css?v=sketch-template-restored-v5">
+  <link rel="stylesheet" href="/css/sketch.css?v=2e023913">
 <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 </head>
 <body>
@@ -50,6 +50,11 @@
     <section class="sketch-workspace" aria-label="Plan sketch workspace">
       <div class="sketch-context-bar">
         <button type="button" class="mobile-undo-top" data-mobile-action="undo" disabled aria-label="Undo last drawing action">Undo</button>
+        <button type="button" class="mobile-context-control" data-mobile-action="levels" aria-expanded="false" aria-controls="sketchLevels">Levels<small id="mobileFloorName">Main</small></button>
+        <button type="button" class="mobile-context-control" data-mobile-action="layers" aria-expanded="false" aria-controls="sketchLayers">Layers</button>
+        <button type="button" class="mobile-context-control" data-mobile-action="templates" aria-expanded="false" aria-controls="stencilPanel">Templates</button>
+        <button type="button" class="mobile-context-control" data-mobile-action="clear" disabled>Clear</button>
+        <div id="sketchLevels" class="sketch-level-panel">
         <div class="floor-tabs" role="tablist" aria-label="Floor plans">
           <span class="context-label" data-i18n="sketch.floor">Floor</span>
           <button type="button" class="floor-button" data-floor="basement" role="tab" aria-selected="false" aria-keyshortcuts="1" data-i18n="sketch.basement">Basement</button>
@@ -61,9 +66,10 @@
           <button type="button" data-action="reference-below" aria-pressed="false" data-i18n="sketch.below">Below</button>
           <button type="button" data-action="reference-above" aria-pressed="false" data-i18n="sketch.above">Above</button>
         </div>
+        </div>
       </div>
 
-      <div class="trace-bar" aria-label="Trace layers">
+      <div id="sketchLayers" class="trace-bar" aria-label="Trace layers">
         <span class="context-label" data-i18n="sketch.layers">Layers</span>
         <div id="traceLayers" class="trace-layers"></div>
         <button type="button" class="trace-import" data-action="import-underlay">Import trace</button>
@@ -109,45 +115,26 @@
       </div>
 
       <div id="mobileSketchUi" class="mobile-sketch-ui" aria-label="Mobile drawing controls">
-        <button id="sketchToolsToggle" class="sketch-tools-pill" type="button" aria-expanded="false" aria-controls="mobileSketchMenus mobileToolSheet">Tools</button>
+        <button id="sketchToolsToggle" class="sketch-tools-pill" type="button" aria-expanded="false" aria-controls="mobileToolSheet">Tools</button>
         <div id="mobileToolSheet" class="mobile-tool-sheet" hidden>
           <div class="mobile-tool-panel" data-mobile-panel="draw" hidden>
-            <span class="mobile-panel-label">Draw</span>
             <button type="button" data-mobile-tool="pen">Pen</button>
             <button type="button" data-mobile-tool="line">Line</button>
             <button type="button" data-mobile-tool="room">Room</button>
             <button type="button" data-mobile-tool="area">Area</button>
-          </div>
-          <div class="mobile-tool-panel" data-mobile-panel="add" hidden>
-            <span class="mobile-panel-label">Add</span>
             <button type="button" data-mobile-tool="door">Door</button>
             <button type="button" data-mobile-tool="window">Window</button>
             <button type="button" data-mobile-tool="note">Note</button>
-            <button type="button" data-mobile-tool="stencil">Templates</button>
-            <button type="button" data-mobile-action="import-underlay">Trace image</button>
-            <button type="button" data-mobile-action="add-trace">Trace +</button>
-          </div>
-          <div class="mobile-tool-panel" data-mobile-panel="more" hidden>
-            <span class="mobile-panel-label">More</span>
-            <button type="button" data-mobile-action="layers">Layers</button>
+            <button type="button" data-mobile-tool="edit">Edit</button>
+            <button type="button" data-mobile-tool="pan">Pan</button>
             <button type="button" data-mobile-tool="erase">Erase</button>
             <button type="button" data-mobile-action="ruler">Ruler</button>
             <button type="button" data-mobile-action="redo">Redo</button>
-            <button type="button" data-mobile-action="reference-below">Ghost below</button>
-            <button type="button" data-mobile-action="reference-above">Ghost above</button>
-            <button type="button" data-mobile-action="fit-view">Fit</button>
             <button type="button" data-mobile-action="open-project">Open</button>
             <button type="button" data-mobile-action="save">Save</button>
-            <button type="button" data-mobile-action="screenshot">Screenshot</button>
+            <button type="button" data-mobile-action="screenshot" aria-label="Save PNG screenshot">PNG</button>
             <button type="button" data-mobile-action="pdf">PDF</button>
-            <button type="button" data-mobile-action="clear">Clear</button>
           </div>
-        </div>
-        <div id="mobileSketchMenus" class="mobile-master-bar" role="toolbar" aria-label="Main drawing tools">
-          <button type="button" class="is-active" data-mobile-menu="draw" aria-expanded="false">Draw</button>
-          <button type="button" data-mobile-tool="edit">Edit</button>
-          <button type="button" data-mobile-menu="add" aria-expanded="false">Add</button>
-          <button type="button" data-mobile-menu="more" aria-expanded="false">More</button>
         </div>
       </div>
 
@@ -249,6 +236,6 @@
   <script src="/i18n.js?v=cbd5fce2" defer></script>
   <script src="/js/audio-player.js?v=5e49f639" defer></script>
   <script type="module" src="/js/haptics.js?v=c60c698e"></script>
-  <script src="/js/sketch.js?v=sketch-template-restored-v5" defer></script>
+  <script src="/js/sketch.js?v=b7a004f7" defer></script>
 </body>
 </html>
