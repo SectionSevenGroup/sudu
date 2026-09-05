@@ -51,7 +51,9 @@
   function vizLive() { return !!(analyser && !vizBroken); }
 
   function setupViz() {
-    if (analyser || vizBroken || reduceMotion) return;
+    // Keep touch-device audio on the native media path. Creating an AudioContext
+    // from the asynchronous play event can leave Safari routed into silence.
+    if (analyser || vizBroken || reduceMotion || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) return;
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     try {
