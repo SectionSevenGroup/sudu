@@ -21,6 +21,8 @@ const challengeReset = document.querySelector('#challenge-reset');
 const challengeDone = document.querySelector('#challenge-done');
 const challengeStatus = document.querySelector('#challenge-status');
 const challengeScore = document.querySelector('#challenge-score');
+const challengeSuccess = document.querySelector('#challenge-success');
+const challengeSuccessNext = document.querySelector('#challenge-success-next');
 const partsTray = document.querySelector('#parts-tray');
 const partsRail = document.querySelector('#parts-rail');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -328,6 +330,8 @@ Promise.all([
   let challengeSpinState = null;
   let challengePreviewHideAt = 0;
   let challengeCheckAt = 0;
+  let challengeAdvanceAt = 0;
+  let challengeAdvanceIndex = -1;
   let challengeComplete = false;
   let challengeStatusText = 'build the model';
   let challengeStartedAt = performance.now();
@@ -681,6 +685,24 @@ Promise.all([
     challengeCheckAt = 0;
   }
 
+  function hideChallengeSuccess() {
+    challengeAdvanceAt = 0;
+    challengeAdvanceIndex = -1;
+    if (!challengeSuccess) return;
+    challengeSuccess.classList.remove('is-visible');
+    challengeSuccess.setAttribute('aria-hidden', 'true');
+  }
+
+  function showChallengeSuccess(index) {
+    if (!challengeSuccess) return;
+    const nextIndex = index + 1;
+    challengeSuccessNext.textContent = nextIndex < CHALLENGES.length
+      ? `next · ${String(nextIndex + 1).padStart(2, '0')}`
+      : 'all ten complete';
+    challengeSuccess.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => challengeSuccess.classList.add('is-visible'));
+  }
+
   function saveChallengeScore() {
     if (activeChallengeIndex < 0) return;
     const score = currentChallengeScore();
@@ -689,9 +711,21 @@ Promise.all([
       const key = `sudu-blocks-best-${activeChallengeIndex + 1}`;
       const previous = Number(localStorage.getItem(key) || 0);
       if (score > previous) localStorage.setItem(key, String(score));
+      localStorage.setItem(`sudu-blocks-complete-${activeChallengeIndex + 1}`, '1');
       if (challengeScore) challengeScore.title = `Best ${Math.max(previous, score)}`;
     } catch (error) {}
+    challengeButtons[activeChallengeIndex]?.classList.add('is-complete');
     paintChallengeScore(performance.now(), true);
+  }
+
+  function restoreChallengeCompletions() {
+    try {
+      challengeButtons.forEach((button, index) => {
+        const complete = localStorage.getItem(`sudu-blocks-complete-${index + 1}`) === '1';
+        button.classList.toggle('is-complete', complete);
+        if (complete) button.setAttribute('aria-label', `Challenge ${index + 1}, complete`);
+      });
+    } catch (error) {}
   }
 
   function updateChallengePanel() {
@@ -822,6 +856,7 @@ Promise.all([
   }
 
   function chooseChallenge(index) {
+    hideChallengeSuccess();
     activeChallengeIndex = index;
     challengeComplete = false;
     resetChallengeAttempt();
@@ -999,7 +1034,12 @@ Promise.all([
     challengeComplete = true;
     saveChallengeScore();
     if (challengeDone) challengeDone.disabled = true;
-    setChallengeStatus('complete · choose the next', true);
+    setChallengeStatus('correct', true);
+    showChallengeSuccess(activeChallengeIndex);
+    challengeAdvanceIndex = activeChallengeIndex + 1 < CHALLENGES.length
+      ? activeChallengeIndex + 1
+      : -1;
+    challengeAdvanceAt = performance.now() + (reducedMotion ? 700 : 1650);
   }
 
   function requestChallengeCheck() {
@@ -1011,6 +1051,13 @@ Promise.all([
   }
 
   function updateChallengeProgress() {
+    if (challengeAdvanceAt && performance.now() >= challengeAdvanceAt) {
+      const nextIndex = challengeAdvanceIndex;
+      hideChallengeSuccess();
+      if (nextIndex >= 0) chooseChallenge(nextIndex);
+      else setChallengeStatus('all ten complete', true);
+      return;
+    }
     if (!challengeCheckAt || performance.now() < challengeCheckAt) return;
     if (active || selected || clusterSettle || spawnMotion) return;
     challengeCheckAt = 0;
@@ -2423,6 +2470,7 @@ Promise.all([
   addEventListener('pagehide', destroy, { once: true });
 
   setupPartsTray();
+  restoreChallengeCompletions();
   if (partsTray) partsTray.setAttribute('aria-hidden', String(!mobilePartsMode));
   resize();
   rebuild();
