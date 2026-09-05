@@ -55,6 +55,47 @@ test('doors and windows attach to wall identities and resolve after wall edits',
   assert.match(script, /opening\.lengthDots/);
 });
 
+test('one-foot grid snaps accurately and marks four-foot intersections without rescaling the model', async () => {
+  const { runInNewContext } = await import('node:vm');
+  const script = await readFile(scriptUrl, 'utf8');
+  const dots = [];
+  const state = {
+    GRID: '#000', camera: { x: 13, y: 17, scale: 0.5 },
+    canvas: { getBoundingClientRect: () => ({ left: 10, top: 20 }) },
+    clamp: (value, min, max) => Math.max(min, Math.min(max, value))
+  };
+  runInNewContext(script.slice(script.indexOf('  var GRID_SPACING'), script.indexOf('  var camera')), state);
+  runInNewContext(script.slice(script.indexOf('  function pointFromEvent('), script.indexOf('  function px(')), state);
+  runInNewContext(script.slice(script.indexOf('  function drawGrid('), script.indexOf('  function drawOpening(')), state);
+  assert.equal(state.WORLD_WIDTH, 1792);
+  assert.equal(state.WORLD_HEIGHT, 1344);
+  assert.equal(state.WORLD_DOTS_X * state.DOT_FEET, 128);
+  assert.equal(state.GRID_STEP, 14);
+  // Existing opening lengths and new template dimensions still use legacy units.
+  assert.equal(1.5 * state.GRID_SPACING / state.GRID_STEP, 3);
+  assert.equal(2 * state.GRID_SPACING / state.GRID_STEP, 4);
+  const point = state.pointFromEvent({ clientX: 30.6, clientY: 44.6 }, true);
+  assert.equal(point.x * 128, 1);
+  assert.equal(point.y * 96, 1);
+  const target = { save() {}, restore() {}, beginPath() {}, fill() {}, arc: (x, y, radius) => dots.push({ x, y, radius }) };
+  for (const width of [1792, 1800]) {
+    dots.length = 0;
+    state.drawGrid(target, width, width * 0.75);
+    assert.equal(dots.length, 129 * 97);
+    assert.equal(dots[0].x, 0);
+    assert.equal(dots[0].y, 0);
+    assert.equal(dots.at(-1).x, width);
+    assert.equal(dots.at(-1).y, width * 0.75);
+    assert.equal(dots.filter(dot => Math.abs(dot.radius - 1.2 * width / 1792) < 1e-9).length, 33 * 25);
+    assert.equal(dots[4 * 97 + 4].radius, dots[0].radius);
+    assert.ok(dots[4 * 97 + 1].radius < dots[0].radius);
+  }
+  assert.match(script, /grid: \{ feetPerDot: GRID_FEET, majorEveryFeet: MAJOR_GRID_FEET \}/);
+  const page = await readFile(pageUrl, 'utf8');
+  assert.match(page, /1′ grid · 4′ major/);
+  assert.doesNotMatch(page, /two feet|2′ per dot/);
+});
+
 test('trace layers import, lock, rename, reorder, duplicate, calibrate and change opacity', async () => {
   const script = await readFile(scriptUrl, 'utf8');
   const page = await readFile(pageUrl, 'utf8');

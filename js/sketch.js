@@ -73,12 +73,17 @@
   var PREVIOUS_STORAGE_KEY = 'sudu-sketch-v2';
   var LEGACY_STORAGE_KEY = 'sudu-sketch-v1';
   var RULER_KEY = 'sudu-sketch-ruler-v1';
+  // Legacy model units stay at two feet so v1-v3 drawings, opening lengths
+  // and stencil sizes retain their dimensions. The visible/snap grid is finer.
   var GRID_SPACING = 28;
   var WORLD_DOTS_X = 64;
   var WORLD_DOTS_Y = 48;
   var WORLD_WIDTH = WORLD_DOTS_X * GRID_SPACING;
   var WORLD_HEIGHT = WORLD_DOTS_Y * GRID_SPACING;
   var DOT_FEET = 2;
+  var GRID_FEET = 1;
+  var MAJOR_GRID_FEET = 4;
+  var GRID_STEP = GRID_SPACING * GRID_FEET / DOT_FEET;
   var camera = { x: 0, y: 0, scale: 1, fitted: false };
   var pointers = new Map();
   var gesture = null;
@@ -245,6 +250,7 @@
     return {
       version: 3,
       units: { feetPerDot: DOT_FEET, dots: [WORLD_DOTS_X, WORLD_DOTS_Y] },
+      grid: { feetPerDot: GRID_FEET, majorEveryFeet: MAJOR_GRID_FEET },
       activeFloor: activeFloor,
       traceSerial: traceSerial,
       floors: savedFloors
@@ -763,7 +769,7 @@
 
   function updateZoomLevel() {
     if (zoomLevel) zoomLevel.textContent = Math.round(camera.scale * 100) + '%';
-    stage.style.setProperty('--dot-screen', Math.max(8, GRID_SPACING * camera.scale) + 'px');
+    stage.style.setProperty('--grid-major-screen', GRID_STEP * MAJOR_GRID_FEET / GRID_FEET * camera.scale + 'px');
     if (rulerState.visible) positionRuler();
   }
 
@@ -779,8 +785,8 @@
     var x = clamp((event.clientX - rect.left - camera.x) / camera.scale, 0, WORLD_WIDTH);
     var y = clamp((event.clientY - rect.top - camera.y) / camera.scale, 0, WORLD_HEIGHT);
     if (snap) {
-      x = Math.round(x / GRID_SPACING) * GRID_SPACING;
-      y = Math.round(y / GRID_SPACING) * GRID_SPACING;
+      x = Math.round(x / GRID_STEP) * GRID_STEP;
+      y = Math.round(y / GRID_STEP) * GRID_STEP;
     }
     return { x: x / WORLD_WIDTH, y: y / WORLD_HEIGHT };
   }
@@ -804,15 +810,18 @@
 
   function drawGrid(target, width, height) {
     var outputScale = width / WORLD_WIDTH;
-    var spacing = GRID_SPACING * outputScale;
-    var offsetX = (width % spacing) / 2;
-    var offsetY = (height % spacing) / 2;
+    var columns = Math.round(WORLD_WIDTH / GRID_STEP);
+    var rows = Math.round(WORLD_HEIGHT / GRID_STEP);
+    var majorEvery = MAJOR_GRID_FEET / GRID_FEET;
     target.save();
     target.fillStyle = GRID;
-    for (var x = offsetX; x <= width; x += spacing) {
-      for (var y = offsetY; y <= height; y += spacing) {
+    // Integer indices keep the four-foot intersections fixed to world origin
+    // during pan/zoom and avoid fractional-export offsets from modulo arithmetic.
+    for (var column = 0; column <= columns; column++) {
+      for (var row = 0; row <= rows; row++) {
+        var major = column % majorEvery === 0 && row % majorEvery === 0;
         target.beginPath();
-        target.arc(x, y, Math.max(1.15, 1.15 * outputScale), 0, Math.PI * 2);
+        target.arc(column * width / columns, row * height / rows, (major ? 1.2 : 0.8) * outputScale, 0, Math.PI * 2);
         target.fill();
       }
     }
@@ -1963,8 +1972,8 @@
         x: (resizeDrag.opposite.x + point.x) / 2,
         y: (resizeDrag.opposite.y + point.y) / 2
       };
-      var shownWidth = Math.max(GRID_SPACING / WORLD_WIDTH, Math.abs(point.x - resizeDrag.opposite.x));
-      var shownHeight = Math.max(GRID_SPACING / WORLD_HEIGHT, Math.abs(point.y - resizeDrag.opposite.y));
+      var shownWidth = Math.max(GRID_STEP / WORLD_WIDTH, Math.abs(point.x - resizeDrag.opposite.x));
+      var shownHeight = Math.max(GRID_STEP / WORLD_HEIGHT, Math.abs(point.y - resizeDrag.opposite.y));
       object.point = centre;
       if (stencilBounds(object).swap) {
         object.width = shownHeight * WORLD_HEIGHT / WORLD_WIDTH;
