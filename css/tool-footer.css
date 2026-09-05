@@ -1,0 +1,46 @@
+/* Shared website control rail for STACK, BLOCKS and the drawing tool. */
+html.sudu-tool-page { --sudu-tool-footer: calc(52px + env(safe-area-inset-bottom, 0px)); }
+html.sudu-tool-page #suduBar {
+  --ground: #f3f1ea;
+  --ink: #171613;
+  color: var(--ink) !important;
+  background: var(--ground);
+  border-top: .5px solid var(--rule-strong, rgba(23,22,19,.25));
+}
+html.sudu-tool-page.dm #suduBar {
+  --ground: var(--dm-bg, #121110);
+  --ink: #f5f3ec;
+  border-top-color: rgba(245,243,236,.45);
+}
+html.sudu-tool-page #suduBar #musicPill {
+  position: absolute !important;
+  top: auto; right: auto; bottom: auto; left: 50%;
+  transform: translateX(-50%);
+}
+html.sudu-tool-page #suduBar #langSwitch { gap: 15px; }
+html.sudu-tool-page #suduBar #langSwitch button:not([hidden])~button:not([hidden])::before { left: -8px; }
+html.sudu-tool-page #suduBar button { cursor: pointer; }
+html.sudu-tool-page .stack-study,
+html.sudu-tool-page .massing-study { bottom: var(--sudu-tool-footer); }
+html.sudu-tool-page .stack-note,
+html.sudu-tool-page .massing-note { bottom: calc(var(--sudu-tool-footer) + 16px); }
+html.sudu-tool-page .stack-instruction,
+html.sudu-tool-page .massing-instruction { bottom: calc(var(--sudu-tool-footer) + 24px); }
+@media (max-width: 760px) {
+  html.sudu-tool-page .stack-players { bottom: calc(var(--sudu-tool-footer) + 70px); }
+  html.sudu-tool-page .sketch-tools-pill { bottom: calc(var(--sudu-tool-footer) + 8px); }
+  html.sudu-tool-page .draw-stage { height: max(200px, calc(100svh - var(--sketch-menu-top) - var(--sudu-tool-footer) - 52px)); }
+}
+@media (max-width: 640px) {
+  html.sudu-tool-page .massing-note { bottom: calc(var(--sudu-tool-footer) + 66px); }
+  html.sudu-tool-page .challenge-ledger { bottom: var(--sudu-tool-footer); }
+}
+@media (max-width: 559px) {
+  html.sudu-tool-page #suduBar #musicPill { position: static !important; transform: none; }
+  html.sudu-tool-page #suduBar #langSwitch,
+  html.sudu-tool-page #suduBar #dmSwatches,
+  html.sudu-tool-page #suduBar #musicPill { gap: 13px; }
+}
+@media (max-width:900px) and (orientation:landscape) and (max-height:560px) {
+  html.sudu-tool-page .stack-players { bottom: auto; }
+}
