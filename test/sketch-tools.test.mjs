@@ -111,7 +111,7 @@ test('the existing SuDu template shell stays intact', async () => {
   assert.match(css, /html\.dm:not\(\.dmwarm\) \{ --paper: #121110; \}/);
 });
 
-test('mobile uses a standalone app shell with top-left undo and collapsible tool sheets', async () => {
+test('Sketch is standalone at every width with top-left undo and mobile tool sheets', async () => {
   const script = await readFile(scriptUrl, 'utf8');
   const page = await readFile(pageUrl, 'utf8');
   const css = await readFile(cssUrl, 'utf8');
@@ -131,5 +131,6 @@ test('mobile uses a standalone app shell with top-left undo and collapsible tool
   assert.match(css, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
   assert.match(css, /#suduBar,[\s\S]+\.sketch-header,[\s\S]+\.sketch-intro,[\s\S]+\.sketch-footer \{ display: none !important; \}/);
   assert.match(css, /\.mobile-undo-top \{[\s\S]+display: block/);
+  assert.match(css, /grid-template-columns: 76px minmax\(0, auto\) 1fr/);
   assert.match(css, /\.sketch-toolbar,[\s\S]+\.sketch-workspace-footer \{ display: none; \}/);
 });
