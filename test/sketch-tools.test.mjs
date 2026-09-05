@@ -20,7 +20,7 @@ test('edit mode handles every object and exposes opening and geometry anchors', 
   const page = await readFile(pageUrl, 'utf8');
 
   assert.match(page, /data-tool="edit"[^>]+aria-keyshortcuts="V"/);
-  assert.match(script, /\['line', 'room', 'door', 'window', 'area', 'stencil'\]\.indexOf\(object\.type\)/);
+  assert.match(script, /\['line', 'room', 'door', 'window', 'area', 'stencil', 'shape'\]\.indexOf\(object\.type\)/);
   assert.match(script, /function objectAnchors\(object\)/);
   assert.match(script, /function objectBounds\(object\)/);
   assert.match(script, /function moveSelected\(event\)/);

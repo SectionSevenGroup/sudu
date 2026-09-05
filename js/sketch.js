@@ -45,6 +45,10 @@
   var mobileActionButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-action]'));
   var mobilePanels = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-panel]'));
   var mobileOpenPanel = '';
+  var shapePanel = document.getElementById('shapePanel');
+  var shapeKind = 'rectangle';
+  var shapeFilled = false;
+  var shapeBulge = 0.5;
 
   var INK = '#171613';
   var PAPER = '#F3F1EA';
@@ -93,7 +97,7 @@
   var spaceHeld = false;
   var imageCache = new Map();
   var objectSerial = 0;
-  var allowedTypes = ['pen', 'line', 'room', 'door', 'window', 'area', 'stencil', 'note'];
+  var allowedTypes = ['pen', 'line', 'room', 'door', 'window', 'area', 'stencil', 'note', 'shape'];
   var stencilCategory = 'cars';
   var stencilId = 'car-sedan';
   var stencilFilled = false;
@@ -131,6 +135,7 @@
     door: 'Click for a 3′ door or drag a custom opening. Select Door again or hold Shift to reverse the swing.',
     window: 'Click for a 4′ window or drag a custom opening.',
     area: 'Drag a rectangle to shade an area.',
+    shape: 'Drag a shape on the grid. Choose Edit to move it or adjust its anchors.',
     stencil: 'Choose a plan template, then click the grid to place it.',
     edit: 'Select any object. Drag to move it or use a diamond anchor to reshape it.',
     pan: 'Drag the drawing to move around. Pinch or scroll to zoom.',
@@ -181,6 +186,11 @@
   function cleanObjects(value) {
     if (!Array.isArray(value)) return [];
     return value.filter(function (item) {
+      if (item && item.type === 'shape') {
+        return ['square', 'rectangle', 'circle', 'arc'].indexOf(item.kind) !== -1 &&
+          item.start && item.end && [item.start.x, item.start.y, item.end.x, item.end.y].every(Number.isFinite) &&
+          (item.bulge === undefined || Number.isFinite(item.bulge));
+      }
       return item && allowedTypes.indexOf(item.type) !== -1;
     }).slice(-200).map(ensureObjectId);
   }
@@ -1229,6 +1239,75 @@
     target.restore();
   }
 
+  // Shapes retain model coordinates, so zoom and export never change their size.
+  function shapeEnd(object, point) {
+    if (object.kind !== 'square' && object.kind !== 'circle') return point;
+    var dx = (point.x - object.start.x) * WORLD_WIDTH;
+    var dy = (point.y - object.start.y) * WORLD_HEIGHT;
+    var sx = dx < 0 ? -1 : 1;
+    var sy = dy < 0 ? -1 : 1;
+    var size = Math.max(Math.abs(dx), Math.abs(dy));
+    size = Math.min(size, (sx > 0 ? 1 - object.start.x : object.start.x) * WORLD_WIDTH,
+      (sy > 0 ? 1 - object.start.y : object.start.y) * WORLD_HEIGHT);
+    return { x: object.start.x + sx * size / WORLD_WIDTH, y: object.start.y + sy * size / WORLD_HEIGHT };
+  }
+
+  function shapeCurve(object) {
+    var a = px(object.start), b = px(object.end);
+    if (object.kind === 'circle') {
+      return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2,
+        radius: Math.min(Math.abs(b.x - a.x), Math.abs(b.y - a.y)) / 2, angle: 0, sweep: Math.PI * 2 };
+    }
+    var dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy);
+    if (length < 0.001) return { x: a.x, y: a.y, radius: 0, angle: 0, sweep: 0 };
+    var bulge = Number.isFinite(object.bulge) ? object.bulge : 0.5;
+    bulge = (bulge < 0 ? -1 : 1) * clamp(Math.abs(bulge), 0.02, 2);
+    var h = length * bulge;
+    var offset = h / 2 - length * length / (8 * h);
+    var nx = -dy / length, ny = dx / length;
+    var cx = (a.x + b.x) / 2 + nx * offset, cy = (a.y + b.y) / 2 + ny * offset;
+    var angle = Math.atan2(a.y - cy, a.x - cx);
+    var endAngle = Math.atan2(b.y - cy, b.x - cx);
+    var midAngle = Math.atan2((a.y + b.y) / 2 + ny * h - cy, (a.x + b.x) / 2 + nx * h - cx);
+    var tau = Math.PI * 2;
+    var sweep = (endAngle - angle + tau) % tau;
+    if ((midAngle - angle + tau) % tau > sweep) sweep -= tau;
+    return { x: cx, y: cy, radius: Math.hypot(a.x - cx, a.y - cy), angle: angle, sweep: sweep };
+  }
+
+  function shapeCurvePoint(curve, position) {
+    var angle = curve.angle + curve.sweep * position;
+    return { x: (curve.x + curve.radius * Math.cos(angle)) / WORLD_WIDTH,
+      y: (curve.y + curve.radius * Math.sin(angle)) / WORLD_HEIGHT };
+  }
+
+  function shapePoints(object) {
+    if (object.kind === 'circle' || object.kind === 'arc') {
+      var curve = shapeCurve(object), points = [];
+      for (var i = 0; i <= 64; i++) points.push(shapeCurvePoint(curve, i / 64));
+      return points;
+    }
+    var a = object.start, b = object.end;
+    return [a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }, a];
+  }
+
+  function drawShape(target, object, width, height, outlineOnly) {
+    target.beginPath();
+    if (object.kind === 'circle' || object.kind === 'arc') {
+      var curve = shapeCurve(object);
+      if (!curve.radius) return;
+      target.ellipse(curve.x * width / WORLD_WIDTH, curve.y * height / WORLD_HEIGHT,
+        curve.radius * width / WORLD_WIDTH, curve.radius * height / WORLD_HEIGHT,
+        0, curve.angle, curve.angle + curve.sweep, curve.sweep < 0);
+    } else {
+      target.rect(object.start.x * width, object.start.y * height,
+        (object.end.x - object.start.x) * width, (object.end.y - object.start.y) * height);
+    }
+    // A solid arc fills the circular segment, closed by its straight chord.
+    if (object.filled && !outlineOnly) { target.closePath(); target.fill(); }
+    target.stroke();
+  }
+
   function drawObject(target, object, width, height) {
     var toPx = function (point) { return { x: point.x * width, y: point.y * height }; };
     var outputScale = width / WORLD_WIDTH;
@@ -1237,6 +1316,13 @@
     target.fillStyle = INK;
     target.lineCap = 'round';
     target.lineJoin = 'round';
+
+    if (object.type === 'shape') {
+      target.lineWidth = 2.1 * outputScale;
+      drawShape(target, object, width, height, false);
+      target.restore();
+      return;
+    }
 
     if (object.type === 'pen') {
       if (!object.points.length) { target.restore(); return; }
@@ -1311,12 +1397,16 @@
   }
 
   function isResizableObject(object) {
-    return object && ['line', 'room', 'door', 'window', 'area', 'stencil'].indexOf(object.type) !== -1;
+    return object && ['line', 'room', 'door', 'window', 'area', 'stencil', 'shape'].indexOf(object.type) !== -1;
   }
 
   function objectAnchors(object) {
     if (object && (object.type === 'door' || object.type === 'window')) object = resolvedOpening(object);
     if (!isResizableObject(object)) return [];
+    if (object.type === 'shape' && object.kind === 'arc') {
+      return [{ name: 'start', point: object.start }, { name: 'end', point: object.end },
+        { name: 'bend', point: shapeCurvePoint(shapeCurve(object), 0.5) }];
+    }
     if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
       return [
         { name: 'start', point: object.start },
@@ -1370,6 +1460,10 @@
         (bounds.right - bounds.left) * WORLD_WIDTH,
         (bounds.bottom - bounds.top) * WORLD_HEIGHT
       );
+    } else if (object.type === 'shape' && object.kind === 'arc') {
+      var arcBox = objectBounds(object);
+      target.strokeRect(arcBox.left * WORLD_WIDTH, arcBox.top * WORLD_HEIGHT,
+        (arcBox.right - arcBox.left) * WORLD_WIDTH, (arcBox.bottom - arcBox.top) * WORLD_HEIGHT);
     } else if (object.start && object.end) {
       var start = px(object.start);
       var end = px(object.end);
@@ -1411,6 +1505,13 @@
   }
 
   function objectBounds(object) {
+    if (object.type === 'shape' && object.kind === 'arc') {
+      var points = shapePoints(object);
+      return { left: Math.min.apply(null, points.map(function (p) { return p.x; })),
+        right: Math.max.apply(null, points.map(function (p) { return p.x; })),
+        top: Math.min.apply(null, points.map(function (p) { return p.y; })),
+        bottom: Math.max.apply(null, points.map(function (p) { return p.y; })) };
+    }
     if (object.type === 'stencil') return stencilBounds(object);
     if (object.start && object.end) {
       return {
@@ -1446,6 +1547,7 @@
       : [8 * outputScale, 5 * outputScale]);
 
     outlineObjects.forEach(function (object) {
+      if (object.type === 'shape') drawShape(target, object, width, height, true);
       if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
         if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object);
         target.beginPath();
@@ -1534,6 +1636,16 @@
     // Model dimensions, independent of zoom, canvas size and screen density.
     var x = Math.abs(object.end.x - object.start.x) * WORLD_DOTS_X * DOT_FEET;
     var y = Math.abs(object.end.y - object.start.y) * WORLD_DOTS_Y * DOT_FEET;
+    if (object.type === 'shape') {
+      if (object.kind === 'circle' || object.kind === 'arc') {
+        var curve = shapeCurve(object), radiusFeet = curve.radius * DOT_FEET / GRID_SPACING;
+        if (object.kind === 'circle') return 'Diameter  ' + formatFeet(radiusFeet * 2) + '\nArea  ' + (Math.round(Math.PI * radiusFeet * radiusFeet * 10) / 10) + ' ft²';
+        var sweep = Math.abs(curve.sweep);
+        return 'Radius  ' + formatFeet(radiusFeet) + '\nArc  ' + formatFeet(radiusFeet * sweep) +
+          (object.filled ? '\nArea  ' + (Math.round(radiusFeet * radiusFeet * (sweep - Math.sin(sweep)) * 5) / 10) + ' ft²' : '');
+      }
+      return 'X  ' + formatFeet(x) + '\nY  ' + formatFeet(y) + '\nArea  ' + (Math.round(x * y * 10) / 10) + ' ft²';
+    }
     if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
       return 'Length  ' + formatFeet(Math.hypot(x, y));
     }
@@ -1563,6 +1675,7 @@
     if (active && active.end) point = screenPoint(active.end);
     if (resizeDrag && object && object.end) {
       point = screenPoint(object[resizeDrag.handle] || object.end);
+      if (object.type === 'shape' && resizeDrag.handle === 'bend') point = screenPoint(shapeCurvePoint(shapeCurve(object), 0.5));
     }
     cursor.style.left = point.x + 'px';
     cursor.style.top = point.y + 'px';
@@ -1728,6 +1841,7 @@
 
   function setTool(next) {
     if (!toolHints[next]) return;
+    if (typeof shapePanel !== 'undefined' && shapePanel) shapePanel.hidden = true;
     tool = next;
     active = null;
     resizeDrag = null;
@@ -1752,6 +1866,7 @@
     if (mobileSheet) mobileSheet.hidden = true;
     mobilePanels.forEach(function (panel) { panel.hidden = true; });
     stencilPanel.hidden = true;
+    if (typeof shapePanel !== 'undefined' && shapePanel) shapePanel.hidden = true;
     var levels = document.querySelector('#sketchLevels');
     if (levels) levels.classList.remove('is-mobile-open');
     var traceBar = document.querySelector('.trace-bar');
@@ -1797,6 +1912,7 @@
     if (mobileToolsToggle) {
       var isOpen = !!mobileOpenPanel || !!document.querySelector('.trace-bar.is-mobile-open') || !stencilPanel.hidden;
       mobileToolsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      mobileToolsToggle.classList.toggle('is-active', tool === 'shape');
     }
     mobileToolButtons.forEach(function (button) {
       var on = button.getAttribute('data-mobile-tool') === tool;
@@ -1815,6 +1931,66 @@
       }
       button.classList.toggle('is-active', name === 'ruler' && rulerState.visible);
     });
+  }
+
+  function selectedShape() {
+    var object = tool === 'edit' && selectedIndex >= 0 ? objects[selectedIndex] : null;
+    return object && object.type === 'shape' ? object : null;
+  }
+
+  function syncShapeControls() {
+    if (!shapePanel) return;
+    var selected = selectedShape();
+    var kind = selected ? selected.kind : shapeKind;
+    var filled = selected ? selected.filled : shapeFilled;
+    shapePanel.querySelectorAll('[data-shape-kind]').forEach(function (button) {
+      button.setAttribute('aria-pressed', button.getAttribute('data-shape-kind') === kind ? 'true' : 'false');
+    });
+    shapePanel.querySelectorAll('[data-shape-style]').forEach(function (button) {
+      button.setAttribute('aria-pressed', (button.getAttribute('data-shape-style') === 'solid') === Boolean(filled) ? 'true' : 'false');
+    });
+    shapePanel.querySelector('[data-shape-flip]').hidden = kind !== 'arc';
+    document.querySelector('[data-shape-open]').setAttribute('aria-expanded', shapePanel.hidden ? 'false' : 'true');
+    document.getElementById('shapeHint').textContent = selected
+      ? 'Edit the selected shape. Drag anchors to resize, or change its fill here.'
+      : kind === 'arc' ? 'Drag between the arc ends. In Edit, drag the middle anchor to bend it. Solid fills to the chord.'
+      : kind === 'circle' ? 'Drag diagonally to size a true circle. Edges act as wall outlines.'
+      : 'Drag diagonally between corners. Edges act as wall outlines.';
+    var openButton = document.querySelector('[data-shape-open]');
+    openButton.classList.toggle('is-active', tool === 'shape');
+  }
+
+  function openShapes() {
+    var selected = selectedShape();
+    closeMobilePanels();
+    if (!selected) setTool('shape');
+    mobileOpenPanel = 'shapes';
+    shapePanel.hidden = false;
+    syncShapeControls();
+    syncMobileControls();
+  }
+
+  function changeShapeStyle(filled) {
+    var selected = selectedShape();
+    shapeFilled = filled;
+    if (selected && !activeLayerState().locked && Boolean(selected.filled) !== filled) {
+      var previous = clone(objects);
+      selected.filled = filled;
+      remember(previous);
+      render();
+    }
+    syncShapeControls();
+  }
+
+  function reverseShapeArc() {
+    var selected = selectedShape();
+    if (selected && selected.kind === 'arc' && !activeLayerState().locked) {
+      var previous = clone(objects);
+      selected.bulge = -(Number(selected.bulge) || 0.5);
+      remember(previous);
+      render();
+    } else shapeBulge = -shapeBulge;
+    syncShapeControls();
   }
 
   function closeNoteComposer() {
@@ -1852,6 +2028,12 @@
     var segments = [];
     visibleObjectsForFloor(activeFloor).forEach(function (object) {
       ensureObjectId(object);
+      if (object.type === 'shape') {
+        var points = shapePoints(object);
+        for (var edge = 0; edge < points.length - 1; edge++) {
+          segments.push({ start: points[edge], end: points[edge + 1], hostId: object.id, hostEdge: edge });
+        }
+      }
       if (object.type === 'line') segments.push({ start: object.start, end: object.end, hostId: object.id, hostEdge: 0 });
       if (object.type === 'room') {
         var a = object.start;
@@ -1875,6 +2057,11 @@
   function segmentForHost(hostId, edge, floorKey) {
     var host = objectById(hostId, floorKey);
     if (!host) return null;
+    if (host.type === 'shape') {
+      var points = shapePoints(host);
+      var shapeEdge = clamp(Number(edge) || 0, 0, points.length - 2);
+      return { start: points[shapeEdge], end: points[shapeEdge + 1] };
+    }
     if (host.type === 'line') return { start: host.start, end: host.end };
     if (host.type === 'room') {
       var a = host.start;
@@ -1888,6 +2075,17 @@
 
   function resolvedOpening(object, floorKey) {
     if (!object || !object.hostId) return object;
+    var host = objectById(object.hostId, floorKey);
+    if (host && host.type === 'shape' && (host.kind === 'circle' || host.kind === 'arc')) {
+      var curve = shapeCurve(host);
+      var curveLength = curve.radius * Math.abs(curve.sweep);
+      if (!curveLength) return object;
+      var fraction = ((Number(object.hostEdge) || 0) + (Number(object.position) || 0)) / 64;
+      var openingWidth = Math.min(curveLength, Math.max(0.5, Number(object.lengthDots) || 1.5) * GRID_SPACING);
+      var half = openingWidth / curveLength / 2;
+      if (host.kind === 'arc') fraction = clamp(fraction, half, 1 - half);
+      return Object.assign({}, object, { start: shapeCurvePoint(curve, fraction - half), end: shapeCurvePoint(curve, fraction + half) });
+    }
     var segment = segmentForHost(object.hostId, object.hostEdge, floorKey);
     if (!segment) return object;
     var a = px(segment.start);
@@ -2043,6 +2241,20 @@
   }
 
   function hitObject(object, point) {
+    if (object.type === 'shape') {
+      var points = shapePoints(object);
+      for (var edge = 0; edge < points.length - 1; edge++) {
+        if (distanceToSegment(point, points[edge], points[edge + 1]) < 16) return true;
+      }
+      if (!object.filled) return false;
+      // Closed polygon test also handles the chord of a filled arc segment.
+      var inside = false;
+      for (var i = 0, j = points.length - 1; i < points.length; j = i++) {
+        var a = points[i], b = points[j];
+        if ((a.y > point.y) !== (b.y > point.y) && point.x < (b.x - a.x) * (point.y - a.y) / (b.y - a.y) + a.x) inside = !inside;
+      }
+      return inside;
+    }
     if (object.type === 'door' || object.type === 'window') object = resolvedOpening(object);
     if (object.type === 'pen') {
       for (var i = 1; i < object.points.length; i++) {
@@ -2147,6 +2359,10 @@
       setHint(toolHints.edit);
       updateStencilPanel();
     }
+    if (typeof shapePanel !== 'undefined' && shapePanel) {
+      if (selectedShape()) openShapes();
+      else shapePanel.hidden = true;
+    }
     render();
   }
 
@@ -2178,7 +2394,19 @@
     if (!resizeDrag || !objects[resizeDrag.index]) return;
     var point = pointFromEvent(event, true);
     var object = objects[resizeDrag.index];
-    if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
+    if (object.type === 'shape' && object.kind === 'arc') {
+      if (resizeDrag.handle === 'bend') {
+        var a = px(object.start), b = px(object.end), p = px(point);
+        var dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy);
+        if (length) {
+          var bulge = ((p.x - (a.x + b.x) / 2) * -dy + (p.y - (a.y + b.y) / 2) * dx) / (length * length);
+          object.bulge = (bulge < 0 ? -1 : 1) * clamp(Math.abs(bulge), 0.02, 2);
+        }
+      } else object[resizeDrag.handle] = point;
+    } else if (object.type === 'shape') {
+      object.start = clone(resizeDrag.opposite);
+      object.end = shapeEnd(object, point);
+    } else if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
       object[resizeDrag.handle] = point;
     } else if (object.type === 'stencil') {
       var centre = {
@@ -2210,6 +2438,11 @@
     var original = moveDrag.original;
     var dx = point.x - moveDrag.start.x;
     var dy = point.y - moveDrag.start.y;
+    if (object.type === 'shape') {
+      var bounds = objectBounds(original);
+      dx = clamp(dx, -bounds.left, 1 - bounds.right);
+      dy = clamp(dy, -bounds.top, 1 - bounds.bottom);
+    }
     var shiftPoint = function (source) {
       return { x: clamp(source.x + dx, 0, 1), y: clamp(source.y + dy, 0, 1) };
     };
@@ -2347,7 +2580,7 @@
     }
     if (tool === 'edit') { beginEdit(event); return; }
     canvas.setPointerCapture(event.pointerId);
-    var snap = ['line', 'room', 'door', 'window', 'area', 'stencil'].indexOf(tool) !== -1;
+    var snap = ['line', 'room', 'door', 'window', 'area', 'stencil', 'shape'].indexOf(tool) !== -1;
     var point = pointFromEvent(event, snap);
     if (tool === 'erase') {
       eraseAt(point);
@@ -2382,6 +2615,10 @@
     if (tool === 'door') active = { id: makeObjectId('door'), type: 'door', start: point, end: point, flip: event.shiftKey ? !doorFlip : doorFlip };
     if (tool === 'window') active = { id: makeObjectId('window'), type: 'window', start: point, end: point };
     if (tool === 'area') active = { id: makeObjectId('area'), type: 'area', start: point, end: point };
+    if (tool === 'shape') {
+      closeMobilePanels();
+      active = { id: makeObjectId('shape'), type: 'shape', kind: shapeKind, filled: shapeFilled, bulge: shapeBulge, start: point, end: point };
+    }
     render();
   }
 
@@ -2395,14 +2632,14 @@
     if (resizeDrag) { moveResize(event); return; }
     if (moveDrag) { moveSelected(event); return; }
     if (!active) return;
-    var snap = ['line', 'room', 'door', 'window', 'area'].indexOf(active.type) !== -1;
+    var snap = ['line', 'room', 'door', 'window', 'area', 'shape'].indexOf(active.type) !== -1;
     var point = pointFromEvent(event, snap);
     if (active.type === 'pen') {
       var last = active.points[active.points.length - 1];
       if (screenDistance(point, last) > 1.4) active.points.push(point);
     } else {
       if (active.type === 'line' && rulerState.visible && !event.altKey) point = constrainToRuler(active.start, point);
-      active.end = point;
+      active.end = active.type === 'shape' ? shapeEnd(active, point) : point;
       if (active.type === 'door') active.flip = event.shiftKey ? !doorFlip : doorFlip;
     }
     render();
@@ -2430,6 +2667,10 @@
     var valid = active.type === 'pen'
       ? active.points.length > 1
       : screenDistance(active.end, active.start) > 6;
+    if (active.type === 'shape' && active.kind !== 'arc') {
+      valid = valid && Math.abs(active.end.x - active.start.x) * WORLD_WIDTH >= GRID_STEP - 0.001 &&
+        Math.abs(active.end.y - active.start.y) * WORLD_HEIGHT >= GRID_STEP - 0.001;
+    }
     if (valid) {
       var previous = clone(objects);
       if (active.type === 'pen') active.points = smoothStroke(active.points);
@@ -2725,6 +2966,28 @@
       openMobilePanel('draw');
     }
   });
+
+  if (shapePanel) {
+    document.querySelector('[data-shape-open]').addEventListener('click', openShapes);
+    shapePanel.querySelector('[data-shape-close]').addEventListener('click', function () {
+      closeMobilePanels();
+      syncShapeControls();
+      canvas.focus();
+    });
+    shapePanel.querySelectorAll('[data-shape-kind]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        shapeKind = button.getAttribute('data-shape-kind');
+        setTool('shape');
+        mobileOpenPanel = 'shapes';
+        shapePanel.hidden = false;
+        syncShapeControls();
+      });
+    });
+    shapePanel.querySelectorAll('[data-shape-style]').forEach(function (button) {
+      button.addEventListener('click', function () { changeShapeStyle(button.getAttribute('data-shape-style') === 'solid'); });
+    });
+    shapePanel.querySelector('[data-shape-flip]').addEventListener('click', reverseShapeArc);
+  }
 
   mobileToolButtons.forEach(function (button) {
     button.addEventListener('click', function () {
