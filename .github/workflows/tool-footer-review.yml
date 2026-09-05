@@ -3,32 +3,35 @@ on:
   push:
     branches: [fix/tool-footer-consistency-20260905]
 permissions:
-  contents: read
+  contents: write
 jobs:
   review:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Capture reproducible review source
-        run: git archive --format=tar --output=/tmp/tool-footer-source.tar HEAD css js stack play sketch fonts i18n.js index.html images/sudu-mark.png scripts _headers _redirects netlify.toml
-      - uses: actions/upload-artifact@v4
-        with:
-          name: tool-footer-source
-          path: /tmp/tool-footer-source.tar
-          retention-days: 3
+      - name: Apply isolated tool footer changes
+        run: python scripts/patch-tool-footer.py
+      - name: Check module syntax
+        run: node --check js/tool-theme.js && node --check stack/stack.js && node --check stack/tutorial3d.js && node --check play/blocks/massing.js
       - uses: actions/setup-node@v4
-        if: hashFiles('scripts/check-tool-footer.mjs') != ''
         with:
           node-version: '22'
       - name: Install review browsers
-        if: hashFiles('scripts/check-tool-footer.mjs') != ''
-        run: npm install --no-save --package-lock=false playwright@1.55.1 && npx playwright install --with-deps chromium webkit
+        run: npm install --no-save --package-lock=false playwright@1.55.1 pngjs@7.0.0 && npx playwright install --with-deps chromium webkit
       - name: Review mobile and desktop footers
-        if: hashFiles('scripts/check-tool-footer.mjs') != ''
         run: node scripts/check-tool-footer.mjs
+      - name: Commit validated application changes to review branch only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add css/tool-footer.css js/tool-theme.js stack/stack.js stack/stack.css stack/tutorial3d.js play/stack.html play/blocks/index.html play/blocks/massing.css play/blocks/massing.js sketch/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Bind tool colours to shared tokens and tighten STACK player ledger'
+            git push origin HEAD:fix/tool-footer-consistency-20260905
+          fi
       - uses: actions/upload-artifact@v4
-        if: always() && hashFiles('scripts/check-tool-footer.mjs') != ''
+        if: always()
         with:
           name: tool-footer-browser-review
           path: /tmp/tool-footer-review

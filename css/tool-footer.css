@@ -1,17 +1,20 @@
-/* Shared website control rail for STACK, BLOCKS and the drawing tool. */
-html.sudu-tool-page { --sudu-tool-footer: calc(52px + env(safe-area-inset-bottom, 0px)); }
+/* The website's chrome-bar, theme and audio modules own the shared bottom row.
+   Tools only reserve its space and position their own controls above it. */
+html.sudu-tool-page {
+  --sudu-tool-footer: calc(52px + env(safe-area-inset-bottom, 0px));
+}
+html.sudu-tool-page[data-sudu-tool="sketch"] { --ground: var(--paper); }
+
+/* Remove the former Sketch-only header placement and rail treatment. Match
+   chrome-bar.js rather than drawing a second, slightly different footer. */
 html.sudu-tool-page #suduBar {
-  --ground: #f3f1ea;
-  --ink: #171613;
-  color: var(--ink) !important;
-  background: var(--ground);
-  border-top: .5px solid var(--rule-strong, rgba(23,22,19,.25));
+  border: 0;
+  color: var(--ink, #171613);
+  background: color-mix(in srgb, var(--ground, #F3F1EA) 72%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
-html.sudu-tool-page.dm #suduBar {
-  --ground: var(--dm-bg, #121110);
-  --ink: #f5f3ec;
-  border-top-color: rgba(245,243,236,.45);
-}
+html.sudu-tool-page.dm #suduBar { color: var(--chrome-ink, #F5F3EC); }
 html.sudu-tool-page #suduBar #musicPill {
   position: absolute !important;
   top: auto; right: auto; bottom: auto; left: 50%;
@@ -19,15 +22,46 @@ html.sudu-tool-page #suduBar #musicPill {
 }
 html.sudu-tool-page #suduBar #langSwitch { gap: 15px; }
 html.sudu-tool-page #suduBar #langSwitch button:not([hidden])~button:not([hidden])::before { left: -8px; }
-html.sudu-tool-page #suduBar button { cursor: pointer; }
+html.sudu-tool-page #suduBar button { cursor: pointer !important; }
+html.sudu-tool-page #suduBar button:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 4px;
+}
 html.sudu-tool-page .stack-study,
 html.sudu-tool-page .massing-study { bottom: var(--sudu-tool-footer); }
 html.sudu-tool-page .stack-note,
 html.sudu-tool-page .massing-note { bottom: calc(var(--sudu-tool-footer) + 16px); }
 html.sudu-tool-page .stack-instruction,
 html.sudu-tool-page .massing-instruction { bottom: calc(var(--sudu-tool-footer) + 24px); }
+
+/* A compact player ledger. The input stays 16px on touch screens so focusing
+   it does not zoom Safari; compactness comes from geometry, not tiny type. */
+html.sudu-tool-page .stack-players { width: 148px; }
+html.sudu-tool-page .stack-player-form { gap: 6px; }
+html.sudu-tool-page .stack-player-list:empty { display: none; }
+html.sudu-tool-page .stack-instruction { letter-spacing: .01em; }
 @media (max-width: 760px) {
-  html.sudu-tool-page .stack-players { bottom: calc(var(--sudu-tool-footer) + 70px); }
+  html.sudu-tool-page .stack-players {
+    width: auto;
+    bottom: calc(var(--sudu-tool-footer) + 38px);
+    grid-template-columns: 132px minmax(0, 1fr);
+    grid-template-areas: 'form players';
+    gap: 0 10px;
+  }
+  html.sudu-tool-page .stack-player-form { min-height: 40px; gap: 0; }
+  html.sudu-tool-page .stack-player-input { height: 40px; padding: 10px 0 5px; }
+  html.sudu-tool-page .stack-player-add { height: 44px; }
+  html.sudu-tool-page .stack-player-list { gap: 5px 10px; }
+  html.sudu-tool-page .stack-result { grid-column: 1 / -1; grid-row: 2; }
+  html.sudu-tool-page .stack-result:not([hidden]) { margin-top: 6px; }
+  html.sudu-tool-page .stack-instruction {
+    bottom: calc(var(--sudu-tool-footer) + 12px);
+    max-width: calc(100vw - 160px);
+  }
+  html.sudu-tool-page .stack-note { bottom: var(--sudu-tool-footer); }
+  html.sudu-tool-page body.stack-name-entry .stack-players {
+    bottom: calc(var(--sudu-tool-footer) + 8px);
+  }
   html.sudu-tool-page .sketch-tools-pill { bottom: calc(var(--sudu-tool-footer) + 8px); }
   html.sudu-tool-page .draw-stage { height: max(200px, calc(100svh - var(--sketch-menu-top) - var(--sudu-tool-footer) - 52px)); }
 }
@@ -41,6 +75,7 @@ html.sudu-tool-page .massing-instruction { bottom: calc(var(--sudu-tool-footer) 
   html.sudu-tool-page #suduBar #dmSwatches,
   html.sudu-tool-page #suduBar #musicPill { gap: 13px; }
 }
-@media (max-width:900px) and (orientation:landscape) and (max-height:560px) {
-  html.sudu-tool-page .stack-players { bottom: auto; }
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 560px) {
+  html.sudu-tool-page .stack-players { bottom: auto; width: 148px; }
+  html.sudu-tool-page body.stack-name-entry .stack-players { bottom: auto; }
 }
