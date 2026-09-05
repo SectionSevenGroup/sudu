@@ -1,5 +1,7 @@
 :root {
   --massing-paper: #f3f1ea;
+  --massing-paper-rgb: 243, 241, 234;
+  --massing-ink-rgb: 36, 35, 31;
   --massing-ink: #24231f;
   --massing-accent: #ef5b2a;
 }
@@ -84,7 +86,7 @@ a {
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: .055em;
-  color: rgba(36, 35, 31, .72);
+  color: rgba(var(--massing-ink-rgb), .72);
 }
 
 .massing-instruction {
@@ -104,7 +106,7 @@ a {
 #massing-selection {
   max-width: 112px;
   overflow: hidden;
-  color: rgba(36, 35, 31, .58);
+  color: rgba(var(--massing-ink-rgb), .58);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -113,7 +115,7 @@ a {
 #again {
   padding: 0;
   border: 0;
-  border-bottom: 1px solid rgba(36, 35, 31, .42);
+  border-bottom: 1px solid rgba(var(--massing-ink-rgb), .42);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -225,7 +227,7 @@ a {
   grid-template-rows: auto auto 154px auto auto auto;
   align-content: stretch;
   padding-left: 18px;
-  border-left: 1px solid rgba(36, 35, 31, .18);
+  border-left: 1px solid rgba(var(--massing-ink-rgb), .18);
   color: var(--massing-ink);
   pointer-events: auto;
 }
@@ -260,7 +262,7 @@ a {
 }
 
 .challenge-score {
-  color: rgba(36, 35, 31, .46);
+  color: rgba(var(--massing-ink-rgb), .46);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: .055em;
@@ -276,7 +278,7 @@ a {
 
 #challenge-free {
   padding: 0 0 1px;
-  border-bottom: 1px solid rgba(36, 35, 31, .36);
+  border-bottom: 1px solid rgba(var(--massing-ink-rgb), .36);
   font-size: 10.5px;
   letter-spacing: .055em;
   text-transform: lowercase;
@@ -290,14 +292,14 @@ a {
 .challenge-numbers {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  border-top: 1px solid rgba(36, 35, 31, .18);
-  border-left: 1px solid rgba(36, 35, 31, .18);
+  border-top: 1px solid rgba(var(--massing-ink-rgb), .18);
+  border-left: 1px solid rgba(var(--massing-ink-rgb), .18);
 }
 
 .challenge-numbers button {
   min-height: 34px;
-  border-right: 1px solid rgba(36, 35, 31, .18);
-  border-bottom: 1px solid rgba(36, 35, 31, .18);
+  border-right: 1px solid rgba(var(--massing-ink-rgb), .18);
+  border-bottom: 1px solid rgba(var(--massing-ink-rgb), .18);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: .04em;
@@ -326,7 +328,7 @@ a {
   position: relative;
   min-height: 0;
   overflow: hidden;
-  border-bottom: 1px solid rgba(36, 35, 31, .18);
+  border-bottom: 1px solid rgba(var(--massing-ink-rgb), .18);
 }
 
 .parts-tray {
@@ -341,12 +343,12 @@ a {
 
 .challenge-copy {
   padding: 15px 0 13px;
-  border-bottom: 1px solid rgba(36, 35, 31, .18);
+  border-bottom: 1px solid rgba(var(--massing-ink-rgb), .18);
 }
 
 .challenge-meta {
   margin: 0 0 8px;
-  color: rgba(36, 35, 31, .54);
+  color: rgba(var(--massing-ink-rgb), .54);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: .06em;
@@ -365,7 +367,7 @@ a {
 .challenge-copy > p:last-child {
   max-width: 29ch;
   margin: 0;
-  color: rgba(36, 35, 31, .68);
+  color: rgba(var(--massing-ink-rgb), .68);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.35;
@@ -378,7 +380,7 @@ a {
 
 .challenge-actions button {
   padding: 0 0 2px;
-  border-bottom: 1px solid rgba(36, 35, 31, .34);
+  border-bottom: 1px solid rgba(var(--massing-ink-rgb), .34);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: .055em;
@@ -397,7 +399,7 @@ a {
   flex: 0 0 40px;
   place-items: center;
   padding: 0;
-  border: 1px solid rgba(36, 35, 31, .44);
+  border: 1px solid rgba(var(--massing-ink-rgb), .44);
   border-radius: 50%;
   line-height: 1;
 }
@@ -409,15 +411,15 @@ a {
 }
 
 #challenge-done:disabled {
-  border-color: rgba(36, 35, 31, .14);
-  color: rgba(36, 35, 31, .3);
+  border-color: rgba(var(--massing-ink-rgb), .14);
+  color: rgba(var(--massing-ink-rgb), .3);
   cursor: default;
 }
 
 .challenge-status {
   min-height: 15px;
   margin: 0;
-  color: rgba(36, 35, 31, .48);
+  color: rgba(var(--massing-ink-rgb), .48);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: .055em;
@@ -461,7 +463,7 @@ a {
 
 .challenge-success > small {
   margin-top: 25px;
-  color: rgba(36, 35, 31, .56);
+  color: rgba(var(--massing-ink-rgb), .56);
   font-size: 9px;
   font-weight: 500;
   letter-spacing: .08em;
@@ -489,8 +491,8 @@ a {
     grid-template-rows: auto auto auto auto;
     column-gap: 14px;
     padding: 12px;
-    border: 1px solid rgba(36, 35, 31, .2);
-    background: rgba(243, 241, 234, .95);
+    border: 1px solid rgba(var(--massing-ink-rgb), .2);
+    background: rgba(var(--massing-paper-rgb), .95);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
@@ -510,7 +512,7 @@ a {
     grid-row: 2 / 5;
     min-height: 114px;
     border-bottom: 0;
-    border-right: 1px solid rgba(36, 35, 31, .18);
+    border-right: 1px solid rgba(var(--massing-ink-rgb), .18);
   }
 
   .challenge-copy {
@@ -578,7 +580,7 @@ a {
     z-index: 220;
     align-items: center;
     padding: 20px 16px 14px;
-    background: linear-gradient(to bottom, var(--massing-paper) 70%, rgba(243, 241, 234, 0));
+    background: linear-gradient(to bottom, var(--massing-paper) 70%, rgba(var(--massing-paper-rgb), 0));
   }
 
   .massing-mark img {
@@ -600,9 +602,9 @@ a {
     height: 76px;
     grid-template-columns: 42px minmax(0, 1fr);
     align-items: stretch;
-    border-top: 1px solid rgba(36, 35, 31, .11);
-    border-bottom: 1px solid rgba(36, 35, 31, .16);
-    background: rgba(243, 241, 234, .96);
+    border-top: 1px solid rgba(var(--massing-ink-rgb), .11);
+    border-bottom: 1px solid rgba(var(--massing-ink-rgb), .16);
+    background: rgba(var(--massing-paper-rgb), .96);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
@@ -610,8 +612,8 @@ a {
   .parts-tray__label {
     display: grid;
     place-items: center;
-    border-right: 1px solid rgba(36, 35, 31, .13);
-    color: rgba(36, 35, 31, .52);
+    border-right: 1px solid rgba(var(--massing-ink-rgb), .13);
+    color: rgba(var(--massing-ink-rgb), .52);
     font-size: 9px;
     font-weight: 600;
     letter-spacing: .07em;
@@ -647,7 +649,7 @@ a {
     padding: 3px 5px 5px;
     scroll-snap-align: start;
     border: 0;
-    border-right: 1px solid rgba(36, 35, 31, .12);
+    border-right: 1px solid rgba(var(--massing-ink-rgb), .12);
     border-radius: 0;
     background: transparent;
     color: var(--massing-ink);
@@ -661,7 +663,7 @@ a {
   }
 
   .parts-tray__part:active:not(:disabled) {
-    background: rgba(36, 35, 31, .055);
+    background: rgba(var(--massing-ink-rgb), .055);
   }
 
   .parts-tray__part:disabled {
@@ -691,7 +693,7 @@ a {
     top: 5px;
     right: 5px;
     min-width: 14px;
-    color: rgba(36, 35, 31, .52);
+    color: rgba(var(--massing-ink-rgb), .52);
     font-size: 9px;
     font-weight: 600;
     text-align: center;
@@ -735,8 +737,8 @@ a {
     min-height: 40px;
     place-items: center;
     padding: 0 8px;
-    border: 1px solid rgba(36, 35, 31, .2);
-    background: rgba(243, 241, 234, .88);
+    border: 1px solid rgba(var(--massing-ink-rgb), .2);
+    background: rgba(var(--massing-paper-rgb), .88);
     font-size: 10px;
     pointer-events: auto;
     -webkit-backdrop-filter: blur(8px);
@@ -744,7 +746,7 @@ a {
   }
 
   .massing-action:disabled {
-    border-color: rgba(36, 35, 31, .09);
+    border-color: rgba(var(--massing-ink-rgb), .09);
     opacity: .24;
   }
 
@@ -764,8 +766,8 @@ a {
     gap: 0 10px;
     padding: 3px 12px 1px;
     border: 0;
-    border-top: 1px solid rgba(36, 35, 31, .16);
-    background: rgba(243, 241, 234, .96);
+    border-top: 1px solid rgba(var(--massing-ink-rgb), .16);
+    background: rgba(var(--massing-paper-rgb), .96);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
@@ -834,8 +836,8 @@ a {
     height: 150px;
     min-height: 0;
     overflow: hidden;
-    border: 1px solid rgba(36, 35, 31, .16);
-    background: rgba(243, 241, 234, .97);
+    border: 1px solid rgba(var(--massing-ink-rgb), .16);
+    background: rgba(var(--massing-paper-rgb), .97);
     opacity: 0;
     visibility: hidden;
     transform: translateY(8px) scale(.96);
@@ -897,7 +899,7 @@ a {
     right: 12px;
     width: 44px;
     height: 44px;
-    border-color: rgba(36, 35, 31, .58);
+    border-color: rgba(var(--massing-ink-rgb), .58);
     color: var(--massing-ink);
     font-size: 9px;
     letter-spacing: .07em;
@@ -958,7 +960,7 @@ a {
     gap: 0;
     padding: 0 0 14px 16px;
     border: 0;
-    border-left: 1px solid rgba(36, 35, 31, .18);
+    border-left: 1px solid rgba(var(--massing-ink-rgb), .18);
     background: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -1016,3 +1018,17 @@ a {
     padding-top: 1px;
   }
 }
+
+/* The complete workbench follows the website ground selection. */
+html.dm {
+  --massing-paper: var(--dm-bg, #121110);
+  --massing-paper-rgb: 18, 17, 16;
+  --massing-ink: #f5f3ec;
+  --massing-ink-rgb: 245, 243, 236;
+}
+html.dm.dmwarm {
+  --massing-paper-rgb: 192, 67, 31;
+  --massing-accent: #f5f3ec;
+}
+html.dm .massing-mark img { filter: invert(1); }
+html.dm .massing-action:hover:not(:disabled), html.dm #again:hover { color: var(--massing-ink); border-color: currentColor; }
