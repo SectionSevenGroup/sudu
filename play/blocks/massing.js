@@ -520,9 +520,9 @@ Promise.all([
         else ctx.moveTo(x, y);
       });
       ctx.closePath();
-      ctx.fillStyle = '#171613';
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--massing-ink').trim();
       ctx.fill();
-      ctx.strokeStyle = 'rgba(243,241,234,.74)';
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--massing-paper').trim();
       ctx.stroke();
     }
   }
@@ -2637,9 +2637,29 @@ Promise.all([
     last = performance.now();
   }
 
+
+  function syncWorkbenchTheme() {
+    const styles = getComputedStyle(document.documentElement);
+    const paper = styles.getPropertyValue('--massing-paper').trim();
+    const ink = styles.getPropertyValue('--massing-ink').trim();
+    const accent = styles.getPropertyValue('--massing-accent').trim();
+    scene.background.set(paper);
+    faceMaterial.color.set(paper);
+    floorMaterial.color.set(paper);
+    for (const material of [edgeMaterial, hoverMaterial, ghostMaterial, challengePreviewEdgeMaterial, challengePreviewFaceMaterial, grid.material]) material.color.set(ink);
+    for (const material of [selectedMaterial, heldMaterial, snapMaterial, challengeGuideMaterial]) material.color.set(accent);
+    for (const button of partsRail.querySelectorAll('[data-part-family]')) {
+      const definition = BLOCKS.find(item => pieceFamily(item.name) === button.dataset.partFamily);
+      if (definition) drawPartIcon(button.querySelector('canvas'), definition);
+    }
+  }
+  const themeObserver = new MutationObserver(syncWorkbenchTheme);
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
+
   function destroy() {
     if (destroyed) return;
     destroyed = true;
+    themeObserver.disconnect();
     cancelAnimationFrame(animationFrame);
     clearInteraction();
     removeEventListener('resize', handleResize);
@@ -2664,6 +2684,7 @@ Promise.all([
   addEventListener('pagehide', destroy, { once: true });
 
   setupPartsTray();
+  syncWorkbenchTheme();
   restoreChallengeCompletions();
   if (partsTray) partsTray.setAttribute('aria-hidden', String(!mobilePartsMode));
   resize();
