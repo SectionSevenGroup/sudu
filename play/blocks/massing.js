@@ -5,6 +5,8 @@ const selectionLabel = document.querySelector('#massing-selection');
 const turnButton = document.querySelector('#massing-turn');
 const upButton = document.querySelector('#massing-up');
 const downButton = document.querySelector('#massing-down');
+const returnButton = document.querySelector('#massing-return');
+const undoButton = document.querySelector('#massing-undo');
 const viewButton = document.querySelector('#massing-view');
 const again = document.querySelector('#again');
 const challengeLedger = document.querySelector('#challenge-ledger');
@@ -26,7 +28,7 @@ const challengeSuccessNext = document.querySelector('#challenge-success-next');
 const partsTray = document.querySelector('#parts-tray');
 const partsRail = document.querySelector('#parts-rail');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const DEFAULT_INSTRUCTION = 'drag · scroll lifts · double-click aligns';
+const DEFAULT_INSTRUCTION = 'drag · scroll lifts · double-tap aligns 10s';
 
 if (!stage || !loading) throw new Error('MASSING stage is unavailable.');
 
@@ -47,7 +49,10 @@ Promise.all([
   const CONTACT_OVERLAP = .12;
   const ALIGN_CAPTURE = MODULE * .55;
   const ALIGN_DURATION = .72;
-  const HOLD_DURATION = 8000;
+  const HOLD_DURATION = 10000;
+  const DOUBLE_TAP_WINDOW = 340;
+  const DOUBLE_TAP_DISTANCE = 28;
+  const MOBILE_SELECTION_RELEASE = 1400;
   const FLOOR_LEVEL = .04;
   const BLOCK_FRICTION = .72;
   const GROUND_FRICTION = .78;
@@ -339,6 +344,9 @@ Promise.all([
   let challengeLastScorePaint = -1;
   let mobilePartsMode = innerWidth <= MOBILE_BREAKPOINT;
   let spawnMotion = null;
+  let lastTouchTap = null;
+  let mobileSelectionReleaseAt = 0;
+  let undoStack = [];
 
   const faceMaterial = new THREE.MeshBasicMaterial({
     color: 0xf3f1ea,
@@ -683,6 +691,72 @@ Promise.all([
     challengeFinalScore = null;
     challengeLastScorePaint = -1;
     challengeCheckAt = 0;
+  }
+
+  function updateUndoUI() {
+    if (undoButton) undoButton.disabled = undoStack.length === 0;
+  }
+
+  function captureBoardState() {
+    return pieces.map(piece => {
+      const position = piece.body.translation();
+      const rotation = piece.body.rotation();
+      return {
+        name: piece.name,
+        inTray: piece.inTray,
+        position: [position.x, position.y, position.z],
+        rotation: [rotation.x, rotation.y, rotation.z, rotation.w]
+      };
+    });
+  }
+
+  function pushUndoState(snapshot = captureBoardState()) {
+    undoStack.push(snapshot);
+    if (undoStack.length > 30) undoStack.shift();
+    updateUndoUI();
+  }
+
+  function restoreBoardState(snapshot) {
+    if (!snapshot?.length) return;
+    if (selected) releaseSelected(false);
+    active = null;
+    clusterSettle = null;
+    spawnMotion = null;
+    mobileSelectionReleaseAt = 0;
+    lastTouchTap = null;
+    for (const hold of [...holds]) releaseHold(hold);
+
+    for (const saved of snapshot) {
+      const piece = pieces.find(candidate => candidate.name === saved.name);
+      if (!piece) continue;
+      setPieceInTray(piece, saved.inTray);
+      if (saved.inTray) continue;
+      piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      piece.body.setTranslation({ x: saved.position[0], y: saved.position[1], z: saved.position[2] }, true);
+      piece.body.setRotation({ x: saved.rotation[0], y: saved.rotation[1], z: saved.rotation[2], w: saved.rotation[3] }, true);
+      piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      piece.body.wakeUp();
+      piece.targetPosition.set(...saved.position);
+      piece.controlPosition.set(...saved.position);
+      piece.targetRotation.set(...saved.rotation);
+      piece.controlRotation.set(...saved.rotation);
+      setPieceCarryFriction(piece, false);
+      setPieceEdges(piece, restingEdgeMaterial(piece));
+    }
+
+    clearSnapGuide();
+    clearChallengeMarks(true);
+    updateSelectionUI();
+    updatePartsTray();
+    setInstruction('undone');
+  }
+
+  function undoLastAction() {
+    const snapshot = undoStack.pop();
+    if (!snapshot) return;
+    restoreBoardState(snapshot);
+    updateUndoUI();
   }
 
   function hideChallengeSuccess() {
@@ -1128,6 +1202,7 @@ Promise.all([
     for (const button of [turnButton, upButton, downButton]) {
       if (button) button.disabled = !enabled;
     }
+    if (returnButton) returnButton.disabled = !enabled;
   }
 
   function setPieceCarryFriction(piece, carrying) {
@@ -1496,7 +1571,7 @@ Promise.all([
       setPieceEdges(item.piece, item.piece === hovered ? hoverMaterial : heldMaterial);
     }
 
-    setInstruction('held 8s · add a counterbalance');
+    setInstruction('held 10s · add a counterbalance');
   }
 
   function updateHolds(now) {
@@ -1523,6 +1598,7 @@ Promise.all([
 
   function alignTouchingCluster(root) {
     if (!root || clusterSettle) return;
+    pushUndoState();
     if (selected) releaseSelected(false);
     setHover(null);
 
@@ -1731,9 +1807,15 @@ Promise.all([
     piece.controlPosition.copy(target);
     piece.spawning = false;
     for (const collider of piece.colliders) collider.setEnabled(true);
+    setPieceCarryFriction(piece, false);
+    piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+    piece.body.setLinvel({ x: 0, y: -.2, z: 0 }, true);
+    piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+    piece.body.wakeUp();
+    setPieceEdges(piece, restingEdgeMaterial(piece));
     spawnMotion = null;
-    selectPiece(piece);
-    setInstruction('move · turn · release to place');
+    setInstruction('tap and drag · double-tap holds 10s');
+    updateSelectionUI();
     updatePartsTray();
   }
 
@@ -1756,11 +1838,12 @@ Promise.all([
     const piece = pieces.find(candidate => candidate.inTray && pieceFamily(candidate.name) === family);
     if (!piece) return;
     if (selected) releaseSelected();
+    pushUndoState();
 
     const target = findMobileStagingPosition(piece);
-    target.y = suggestedCarryHeight(piece, target.x, target.z, target.y);
+    target.y = suggestedCarryHeight(piece, target.x, target.z, target.y) + .9;
     const start = target.clone();
-    start.y += 4.2;
+    start.y += 3.3;
     setPieceInTray(piece, false);
     piece.spawning = true;
     piece.body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased, true);
@@ -1785,6 +1868,7 @@ Promise.all([
     clusterSettle = null;
     spawnMotion = null;
     challengeComplete = false;
+    undoStack = [];
     holds = [];
     releaseSelected(false);
     disposePieces();
@@ -1890,6 +1974,7 @@ Promise.all([
     }
 
     updateSelectionUI();
+    updateUndoUI();
     updatePartsTray();
     setInstruction(DEFAULT_INSTRUCTION);
     refreshChallengeVisuals();
@@ -2004,6 +2089,7 @@ Promise.all([
   }
 
   function beginCarry(piece, event) {
+    mobileSelectionReleaseAt = 0;
     selectPiece(piece);
     const origin = piece.targetPosition.clone();
     carryPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), origin);
@@ -2023,7 +2109,8 @@ Promise.all([
       baseY: origin.y,
       levelOffset: 0,
       wheelAccumulator: 0,
-      carryIgnore: carriedSupports(piece, origin)
+      carryIgnore: carriedSupports(piece, origin),
+      undoSnapshot: captureBoardState()
     };
     stage.classList.add('is-dragging');
   }
@@ -2040,8 +2127,27 @@ Promise.all([
       stage.classList.remove('is-dragging');
       releaseCapture(event.pointerId);
       stage.focus({ preventScroll: true });
-      if (cancelled || carried.moved) releaseSelected(!cancelled);
-      else if (snapCandidate) setInstruction('drag to place · release on the outline');
+      if (cancelled || carried.moved) {
+        lastTouchTap = null;
+        mobileSelectionReleaseAt = 0;
+        if (!cancelled && carried.moved) pushUndoState(carried.undoSnapshot);
+        releaseSelected(!cancelled);
+      } else if (event.pointerType !== 'mouse') {
+        const now = performance.now();
+        const isDoubleTap = lastTouchTap
+          && lastTouchTap.piece === carried.piece
+          && now - lastTouchTap.at <= DOUBLE_TAP_WINDOW
+          && Math.hypot(event.clientX - lastTouchTap.x, event.clientY - lastTouchTap.y) <= DOUBLE_TAP_DISTANCE;
+        if (isDoubleTap) {
+          lastTouchTap = null;
+          mobileSelectionReleaseAt = 0;
+          alignTouchingCluster(carried.piece);
+        } else {
+          lastTouchTap = { piece: carried.piece, at: now, x: event.clientX, y: event.clientY };
+          mobileSelectionReleaseAt = now + MOBILE_SELECTION_RELEASE;
+          setInstruction('selected · drag, rotate or lift');
+        }
+      } else if (snapCandidate) setInstruction('drag to place · release on the outline');
       else setInstruction('turn · lift · drag near a block');
       return;
     }
@@ -2177,13 +2283,16 @@ Promise.all([
 
   function rotateSelected() {
     if (!selected) return;
+    pushUndoState();
     const turn = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
     turn.multiply(selected.controlRotation).normalize();
     selected.controlRotation.copy(turn);
+    if (mobilePartsMode) mobileSelectionReleaseAt = performance.now() + 900;
   }
 
   function liftSelected(direction) {
     if (!selected) return;
+    pushUndoState();
     if (active) {
       active.levelOffset = THREE.MathUtils.clamp(active.levelOffset + direction * GRID, -12, 12);
       refreshActiveCarryHeight();
@@ -2193,12 +2302,55 @@ Promise.all([
       selected.halfHeight + FLOOR_LEVEL,
       selected.controlPosition.y + direction * GRID
     );
+    if (mobilePartsMode) mobileSelectionReleaseAt = performance.now() + 900;
+  }
+
+  function updateMobileSelectionRelease(now) {
+    if (!mobileSelectionReleaseAt || now < mobileSelectionReleaseAt) return;
+    if (!mobilePartsMode || !selected || active || clusterSettle || spawnMotion) return;
+    mobileSelectionReleaseAt = 0;
+    releaseSelected();
   }
 
   function moveSelected(x, z) {
     if (!selected) return;
+    pushUndoState();
     selected.controlPosition.x = THREE.MathUtils.clamp(selected.controlPosition.x + x * GRID, -19, 19);
     selected.controlPosition.z = THREE.MathUtils.clamp(selected.controlPosition.z + z * GRID, -18, 17);
+  }
+
+  function returnSelected() {
+    if (!selected) return;
+    pushUndoState();
+    const piece = selected;
+    selected = null;
+    active = null;
+    mobileSelectionReleaseAt = 0;
+    clearSnapGuide();
+    stage.classList.remove('is-dragging');
+
+    if (mobilePartsMode) {
+      setPieceInTray(piece, true);
+    } else {
+      if (piece.hold) releaseHold(piece.hold);
+      setPieceCarryFriction(piece, false);
+      piece.body.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+      piece.body.setTranslation(piece.homePosition, true);
+      piece.body.setRotation(piece.homeRotation, true);
+      piece.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      piece.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      piece.body.wakeUp();
+      piece.targetPosition.copy(piece.homePosition);
+      piece.controlPosition.copy(piece.homePosition);
+      piece.targetRotation.copy(piece.homeRotation);
+      piece.controlRotation.copy(piece.homeRotation);
+      setPieceEdges(piece, restingEdgeMaterial(piece));
+    }
+
+    clearChallengeMarks(true);
+    updateSelectionUI();
+    updatePartsTray();
+    setInstruction(`${pieceFamily(piece.name)} returned`);
   }
 
   function toggleView() {
@@ -2215,6 +2367,8 @@ Promise.all([
   turnButton?.addEventListener('click', rotateSelected);
   upButton?.addEventListener('click', () => liftSelected(1));
   downButton?.addEventListener('click', () => liftSelected(-1));
+  returnButton?.addEventListener('click', returnSelected);
+  undoButton?.addEventListener('click', undoLastAction);
   viewButton?.addEventListener('click', toggleView);
   again?.addEventListener('click', rebuild);
   challengeButtons.forEach(button => {
@@ -2389,6 +2543,7 @@ Promise.all([
     accumulator += delta;
     updateOrbit(delta);
     updateSpawnMotion(now);
+    updateMobileSelectionRelease(now);
     updateCarry(delta);
     updateSelectedControls(delta);
     updateClusterSettle(delta);
