@@ -111,3 +111,22 @@ test('the existing SuDu template shell stays intact', async () => {
   assert.match(css, /html\.dm:not\(\.dmwarm\) \{ --paper: #121110; \}/);
 });
 
+test('mobile uses a five-part master bar with collapsible tool sheets', async () => {
+  const script = await readFile(scriptUrl, 'utf8');
+  const page = await readFile(pageUrl, 'utf8');
+  const css = await readFile(cssUrl, 'utf8');
+
+  assert.match(page, /class="mobile-master-bar"[^>]+aria-label="Main drawing tools"/);
+  assert.equal((page.match(/data-mobile-menu="(draw|add|more)"/g) || []).length, 3);
+  assert.match(page, /data-mobile-tool="edit"/);
+  assert.match(page, /data-mobile-action="undo"/);
+  assert.match(page, /data-mobile-panel="draw"/);
+  assert.match(page, /data-mobile-panel="add"/);
+  assert.match(page, /data-mobile-panel="more"/);
+  assert.match(script, /function openMobilePanel\(name\)/);
+  assert.match(script, /function closeMobilePanels\(\)/);
+  assert.match(script, /function syncMobileControls\(\)/);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]+\.mobile-master-bar/);
+  assert.match(css, /grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.sketch-toolbar,[\s\S]+\.sketch-workspace-footer \{ display: none; \}/);
+});

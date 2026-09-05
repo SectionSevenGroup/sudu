@@ -356,6 +356,9 @@ html.xh * { cursor: none !important; }
 .sketch-toolbar button:first-child.is-active::after { left: 0; }
 button:disabled { cursor: default !important; opacity: .28; }
 
+.mobile-sketch-ui,
+.mobile-sheet-close { display: none; }
+
 .stencil-panel {
   display: flex;
   align-items: stretch;
@@ -803,34 +806,187 @@ html.dm .sketch-header {
   background: color-mix(in srgb, var(--dm-bg, var(--paper)) 90%, transparent);
 }
 @media (max-width: 760px) {
+  body { padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
   .sketch-main { padding-top: 120px; }
   .sketch-intro-grid { grid-template-columns: 1fr; gap: 24px; }
   .sketch-intro h1 { font-size: clamp(46px, 16vw, 76px); }
   .sketch-intro p { max-width: 34ch; }
-  .sketch-context-bar { align-items: stretch; flex-direction: column; gap: 0; padding: 7px 0; }
-  .floor-tabs, .floor-references { min-height: 38px; width: 100%; }
-  .floor-references { border-top: .5px solid var(--rule); }
-  .trace-bar { overflow: hidden; }
+  .sketch-context-bar {
+    display: block;
+    min-height: 44px;
+    padding: 0;
+    border-bottom-color: var(--rule-strong);
+  }
+  .floor-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    min-height: 44px;
+    overflow: visible;
+  }
+  .floor-tabs .context-label,
+  .floor-references { display: none; }
+  .sketch-context-bar .floor-button {
+    min-height: 44px;
+    padding: 0 8px;
+    text-align: center;
+  }
+  .sketch-context-bar .floor-button + .floor-button { border-left: .5px solid var(--rule); }
+  .sketch-context-bar .floor-button.is-active::after { right: 18px; bottom: 8px; left: 18px; }
+  .sketch-context-bar .floor-button:first-of-type.is-active::after { left: 18px; }
+
+  .sketch-toolbar,
+  .sketch-workspace-footer { display: none; }
+
+  .trace-bar {
+    position: fixed;
+    z-index: 10001;
+    right: 0;
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    display: none;
+    align-items: stretch;
+    min-height: 62px;
+    max-height: min(46svh, 360px);
+    padding: 0 var(--sudu-inset);
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-top: .5px solid var(--rule-strong);
+    border-bottom: .5px solid var(--rule-strong);
+    background: color-mix(in srgb, var(--paper) 96%, transparent);
+    box-shadow: 0 -12px 36px color-mix(in srgb, var(--ink) 9%, transparent);
+    backdrop-filter: blur(14px);
+  }
+  .trace-bar.is-mobile-open { display: flex; }
   .trace-bar > .context-label { display: none; }
-  .trace-opacity, .trace-copy, .trace-order { display: none; }
+  .trace-layers { flex: 1 0 auto; overflow-x: visible; }
+  .trace-layer button { min-height: 60px; }
+  .trace-opacity { width: 48px; }
+  .trace-copy, .trace-order { display: none; }
   .trace-import { margin-left: 0; }
-  .sketch-toolbar { align-items: stretch; flex-direction: column; gap: 0; padding: 8px 0; }
-  .sketch-tools, .sketch-actions { overflow-x: auto; }
-  .sketch-toolbar button { flex: 0 0 auto; padding-top: 12px; padding-bottom: 12px; }
-  .sketch-toolbar button.is-active::after { bottom: 5px; }
-  .stencil-panel { flex-wrap: wrap; min-height: 0; }
+  .mobile-sheet-close {
+    display: block;
+    min-height: 60px;
+    padding-right: 0 !important;
+    padding-left: 14px !important;
+    color: var(--ink) !important;
+  }
+
+  .mobile-sketch-ui { display: block; }
+  .mobile-master-bar {
+    position: fixed;
+    z-index: 10002;
+    right: 0;
+    bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    height: 58px;
+    padding: 0 var(--sudu-inset);
+    border-top: .5px solid var(--rule-strong);
+    background: color-mix(in srgb, var(--paper) 95%, transparent);
+    box-shadow: 0 -8px 28px color-mix(in srgb, var(--ink) 7%, transparent);
+    backdrop-filter: blur(14px);
+  }
+  .mobile-master-bar button {
+    position: relative;
+    min-width: 0;
+    padding: 0 5px;
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 650;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .mobile-master-bar button + button { border-left: .5px solid var(--rule); }
+  .mobile-master-bar button.is-active { color: var(--ink); }
+  .mobile-master-bar button.is-active::after {
+    position: absolute;
+    right: 16px;
+    bottom: 8px;
+    left: 16px;
+    height: 1px;
+    background: var(--accent);
+    content: '';
+  }
+
+  .mobile-tool-sheet {
+    position: fixed;
+    z-index: 10001;
+    right: 0;
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    border-top: .5px solid var(--rule-strong);
+    border-bottom: .5px solid var(--rule-strong);
+    background: color-mix(in srgb, var(--paper) 96%, transparent);
+    box-shadow: 0 -12px 36px color-mix(in srgb, var(--ink) 9%, transparent);
+    backdrop-filter: blur(14px);
+  }
+  .mobile-tool-sheet[hidden] { display: none; }
+  .mobile-tool-panel {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-height: min(44svh, 340px);
+    overflow-y: auto;
+  }
+  .mobile-tool-panel[hidden] { display: none; }
+  .mobile-panel-label {
+    grid-column: 1 / -1;
+    padding: 11px var(--sudu-inset) 8px;
+    border-bottom: .5px solid var(--rule);
+    color: var(--faint);
+    font-size: 8px;
+    font-weight: 650;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .mobile-tool-panel button {
+    position: relative;
+    min-height: 50px;
+    padding: 8px 5px;
+    color: var(--muted);
+    font-size: 8.5px;
+    font-weight: 650;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+  .mobile-tool-panel button + button { border-left: .5px solid var(--rule); }
+  .mobile-tool-panel button:nth-of-type(n + 5) { border-top: .5px solid var(--rule); }
+  .mobile-tool-panel button.is-active { color: var(--ink); }
+  .mobile-tool-panel button.is-active::after {
+    position: absolute;
+    right: 15px;
+    bottom: 7px;
+    left: 15px;
+    height: 1px;
+    background: var(--accent);
+    content: '';
+  }
+
+  .stencil-panel {
+    position: fixed;
+    z-index: 10003;
+    right: 0;
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    flex-wrap: wrap;
+    min-height: 0;
+    max-height: min(58svh, 430px);
+    overflow-y: auto;
+    border-top: .5px solid var(--rule-strong);
+    background: color-mix(in srgb, var(--paper) 97%, transparent);
+    box-shadow: 0 -12px 36px color-mix(in srgb, var(--ink) 9%, transparent);
+    backdrop-filter: blur(14px);
+  }
   .stencil-panel > .context-label { display: none; }
   .stencil-categories { width: 100%; min-height: 40px; border-right: 0; border-bottom: .5px solid var(--rule); }
   .stencil-categories button { flex: 1 1 0; min-width: 0; }
   .stencil-choices { order: 2; width: 100%; border-top: .5px solid var(--rule); }
   .stencil-options { flex: 1 1 auto; border-left: .5px solid var(--rule); }
   .stencil-panel button { min-height: 42px; }
-  .draw-stage { height: 64svh; min-height: 440px; }
+  .draw-stage { height: max(420px, calc(100svh - 154px)); min-height: 0; }
   .draw-scale { bottom: 48px; }
   .sketch-ruler { width: min(68vw, 320px); }
-  .sketch-workspace-footer { align-items: flex-start; flex-direction: column; gap: 0; padding-top: 12px; }
-  .sketch-workspace-footer p { min-height: 22px; }
-  .sketch-workspace-footer > div { width: 100%; justify-content: flex-end; }
   .send-fields--two { grid-template-columns: 1fr; }
   .send-submit { align-items: flex-start; flex-direction: column; }
 }
@@ -841,7 +997,7 @@ html.dm .sketch-header {
   .sketch-header nav { gap: 14px; }
   .sketch-header nav a { font-size: 12px; }
   .sketch-main { padding-top: 104px; }
-  .draw-stage { min-height: 400px; }
+  .draw-stage { min-height: 0; }
   .sketch-footer { align-items: flex-start; flex-direction: column; }
 }
 

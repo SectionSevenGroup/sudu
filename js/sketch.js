@@ -36,6 +36,13 @@
   document.querySelectorAll('[data-action]').forEach(function (button) {
     actionButtons[button.getAttribute('data-action')] = button;
   });
+  var mobileUi = document.getElementById('mobileSketchUi');
+  var mobileSheet = document.getElementById('mobileToolSheet');
+  var mobileMenuButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-menu]'));
+  var mobileToolButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-tool]'));
+  var mobileActionButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-action]'));
+  var mobilePanels = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-panel]'));
+  var mobileOpenPanel = '';
 
   var INK = '#171613';
   var PAPER = '#F3F1EA';
@@ -354,6 +361,7 @@
     actionButtons.ruler.classList.toggle('is-active', rulerState.visible);
     actionButtons.ruler.setAttribute('aria-pressed', rulerState.visible ? 'true' : 'false');
     updateWorkspaceControls();
+    syncMobileControls();
   }
 
   function renderTraceControls() {
@@ -1515,7 +1523,66 @@
       button.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     updateStencilPanel();
+    syncMobileControls();
     render();
+  }
+
+  function closeMobilePanels() {
+    mobileOpenPanel = '';
+    if (mobileSheet) mobileSheet.hidden = true;
+    mobilePanels.forEach(function (panel) { panel.hidden = true; });
+    mobileMenuButtons.forEach(function (button) { button.setAttribute('aria-expanded', 'false'); });
+    var traceBar = document.querySelector('.trace-bar');
+    if (traceBar) traceBar.classList.remove('is-mobile-open');
+    syncMobileControls();
+  }
+
+  function openMobilePanel(name) {
+    var traceBar = document.querySelector('.trace-bar');
+    if (traceBar) traceBar.classList.remove('is-mobile-open');
+    if (mobileOpenPanel === name && mobileSheet && !mobileSheet.hidden) {
+      closeMobilePanels();
+      return;
+    }
+    mobileOpenPanel = name;
+    if (mobileSheet) mobileSheet.hidden = false;
+    mobilePanels.forEach(function (panel) {
+      panel.hidden = panel.getAttribute('data-mobile-panel') !== name;
+    });
+    mobileMenuButtons.forEach(function (button) {
+      button.setAttribute('aria-expanded', button.getAttribute('data-mobile-menu') === name ? 'true' : 'false');
+    });
+    syncMobileControls();
+  }
+
+  function openMobileLayers() {
+    var traceBar = document.querySelector('.trace-bar');
+    if (!traceBar) return;
+    var willOpen = !traceBar.classList.contains('is-mobile-open');
+    closeMobilePanels();
+    traceBar.classList.toggle('is-mobile-open', willOpen);
+  }
+
+  function syncMobileControls() {
+    if (!mobileUi) return;
+    var drawTools = ['pen', 'line', 'room', 'area'];
+    var addTools = ['door', 'window', 'note', 'stencil'];
+    mobileToolButtons.forEach(function (button) {
+      var on = button.getAttribute('data-mobile-tool') === tool;
+      button.classList.toggle('is-active', on);
+      button.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    mobileMenuButtons.forEach(function (button) {
+      var name = button.getAttribute('data-mobile-menu');
+      var ownsTool = (name === 'draw' && drawTools.indexOf(tool) !== -1) || (name === 'add' && addTools.indexOf(tool) !== -1);
+      button.classList.toggle('is-active', mobileOpenPanel === name || ownsTool);
+    });
+    mobileActionButtons.forEach(function (button) {
+      var name = button.getAttribute('data-mobile-action');
+      var source = actionButtons[name];
+      if (source) button.disabled = source.disabled;
+      button.classList.toggle('is-active', name === 'ruler' && rulerState.visible);
+    });
   }
 
   function closeNoteComposer() {
@@ -2394,6 +2461,34 @@
     });
   });
 
+  mobileMenuButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      openMobilePanel(button.getAttribute('data-mobile-menu'));
+    });
+  });
+  mobileToolButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var source = document.querySelector('.tool-button[data-tool="' + button.getAttribute('data-mobile-tool') + '"]');
+      if (source) source.click();
+      closeMobilePanels();
+    });
+  });
+  mobileActionButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var name = button.getAttribute('data-mobile-action');
+      if (name === 'layers') {
+        openMobileLayers();
+        return;
+      }
+      var source = actionButtons[name];
+      if (source && !source.disabled) source.click();
+      closeMobilePanels();
+    });
+  });
+  document.querySelectorAll('[data-mobile-close]').forEach(function (button) {
+    button.addEventListener('click', closeMobilePanels);
+  });
+
   stencilCategoryButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       chooseStencilCategory(button.getAttribute('data-stencil-category'));
@@ -2495,6 +2590,10 @@
 
   document.addEventListener('keydown', function (event) {
     if (event.target && /input|textarea/i.test(event.target.tagName)) return;
+    if (event.key === 'Escape' && (mobileOpenPanel || document.querySelector('.trace-bar.is-mobile-open'))) {
+      closeMobilePanels();
+      return;
+    }
     if (event.code === 'Space') {
       event.preventDefault();
       spaceHeld = true;

@@ -15,7 +15,7 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-<link rel="stylesheet" href="/css/sketch.css?v=sketch-v3">
+<link rel="stylesheet" href="/css/sketch.css?v=sketch-mobile-bar-v1">
 <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 </head>
 <body>
@@ -59,6 +59,7 @@
         <div id="traceLayers" class="trace-layers"></div>
         <button type="button" class="trace-import" data-action="import-underlay">Import trace</button>
         <button type="button" class="trace-add" data-action="add-trace" data-i18n="sketch.traceAdd">Trace +</button>
+        <button type="button" class="mobile-sheet-close" data-mobile-close="layers" aria-label="Close layers">Close</button>
       </div>
 
       <div class="sketch-toolbar" role="toolbar" aria-label="Drawing tools">
@@ -95,6 +96,49 @@
           <button type="button" class="stencil-style is-active" data-stencil-style="outline" aria-pressed="true" data-i18n="sketch.stencil.outline">Outline</button>
           <button type="button" class="stencil-style" data-stencil-style="solid" aria-pressed="false" data-i18n="sketch.stencil.solid">Solid black</button>
           <button type="button" data-action="rotate-template" aria-label="Rotate template 90 degrees" data-i18n="sketch.stencil.rotate">Rotate 90°</button>
+        </div>
+      </div>
+
+      <div id="mobileSketchUi" class="mobile-sketch-ui" aria-label="Mobile drawing controls">
+        <div id="mobileToolSheet" class="mobile-tool-sheet" hidden>
+          <div class="mobile-tool-panel" data-mobile-panel="draw" hidden>
+            <span class="mobile-panel-label">Draw</span>
+            <button type="button" data-mobile-tool="pen">Pen</button>
+            <button type="button" data-mobile-tool="line">Line</button>
+            <button type="button" data-mobile-tool="room">Room</button>
+            <button type="button" data-mobile-tool="area">Area</button>
+          </div>
+          <div class="mobile-tool-panel" data-mobile-panel="add" hidden>
+            <span class="mobile-panel-label">Add</span>
+            <button type="button" data-mobile-tool="door">Door</button>
+            <button type="button" data-mobile-tool="window">Window</button>
+            <button type="button" data-mobile-tool="note">Note</button>
+            <button type="button" data-mobile-tool="stencil">Templates</button>
+            <button type="button" data-mobile-action="import-underlay">Trace image</button>
+            <button type="button" data-mobile-action="add-trace">Trace +</button>
+          </div>
+          <div class="mobile-tool-panel" data-mobile-panel="more" hidden>
+            <span class="mobile-panel-label">More</span>
+            <button type="button" data-mobile-action="layers">Layers</button>
+            <button type="button" data-mobile-tool="erase">Erase</button>
+            <button type="button" data-mobile-action="ruler">Ruler</button>
+            <button type="button" data-mobile-action="redo">Redo</button>
+            <button type="button" data-mobile-action="reference-below">Ghost below</button>
+            <button type="button" data-mobile-action="reference-above">Ghost above</button>
+            <button type="button" data-mobile-action="fit-view">Fit</button>
+            <button type="button" data-mobile-action="open-project">Open</button>
+            <button type="button" data-mobile-action="save">Save</button>
+            <button type="button" data-mobile-action="screenshot">Screenshot</button>
+            <button type="button" data-mobile-action="pdf">PDF</button>
+            <button type="button" data-mobile-action="clear">Clear</button>
+          </div>
+        </div>
+        <div class="mobile-master-bar" role="toolbar" aria-label="Main drawing tools">
+          <button type="button" class="is-active" data-mobile-menu="draw" aria-expanded="false">Draw</button>
+          <button type="button" data-mobile-tool="edit">Edit</button>
+          <button type="button" data-mobile-menu="add" aria-expanded="false">Add</button>
+          <button type="button" data-mobile-action="undo" disabled>Undo</button>
+          <button type="button" data-mobile-menu="more" aria-expanded="false">More</button>
         </div>
       </div>
 
@@ -196,6 +240,6 @@
   <script src="/i18n.js?v=cbd5fce2" defer></script>
   <script src="/js/audio-player.js?v=5e49f639" defer></script>
   <script type="module" src="/js/haptics.js?v=c60c698e"></script>
-  <script src="/js/sketch.js?v=sketch-v3" defer></script>
+  <script src="/js/sketch.js?v=sketch-mobile-bar-v1" defer></script>
 </body>
 </html>
