@@ -120,6 +120,7 @@ test('Sketch is standalone at every width with top-left undo and mobile tool she
   assert.equal((page.match(/data-mobile-menu="(draw|add|more)"/g) || []).length, 3);
   assert.match(page, /data-mobile-tool="edit"/);
   assert.match(page, /class="mobile-undo-top"[^>]+data-mobile-action="undo"/);
+  assert.match(page, /class="sketch-product-header"[\s\S]+alt="SuDu"[\s\S]+class="sketch-product-name">Sketch</);
   assert.doesNotMatch(page, /mobile-master-bar[\s\S]{0,500}data-mobile-action="undo"/);
   assert.match(page, /data-mobile-panel="draw"/);
   assert.match(page, /data-mobile-panel="add"/);
@@ -132,5 +133,7 @@ test('Sketch is standalone at every width with top-left undo and mobile tool she
   assert.match(css, /#suduBar,[\s\S]+\.sketch-header,[\s\S]+\.sketch-intro,[\s\S]+\.sketch-footer \{ display: none !important; \}/);
   assert.match(css, /\.mobile-undo-top \{[\s\S]+display: block/);
   assert.match(css, /grid-template-columns: 76px minmax\(0, auto\) 1fr/);
+  assert.match(css, /\.sketch-product-header \{[\s\S]+min-height: 54px/);
+  assert.match(css, /\.mobile-master-bar button \{[\s\S]+font-weight: 750/);
   assert.match(css, /\.sketch-toolbar,[\s\S]+\.sketch-workspace-footer \{ display: none; \}/);
 });
