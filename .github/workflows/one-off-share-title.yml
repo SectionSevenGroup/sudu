@@ -19,8 +19,8 @@ jobs:
           fetch-depth: 0
 
       - name: Patch social share metadata only
-        shell: python
         run: |
+          python - <<'PY'
           from pathlib import Path
 
           path = Path('index.html')
@@ -48,6 +48,7 @@ jobs:
               text = text.replace(image_line, social_block, 1)
 
           path.write_text(text, encoding='utf-8')
+          PY
 
       - name: Commit metadata update
         run: |
