@@ -16,7 +16,7 @@ function state() {
     activeLayerState:()=>({locked:false}), clone:v=>JSON.parse(JSON.stringify(v)),
     makeObjectId:type=>type+'-test', ensureObjectId:o=>o,
     clamp:(n,a,b)=>Math.max(a,Math.min(b,n)), pointFromEvent:e=>e.point,
-    movePan:()=>false, endPan:()=>false, gesture:null, undoStack:[], redoStack:[],
+    movePan:()=>false, endPan:()=>false, openingCrossesCut:()=>false, gesture:null, undoStack:[], redoStack:[],
     closeNoteComposer(){}, scheduleSave(){}, updateActions(){}, updateStencilPanel(){}, toolHints:{edit:''}
   };
   s.remember=previous=>{s.undoStack.push(previous);s.redoStack.length=0;};
