@@ -38,6 +38,7 @@
   });
   var mobileUi = document.getElementById('mobileSketchUi');
   var mobileSheet = document.getElementById('mobileToolSheet');
+  var mobileToolsToggle = document.getElementById('sketchToolsToggle');
   var mobileMenuButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-menu]'));
   var mobileToolButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-tool]'));
   var mobileActionButtons = Array.prototype.slice.call(document.querySelectorAll('[data-mobile-action]'));
@@ -1529,6 +1530,7 @@
 
   function closeMobilePanels() {
     mobileOpenPanel = '';
+    if (mobileUi) mobileUi.classList.remove('is-tools-open');
     if (mobileSheet) mobileSheet.hidden = true;
     mobilePanels.forEach(function (panel) { panel.hidden = true; });
     mobileMenuButtons.forEach(function (button) { button.setAttribute('aria-expanded', 'false'); });
@@ -1545,6 +1547,7 @@
       return;
     }
     mobileOpenPanel = name;
+    if (mobileUi) mobileUi.classList.add('is-tools-open');
     if (mobileSheet) mobileSheet.hidden = false;
     mobilePanels.forEach(function (panel) {
       panel.hidden = panel.getAttribute('data-mobile-panel') !== name;
@@ -1561,10 +1564,15 @@
     var willOpen = !traceBar.classList.contains('is-mobile-open');
     closeMobilePanels();
     traceBar.classList.toggle('is-mobile-open', willOpen);
+    syncMobileControls();
   }
 
   function syncMobileControls() {
     if (!mobileUi) return;
+    if (mobileToolsToggle) {
+      var isOpen = !!mobileOpenPanel || !!document.querySelector('.trace-bar.is-mobile-open') || !stencilPanel.hidden;
+      mobileToolsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
     var drawTools = ['pen', 'line', 'room', 'area'];
     var addTools = ['door', 'window', 'note', 'stencil'];
     mobileToolButtons.forEach(function (button) {
@@ -2461,6 +2469,15 @@
     });
   });
 
+  if (mobileToolsToggle) mobileToolsToggle.addEventListener('click', function () {
+    if (mobileToolsToggle.getAttribute('aria-expanded') === 'true') {
+      stencilPanel.hidden = true;
+      closeMobilePanels();
+    } else {
+      openMobilePanel('draw');
+    }
+  });
+
   mobileMenuButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       openMobilePanel(button.getAttribute('data-mobile-menu'));
@@ -2590,7 +2607,8 @@
 
   document.addEventListener('keydown', function (event) {
     if (event.target && /input|textarea/i.test(event.target.tagName)) return;
-    if (event.key === 'Escape' && (mobileOpenPanel || document.querySelector('.trace-bar.is-mobile-open'))) {
+    if (event.key === 'Escape' && (mobileOpenPanel || document.querySelector('.trace-bar.is-mobile-open') || !stencilPanel.hidden)) {
+      stencilPanel.hidden = true;
       closeMobilePanels();
       return;
     }

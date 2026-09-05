@@ -111,7 +111,52 @@ test('the existing SuDu template shell stays intact', async () => {
   assert.match(css, /html\.dm:not\(\.dmwarm\) \{ --paper: #121110; \}/);
 });
 
-test('Sketch is standalone at every width with top-left undo and mobile tool sheets', async () => {
+test('mobile menu state opens, switches and closes without changing drawing state', async () => {
+  const { runInNewContext } = await import('node:vm');
+  const script = await readFile(scriptUrl, 'utf8');
+  const element = (attrs = {}) => {
+    const classes = new Set();
+    return {
+      hidden: true, disabled: false,
+      getAttribute: key => attrs[key],
+      setAttribute: (key, value) => { attrs[key] = value; },
+      classList: {
+        add: key => classes.add(key), remove: key => classes.delete(key),
+        contains: key => classes.has(key),
+        toggle(key, on) { if (on) classes.add(key); else classes.delete(key); }
+      }
+    };
+  };
+  const traceBar = element();
+  const state = {
+    mobileOpenPanel: '', mobileUi: element(), mobileSheet: element(),
+    mobileToolsToggle: element(), stencilPanel: element(), tool: 'pen',
+    mobilePanels: ['draw', 'add', 'more'].map(name => element({ 'data-mobile-panel': name })),
+    mobileMenuButtons: ['draw', 'add', 'more'].map(name => element({ 'data-mobile-menu': name })),
+    mobileToolButtons: [], mobileActionButtons: [], actionButtons: {}, rulerState: { visible: false },
+    document: { querySelector: selector => selector === '.trace-bar' || traceBar.classList.contains('is-mobile-open') ? traceBar : null }
+  };
+  runInNewContext(script.slice(script.indexOf('  function closeMobilePanels()'), script.indexOf('  function closeNoteComposer()')), state);
+  state.openMobilePanel('draw');
+  assert.equal(state.mobileToolsToggle.getAttribute('aria-expanded'), 'true');
+  assert.equal(state.mobileUi.classList.contains('is-tools-open'), true);
+  assert.equal(state.mobilePanels[0].hidden, false);
+  state.openMobilePanel('add');
+  assert.equal(state.mobilePanels[0].hidden, true);
+  assert.equal(state.mobilePanels[1].hidden, false);
+  state.closeMobilePanels();
+  assert.equal(state.mobileToolsToggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(state.mobileUi.classList.contains('is-tools-open'), false);
+  assert.equal(state.mobileSheet.hidden, true);
+  state.openMobileLayers();
+  assert.equal(traceBar.classList.contains('is-mobile-open'), true);
+  assert.equal(state.mobileToolsToggle.getAttribute('aria-expanded'), 'true');
+  state.closeMobilePanels();
+  assert.equal(traceBar.classList.contains('is-mobile-open'), false);
+  assert.equal(state.tool, 'pen');
+});
+
+test('Sketch preserves desktop SuDu chrome and uses a mobile tools pill with top menus', async () => {
   const script = await readFile(scriptUrl, 'utf8');
   const page = await readFile(pageUrl, 'utf8');
   const css = await readFile(cssUrl, 'utf8');
@@ -130,10 +175,18 @@ test('Sketch is standalone at every width with top-left undo and mobile tool she
   assert.match(script, /function syncMobileControls\(\)/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]+\.mobile-master-bar/);
   assert.match(css, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
-  assert.match(css, /#suduBar,[\s\S]+\.sketch-header,[\s\S]+\.sketch-intro,[\s\S]+\.sketch-footer \{ display: none !important; \}/);
+  const desktopCss = css.split('@media (max-width: 760px)')[0];
+  assert.doesNotMatch(desktopCss, /\.sketch-header[^{}]*\{[^}]*display:\s*none/);
+  assert.doesNotMatch(css, /#suduBar[^{}]*\{[^}]*display:\s*none/);
+  assert.match(css, /html #suduBar #musicPill \{[^}]*position: fixed !important;[^}]*top:/);
+  assert.match(css, /html #suduBar \{[^}]*backdrop-filter: none/);
+  assert.match(css, /\.mobile-master-bar \{[^}]*top: var\(--sketch-menu-top\)/);
+  assert.match(css, /\.mobile-tool-sheet \{[^}]*top: calc\(var\(--sketch-menu-top\) \+ 44px\)/);
+  assert.match(page, /id="sketchToolsToggle"[^>]*aria-expanded="false"[^>]*>Tools<\/button>/);
+  assert.match(css, /\.sketch-tools-pill \{[^}]*border-radius: 999px/);
   assert.match(css, /\.mobile-undo-top \{[\s\S]+display: block/);
   assert.match(css, /grid-template-columns: 76px minmax\(0, auto\) 1fr/);
   assert.match(css, /\.sketch-product-header \{[\s\S]+min-height: 54px/);
-  assert.match(css, /\.mobile-master-bar button \{[\s\S]+font-weight: 750/);
+  assert.match(css, /\.mobile-master-bar button \{[^}]*font-weight: 600/);
   assert.match(css, /\.sketch-toolbar,[\s\S]+\.sketch-workspace-footer \{ display: none; \}/);
 });

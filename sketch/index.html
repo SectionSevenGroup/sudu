@@ -15,7 +15,7 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-<link rel="stylesheet" href="/css/sketch.css?v=sketch-product-header-v4">
+<link rel="stylesheet" href="/css/sketch.css?v=sketch-template-restored-v5">
 <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 </head>
 <body>
@@ -109,6 +109,7 @@
       </div>
 
       <div id="mobileSketchUi" class="mobile-sketch-ui" aria-label="Mobile drawing controls">
+        <button id="sketchToolsToggle" class="sketch-tools-pill" type="button" aria-expanded="false" aria-controls="mobileSketchMenus mobileToolSheet">Tools</button>
         <div id="mobileToolSheet" class="mobile-tool-sheet" hidden>
           <div class="mobile-tool-panel" data-mobile-panel="draw" hidden>
             <span class="mobile-panel-label">Draw</span>
@@ -142,7 +143,7 @@
             <button type="button" data-mobile-action="clear">Clear</button>
           </div>
         </div>
-        <div class="mobile-master-bar" role="toolbar" aria-label="Main drawing tools">
+        <div id="mobileSketchMenus" class="mobile-master-bar" role="toolbar" aria-label="Main drawing tools">
           <button type="button" class="is-active" data-mobile-menu="draw" aria-expanded="false">Draw</button>
           <button type="button" data-mobile-tool="edit">Edit</button>
           <button type="button" data-mobile-menu="add" aria-expanded="false">Add</button>
@@ -248,6 +249,6 @@
   <script src="/i18n.js?v=cbd5fce2" defer></script>
   <script src="/js/audio-player.js?v=5e49f639" defer></script>
   <script type="module" src="/js/haptics.js?v=c60c698e"></script>
-  <script src="/js/sketch.js?v=sketch-mobile-bar-v1" defer></script>
+  <script src="/js/sketch.js?v=sketch-template-restored-v5" defer></script>
 </body>
 </html>
