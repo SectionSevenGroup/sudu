@@ -1179,6 +1179,19 @@ html.dm .sketch-header {
 }
 
 /* Owner-approved compact Sketch composition. Shared site chrome is retained. */
+.sketch-compact-layout .shape-panel {
+  position:absolute; z-index:40; top:auto; bottom:120px; left:50%;
+  transform:translateX(-50%); width:min(520px,100%); max-height:min(50dvh,420px);
+  overflow:auto; background:var(--paper); border:.5px solid var(--rule-strong); padding:10px;
+}
+.sketch-compact-layout .shape-panel[hidden] { display:none; }
+.shape-choices,.shape-options { display:flex; flex-wrap:wrap; }
+.shape-options { border-top:.5px solid var(--rule); }
+.shape-panel button { position:relative; flex:1; min-height:44px; padding:7px; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+.shape-panel button[hidden] { display:none; }
+.shape-panel button[aria-pressed='true'] { color:var(--ink); }
+.shape-panel button[aria-pressed='true']::after { content:''; position:absolute; left:12px; right:12px; bottom:5px; height:1px; background:var(--ink); }
+.shape-panel p { margin:10px 6px 4px; color:var(--muted); font-size:12px; line-height:1.4; }
 .sketch-compact-layout .sketch-main { display:flex; flex-direction:column; min-height:100svh; height:100dvh; padding-top:110px; padding-bottom:var(--sudu-tool-footer); }
 .sketch-compact-layout .sketch-intro { flex:none; margin-bottom:22px; }
 .sketch-compact-layout .sketch-intro h1 { font-size:clamp(40px,4.8vw,68px); }

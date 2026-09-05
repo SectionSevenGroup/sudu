@@ -15,7 +15,7 @@
 <link rel="preload" as="font" type="font/woff2" href="/fonts/urbanist-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=4531729b">
 <link rel="stylesheet" href="/css/rail.css?v=da9bb6fd">
-  <link rel="stylesheet" href="/css/sketch.css?v=fb9c3082">
+  <link rel="stylesheet" href="/css/sketch.css?v=8b523e0d">
 <script src="/js/chrome-bar.js?v=4c274089" data-turbo-track="reload"></script>
 
 <link rel="stylesheet" href="/css/tool-footer.css?v=18366896">
@@ -119,6 +119,7 @@
         <button id="sketchToolsToggle" class="sketch-tools-pill" type="button" aria-expanded="false" aria-controls="mobileToolSheet">Add</button></div>
         <div id="mobileToolSheet" class="mobile-tool-sheet" hidden>
           <div class="mobile-tool-panel" data-mobile-panel="draw" hidden>
+            <button type="button" data-shape-open aria-expanded="false" aria-controls="shapePanel">Shapes</button>
             <button type="button" data-mobile-tool="area">Area</button>
             <button type="button" data-mobile-tool="door">Door</button>
             <button type="button" data-mobile-tool="window">Window</button>
@@ -128,6 +129,22 @@
             <button type="button" data-mobile-action="templates">Templates</button>
           </div>
         </div>
+      </div>
+
+      <div id="shapePanel" class="shape-panel" aria-label="Building shapes" hidden>
+        <div class="shape-choices" role="group" aria-label="Shape">
+          <button type="button" data-shape-kind="square" aria-pressed="false">Square</button>
+          <button type="button" data-shape-kind="rectangle" aria-pressed="true">Rectangle</button>
+          <button type="button" data-shape-kind="circle" aria-pressed="false">Circle</button>
+          <button type="button" data-shape-kind="arc" aria-pressed="false">Arc</button>
+        </div>
+        <div class="shape-options" role="group" aria-label="Shape appearance">
+          <button type="button" data-shape-style="outline" aria-pressed="true">Outline</button>
+          <button type="button" data-shape-style="solid" aria-pressed="false">Solid</button>
+          <button type="button" data-shape-flip hidden>Reverse arc</button>
+          <button type="button" data-shape-close aria-label="Close shapes">Close</button>
+        </div>
+        <p id="shapeHint">Choose a shape and drag on the grid. Edges act as wall outlines.</p>
       </div>
 
       <div id="drawStage" class="draw-stage" data-tool="pen">
@@ -221,6 +238,6 @@
   <script src="/i18n.js?v=4e0a934b" defer></script>
   <script src="/js/audio-player.js?v=fc5236c6" defer></script>
   <script type="module" src="/js/haptics.js?v=c60c698e"></script>
-  <script src="/js/sketch.js?v=cf4d134b" defer></script>
+  <script src="/js/sketch.js?v=b4608d46" defer></script>
 </body>
 </html>
