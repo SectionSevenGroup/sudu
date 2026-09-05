@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   patch-homepage-share-metadata:
-    if: github.event.head_commit.message == 'chore: one-off update share title'
+    if: "${{ github.event.head_commit.message == 'chore: one-off update share title' }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
