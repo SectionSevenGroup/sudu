@@ -984,7 +984,7 @@ html.dm .sketch-header {
   .stencil-choices { order: 2; width: 100%; border-top: .5px solid var(--rule); }
   .stencil-options { flex: 1 1 auto; border-left: .5px solid var(--rule); }
   .stencil-panel button { min-height: 42px; }
-  .draw-stage { height: calc(100svh - 116px); min-height: 520px; }
+  .draw-stage { height: max(420px, calc(100svh - 154px)); min-height: 0; }
   .draw-scale { bottom: 48px; }
   .sketch-ruler { width: min(68vw, 320px); }
   .send-fields--two { grid-template-columns: 1fr; }
@@ -997,7 +997,7 @@ html.dm .sketch-header {
   .sketch-header nav { gap: 14px; }
   .sketch-header nav a { font-size: 12px; }
   .sketch-main { padding-top: 104px; }
-  .draw-stage { min-height: 480px; }
+  .draw-stage { min-height: 0; }
   .sketch-footer { align-items: flex-start; flex-direction: column; }
 }
 
