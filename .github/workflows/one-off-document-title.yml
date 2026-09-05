@@ -1,6 +1,6 @@
 name: One-off homepage document title update
 
-on:
+"on":
   push:
     branches: [main]
     paths:
