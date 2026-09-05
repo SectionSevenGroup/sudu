@@ -497,12 +497,6 @@ button:disabled { cursor: default !important; opacity: .28; }
 }
 .stencil-options button { min-width: 76px; }
 
-.draw-stage[data-tool='stencil'] .draw-cursor {
-  width: 16px;
-  height: 16px;
-  border-radius: 0;
-}
-
 .draw-stage {
   position: relative;
   width: 100%;
@@ -548,34 +542,57 @@ button:disabled { cursor: default !important; opacity: .28; }
   z-index: 4;
   top: 0;
   left: 0;
-  width: 10px;
-  height: 10px;
-  border: .75px solid var(--ink);
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, -50%);
-  transition: width .18s ease, height .18s ease, opacity .12s ease;
 }
-
-.draw-stage[data-tool='erase'] .draw-cursor { width: 28px; height: 28px; }
-.draw-stage[data-tool='note'] .draw-cursor { width: 7px; height: 7px; background: var(--ink); }
-.draw-stage[data-tool='area'] .draw-cursor { width: 14px; height: 14px; border-radius: 0; }
-.draw-stage[data-tool='edit'] .draw-cursor {
-  width: 13px;
-  height: 13px;
-  border-radius: 0;
-  transform: translate(-50%, -50%) rotate(45deg);
+.draw-cursor.is-visible { display: block; opacity: 1; }
+.draw-cursor::before,
+.draw-cursor::after {
+  content: '';
+  position: absolute;
+  background: linear-gradient(to right, var(--ink) 0 13px, transparent 13px 19px, var(--ink) 19px);
+  width: 32px;
+  height: 1px;
+  left: 0;
+  top: 50%;
+}
+.draw-cursor::after { transform: rotate(90deg); }
+.draw-stage[data-tool='erase'] .draw-cursor {
+  width: 28px;
+  height: 28px;
+  border: .75px solid var(--ink);
+  border-radius: 50%;
 }
 .draw-stage[data-tool='pan'] .draw-cursor {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border-style: dashed;
+  border: .75px dashed var(--ink);
 }
+.draw-stage[data-tool='erase'] .draw-cursor::before,
+.draw-stage[data-tool='erase'] .draw-cursor::after,
+.draw-stage[data-tool='pan'] .draw-cursor::before,
+.draw-stage[data-tool='pan'] .draw-cursor::after { display: none; }
 .draw-stage[data-tool='pan'].is-panning .draw-cursor { transform: translate(-50%, -50%) scale(.76); }
-.draw-stage[data-tool='door'] .draw-cursor,
-.draw-stage[data-tool='window'] .draw-cursor { width: 8px; height: 8px; }
+.draw-measurements {
+  position: absolute;
+  z-index: 5;
+  max-width: calc(100% - 16px);
+  padding: 6px 9px;
+  border: .5px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+  pointer-events: none;
+}
+.draw-measurements[hidden] { display: none; }
 .draw-scale {
   position: absolute;
   z-index: 2;

@@ -7,6 +7,8 @@
 
   var ctx = canvas.getContext('2d');
   var cursor = document.getElementById('drawCursor');
+  var measurements = document.getElementById('drawMeasurements');
+  var paperPointer = { x: 0, y: 0, type: 'mouse', inside: false };
   var hint = document.getElementById('toolHint');
   var noteComposer = document.getElementById('noteComposer');
   var noteInput = document.getElementById('noteInput');
@@ -1394,6 +1396,67 @@
     }
   }
 
+  function formatFeet(feet) {
+    var inches = Math.round(Math.abs(feet) * 12);
+    return Math.floor(inches / 12) + '′' + (inches % 12 ? ' ' + (inches % 12) + '″' : '');
+  }
+
+  function measurementText(object) {
+    if (!object || !object.start || !object.end) return '';
+    // Model dimensions, independent of zoom, canvas size and screen density.
+    var x = Math.abs(object.end.x - object.start.x) * WORLD_DOTS_X * DOT_FEET;
+    var y = Math.abs(object.end.y - object.start.y) * WORLD_DOTS_Y * DOT_FEET;
+    if (object.type === 'line' || object.type === 'door' || object.type === 'window') {
+      return 'Length  ' + formatFeet(Math.hypot(x, y));
+    }
+    if (object.type === 'room' || object.type === 'area') {
+      return 'X  ' + formatFeet(x) + '\nY  ' + formatFeet(y) + '\nArea  ' + (Math.round(x * y * 10) / 10) + ' ft²';
+    }
+    return '';
+  }
+
+  function measurementPosition(point, width, height, touch) {
+    var x = point.x + 20;
+    var y = touch ? point.y - height - 48 : point.y + 20;
+    if (x + width > cssWidth - 8) x = point.x - width - 20;
+    if (y + height > cssHeight - 8) y = point.y - height - 20;
+    return {
+      x: clamp(x, 8, Math.max(8, cssWidth - width - 8)),
+      y: clamp(y, 8, Math.max(8, cssHeight - height - 8))
+    };
+  }
+
+  function updatePaperFeedback() {
+    var object = active || (resizeDrag && objects[resizeDrag.index]) || (moveDrag && objects[moveDrag.index]);
+    var text = !gesture && !panDrag ? measurementText(object) : '';
+    var point = paperPointer;
+    // Put the crosshair exactly on the preview, including snapped and ruler-
+    // constrained endpoints, rather than following the unsnapped mouse.
+    if (active && active.end) point = screenPoint(active.end);
+    if (resizeDrag && object && object.end) {
+      point = screenPoint(object[resizeDrag.handle] || object.end);
+    }
+    cursor.style.left = point.x + 'px';
+    cursor.style.top = point.y + 'px';
+    cursor.classList.toggle('is-visible', paperPointer.inside && !gesture &&
+      (paperPointer.type !== 'touch' || Boolean(object)));
+    if (!measurements) return;
+    measurements.hidden = !text;
+    if (!text) return;
+    if (measurements.textContent !== text) measurements.textContent = text;
+    var position = measurementPosition(point, measurements.offsetWidth, measurements.offsetHeight, paperPointer.type === 'touch');
+    measurements.style.left = position.x + 'px';
+    measurements.style.top = position.y + 'px';
+  }
+
+  function trackPaperPointer(event) {
+    var point = pointerScreen(event);
+    paperPointer = {
+      x: point.x, y: point.y, type: event.pointerType || 'mouse',
+      inside: event.target === canvas && point.x >= 0 && point.x <= cssWidth && point.y >= 0 && point.y <= cssHeight
+    };
+  }
+
   function render() {
     if (!cssWidth || !cssHeight) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1405,6 +1468,7 @@
     ctx.scale(camera.scale, camera.scale);
     drawScene(ctx, WORLD_WIDTH, WORLD_HEIGHT, true);
     ctx.restore();
+    updatePaperFeedback();
   }
 
   function selectedStencilObject() {
@@ -1907,7 +1971,8 @@
       previous: previous,
       changed: false
     };
-    setHint('Drag the anchor. It snaps to the 2′ dot grid.');
+    setHint('Drag the anchor. It snaps to the 1′ dot grid.');
+    updatePaperFeedback();
   }
 
   function beginEdit(event) {
@@ -1968,7 +2033,7 @@
       changed: false
     };
     updateStencilPanel();
-    setHint('Drag to move. Release to snap to the 2′ grid.');
+    setHint('Drag to move. Release to snap to the 1′ grid.');
     render();
   }
 
@@ -2067,6 +2132,7 @@
     canvas.setPointerCapture(event.pointerId);
     panDrag = { pointerId: event.pointerId, x: point.x, y: point.y, cameraX: camera.x, cameraY: camera.y };
     stage.classList.add('is-panning');
+    updatePaperFeedback();
   }
 
   function movePan(event) {
@@ -2100,11 +2166,14 @@
       worldX: (centre.x - camera.x) / camera.scale,
       worldY: (centre.y - camera.y) / camera.scale
     };
+    var edit = resizeDrag || moveDrag;
+    if (edit) setObjects(edit.previous);
     active = null;
     resizeDrag = null;
     moveDrag = null;
     panDrag = null;
     stage.classList.add('is-panning');
+    render();
   }
 
   function moveGesture() {
@@ -2124,6 +2193,7 @@
   }
 
   function onPointerDown(event) {
+    trackPaperPointer(event);
     if (event.pointerType === 'touch') {
       pointers.set(event.pointerId, pointerScreen(event));
       if (pointers.size >= 2) {
@@ -2178,6 +2248,7 @@
   }
 
   function onPointerMove(event) {
+    trackPaperPointer(event);
     if (event.pointerType === 'touch' && pointers.has(event.pointerId)) {
       pointers.set(event.pointerId, pointerScreen(event));
       if (moveGesture()) return;
@@ -2230,6 +2301,22 @@
       remember(previous);
     }
     active = null;
+    render();
+  }
+
+  function onPointerCancel(event) {
+    pointers.delete(event.pointerId);
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    // A cancelled preview is never a completed drawing or an undo step.
+    var edit = resizeDrag || moveDrag;
+    if (edit) setObjects(edit.previous);
+    active = null;
+    resizeDrag = null;
+    moveDrag = null;
+    panDrag = null;
+    gesture = null;
+    paperPointer.inside = false;
+    stage.classList.remove('is-panning');
     render();
   }
 
@@ -2574,19 +2661,20 @@
   canvas.addEventListener('pointerdown', onPointerDown);
   canvas.addEventListener('pointermove', onPointerMove);
   canvas.addEventListener('pointerup', onPointerUp);
-  canvas.addEventListener('pointercancel', onPointerUp);
+  canvas.addEventListener('pointercancel', onPointerCancel);
   canvas.addEventListener('wheel', function (event) {
     event.preventDefault();
     var point = pointerScreen(event);
     zoomAt(camera.scale * Math.exp(-event.deltaY * 0.0015), point.x, point.y);
   }, { passive: false });
   stage.addEventListener('pointermove', function (event) {
-    var rect = stage.getBoundingClientRect();
-    cursor.style.left = (event.clientX - rect.left) + 'px';
-    cursor.style.top = (event.clientY - rect.top) + 'px';
+    trackPaperPointer(event);
+    updatePaperFeedback();
   }, { passive: true });
-  stage.addEventListener('pointerenter', function () { cursor.style.opacity = '1'; });
-  stage.addEventListener('pointerleave', function () { cursor.style.opacity = '0'; });
+  stage.addEventListener('pointerleave', function () {
+    paperPointer.inside = false;
+    updatePaperFeedback();
+  });
 
   rulerFace.addEventListener('pointerdown', function (event) { beginRulerDrag(event, 'move'); });
   rulerRotate.addEventListener('pointerdown', function (event) { beginRulerDrag(event, 'rotate'); });
